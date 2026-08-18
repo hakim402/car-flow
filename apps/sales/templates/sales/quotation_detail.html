@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{{ quotation }} — AUTOMEX CarFlow{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-4">
+    <h1 class="text-2xl font-semibold">{{ quotation }}</h1>
+    <form method="post" action="{% url 'sales:quotation_update_status' quotation.pk %}" class="flex items-center gap-2">
+        {% csrf_token %}
+        <label class="text-sm text-slate-500" for="quotation-status">{% translate "Status" %}</label>
+        <select id="quotation-status" name="status" class="rounded border border-slate-300 px-3 py-2 text-sm">
+            {% for value, label in statuses %}
+                <option value="{{ value }}" {% if value == quotation.status %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="rounded bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 text-sm">
+            {% translate "Update" %}
+        </button>
+    </form>
+</div>
+<div class="bg-white rounded-lg shadow p-6 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 text-sm">
+    <div><span class="text-slate-500">{% translate "Customer" %}:</span>
+        <a class="text-slate-700 hover:text-amber-600" href="{{ quotation.customer.get_absolute_url }}">
+            {{ quotation.customer }}
+        </a>
+    </div>
+    <div><span class="text-slate-500">{% translate "Vehicle" %}:</span>
+        {% if quotation.vehicle %}
+            <a class="text-slate-700 hover:text-amber-600" href="{{ quotation.vehicle.get_absolute_url }}">
+                {{ quotation.vehicle }}
+            </a>
+        {% else %}—{% endif %}
+    </div>
+    <div><span class="text-slate-500">{% translate "Amount" %}:</span>
+        <span class="font-semibold" dir="ltr">{{ quotation.amount }} {{ quotation.currency }}</span>
+    </div>
+    <div><span class="text-slate-500">{% translate "Valid until" %}:</span> {{ quotation.valid_until|date:"SHORT_DATE_FORMAT" }}</div>
+    <div><span class="text-slate-500">{% translate "Lead" %}:</span>
+        {% if quotation.lead %}
+            <a class="text-slate-700 hover:text-amber-600" href="{{ quotation.lead.get_absolute_url }}">{{ quotation.lead }}</a>
+        {% else %}—{% endif %}
+    </div>
+    <div><span class="text-slate-500">{% translate "Created" %}:</span> {{ quotation.created_at|date:"SHORT_DATE_FORMAT" }}</div>
+    {% if quotation.notes %}
+        <div class="sm:col-span-2"><span class="text-slate-500">{% translate "Notes" %}:</span> {{ quotation.notes|linebreaksbr }}</div>
+    {% endif %}
+</div>
+{% endblock %}

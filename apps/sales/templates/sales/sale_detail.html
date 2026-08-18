@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{{ sale }} — AUTOMEX CarFlow{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-4">
+    <h1 class="text-2xl font-semibold">{{ sale }}</h1>
+    <div class="flex items-center gap-2">
+        {% if can_complete %}
+            <form method="post" action="{% url 'sales:sale_complete' sale.pk %}">
+                {% csrf_token %}
+                <button type="submit"
+                        class="rounded bg-green-600 hover:bg-green-700 text-white px-4 py-2 text-sm">
+                    {% translate "Complete sale" %}
+                </button>
+            </form>
+        {% endif %}
+        {% if can_invoice %}
+            <form method="post" action="{% url 'sales:sale_issue_invoice' sale.pk %}">
+                {% csrf_token %}
+                <button type="submit"
+                        class="rounded bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 text-sm">
+                    {% translate "Issue invoice" %}
+                </button>
+            </form>
+        {% endif %}
+    </div>
+</div>
+<div class="bg-white rounded-lg shadow p-6 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 text-sm mb-6">
+    <div><span class="text-slate-500">{% translate "Customer" %}:</span>
+        <a class="text-slate-700 hover:text-amber-600" href="{{ sale.customer.get_absolute_url }}">{{ sale.customer }}</a>
+    </div>
+    <div><span class="text-slate-500">{% translate "Vehicle" %}:</span>
+        <a class="text-slate-700 hover:text-amber-600" href="{{ sale.vehicle.get_absolute_url }}">{{ sale.vehicle }}</a>
+    </div>
+    <div><span class="text-slate-500">{% translate "Agreed amount" %}:</span>
+        <span class="font-semibold" dir="ltr">{{ sale.agreed_amount }} {{ sale.currency }}</span>
+    </div>
+    <div><span class="text-slate-500">{% translate "Sale date" %}:</span> {{ sale.sale_date|date:"SHORT_DATE_FORMAT" }}</div>
+    <div><span class="text-slate-500">{% translate "Status" %}:</span> {{ sale.get_status_display }}</div>
+    <div><span class="text-slate-500">{% translate "Reservation" %}:</span>
+        {% if sale.reservation %}#{{ sale.reservation.pk }}{% else %}—{% endif %}
+    </div>
+    {% if sale.notes %}
+        <div class="sm:col-span-2"><span class="text-slate-500">{% translate "Notes" %}:</span> {{ sale.notes|linebreaksbr }}</div>
+    {% endif %}
+</div>
+
+<div class="bg-white rounded-lg shadow p-6">
+    <h2 class="text-lg font-semibold mb-3">{% translate "Invoice" %}</h2>
+    {% if invoice %}
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-x-8 gap-y-3 text-sm">
+            <div><span class="text-slate-500">{% translate "Number" %}:</span> <span class="font-mono">{{ invoice.number }}</span></div>
+            <div><span class="text-slate-500">{% translate "Issued on" %}:</span> {{ invoice.issued_on|date:"SHORT_DATE_FORMAT" }}</div>
+            <div><span class="text-slate-500">{% translate "Amount" %}:</span>
+                <span class="font-semibold" dir="ltr">{{ invoice.amount }} {{ invoice.currency }}</span>
+            </div>
+        </div>
+    {% else %}
+        <p class="text-sm text-slate-500">{% translate "No invoice issued yet." %}</p>
+    {% endif %}
+</div>
+{% endblock %}

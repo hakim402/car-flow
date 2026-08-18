@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% translate "Channels" %} — AUTOMEX CarFlow{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-4">
+    <h1 class="text-2xl font-semibold">{% translate "Channels" %}</h1>
+    <a href="{% url 'communications:channel_create' %}"
+       class="rounded bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 text-sm">
+        {% translate "Add channel" %}
+    </a>
+</div>
+<div class="bg-white rounded-lg shadow overflow-x-auto">
+    <table class="w-full text-sm">
+        <thead class="bg-slate-50 text-slate-600">
+            <tr>
+                <th class="px-4 py-3 text-start font-medium">{% translate "Type" %}</th>
+                <th class="px-4 py-3 text-start font-medium">{% translate "Status" %}</th>
+                <th class="px-4 py-3"></th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-200">
+            {% for channel in channels %}
+                <tr class="hover:bg-slate-50">
+                    <td class="px-4 py-3 font-medium">{{ channel.get_type_display }}</td>
+                    <td class="px-4 py-3">
+                        {% if channel.active %}
+                            <span class="rounded bg-green-100 text-green-700 px-1.5 py-0.5 text-xs">{% translate "active" %}</span>
+                        {% else %}
+                            <span class="rounded bg-slate-200 text-slate-600 px-1.5 py-0.5 text-xs">{% translate "inactive" %}</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-4 py-3 text-end">
+                        <a href="{% url 'communications:channel_edit' channel.pk %}" class="text-slate-500 hover:text-slate-800">
+                            {% translate "Edit" %}
+                        </a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="3" class="px-4 py-8 text-center text-slate-500">
+                    {% translate "No channels configured yet." %}
+                </td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

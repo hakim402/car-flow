@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% translate "Dashboard" %} — AUTOMEX CarFlow{% endblock %}
+
+{% block content %}
+<h1 class="text-2xl font-semibold mb-4">{% translate "Dashboard" %}</h1>
+<p class="text-slate-600 mb-6">
+    {% blocktranslate with name=user.get_username %}Welcome, {{ name }}.{% endblocktranslate %}
+</p>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    {# App tiles are added as each module ships (vehicles, sales, payments, …). #}
+    <div class="bg-white rounded-lg shadow p-5">
+        <h2 class="font-medium mb-1">{% translate "System status" %}</h2>
+        <p class="text-sm text-slate-600">{% translate "Phase 1 environment is booting module by module." %}</p>
+    </div>
+</div>
+{% endblock %}

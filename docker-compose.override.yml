@@ -1,0 +1,44 @@
+# Local development overrides (applied automatically by `docker compose up`).
+# Bind-mounted source, Django runserver, DEBUG=True, no Nginx.
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: docker/web/Dockerfile
+      target: dev
+    command: runserver
+    environment:
+      DJANGO_SETTINGS_MODULE: config.settings.dev
+    volumes:
+      - .:/app
+      - media_data:/app/media
+    ports:
+      - "8000:8000"
+
+  worker:
+    build:
+      context: .
+      dockerfile: docker/web/Dockerfile
+      target: dev
+    environment:
+      DJANGO_SETTINGS_MODULE: config.settings.dev
+    volumes:
+      - .:/app
+      - media_data:/app/media
+
+  beat:
+    build:
+      context: .
+      dockerfile: docker/web/Dockerfile
+      target: dev
+    environment:
+      DJANGO_SETTINGS_MODULE: config.settings.dev
+    volumes:
+      - .:/app
+
+  # Dev talks to Django directly on :8000 — Nginx is production-only.
+  # Assigning a never-selected profile keeps the service defined but dormant.
+  nginx:
+    profiles:
+      - prod-only

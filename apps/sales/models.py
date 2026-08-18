@@ -1,0 +1,298 @@
+"""Sales pipeline models (agent.md §10 Step 6):
+lead → quotation → reservation → sale → invoice.
+
+- Monetary fields always carry an explicit `currency` (§9).
+- `Invoice` is immutable (§6): corrections are new rows handled later via the
+  ledger, never edits to an issued invoice.
+- Current-state values are computed over rows, never stored.
+"""
+from django.conf import settings
+from django.db import models
+from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
+
+from apps.core.constants import CURRENCIES, DEFAULT_CURRENCY
+from apps.core.models import ImmutableModel
+from apps.core.tenancy import TenantModel
+
+
+class LeadSource(models.TextChoices):
+    WALK_IN = "walk_in", _("Walk-in")
+    PHONE = "phone", _("Phone call")
+    WHATSAPP = "whatsapp", _("WhatsApp")
+    REFERRAL = "referral", _("Referral")
+    OTHER = "other", _("Other")
+
+
+class LeadStatus(models.TextChoices):
+    NEW = "new", _("New")
+    CONTACTED = "contacted", _("Contacted")
+    QUALIFIED = "qualified", _("Qualified")
+    CONVERTED = "converted", _("Converted")
+    LOST = "lost", _("Lost")
+
+
+class Lead(TenantModel):
+    name = models.CharField(_("name"), max_length=200)
+    phone = models.CharField(_("phone"), max_length=50, blank=True)
+    customer = models.ForeignKey(
+        "customers.Customer",
+        on_delete=models.PROTECT,
+        related_name="leads",
+        verbose_name=_("customer"),
+        null=True,
+        blank=True,
+    )
+    vehicle_of_interest = models.ForeignKey(
+        "vehicles.Vehicle",
+        on_delete=models.SET_NULL,
+        related_name="interested_leads",
+        verbose_name=_("vehicle of interest"),
+        null=True,
+        blank=True,
+    )
+    source = models.CharField(
+        _("source"), max_length=20, choices=LeadSource.choices, default=LeadSource.WALK_IN
+    )
+    status = models.CharField(
+        _("status"), max_length=20, choices=LeadStatus.choices, default=LeadStatus.NEW
+    )
+    branch = models.ForeignKey(
+        "branches.Branch",
+        on_delete=models.PROTECT,
+        related_name="leads",
+        verbose_name=_("branch"),
+        null=True,
+        blank=True,
+    )
+    notes = models.TextField(_("notes"), blank=True)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="created_leads",
+        verbose_name=_("created by"),
+        null=True,
+        blank=True,
+    )
+    created_at = models.DateTimeField(_("created at"), auto_now_add=True)
+    updated_at = models.DateTimeField(_("updated at"), auto_now=True)
+
+    class Meta:
+        verbose_name = _("lead")
+        verbose_name_plural = _("leads")
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return reverse("sales:lead_detail", kwargs={"pk": self.pk})
+
+
+class QuotationStatus(models.TextChoices):
+    DRAFT = "draft", _("Draft")
+    SENT = "sent", _("Sent")
+    ACCEPTED = "accepted", _("Accepted")
+    DECLINED = "declined", _("Declined")
+    EXPIRED = "expired", _("Expired")
+
+
+class Quotation(TenantModel):
+    customer = models.ForeignKey(
+        "customers.Customer",
+        on_delete=models.PROTECT,
+        related_name="quotations",
+        verbose_name=_("customer"),
+    )
+    vehicle = models.ForeignKey(
+        "vehicles.Vehicle",
+        on_delete=models.PROTECT,
+        related_name="quotations",
+        verbose_name=_("vehicle"),
+        null=True,
+        blank=True,
+    )
+    lead = models.ForeignKey(
+        Lead,
+        on_delete=models.SET_NULL,
+        related_name="quotations",
+        verbose_name=_("lead"),
+        null=True,
+        blank=True,
+    )
+    amount = models.DecimalField(_("amount"), max_digits=14, decimal_places=2)
+    currency = models.CharField(_("currency"), max_length=3, choices=CURRENCIES, default=DEFAULT_CURRENCY)
+    valid_until = models.DateField(_("valid until"))
+    status = models.CharField(
+        _("status"), max_length=20, choices=QuotationStatus.choices, default=QuotationStatus.DRAFT
+    )
+    notes = models.TextField(_("notes"), blank=True)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="created_quotations",
+        verbose_name=_("created by"),
+        null=True,
+        blank=True,
+    )
+    created_at = models.DateTimeField(_("created at"), auto_now_add=True)
+    updated_at = models.DateTimeField(_("updated at"), auto_now=True)
+
+    class Meta:
+        verbose_name = _("quotation")
+        verbose_name_plural = _("quotations")
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{_('Quotation')} #{self.pk}"
+
+    def get_absolute_url(self):
+        return reverse("sales:quotation_detail", kwargs={"pk": self.pk})
+
+
+class ReservationStatus(models.TextChoices):
+    ACTIVE = "active", _("Active")
+    COMPLETED = "completed", _("Completed")
+    CANCELLED = "cancelled", _("Cancelled")
+
+
+class Reservation(TenantModel):
+    customer = models.ForeignKey(
+        "customers.Customer",
+        on_delete=models.PROTECT,
+        related_name="reservations",
+        verbose_name=_("customer"),
+    )
+    vehicle = models.ForeignKey(
+        "vehicles.Vehicle",
+        on_delete=models.PROTECT,
+        related_name="reservations",
+        verbose_name=_("vehicle"),
+    )
+    quotation = models.ForeignKey(
+        Quotation,
+        on_delete=models.PROTECT,
+        related_name="reservations",
+        verbose_name=_("quotation"),
+        null=True,
+        blank=True,
+    )
+    deposit_amount = models.DecimalField(_("deposit amount"), max_digits=14, decimal_places=2)
+    currency = models.CharField(_("currency"), max_length=3, choices=CURRENCIES, default=DEFAULT_CURRENCY)
+    status = models.CharField(
+        _("status"), max_length=20, choices=ReservationStatus.choices, default=ReservationStatus.ACTIVE
+    )
+    notes = models.TextField(_("notes"), blank=True)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="created_reservations",
+        verbose_name=_("created by"),
+        null=True,
+        blank=True,
+    )
+    created_at = models.DateTimeField(_("created at"), auto_now_add=True)
+    updated_at = models.DateTimeField(_("updated at"), auto_now=True)
+
+    class Meta:
+        verbose_name = _("reservation")
+        verbose_name_plural = _("reservations")
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{_('Reservation')} #{self.pk} — {self.vehicle}"
+
+    def get_absolute_url(self):
+        return reverse("sales:reservation_list")
+
+
+class SaleStatus(models.TextChoices):
+    DRAFT = "draft", _("Draft")
+    COMPLETED = "completed", _("Completed")
+    CANCELLED = "cancelled", _("Cancelled")
+
+
+class Sale(TenantModel):
+    customer = models.ForeignKey(
+        "customers.Customer",
+        on_delete=models.PROTECT,
+        related_name="sales",
+        verbose_name=_("customer"),
+    )
+    vehicle = models.ForeignKey(
+        "vehicles.Vehicle",
+        on_delete=models.PROTECT,
+        related_name="sales",
+        verbose_name=_("vehicle"),
+    )
+    reservation = models.ForeignKey(
+        Reservation,
+        on_delete=models.PROTECT,
+        related_name="sales",
+        verbose_name=_("reservation"),
+        null=True,
+        blank=True,
+    )
+    agreed_amount = models.DecimalField(_("agreed amount"), max_digits=14, decimal_places=2)
+    currency = models.CharField(_("currency"), max_length=3, choices=CURRENCIES, default=DEFAULT_CURRENCY)
+    sale_date = models.DateField(_("sale date"))
+    status = models.CharField(
+        _("status"), max_length=20, choices=SaleStatus.choices, default=SaleStatus.DRAFT
+    )
+    notes = models.TextField(_("notes"), blank=True)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="created_sales",
+        verbose_name=_("created by"),
+        null=True,
+        blank=True,
+    )
+    created_at = models.DateTimeField(_("created at"), auto_now_add=True)
+    updated_at = models.DateTimeField(_("updated at"), auto_now=True)
+
+    class Meta:
+        verbose_name = _("sale")
+        verbose_name_plural = _("sales")
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{_('Sale')} #{self.pk} — {self.vehicle}"
+
+    def get_absolute_url(self):
+        return reverse("sales:sale_detail", kwargs={"pk": self.pk})
+
+
+class Invoice(TenantModel, ImmutableModel):
+    """An issued invoice is a financial document: append-only (§6)."""
+
+    sale = models.ForeignKey(
+        Sale,
+        on_delete=models.PROTECT,
+        related_name="invoices",
+        verbose_name=_("sale"),
+    )
+    number = models.CharField(_("invoice number"), max_length=50)
+    issued_on = models.DateField(_("issued on"))
+    amount = models.DecimalField(_("amount"), max_digits=14, decimal_places=2)
+    currency = models.CharField(_("currency"), max_length=3, choices=CURRENCIES, default=DEFAULT_CURRENCY)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="created_invoices",
+        verbose_name=_("created by"),
+        null=True,
+        blank=True,
+    )
+    created_at = models.DateTimeField(_("created at"), auto_now_add=True)
+
+    class Meta:
+        verbose_name = _("invoice")
+        verbose_name_plural = _("invoices")
+        ordering = ["-created_at"]
+        constraints = [
+            models.UniqueConstraint(fields=["company", "number"], name="unique_invoice_number_per_company")
+        ]
+
+    def __str__(self):
+        return self.number

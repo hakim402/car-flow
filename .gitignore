@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Environment & secrets
+.env
+
+# Django runtime artifacts
+staticfiles/
+media/
+*.sqlite3
+*.mo
+celerybeat-schedule*
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Tooling / editors
+node_modules/
+.idea/
+.vscode/
+.qoder/

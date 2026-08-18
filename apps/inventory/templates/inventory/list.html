@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% translate "Inventory" %} — AUTOMEX CarFlow{% endblock %}
+
+{% block content %}
+<h1 class="text-2xl font-semibold mb-4">{% translate "Inventory" %}</h1>
+
+<form method="get" class="flex items-center gap-3 mb-4">
+    <select name="status" class="rounded border border-slate-300 px-3 py-2 text-sm">
+        <option value="">{% translate "All statuses" %}</option>
+        {% for value, label in statuses %}
+            <option value="{{ value }}" {% if value == status %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+    </select>
+    <button type="submit" class="rounded bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 text-sm">
+        {% translate "Filter" %}
+    </button>
+</form>
+
+<div class="bg-white rounded-lg shadow overflow-x-auto">
+    <table class="w-full text-sm">
+        <thead class="bg-slate-50 text-slate-600">
+            <tr>
+                <th class="px-4 py-3 text-start font-medium">{% translate "Vehicle" %}</th>
+                <th class="px-4 py-3 text-start font-medium">{% translate "Branch" %}</th>
+                <th class="px-4 py-3 text-start font-medium">{% translate "Lot" %}</th>
+                <th class="px-4 py-3 text-start font-medium">{% translate "Received" %}</th>
+                <th class="px-4 py-3 text-start font-medium">{% translate "Status" %}</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-200">
+            {% for item in stock_items %}
+                <tr class="hover:bg-slate-50">
+                    <td class="px-4 py-3">
+                        <a href="{{ item.vehicle.get_absolute_url }}" class="text-amber-600 hover:underline">
+                            {{ item.vehicle }}
+                        </a>
+                    </td>
+                    <td class="px-4 py-3">{{ item.branch }}</td>
+                    <td class="px-4 py-3">{{ item.lot_code|default:"—" }}</td>
+                    <td class="px-4 py-3">{{ item.received_at|date:"SHORT_DATE_FORMAT" }}</td>
+                    <td class="px-4 py-3">
+                        <form method="post" action="{% url 'inventory:update_status' item.pk %}" class="flex items-center gap-2">
+                            {% csrf_token %}
+                            <select name="status" class="rounded border border-slate-300 px-2 py-1 text-sm"
+                                    onchange="this.form.submit()">
+                                {% for value, label in statuses %}
+                                    <option value="{{ value }}" {% if value == item.status %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </form>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="5" class="px-4 py-8 text-center text-slate-500">
+                    {% translate "No stock records yet." %}
+                </td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

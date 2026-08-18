@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{{ vehicle }} — AUTOMEX CarFlow{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-4">
+    <h1 class="text-2xl font-semibold">{{ vehicle.make }} {{ vehicle.model }} ({{ vehicle.year }})</h1>
+    <a href="{% url 'vehicles:edit' vehicle.pk %}"
+       class="rounded bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 text-sm">{% translate "Edit" %}</a>
+</div>
+<div class="bg-white rounded-lg shadow p-6 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 text-sm">
+    <div><span class="text-slate-500">{% translate "VIN" %}:</span> <span class="font-mono">{{ vehicle.vin }}</span></div>
+    <div><span class="text-slate-500">{% translate "Status" %}:</span> {{ vehicle.get_status_display }}</div>
+    <div><span class="text-slate-500">{% translate "Color" %}:</span> {{ vehicle.color|default:"—" }}</div>
+    <div><span class="text-slate-500">{% translate "Mileage (km)" %}:</span> {{ vehicle.mileage }}</div>
+    <div><span class="text-slate-500">{% translate "Branch" %}:</span> {{ vehicle.branch|default:"—" }}</div>
+    <div><span class="text-slate-500">{% translate "Created" %}:</span> {{ vehicle.created_at|date:"SHORT_DATE_FORMAT" }}</div>
+    {% if vehicle.notes %}
+        <div class="sm:col-span-2"><span class="text-slate-500">{% translate "Notes" %}:</span> {{ vehicle.notes|linebreaksbr }}</div>
+    {% endif %}
+</div>
+
+{# Cost history (§6): immutable rows, landed cost computed per currency. #}
+<div class="bg-white rounded-lg shadow p-6 mt-6">
+    <div class="flex items-center justify-between mb-3">
+        <h2 class="text-lg font-semibold">{% translate "Cost history" %}</h2>
+        <div class="text-sm" dir="ltr">
+            <span class="text-slate-500">{% translate "Landed cost" %}:</span>
+            {% for currency, amount in landed_cost.items %}
+                <span class="font-semibold whitespace-nowrap">{{ amount }} {{ currency }}</span>{% if not forloop.last %} · {% endif %}
+            {% empty %}—{% endfor %}
+        </div>
+    </div>
+    <table class="w-full text-sm">
+        <thead class="bg-slate-50 text-slate-600">
+            <tr>
+                <th class="px-4 py-2 text-start font-medium">{% translate "Date" %}</th>
+                <th class="px-4 py-2 text-start font-medium">{% translate "Type" %}</th>
+                <th class="px-4 py-2 text-start font-medium">{% translate "Description" %}</th>
+                <th class="px-4 py-2 text-end font-medium">{% translate "Amount" %}</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-200">
+            {% for line in cost_lines %}
+                <tr>
+                    <td class="px-4 py-2">{{ line.created_at|date:"SHORT_DATE_FORMAT" }}</td>
+                    <td class="px-4 py-2">{{ line.get_cost_type_display }}</td>
+                    <td class="px-4 py-2">{{ line.description|default:"—" }}</td>
+                    <td class="px-4 py-2 text-end" dir="ltr">{{ line.amount }} {{ line.currency }}</td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="4" class="px-4 py-6 text-center text-slate-500">
+                    {% translate "No cost lines yet." %}
+                </td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="mt-4 max-w-2xl">
+        <h3 class="text-sm font-semibold mb-2">{% translate "Add cost line" %}</h3>
+        <form method="post" action="{% url 'vehicles:add_cost' vehicle.pk %}" novalidate>
+            {% csrf_token %}
+            {% include "includes/_form_fields.html" with form=cost_form %}
+            <button type="submit"
+                    class="rounded bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 text-sm">
+                {% translate "Add cost line" %}
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

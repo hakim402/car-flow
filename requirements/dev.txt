@@ -1,0 +1,5 @@
+# Development / test-only dependencies (never shipped in the prod image).
+-r base.txt
+pytest>=8.2
+pytest-django>=4.8
+factory_boy>=3.3

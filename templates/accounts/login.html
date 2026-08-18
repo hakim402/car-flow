@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% translate "Log in" %} — AUTOMEX CarFlow{% endblock %}
+
+{% block content %}
+<div class="max-w-sm mx-auto mt-12 bg-white rounded-lg shadow p-6">
+    <h1 class="text-xl font-semibold mb-4 text-center">{% translate "Log in to CarFlow" %}</h1>
+    {% if form.errors %}
+        <div class="mb-4 rounded border border-red-300 bg-red-50 px-4 py-2 text-sm text-red-800">
+            {% translate "Your username and password didn't match. Please try again." %}
+        </div>
+    {% endif %}
+    <form method="post" class="space-y-4">
+        {% csrf_token %}
+        <div>
+            <label for="id_username" class="block text-sm font-medium mb-1">{% translate "Username" %}</label>
+            <input type="text" name="username" id="id_username" required autofocus
+                   class="w-full rounded border border-slate-300 px-3 py-2 focus:border-amber-500 focus:outline-none">
+        </div>
+        <div>
+            <label for="id_password" class="block text-sm font-medium mb-1">{% translate "Password" %}</label>
+            <input type="password" name="password" id="id_password" required
+                   class="w-full rounded border border-slate-300 px-3 py-2 focus:border-amber-500 focus:outline-none">
+        </div>
+        <input type="hidden" name="next" value="{{ next }}">
+        <button type="submit"
+                class="w-full rounded bg-amber-500 hover:bg-amber-600 text-white font-medium py-2">
+            {% translate "Log in" %}
+        </button>
+    </form>
+</div>
+{% endblock %}

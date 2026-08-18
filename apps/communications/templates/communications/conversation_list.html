@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% translate "Conversations" %} — AUTOMEX CarFlow{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-4">
+    <h1 class="text-2xl font-semibold">{% translate "Conversations" %}</h1>
+    <a href="{% url 'communications:channel_list' %}"
+       class="rounded bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 text-sm">
+        {% translate "Channels" %}
+    </a>
+</div>
+<div class="bg-white rounded-lg shadow overflow-x-auto">
+    <table class="w-full text-sm">
+        <thead class="bg-slate-50 text-slate-600">
+            <tr>
+                <th class="px-4 py-3 text-start font-medium">{% translate "Customer" %}</th>
+                <th class="px-4 py-3 text-start font-medium">{% translate "Channel" %}</th>
+                <th class="px-4 py-3 text-start font-medium">{% translate "Assigned to" %}</th>
+                <th class="px-4 py-3 text-start font-medium">{% translate "Status" %}</th>
+                <th class="px-4 py-3 text-start font-medium">{% translate "Last message" %}</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-200">
+            {% for conversation in conversations %}
+                <tr class="hover:bg-slate-50">
+                    <td class="px-4 py-3">
+                        <a href="{{ conversation.get_absolute_url }}" class="font-medium text-slate-800 hover:text-amber-600">
+                            {{ conversation.customer }}
+                        </a>
+                    </td>
+                    <td class="px-4 py-3">{{ conversation.channel.get_type_display }}</td>
+                    <td class="px-4 py-3">
+                        {% if conversation.assigned_to %}{{ conversation.assigned_to.get_username }}
+                        {% else %}
+                            <span class="rounded bg-amber-100 text-amber-800 px-1.5 py-0.5 text-xs">
+                                {% translate "unassigned" %}
+                            </span>
+                        {% endif %}
+                    </td>
+                    <td class="px-4 py-3">{{ conversation.get_status_display }}</td>
+                    <td class="px-4 py-3">{{ conversation.last_message_at|date:"SHORT_DATETIME_FORMAT"|default:"—" }}</td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="5" class="px-4 py-8 text-center text-slate-500">
+                    {% translate "No conversations yet — inbound webhook messages will appear here." %}
+                </td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

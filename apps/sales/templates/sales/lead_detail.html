@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{{ lead }} — AUTOMEX CarFlow{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-4">
+    <h1 class="text-2xl font-semibold">{{ lead.name }}</h1>
+    <form method="post" action="{% url 'sales:lead_update_status' lead.pk %}" class="flex items-center gap-2">
+        {% csrf_token %}
+        <label class="text-sm text-slate-500" for="lead-status">{% translate "Status" %}</label>
+        <select id="lead-status" name="status" class="rounded border border-slate-300 px-3 py-2 text-sm">
+            {% for value, label in statuses %}
+                <option value="{{ value }}" {% if value == lead.status %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="rounded bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 text-sm">
+            {% translate "Update" %}
+        </button>
+    </form>
+</div>
+<div class="bg-white rounded-lg shadow p-6 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 text-sm">
+    <div><span class="text-slate-500">{% translate "Phone" %}:</span> <span dir="ltr">{{ lead.phone|default:"—" }}</span></div>
+    <div><span class="text-slate-500">{% translate "Source" %}:</span> {{ lead.get_source_display }}</div>
+    <div><span class="text-slate-500">{% translate "Customer" %}:</span>
+        {% if lead.customer %}
+            <a class="text-slate-700 hover:text-amber-600" href="{{ lead.customer.get_absolute_url }}">{{ lead.customer }}</a>
+        {% else %}—{% endif %}
+    </div>
+    <div><span class="text-slate-500">{% translate "Vehicle of interest" %}:</span>
+        {% if lead.vehicle_of_interest %}
+            <a class="text-slate-700 hover:text-amber-600" href="{{ lead.vehicle_of_interest.get_absolute_url }}">
+                {{ lead.vehicle_of_interest }}
+            </a>
+        {% else %}—{% endif %}
+    </div>
+    <div><span class="text-slate-500">{% translate "Branch" %}:</span> {{ lead.branch|default:"—" }}</div>
+    <div><span class="text-slate-500">{% translate "Created" %}:</span> {{ lead.created_at|date:"SHORT_DATE_FORMAT" }}</div>
+    {% if lead.notes %}
+        <div class="sm:col-span-2"><span class="text-slate-500">{% translate "Notes" %}:</span> {{ lead.notes|linebreaksbr }}</div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{{ customer }} — AUTOMEX CarFlow{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-4">
+    <h1 class="text-2xl font-semibold">{{ customer.full_name }}</h1>
+    <a href="{% url 'customers:edit' customer.pk %}"
+       class="rounded bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 text-sm">{% translate "Edit" %}</a>
+</div>
+<div class="bg-white rounded-lg shadow p-6 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 text-sm mb-6">
+    <div><span class="text-slate-500">{% translate "Phone" %}:</span> <span dir="ltr">{{ customer.phone|default:"—" }}</span></div>
+    <div><span class="text-slate-500">{% translate "Email" %}:</span> <span dir="ltr">{{ customer.email|default:"—" }}</span></div>
+    <div><span class="text-slate-500">{% translate "National ID" %}:</span> {{ customer.national_id|default:"—" }}</div>
+    <div><span class="text-slate-500">{% translate "Branch" %}:</span> {{ customer.branch|default:"—" }}</div>
+    {% if customer.notes %}
+        <div class="sm:col-span-2"><span class="text-slate-500">{% translate "Notes" %}:</span> {{ customer.notes|linebreaksbr }}</div>
+    {% endif %}
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="text-lg font-semibold mb-3">{% translate "Leads" %}</h2>
+        <ul class="text-sm space-y-2">
+            {% for lead in leads %}
+                <li>
+                    <a class="text-slate-700 hover:text-amber-600" href="{{ lead.get_absolute_url }}">{{ lead }}</a>
+                    — {{ lead.get_status_display }}
+                </li>
+            {% empty %}
+                <li class="text-slate-500">{% translate "No leads." %}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="text-lg font-semibold mb-3">{% translate "Sales" %}</h2>
+        <ul class="text-sm space-y-2">
+            {% for sale in sales %}
+                <li>
+                    <a class="text-slate-700 hover:text-amber-600" href="{{ sale.get_absolute_url }}">{{ sale }}</a>
+                    — {{ sale.get_status_display }}
+                    (<span dir="ltr">{{ sale.agreed_amount }} {{ sale.currency }}</span>)
+                </li>
+            {% empty %}
+                <li class="text-slate-500">{% translate "No sales yet." %}</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endblock %}

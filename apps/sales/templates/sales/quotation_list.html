@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% translate "Quotations" %} — AUTOMEX CarFlow{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-4">
+    <h1 class="text-2xl font-semibold">{% translate "Quotations" %}</h1>
+    <a href="{% url 'sales:quotation_create' %}"
+       class="rounded bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 text-sm">
+        {% translate "New quotation" %}
+    </a>
+</div>
+<div class="bg-white rounded-lg shadow overflow-x-auto">
+    <table class="w-full text-sm">
+        <thead class="bg-slate-50 text-slate-600">
+            <tr>
+                <th class="px-4 py-3 text-start font-medium">#</th>
+                <th class="px-4 py-3 text-start font-medium">{% translate "Customer" %}</th>
+                <th class="px-4 py-3 text-start font-medium">{% translate "Vehicle" %}</th>
+                <th class="px-4 py-3 text-end font-medium">{% translate "Amount" %}</th>
+                <th class="px-4 py-3 text-start font-medium">{% translate "Valid until" %}</th>
+                <th class="px-4 py-3 text-start font-medium">{% translate "Status" %}</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-200">
+            {% for quotation in quotations %}
+                <tr class="hover:bg-slate-50">
+                    <td class="px-4 py-3">
+                        <a href="{{ quotation.get_absolute_url }}" class="font-medium text-slate-800 hover:text-amber-600">
+                            {{ quotation.pk }}
+                        </a>
+                    </td>
+                    <td class="px-4 py-3">{{ quotation.customer }}</td>
+                    <td class="px-4 py-3">{{ quotation.vehicle|default:"—" }}</td>
+                    <td class="px-4 py-3 text-end" dir="ltr">{{ quotation.amount }} {{ quotation.currency }}</td>
+                    <td class="px-4 py-3">{{ quotation.valid_until|date:"SHORT_DATE_FORMAT" }}</td>
+                    <td class="px-4 py-3">{{ quotation.get_status_display }}</td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="6" class="px-4 py-8 text-center text-slate-500">
+                    {% translate "No quotations yet." %}
+                </td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{{ order }} — AUTOMEX CarFlow{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-4">
+    <h1 class="text-2xl font-semibold">{{ order }}</h1>
+    {% if can_receive %}
+        <form method="post" action="{% url 'purchases:receive' order.pk %}">
+            {% csrf_token %}
+            <button type="submit"
+                    class="rounded bg-green-600 hover:bg-green-700 text-white px-4 py-2 text-sm">
+                {% translate "Receive order" %}
+            </button>
+        </form>
+    {% endif %}
+</div>
+
+<div class="bg-white rounded-lg shadow p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-3 text-sm mb-6">
+    <div><span class="text-slate-500">{% translate "Supplier" %}:</span> {{ order.supplier }}</div>
+    <div><span class="text-slate-500">{% translate "Branch" %}:</span> {{ order.branch|default:"—" }}</div>
+    <div><span class="text-slate-500">{% translate "Status" %}:</span> {{ order.get_status_display }}</div>
+    <div><span class="text-slate-500">{% translate "Order date" %}:</span> {{ order.order_date|date:"SHORT_DATE_FORMAT" }}</div>
+    {% if order.notes %}
+        <div class="sm:col-span-2 lg:col-span-4">
+            <span class="text-slate-500">{% translate "Notes" %}:</span> {{ order.notes|linebreaksbr }}
+        </div>
+    {% endif %}
+</div>
+
+{# Totals are computed from lines per §6 — never stored. #}
+<div class="bg-white rounded-lg shadow p-6 mb-6">
+    <h2 class="text-lg font-semibold mb-3">{% translate "Lines" %}</h2>
+    <table class="w-full text-sm">
+        <thead class="bg-slate-50 text-slate-600">
+            <tr>
+                <th class="px-4 py-2 text-start font-medium">{% translate "Description" %}</th>
+                <th class="px-4 py-2 text-start font-medium">{% translate "Vehicle" %}</th>
+                <th class="px-4 py-2 text-end font-medium">{% translate "Amount" %}</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-200">
+            {% for line in lines %}
+                <tr>
+                    <td class="px-4 py-2">{{ line.description }}</td>
+                    <td class="px-4 py-2">
+                        {% if line.vehicle %}
+                            <a class="text-slate-700 hover:text-amber-600" href="{% url 'vehicles:detail' line.vehicle.pk %}">
+                                {{ line.vehicle }}
+                            </a>
+                        {% else %}—{% endif %}
+                    </td>
+                    <td class="px-4 py-2 text-end" dir="ltr">{{ line.amount }} {{ line.currency }}</td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="3" class="px-4 py-6 text-center text-slate-500">
+                    {% translate "No lines yet — add the first line below." %}
+                </td></tr>
+            {% endfor %}
+        </tbody>
+        <tfoot class="bg-slate-50">
+            <tr>
+                <td colspan="2" class="px-4 py-2 text-end font-medium">{% translate "Total" %}</td>
+                <td class="px-4 py-2 text-end" dir="ltr">
+                    {% for currency, amount in totals.items %}
+                        <span class="whitespace-nowrap font-semibold">{{ amount }} {{ currency }}</span>{% if not forloop.last %}<br>{% endif %}
+                    {% empty %}—{% endfor %}
+                </td>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+
+{% if can_receive %}
+    <div class="bg-white rounded-lg shadow p-6 max-w-2xl">
+        <h2 class="text-lg font-semibold mb-3">{% translate "Add line" %}</h2>
+        <form method="post" action="{% url 'purchases:add_line' order.pk %}" novalidate>
+            {% csrf_token %}
+            {% include "includes/_form_fields.html" with form=line_form %}
+            <button type="submit"
+                    class="rounded bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 text-sm">
+                {% translate "Add line" %}
+            </button>
+        </form>
+    </div>
+{% endif %}
+{% endblock %}

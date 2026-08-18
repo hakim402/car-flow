@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% translate "Suppliers" %} — AUTOMEX CarFlow{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-4">
+    <h1 class="text-2xl font-semibold">{% translate "Suppliers" %}</h1>
+    <a href="{% url 'suppliers:create' %}"
+       class="rounded bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 text-sm">
+        {% translate "Add supplier" %}
+    </a>
+</div>
+<form method="get" class="flex items-center gap-3 mb-4">
+    <input type="search" name="q" value="{{ q }}" placeholder="{% translate 'Search suppliers…' %}"
+           class="rounded border border-slate-300 px-3 py-2 text-sm w-64">
+    <button type="submit" class="rounded bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 text-sm">
+        {% translate "Search" %}
+    </button>
+</form>
+<div class="bg-white rounded-lg shadow overflow-x-auto">
+    <table class="w-full text-sm">
+        <thead class="bg-slate-50 text-slate-600">
+            <tr>
+                <th class="px-4 py-3 text-start font-medium">{% translate "Name" %}</th>
+                <th class="px-4 py-3 text-start font-medium">{% translate "Contact" %}</th>
+                <th class="px-4 py-3 text-start font-medium">{% translate "Phone" %}</th>
+                <th class="px-4 py-3 text-start font-medium">{% translate "Email" %}</th>
+                <th class="px-4 py-3"></th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-200">
+            {% for supplier in suppliers %}
+                <tr class="hover:bg-slate-50">
+                    <td class="px-4 py-3 font-medium">{{ supplier.name }}</td>
+                    <td class="px-4 py-3">{{ supplier.contact_person|default:"—" }}</td>
+                    <td class="px-4 py-3" dir="ltr">{{ supplier.phone|default:"—" }}</td>
+                    <td class="px-4 py-3" dir="ltr">{{ supplier.email|default:"—" }}</td>
+                    <td class="px-4 py-3 text-end">
+                        <a href="{% url 'suppliers:edit' supplier.pk %}" class="text-slate-500 hover:text-slate-800">
+                            {% translate "Edit" %}
+                        </a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="5" class="px-4 py-8 text-center text-slate-500">
+                    {% translate "No suppliers yet." %}
+                </td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,71 @@
+{% load i18n %}<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}" dir="{% if LANGUAGE_BIDI %}rtl{% else %}ltr{% endif %}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}{% translate "AUTOMEX CarFlow" %}{% endblock %}</title>
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/tailwind.css">
+</head>
+<body class="bg-slate-100 min-h-screen text-slate-900">
+<header class="bg-slate-900 text-white">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center gap-4">
+        <a href="/" class="font-bold text-lg tracking-wide">AUTOMEX <span class="text-amber-400">CarFlow</span></a>
+        {% if user.is_authenticated %}
+            <nav class="flex items-center gap-3 text-sm">
+                <a class="hover:text-amber-300" href="/">{% translate "Dashboard" %}</a>
+                <a class="hover:text-amber-300" href="{% url 'vehicles:list' %}">{% translate "Vehicles" %}</a>
+                <a class="hover:text-amber-300" href="{% url 'inventory:list' %}">{% translate "Inventory" %}</a>
+                <a class="hover:text-amber-300" href="{% url 'suppliers:list' %}">{% translate "Suppliers" %}</a>
+                <a class="hover:text-amber-300" href="{% url 'purchases:list' %}">{% translate "Purchases" %}</a>
+                <a class="hover:text-amber-300" href="{% url 'customers:list' %}">{% translate "Customers" %}</a>
+                <a class="hover:text-amber-300" href="{% url 'sales:sale_list' %}">{% translate "Sales" %}</a>
+                <a class="hover:text-amber-300" href="{% url 'sales:lead_list' %}">{% translate "Leads" %}</a>
+                <a class="hover:text-amber-300" href="{% url 'payments:list' %}">{% translate "Payments" %}</a>
+                <a class="hover:text-amber-300" href="{% url 'expenses:list' %}">{% translate "Expenses" %}</a>
+                <a class="hover:text-amber-300" href="{% url 'accounting:summary' %}">{% translate "Accounting" %}</a>
+                <a class="hover:text-amber-300" href="{% url 'communications:conversation_list' %}">{% translate "Conversations" %}</a>
+                <a class="hover:text-amber-300" href="{% url 'documents:list' %}">{% translate "Documents" %}</a>
+            </nav>
+            <div class="ms-auto flex items-center gap-3 text-sm">
+                {# Language switcher (§11.2): session-based, reloads current page. #}
+                <form method="post" action="{% url 'set_language' %}" class="flex items-center gap-2">
+                    {% csrf_token %}
+                    <label class="sr-only" for="language-select">{% translate "Language" %}</label>
+                    <select id="language-select" name="language"
+                            class="bg-slate-800 border border-slate-700 rounded px-2 py-1 text-sm"
+                            onchange="this.form.submit()">
+                        {% get_available_languages as languages %}
+                        {% for code, name in languages %}
+                            <option value="{{ code }}" {% if code == LANGUAGE_CODE %}selected{% endif %}>{{ name }}</option>
+                        {% endfor %}
+                    </select>
+                </form>
+                <span class="text-slate-300">{{ user.get_username }}</span>
+                <form method="post" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="rounded bg-slate-700 hover:bg-slate-600 px-3 py-1">
+                        {% translate "Log out" %}
+                    </button>
+                </form>
+            </div>
+        {% endif %}
+    </div>
+</header>
+
+<main class="max-w-7xl mx-auto px-4 py-6">
+    {% if messages %}
+        <div class="mb-4 space-y-2">
+            {% for message in messages %}
+                <div class="rounded border px-4 py-2 text-sm
+                    {% if message.tags == 'error' %}border-red-300 bg-red-50 text-red-800
+                    {% elif message.tags == 'success' %}border-green-300 bg-green-50 text-green-800
+                    {% else %}border-slate-300 bg-white text-slate-800{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    {% block content %}{% endblock %}
+</main>
+</body>
+</html>

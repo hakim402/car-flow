@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% translate "Reservations" %} — AUTOMEX CarFlow{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-4">
+    <h1 class="text-2xl font-semibold">{% translate "Reservations" %}</h1>
+    <a href="{% url 'sales:reservation_create' %}"
+       class="rounded bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 text-sm">
+        {% translate "New reservation" %}
+    </a>
+</div>
+<div class="bg-white rounded-lg shadow overflow-x-auto">
+    <table class="w-full text-sm">
+        <thead class="bg-slate-50 text-slate-600">
+            <tr>
+                <th class="px-4 py-3 text-start font-medium">#</th>
+                <th class="px-4 py-3 text-start font-medium">{% translate "Customer" %}</th>
+                <th class="px-4 py-3 text-start font-medium">{% translate "Vehicle" %}</th>
+                <th class="px-4 py-3 text-end font-medium">{% translate "Deposit" %}</th>
+                <th class="px-4 py-3 text-start font-medium">{% translate "Status" %}</th>
+                <th class="px-4 py-3 text-start font-medium">{% translate "Created" %}</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-200">
+            {% for reservation in reservations %}
+                <tr class="hover:bg-slate-50">
+                    <td class="px-4 py-3 font-medium">{{ reservation.pk }}</td>
+                    <td class="px-4 py-3">{{ reservation.customer }}</td>
+                    <td class="px-4 py-3">{{ reservation.vehicle }}</td>
+                    <td class="px-4 py-3 text-end" dir="ltr">{{ reservation.deposit_amount }} {{ reservation.currency }}</td>
+                    <td class="px-4 py-3">{{ reservation.get_status_display }}</td>
+                    <td class="px-4 py-3">{{ reservation.created_at|date:"SHORT_DATE_FORMAT" }}</td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="6" class="px-4 py-8 text-center text-slate-500">
+                    {% translate "No reservations yet." %}
+                </td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% translate "Leads" %} — AUTOMEX CarFlow{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-4">
+    <h1 class="text-2xl font-semibold">{% translate "Leads" %}</h1>
+    <a href="{% url 'sales:lead_create' %}"
+       class="rounded bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 text-sm">
+        {% translate "New lead" %}
+    </a>
+</div>
+<form method="get" class="flex items-center gap-3 mb-4">
+    <select name="status" class="rounded border border-slate-300 px-3 py-2 text-sm" onchange="this.form.submit()">
+        <option value="">{% translate "All statuses" %}</option>
+        {% for value, label in statuses %}
+            <option value="{{ value }}" {% if value == status %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+    </select>
+</form>
+<div class="bg-white rounded-lg shadow overflow-x-auto">
+    <table class="w-full text-sm">
+        <thead class="bg-slate-50 text-slate-600">
+            <tr>
+                <th class="px-4 py-3 text-start font-medium">{% translate "Name" %}</th>
+                <th class="px-4 py-3 text-start font-medium">{% translate "Phone" %}</th>
+                <th class="px-4 py-3 text-start font-medium">{% translate "Vehicle of interest" %}</th>
+                <th class="px-4 py-3 text-start font-medium">{% translate "Source" %}</th>
+                <th class="px-4 py-3 text-start font-medium">{% translate "Status" %}</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-200">
+            {% for lead in leads %}
+                <tr class="hover:bg-slate-50">
+                    <td class="px-4 py-3">
+                        <a href="{{ lead.get_absolute_url }}" class="font-medium text-slate-800 hover:text-amber-600">
+                            {{ lead.name }}
+                        </a>
+                    </td>
+                    <td class="px-4 py-3" dir="ltr">{{ lead.phone|default:"—" }}</td>
+                    <td class="px-4 py-3">{{ lead.vehicle_of_interest|default:"—" }}</td>
+                    <td class="px-4 py-3">{{ lead.get_source_display }}</td>
+                    <td class="px-4 py-3">{{ lead.get_status_display }}</td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="5" class="px-4 py-8 text-center text-slate-500">
+                    {% translate "No leads yet." %}
+                </td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

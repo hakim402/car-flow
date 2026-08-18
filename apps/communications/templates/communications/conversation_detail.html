@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{{ conversation.customer }} — AUTOMEX CarFlow{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-4">
+    <h1 class="text-2xl font-semibold">{{ conversation.customer }}
+        <span class="text-base text-slate-500">— {{ conversation.channel.get_type_display }}</span>
+    </h1>
+    <a href="{{ conversation.customer.get_absolute_url }}" class="text-sm text-slate-500 hover:text-slate-800">
+        {% translate "Customer profile" %}
+    </a>
+</div>
+
+<div class="bg-white rounded-lg shadow p-6 mb-4 max-h-[32rem] overflow-y-auto">
+    <ul class="space-y-3">
+        {% for message in conversation_messages %}
+            <li class="flex {% if message.direction == 'out' %}justify-end{% else %}justify-start{% endif %}">
+                <div class="max-w-[75%] rounded-lg px-4 py-2 text-sm
+                            {% if message.direction == 'out' %}bg-slate-800 text-white{% else %}bg-slate-100 text-slate-900{% endif %}">
+                    <p class="whitespace-pre-wrap">{{ message.body }}</p>
+                    <p class="mt-1 text-xs {% if message.direction == 'out' %}text-slate-300{% else %}text-slate-500{% endif %}">
+                        {{ message.created_at|date:"SHORT_DATETIME_FORMAT" }}
+                        · {{ message.get_status_display }}
+                    </p>
+                </div>
+            </li>
+        {% empty %}
+            <li class="text-center text-slate-500 text-sm py-6">{% translate "No messages yet." %}</li>
+        {% endfor %}
+    </ul>
+</div>
+
+<div class="bg-white rounded-lg shadow p-6 max-w-3xl">
+    <form method="post" action="{% url 'communications:conversation_reply' conversation.pk %}" novalidate>
+        {% csrf_token %}
+        {% include "includes/_form_fields.html" with form=reply_form %}
+        <button type="submit"
+                class="rounded bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 text-sm">
+            {% translate "Send reply" %}
+        </button>
+    </form>
+</div>
+{% endblock %}

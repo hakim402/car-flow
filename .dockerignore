@@ -1,0 +1,15 @@
+.git
+.qoder
+__pycache__/
+*.pyc
+*.pyo
+*.mo
+.env
+media/
+node_modules/
+staticfiles/
+.pytest_cache/
+.coverage
+htmlcov/
+*.sqlite3
+celerybeat-schedule*

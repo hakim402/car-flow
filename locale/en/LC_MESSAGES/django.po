@@ -1,0 +1,1014 @@
+# AUTOMEX CarFlow catalog. Regenerate with makemessages (gettext) when
+# available; this file is maintained by scripts/extract_messages.py.
+msgid ""
+msgstr ""
+"Project-Id-Version: automex-carflow 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-08-18 13:40+0000\n"
+"PO-Revision-Date: 2026-08-18 13:40+0000\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "..."
+msgstr ""
+
+msgid "AUTOMEX CarFlow"
+msgstr ""
+
+msgid "Dashboard"
+msgstr ""
+
+msgid "Vehicles"
+msgstr ""
+
+msgid "Inventory"
+msgstr ""
+
+msgid "Suppliers"
+msgstr ""
+
+msgid "Purchases"
+msgstr ""
+
+msgid "Customers"
+msgstr ""
+
+msgid "Sales"
+msgstr ""
+
+msgid "Leads"
+msgstr ""
+
+msgid "Payments"
+msgstr ""
+
+msgid "Expenses"
+msgstr ""
+
+msgid "Accounting"
+msgstr ""
+
+msgid "Conversations"
+msgstr ""
+
+msgid "Documents"
+msgstr ""
+
+msgid "Language"
+msgstr ""
+
+msgid "Log out"
+msgstr ""
+
+msgid "System status"
+msgstr ""
+
+msgid "Phase 1 environment is booting module by module."
+msgstr ""
+
+msgid "Log in"
+msgstr ""
+
+msgid "Log in to CarFlow"
+msgstr ""
+
+msgid "Your username and password didn"
+msgstr ""
+
+msgid "Username"
+msgstr ""
+
+msgid "Password"
+msgstr ""
+
+msgid "Super Admin"
+msgstr ""
+
+msgid "Organization Admin"
+msgstr ""
+
+msgid "Branch Manager"
+msgstr ""
+
+msgid "Accountant"
+msgstr ""
+
+msgid "codename"
+msgstr ""
+
+msgid "description"
+msgstr ""
+
+msgid "permission"
+msgstr ""
+
+msgid "permissions"
+msgstr ""
+
+msgid "key"
+msgstr ""
+
+msgid "name"
+msgstr ""
+
+msgid "system role"
+msgstr ""
+
+msgid "role"
+msgstr ""
+
+msgid "roles"
+msgstr ""
+
+msgid "company"
+msgstr ""
+
+msgid "Blank only for Super Admin users."
+msgstr ""
+
+msgid "branch"
+msgstr ""
+
+msgid "preferred language"
+msgstr ""
+
+msgid "user"
+msgstr ""
+
+msgid "users"
+msgstr ""
+
+msgid "created at"
+msgstr ""
+
+msgid "branches"
+msgstr ""
+
+msgid "message"
+msgstr ""
+
+msgid "Type a message…"
+msgstr ""
+
+msgid "type"
+msgstr ""
+
+msgid "active"
+msgstr ""
+
+msgid "credentials (JSON)"
+msgstr ""
+
+msgid "Credentials must be valid JSON."
+msgstr ""
+
+msgid "Credentials must be a JSON object."
+msgstr ""
+
+msgid "WhatsApp"
+msgstr ""
+
+msgid "Messenger"
+msgstr ""
+
+msgid "Instagram"
+msgstr ""
+
+msgid "Telegram"
+msgstr ""
+
+msgid "Email"
+msgstr ""
+
+msgid "SMS"
+msgstr ""
+
+msgid "credentials"
+msgstr ""
+
+msgid "channel"
+msgstr ""
+
+msgid "channels"
+msgstr ""
+
+msgid "Open"
+msgstr ""
+
+msgid "Closed"
+msgstr ""
+
+msgid "customer"
+msgstr ""
+
+msgid "external thread id"
+msgstr ""
+
+msgid "assigned to"
+msgstr ""
+
+msgid "status"
+msgstr ""
+
+msgid "last message at"
+msgstr ""
+
+msgid "conversation"
+msgstr ""
+
+msgid "conversations"
+msgstr ""
+
+msgid "Inbound"
+msgstr ""
+
+msgid "Outbound"
+msgstr ""
+
+msgid "Queued"
+msgstr ""
+
+msgid "Sent"
+msgstr ""
+
+msgid "Delivered"
+msgstr ""
+
+msgid "Read"
+msgstr ""
+
+msgid "Failed"
+msgstr ""
+
+msgid "Skipped (integration disabled)"
+msgstr ""
+
+msgid "direction"
+msgstr ""
+
+msgid "body"
+msgstr ""
+
+msgid "media"
+msgstr ""
+
+msgid "external message id"
+msgstr ""
+
+msgid "raw payload"
+msgstr ""
+
+msgid "messages"
+msgstr ""
+
+msgid "external id"
+msgstr ""
+
+msgid "customer channel identity"
+msgstr ""
+
+msgid "customer channel identities"
+msgstr ""
+
+msgid "Reply sent through the channel adapter."
+msgstr ""
+
+msgid "Could not send the reply."
+msgstr ""
+
+msgid "Channel created."
+msgstr ""
+
+msgid "Add channel"
+msgstr ""
+
+msgid "Channel updated."
+msgstr ""
+
+msgid "Edit channel"
+msgstr ""
+
+msgid "full name"
+msgstr ""
+
+msgid "phone"
+msgstr ""
+
+msgid "email"
+msgstr ""
+
+msgid "national ID"
+msgstr ""
+
+msgid "notes"
+msgstr ""
+
+msgid "created by"
+msgstr ""
+
+msgid "updated at"
+msgstr ""
+
+msgid "customers"
+msgstr ""
+
+msgid "Customer created."
+msgstr ""
+
+msgid "Add customer"
+msgstr ""
+
+msgid "Customer updated."
+msgstr ""
+
+msgid "Edit customer"
+msgstr ""
+
+msgid "Attach the document to a vehicle or a customer."
+msgstr ""
+
+msgid "Vehicle photo"
+msgstr ""
+
+msgid "Vehicle document"
+msgstr ""
+
+msgid "Customer document"
+msgstr ""
+
+msgid "Other"
+msgstr ""
+
+msgid "vehicle"
+msgstr ""
+
+msgid "title"
+msgstr ""
+
+msgid "file"
+msgstr ""
+
+msgid "uploaded by"
+msgstr ""
+
+msgid "document"
+msgstr ""
+
+msgid "documents"
+msgstr ""
+
+msgid "Document uploaded."
+msgstr ""
+
+msgid "Upload document"
+msgstr ""
+
+msgid "amount"
+msgstr ""
+
+msgid "currency"
+msgstr ""
+
+msgid "Expense recorded."
+msgstr ""
+
+msgid "Record expense"
+msgstr ""
+
+msgid "Available"
+msgstr ""
+
+msgid "Reserved"
+msgstr ""
+
+msgid "In preparation"
+msgstr ""
+
+msgid "lot / parking code"
+msgstr ""
+
+msgid "received at"
+msgstr ""
+
+msgid "vehicle stock"
+msgstr ""
+
+msgid "organization"
+msgstr ""
+
+msgid "organizations"
+msgstr ""
+
+msgid "sale"
+msgstr ""
+
+msgid "Customer payment"
+msgstr ""
+
+msgid "Supplier payment"
+msgstr ""
+
+msgid "Expense"
+msgstr ""
+
+msgid "related object type"
+msgstr ""
+
+msgid "related object id"
+msgstr ""
+
+msgid "reversal of"
+msgstr ""
+
+msgid "ledger entry"
+msgstr ""
+
+msgid "ledger entries"
+msgstr ""
+
+msgid "Payment recorded."
+msgstr ""
+
+msgid "Record payment"
+msgstr ""
+
+msgid "Entry reversed with a new row."
+msgstr ""
+
+msgid "Draft"
+msgstr ""
+
+msgid "Ordered"
+msgstr ""
+
+msgid "Received"
+msgstr ""
+
+msgid "Cancelled"
+msgstr ""
+
+msgid "reference"
+msgstr ""
+
+msgid "supplier"
+msgstr ""
+
+msgid "order date"
+msgstr ""
+
+msgid "purchase order"
+msgstr ""
+
+msgid "purchase orders"
+msgstr ""
+
+msgid "order"
+msgstr ""
+
+msgid "purchase order line"
+msgstr ""
+
+msgid "purchase order lines"
+msgstr ""
+
+msgid "Purchase price"
+msgstr ""
+
+msgid "Transport"
+msgstr ""
+
+msgid "Customs & duties"
+msgstr ""
+
+msgid "Storage"
+msgstr ""
+
+msgid "Repair & preparation"
+msgstr ""
+
+msgid "cost type"
+msgstr ""
+
+msgid "vehicle cost line"
+msgstr ""
+
+msgid "vehicle cost lines"
+msgstr ""
+
+msgid "Purchase order created — add lines next."
+msgstr ""
+
+msgid "New purchase order"
+msgstr ""
+
+msgid "Line added."
+msgstr ""
+
+msgid "Could not add line — check the form values."
+msgstr ""
+
+msgid "Order received (%(count)d vehicles into stock)."
+msgstr ""
+
+msgid "Walk-in"
+msgstr ""
+
+msgid "Phone call"
+msgstr ""
+
+msgid "Referral"
+msgstr ""
+
+msgid "New"
+msgstr ""
+
+msgid "Contacted"
+msgstr ""
+
+msgid "Qualified"
+msgstr ""
+
+msgid "Converted"
+msgstr ""
+
+msgid "Lost"
+msgstr ""
+
+msgid "vehicle of interest"
+msgstr ""
+
+msgid "source"
+msgstr ""
+
+msgid "lead"
+msgstr ""
+
+msgid "leads"
+msgstr ""
+
+msgid "Accepted"
+msgstr ""
+
+msgid "Declined"
+msgstr ""
+
+msgid "Expired"
+msgstr ""
+
+msgid "valid until"
+msgstr ""
+
+msgid "quotation"
+msgstr ""
+
+msgid "quotations"
+msgstr ""
+
+msgid "Quotation"
+msgstr ""
+
+msgid "Active"
+msgstr ""
+
+msgid "Completed"
+msgstr ""
+
+msgid "deposit amount"
+msgstr ""
+
+msgid "reservation"
+msgstr ""
+
+msgid "reservations"
+msgstr ""
+
+msgid "Reservation"
+msgstr ""
+
+msgid "agreed amount"
+msgstr ""
+
+msgid "sale date"
+msgstr ""
+
+msgid "sales"
+msgstr ""
+
+msgid "Sale"
+msgstr ""
+
+msgid "invoice number"
+msgstr ""
+
+msgid "issued on"
+msgstr ""
+
+msgid "invoice"
+msgstr ""
+
+msgid "invoices"
+msgstr ""
+
+msgid "Lead created."
+msgstr ""
+
+msgid "New lead"
+msgstr ""
+
+msgid "Lead status updated."
+msgstr ""
+
+msgid "Unknown status."
+msgstr ""
+
+msgid "Quotation created."
+msgstr ""
+
+msgid "New quotation"
+msgstr ""
+
+msgid "Quotation status updated."
+msgstr ""
+
+msgid "Reservation created."
+msgstr ""
+
+msgid "New reservation"
+msgstr ""
+
+msgid "Sale created — complete it to close the deal."
+msgstr ""
+
+msgid "New sale"
+msgstr ""
+
+msgid "Sale completed — vehicle marked sold."
+msgstr ""
+
+msgid "Sale could not be completed (already closed?)."
+msgstr ""
+
+msgid "Complete the sale before issuing the invoice."
+msgstr ""
+
+msgid "Invoice %(number)s issued."
+msgstr ""
+
+msgid "contact person"
+msgstr ""
+
+msgid "address"
+msgstr ""
+
+msgid "suppliers"
+msgstr ""
+
+msgid "Supplier created."
+msgstr ""
+
+msgid "Add supplier"
+msgstr ""
+
+msgid "Supplier updated."
+msgstr ""
+
+msgid "Edit supplier"
+msgstr ""
+
+msgid "Branch does not belong to your company."
+msgstr ""
+
+msgid "In transit"
+msgstr ""
+
+msgid "In stock"
+msgstr ""
+
+msgid "Sold"
+msgstr ""
+
+msgid "VIN"
+msgstr ""
+
+msgid "make"
+msgstr ""
+
+msgid "model"
+msgstr ""
+
+msgid "year"
+msgstr ""
+
+msgid "color"
+msgstr ""
+
+msgid "mileage (km)"
+msgstr ""
+
+msgid "vehicles"
+msgstr ""
+
+msgid "Cost line added."
+msgstr ""
+
+msgid "Could not add cost line — check the form values."
+msgstr ""
+
+msgid "Vehicle created."
+msgstr ""
+
+msgid "Add vehicle"
+msgstr ""
+
+msgid "Vehicle updated."
+msgstr ""
+
+msgid "Edit vehicle"
+msgstr ""
+
+msgid "Edit"
+msgstr ""
+
+msgid "Status"
+msgstr ""
+
+msgid "Color"
+msgstr ""
+
+msgid "Mileage (km)"
+msgstr ""
+
+msgid "Branch"
+msgstr ""
+
+msgid "Created"
+msgstr ""
+
+msgid "Notes"
+msgstr ""
+
+msgid "Cost history"
+msgstr ""
+
+msgid "Landed cost"
+msgstr ""
+
+msgid "Date"
+msgstr ""
+
+msgid "Type"
+msgstr ""
+
+msgid "Description"
+msgstr ""
+
+msgid "Amount"
+msgstr ""
+
+msgid "No cost lines yet."
+msgstr ""
+
+msgid "Add cost line"
+msgstr ""
+
+msgid "Save"
+msgstr ""
+
+msgid "Cancel"
+msgstr ""
+
+msgid "Search VIN, make, model…"
+msgstr ""
+
+msgid "All statuses"
+msgstr ""
+
+msgid "Filter"
+msgstr ""
+
+msgid "Vehicle"
+msgstr ""
+
+msgid "Year"
+msgstr ""
+
+msgid "No vehicles found."
+msgstr ""
+
+msgid "Search suppliers…"
+msgstr ""
+
+msgid "Search"
+msgstr ""
+
+msgid "Name"
+msgstr ""
+
+msgid "Contact"
+msgstr ""
+
+msgid "Phone"
+msgstr ""
+
+msgid "No suppliers yet."
+msgstr ""
+
+msgid "Update"
+msgstr ""
+
+msgid "Source"
+msgstr ""
+
+msgid "Customer"
+msgstr ""
+
+msgid "Vehicle of interest"
+msgstr ""
+
+msgid "No leads yet."
+msgstr ""
+
+msgid "Valid until"
+msgstr ""
+
+msgid "Lead"
+msgstr ""
+
+msgid "Quotations"
+msgstr ""
+
+msgid "No quotations yet."
+msgstr ""
+
+msgid "Reservations"
+msgstr ""
+
+msgid "Deposit"
+msgstr ""
+
+msgid "No reservations yet."
+msgstr ""
+
+msgid "Complete sale"
+msgstr ""
+
+msgid "Issue invoice"
+msgstr ""
+
+msgid "Agreed amount"
+msgstr ""
+
+msgid "Sale date"
+msgstr ""
+
+msgid "Invoice"
+msgstr ""
+
+msgid "Number"
+msgstr ""
+
+msgid "Issued on"
+msgstr ""
+
+msgid "No invoice issued yet."
+msgstr ""
+
+msgid "No sales yet."
+msgstr ""
+
+msgid "Receive order"
+msgstr ""
+
+msgid "Supplier"
+msgstr ""
+
+msgid "Order date"
+msgstr ""
+
+msgid "Lines"
+msgstr ""
+
+msgid "No lines yet — add the first line below."
+msgstr ""
+
+msgid "Total"
+msgstr ""
+
+msgid "Add line"
+msgstr ""
+
+msgid "Purchase orders"
+msgstr ""
+
+msgid "Reference"
+msgstr ""
+
+msgid "No purchase orders yet."
+msgstr ""
+
+msgid "Ledger"
+msgstr ""
+
+msgid "Related to"
+msgstr ""
+
+msgid "reversal"
+msgstr ""
+
+msgid "Reverse"
+msgstr ""
+
+msgid "No ledger entries yet."
+msgstr ""
+
+msgid "Lot"
+msgstr ""
+
+msgid "No stock records yet."
+msgstr ""
+
+msgid "Recorded by"
+msgstr ""
+
+msgid "No expenses yet."
+msgstr ""
+
+msgid "Upload"
+msgstr ""
+
+msgid "Title"
+msgstr ""
+
+msgid "Uploaded"
+msgstr ""
+
+msgid "No documents yet."
+msgstr ""
+
+msgid "National ID"
+msgstr ""
+
+msgid "No leads."
+msgstr ""
+
+msgid "Search customers…"
+msgstr ""
+
+msgid "No customers yet."
+msgstr ""
+
+msgid "Channels"
+msgstr ""
+
+msgid "inactive"
+msgstr ""
+
+msgid "No channels configured yet."
+msgstr ""
+
+msgid "Customer profile"
+msgstr ""
+
+msgid "No messages yet."
+msgstr ""
+
+msgid "Send reply"
+msgstr ""
+
+msgid "Channel"
+msgstr ""
+
+msgid "Assigned to"
+msgstr ""
+
+msgid "Last message"
+msgstr ""
+
+msgid "unassigned"
+msgstr ""
+
+msgid "No conversations yet — inbound webhook messages will appear here."
+msgstr ""
+
+msgid "Accounting overview"
+msgstr ""
+
+msgid "Balance"
+msgstr ""
+
+msgid "Money in"
+msgstr ""
+
+msgid "Money out"
+msgstr ""
+
+msgid "Outstanding on completed sales"
+msgstr ""
+
+msgid "Outstanding"
+msgstr ""
+
+msgid "No completed sales yet."
+msgstr ""
