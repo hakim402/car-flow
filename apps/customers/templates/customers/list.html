@@ -18,40 +18,60 @@
         {% translate "Search" %}
     </button>
 </form>
-<div class="bg-white rounded-lg shadow overflow-x-auto">
-    <table class="w-full text-sm">
-        <thead class="bg-slate-50 text-slate-600">
-            <tr>
-                <th class="px-4 py-3 text-start font-medium">{% translate "Name" %}</th>
-                <th class="px-4 py-3 text-start font-medium">{% translate "Phone" %}</th>
-                <th class="px-4 py-3 text-start font-medium">{% translate "Email" %}</th>
-                <th class="px-4 py-3 text-start font-medium">{% translate "Branch" %}</th>
-                <th class="px-4 py-3"></th>
-            </tr>
-        </thead>
-        <tbody class="divide-y divide-slate-200">
-            {% for customer in customers %}
-                <tr class="hover:bg-slate-50">
-                    <td class="px-4 py-3">
-                        <a href="{{ customer.get_absolute_url }}" class="font-medium text-slate-800 hover:text-amber-600">
-                            {{ customer.full_name }}
-                        </a>
-                    </td>
-                    <td class="px-4 py-3" dir="ltr">{{ customer.phone|default:"—" }}</td>
-                    <td class="px-4 py-3" dir="ltr">{{ customer.email|default:"—" }}</td>
-                    <td class="px-4 py-3">{{ customer.branch|default:"—" }}</td>
-                    <td class="px-4 py-3 text-end">
-                        <a href="{% url 'customers:edit' customer.pk %}" class="text-slate-500 hover:text-slate-800">
-                            {% translate "Edit" %}
-                        </a>
-                    </td>
-                </tr>
-            {% empty %}
-                <tr><td colspan="5" class="px-4 py-8 text-center text-slate-500">
-                    {% translate "No customers yet." %}
-                </td></tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    {% for customer in customers %}
+        <a href="{{ customer.get_absolute_url }}"
+           class="group block bg-white rounded-lg shadow hover:shadow-md transition-shadow overflow-hidden">
+            <div class="flex items-center gap-4 px-4 pt-4">
+                {% if customer.primary_photo %}
+                    <img src="{{ customer.primary_photo.file.url }}" alt="{{ customer.full_name }}"
+                         class="h-16 w-16 shrink-0 rounded-full object-cover">
+                {% else %}
+                    <span class="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-slate-200 text-slate-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                             stroke="currentColor" class="h-8 w-8">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                  d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.5 20.11a8.25 8.25 0 0 1 15 0" />
+                        </svg>
+                    </span>
+                {% endif %}
+                <div class="min-w-0">
+                    <div class="truncate font-medium text-slate-800 group-hover:text-amber-600">
+                        {{ customer.full_name }}
+                    </div>
+                    {% if customer.national_id %}
+                        <div class="truncate text-xs text-slate-500">
+                            {% translate "National ID" %}: {{ customer.national_id }}
+                        </div>
+                    {% endif %}
+                    {% if customer.branch %}
+                        <div class="truncate text-xs text-slate-500">{{ customer.branch }}</div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="mt-3 border-t border-slate-100 px-4 py-3 text-sm text-slate-600">
+                <div class="flex items-center gap-2" dir="ltr">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                         stroke="currentColor" class="h-4 w-4 shrink-0 text-slate-400">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M2.25 6.75c0 8.28 6.72 15 15 15h2.25a2.25 2.25 0 0 0 2.25-2.25v-1.37c0-.52-.35-.97-.85-1.09l-4.42-1.11a1.13 1.13 0 0 0-1.17.32l-.88 1.1a11.94 11.94 0 0 1-5.3-5.3l1.1-.88c.37-.37.5-.89.32-1.39L7.84 5.1A1.13 1.13 0 0 0 6.75 4.5H5.63a2.25 2.25 0 0 0-2.25 2.25Z" />
+                    </svg>
+                    {{ customer.phone|default:"—" }}
+                </div>
+                <div class="mt-1 flex items-center gap-2" dir="ltr">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                         stroke="currentColor" class="h-4 w-4 shrink-0 text-slate-400">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.24a2.25 2.25 0 0 1-1.07 1.92l-7.5 4.62a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.92v-.24" />
+                    </svg>
+                    {{ customer.email|default:"—" }}
+                </div>
+            </div>
+        </a>
+    {% empty %}
+        <div class="col-span-full bg-white rounded-lg shadow px-4 py-8 text-center text-slate-500">
+            {% translate "No customers yet." %}
+        </div>
+    {% endfor %}
 </div>
 {% endblock %}

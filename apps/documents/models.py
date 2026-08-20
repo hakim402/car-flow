@@ -19,7 +19,12 @@ class DocumentType(models.TextChoices):
     CUSTOMS = "customs", _("Customs / import document")
     INSPECTION = "inspection", _("Inspection report")
     VEHICLE_DOCUMENT = "vehicle_document", _("Other vehicle document")
-    CUSTOMER_DOCUMENT = "customer_document", _("Customer document")
+    CUSTOMER_PHOTO = "customer_photo", _("Customer photo")
+    TAZKERA = "tazkera", _("Tazkera (national ID)")
+    PASSPORT = "passport", _("Passport")
+    ELECTRICITY_BILL = "electricity_bill", _("Electricity bill")
+    OTHER_BILL = "other_bill", _("Other bill")
+    CUSTOMER_DOCUMENT = "customer_document", _("Other customer document")
     OTHER = "other", _("Other")
 
 
@@ -32,6 +37,16 @@ VEHICLE_DOC_TYPES = [
     DocumentType.CUSTOMS,
     DocumentType.INSPECTION,
     DocumentType.VEHICLE_DOCUMENT,
+]
+
+#: Types a customer upload box may create (identity docs, bills, photos).
+CUSTOMER_DOC_TYPES = [
+    DocumentType.CUSTOMER_PHOTO,
+    DocumentType.TAZKERA,
+    DocumentType.PASSPORT,
+    DocumentType.ELECTRICITY_BILL,
+    DocumentType.OTHER_BILL,
+    DocumentType.CUSTOMER_DOCUMENT,
 ]
 
 
@@ -77,4 +92,7 @@ class Document(TenantModel):
 
     @property
     def is_photo(self):
-        return self.doc_type == DocumentType.VEHICLE_PHOTO
+        return self.doc_type in (
+            DocumentType.VEHICLE_PHOTO,
+            DocumentType.CUSTOMER_PHOTO,
+        )

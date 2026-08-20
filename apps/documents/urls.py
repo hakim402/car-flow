@@ -13,4 +13,10 @@ urlpatterns = [
         views.document_upload,
         name="upload_for_vehicle",
     ),
+    # Upload box reached from a customer detail page (customer locked).
+    path(
+        "add/customer/<int:customer_pk>/",
+        views.document_upload,
+        name="upload_for_customer",
+    ),
 ]

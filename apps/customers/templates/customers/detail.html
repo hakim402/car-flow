@@ -6,8 +6,16 @@
 {% block content %}
 <div class="flex items-center justify-between mb-4">
     <h1 class="text-2xl font-semibold">{{ customer.full_name }}</h1>
-    <a href="{% url 'customers:edit' customer.pk %}"
-       class="rounded bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 text-sm">{% translate "Edit" %}</a>
+    <div class="flex items-center gap-2">
+        {% if can_upload_documents %}
+            <a href="{% url 'documents:upload_for_customer' customer.pk %}"
+               class="rounded bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 text-sm">
+                {% translate "Add photo / document" %}
+            </a>
+        {% endif %}
+        <a href="{% url 'customers:edit' customer.pk %}"
+           class="rounded bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 text-sm">{% translate "Edit" %}</a>
+    </div>
 </div>
 <div class="bg-white rounded-lg shadow p-6 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 text-sm mb-6">
     <div><span class="text-slate-500">{% translate "Phone" %}:</span> <span dir="ltr">{{ customer.phone|default:"—" }}</span></div>
@@ -16,6 +24,68 @@
     <div><span class="text-slate-500">{% translate "Branch" %}:</span> {{ customer.branch|default:"—" }}</div>
     {% if customer.notes %}
         <div class="sm:col-span-2"><span class="text-slate-500">{% translate "Notes" %}:</span> {{ customer.notes|linebreaksbr }}</div>
+    {% endif %}
+</div>
+
+<div class="bg-white rounded-lg shadow p-6 mb-6">
+    <h2 class="text-lg font-semibold mb-3">{% translate "Photos" %}</h2>
+    {% if photos %}
+        <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+            {% for photo in photos %}
+                <a href="{{ photo.file.url }}" target="_blank" rel="noopener"
+                   class="group block overflow-hidden rounded-lg border border-slate-200">
+                    <img src="{{ photo.file.url }}" alt="{{ photo.title }}"
+                         class="aspect-video w-full object-cover transition-transform duration-200 group-hover:scale-105">
+                </a>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="text-sm text-slate-500">
+            {% translate "No photos yet." %}
+            {% if can_upload_documents %}
+                <a href="{% url 'documents:upload_for_customer' customer.pk %}"
+                   class="text-amber-600 hover:text-amber-700">{% translate "Upload one" %}</a>
+            {% endif %}
+        </p>
+    {% endif %}
+</div>
+
+<div class="bg-white rounded-lg shadow p-6 mb-6">
+    <h2 class="text-lg font-semibold mb-3">{% translate "Documents" %}</h2>
+    {% if documents %}
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="bg-slate-50 text-slate-600">
+                    <tr>
+                        <th class="px-4 py-3 text-start font-medium">{% translate "Title" %}</th>
+                        <th class="px-4 py-3 text-start font-medium">{% translate "Type" %}</th>
+                        <th class="px-4 py-3 text-start font-medium">{% translate "Uploaded" %}</th>
+                        <th class="px-4 py-3 text-start font-medium">{% translate "By" %}</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-200">
+                    {% for doc in documents %}
+                        <tr class="hover:bg-slate-50">
+                            <td class="px-4 py-3">
+                                <a href="{{ doc.file.url }}" target="_blank" rel="noopener"
+                                   class="font-medium text-slate-800 hover:text-amber-600">{{ doc.title }}</a>
+                            </td>
+                            <td class="px-4 py-3">{{ doc.get_doc_type_display }}</td>
+                            <td class="px-4 py-3">{{ doc.created_at|date:"d M Y" }}</td>
+                            <td class="px-4 py-3">{{ doc.uploaded_by|default:"—" }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="text-sm text-slate-500">
+            {% translate "No documents yet (tazkera, passport, bills…)." %}
+            {% if can_upload_documents %}
+                <a href="{% url 'documents:upload_for_customer' customer.pk %}"
+                   class="text-amber-600 hover:text-amber-700">{% translate "Upload one" %}</a>
+            {% endif %}
+        </p>
     {% endif %}
 </div>
 

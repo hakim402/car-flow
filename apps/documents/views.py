@@ -5,7 +5,7 @@ from django.utils.translation import gettext_lazy as _
 
 from apps.core.decorators import require_permission
 
-from .forms import DocumentForm, VehicleDocumentForm
+from .forms import CustomerDocumentForm, DocumentForm, VehicleDocumentForm
 from .models import Document
 
 
@@ -18,10 +18,11 @@ def document_list(request):
 
 
 @require_permission("documents.add")
-def document_upload(request, vehicle_pk=None):
+def document_upload(request, vehicle_pk=None, customer_pk=None):
     if request.user.company is None:
         raise PermissionDenied
     vehicle = None
+    customer = None
     if vehicle_pk is not None:
         # TenantManager scopes the lookup — another company's vehicle 404s.
         from apps.vehicles.models import Vehicle
@@ -29,6 +30,14 @@ def document_upload(request, vehicle_pk=None):
         vehicle = get_object_or_404(Vehicle, pk=vehicle_pk)
         form = VehicleDocumentForm(
             request.POST or None, request.FILES or None, vehicle=vehicle
+        )
+    elif customer_pk is not None:
+        # TenantManager scopes the lookup — another company's customer 404s.
+        from apps.customers.models import Customer
+
+        customer = get_object_or_404(Customer, pk=customer_pk)
+        form = CustomerDocumentForm(
+            request.POST or None, request.FILES or None, customer=customer
         )
     else:
         form = DocumentForm(request.POST or None, request.FILES or None)
@@ -40,14 +49,17 @@ def document_upload(request, vehicle_pk=None):
         messages.success(request, _("Document uploaded."))
         if vehicle is not None:
             return redirect(vehicle)
+        if customer is not None:
+            return redirect(customer)
         return redirect("documents:list")
-    title = (
-        _("Add photo / document to %(vehicle)s") % {"vehicle": vehicle}
-        if vehicle
-        else _("Upload document")
-    )
+    if vehicle is not None:
+        title = _("Add photo / document to %(vehicle)s") % {"vehicle": vehicle}
+    elif customer is not None:
+        title = _("Add photo / document for %(customer)s") % {"customer": customer}
+    else:
+        title = _("Upload document")
     return render(
         request,
         "documents/form.html",
-        {"form": form, "title": title, "vehicle": vehicle},
+        {"form": form, "title": title, "vehicle": vehicle, "customer": customer},
     )

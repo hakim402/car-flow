@@ -44,5 +44,21 @@ class Customer(TenantModel):
     def __str__(self):
         return self.full_name
 
+    @property
+    def primary_photo(self):
+        """Oldest customer photo (card avatar). Prefetched `photo_list`
+        (set by the list view) avoids a query per card; falls back to a
+        scoped query on direct use (e.g. the detail page)."""
+        photo_list = getattr(self, "photo_list", None)
+        if photo_list is not None:
+            return photo_list[0] if photo_list else None
+        from apps.documents.models import Document, DocumentType
+
+        return (
+            self.documents.filter(doc_type=DocumentType.CUSTOMER_PHOTO)
+            .order_by("created_at", "pk")
+            .first()
+        )
+
     def get_absolute_url(self):
         return reverse("customers:detail", kwargs={"pk": self.pk})

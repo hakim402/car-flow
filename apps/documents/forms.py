@@ -5,7 +5,7 @@ from apps.core.forms import StyledFormMixin
 from apps.customers.models import Customer
 from apps.vehicles.models import Vehicle
 
-from .models import VEHICLE_DOC_TYPES, Document, DocumentType
+from .models import CUSTOMER_DOC_TYPES, VEHICLE_DOC_TYPES, Document, DocumentType
 
 
 class DocumentForm(StyledFormMixin, forms.ModelForm):
@@ -45,5 +45,28 @@ class VehicleDocumentForm(DocumentForm):
 
     def clean(self):
         # Skip DocumentForm.clean: customer is gone and vehicle is enforced
+        # by the locked hidden field.
+        return super(DocumentForm, self).clean()
+
+
+class CustomerDocumentForm(DocumentForm):
+    """Upload box on the customer detail page: the customer is fixed (hidden
+    input), vehicle is irrelevant, and identity/bill types apply."""
+
+    def __init__(self, *args, customer=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.customer = customer
+        del self.fields["vehicle"]
+        self.fields["customer"].widget = forms.HiddenInput()
+        if customer is not None:
+            self.fields["customer"].initial = customer
+        self.fields["doc_type"].choices = [
+            choice
+            for choice in DocumentType.choices
+            if choice[0] in CUSTOMER_DOC_TYPES
+        ]
+
+    def clean(self):
+        # Skip DocumentForm.clean: vehicle is gone and customer is enforced
         # by the locked hidden field.
         return super(DocumentForm, self).clean()
