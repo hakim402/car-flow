@@ -97,6 +97,50 @@
 </div>
 
 <div class="card p-6 mt-6">
+    <h2 class="text-lg font-semibold mb-3">
+        {% translate "Cars bought from this supplier" %}
+        <span class="text-slate-400 text-sm font-normal">({{ vehicles_bought|length }})</span>
+    </h2>
+    {% if vehicles_bought %}
+        <div class="overflow-x-auto">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th class="px-4 py-3">{% translate "Vehicle" %}</th>
+                        <th class="px-4 py-3">{% translate "VIN" %}</th>
+                        <th class="px-4 py-3">{% translate "Purchase order" %}</th>
+                        <th class="px-4 py-3">{% translate "Order date" %}</th>
+                        <th class="px-4 py-3 text-end">{% translate "Paid" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for line in vehicles_bought %}
+                        <tr>
+                            <td class="px-4 py-3">
+                                <a href="{{ line.vehicle.get_absolute_url }}"
+                                   class="font-medium text-slate-800 hover:text-amber-600">
+                                    {{ line.vehicle }}
+                                </a>
+                            </td>
+                            <td class="px-4 py-3 font-mono text-xs text-slate-500" dir="ltr">{{ line.vehicle.vin }}</td>
+                            <td class="px-4 py-3">
+                                <a href="{{ line.order.get_absolute_url }}" class="text-slate-700 hover:text-amber-600">
+                                    {{ line.order }}
+                                </a>
+                            </td>
+                            <td class="px-4 py-3">{{ line.order.order_date|date:"SHORT_DATE_FORMAT" }}</td>
+                            <td class="px-4 py-3 text-end font-medium" dir="ltr">{{ line.amount }} {{ line.currency }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="text-sm text-slate-500">{% translate "No vehicles linked yet — add this supplier's cars as lines on a purchase order." %}</p>
+    {% endif %}
+</div>
+
+<div class="card p-6 mt-6">
     <div class="flex items-center justify-between mb-3">
         <h2 class="text-lg font-semibold">
             {% translate "Documents" %}

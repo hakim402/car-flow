@@ -24,8 +24,70 @@
     <div><span class="text-slate-500">{% translate "Mileage (km)" %}:</span> {{ vehicle.mileage }}</div>
     <div><span class="text-slate-500">{% translate "Branch" %}:</span> {{ vehicle.branch|default:"—" }}</div>
     <div><span class="text-slate-500">{% translate "Created" %}:</span> {{ vehicle.created_at|date:"SHORT_DATE_FORMAT" }}</div>
+    <div>
+        <span class="text-slate-500">{% translate "Bought from" %}:</span>
+        {% if source_supplier %}
+            <a href="{{ source_supplier.get_absolute_url }}" class="font-medium text-slate-800 hover:text-amber-600">
+                {{ source_supplier.name }}
+            </a>
+        {% else %}—{% endif %}
+    </div>
     {% if vehicle.notes %}
         <div class="sm:col-span-2"><span class="text-slate-500">{% translate "Notes" %}:</span> {{ vehicle.notes|linebreaksbr }}</div>
+    {% endif %}
+</div>
+
+{# ============ Purchase history: which supplier sold us this car ============ #}
+<div class="card p-6 mt-6">
+    <h2 class="text-lg font-semibold mb-3">{% translate "Purchased from" %}</h2>
+    {% if purchase_lines %}
+        <div class="overflow-x-auto">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th class="px-4 py-3">{% translate "Supplier" %}</th>
+                        <th class="px-4 py-3">{% translate "Purchase order" %}</th>
+                        <th class="px-4 py-3">{% translate "Type" %}</th>
+                        <th class="px-4 py-3">{% translate "Status" %}</th>
+                        <th class="px-4 py-3">{% translate "Order date" %}</th>
+                        <th class="px-4 py-3 text-end">{% translate "Paid" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for line in purchase_lines %}
+                        <tr>
+                            <td class="px-4 py-3">
+                                <a href="{{ line.order.supplier.get_absolute_url }}"
+                                   class="font-medium text-slate-800 hover:text-amber-600">
+                                    {{ line.order.supplier.name }}
+                                </a>
+                            </td>
+                            <td class="px-4 py-3">
+                                <a href="{{ line.order.get_absolute_url }}" class="text-slate-700 hover:text-amber-600">
+                                    {{ line.order }}
+                                </a>
+                            </td>
+                            <td class="px-4 py-3">
+                                {% if line.order.is_import %}
+                                    <span class="rounded-full bg-sky-100 text-sky-700 px-2 py-0.5 text-xs whitespace-nowrap">
+                                        {{ line.order.get_purchase_type_display }}{% if line.order.origin_country %} · {{ line.order.get_origin_country_display }}{% endif %}
+                                    </span>
+                                {% else %}
+                                    <span class="rounded-full bg-slate-100 text-slate-600 px-2 py-0.5 text-xs whitespace-nowrap">{{ line.order.get_purchase_type_display }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-4 py-3">{{ line.order.get_status_display }}</td>
+                            <td class="px-4 py-3">{{ line.order.order_date|date:"SHORT_DATE_FORMAT" }}</td>
+                            <td class="px-4 py-3 text-end font-medium" dir="ltr">{{ line.amount }} {{ line.currency }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="text-sm text-slate-500">
+            {% translate "Not linked to a purchase order yet — add this car as a line on a purchase order to record who it was bought from." %}
+        </p>
     {% endif %}
 </div>
 

@@ -64,6 +64,11 @@
                 {% if vehicle.branch %}
                     <p class="mt-1 text-xs text-slate-400">{{ vehicle.branch }}</p>
                 {% endif %}
+                {% if vehicle.source_supplier %}
+                    <p class="mt-1 text-xs text-slate-500">
+                        {% translate "From" %}: <span class="font-medium text-slate-600">{{ vehicle.source_supplier.name }}</span>
+                    </p>
+                {% endif %}
             </div>
         </a>
     {% empty %}

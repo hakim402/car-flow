@@ -69,3 +69,16 @@ class Vehicle(TenantModel):
 
     def get_absolute_url(self):
         return reverse("vehicles:detail", kwargs={"pk": self.pk})
+
+    @property
+    def source_supplier(self):
+        """Supplier this car was bought from (via its purchase-order lines).
+
+        The list view prefetches lines into `purchase_line_list`; fall back
+        to a scoped query on direct use (e.g. the detail page)."""
+        line_list = getattr(self, "purchase_line_list", None)
+        if line_list is not None:
+            line = line_list[0] if line_list else None
+        else:
+            line = self.purchase_lines.select_related("order__supplier").first()
+        return line.order.supplier if line is not None else None

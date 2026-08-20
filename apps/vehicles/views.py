@@ -22,6 +22,7 @@ def _current_company_or_deny(request):
 @require_permission("vehicles.view")
 def vehicle_list(request):
     from apps.documents.models import Document, DocumentType
+    from apps.purchases.models import PurchaseOrderLine
 
     queryset = Vehicle.objects.all()  # TenantManager filters by company.
     if request.user.branch_id:
@@ -43,11 +44,19 @@ def vehicle_list(request):
         ),
         to_attr="photo_list",
     )
+    # "Bought from" on each card = supplier of the first purchase-order line.
+    purchases = Prefetch(
+        "purchase_lines",
+        queryset=PurchaseOrderLine.objects.select_related("order__supplier").order_by(
+            "order__order_date", "pk"
+        ),
+        to_attr="purchase_line_list",
+    )
     return render(
         request,
         "vehicles/list.html",
         {
-            "vehicles": queryset.select_related("branch").prefetch_related(photos),
+            "vehicles": queryset.select_related("branch").prefetch_related(photos, purchases),
             "statuses": VehicleStatus.choices,
             "q": search,
             "status": status,
@@ -62,6 +71,10 @@ def vehicle_detail(request, pk):
 
     vehicle = get_object_or_404(Vehicle, pk=pk)
     attachments = vehicle.documents.all().select_related("uploaded_by")
+    # Which supplier was this car bought from — via its purchase-order lines.
+    purchase_lines = vehicle.purchase_lines.select_related(
+        "order__supplier", "order__branch"
+    ).order_by("order__order_date", "pk")
     return render(
         request,
         "vehicles/detail.html",
@@ -74,6 +87,8 @@ def vehicle_detail(request, pk):
             "photos": [d for d in attachments if d.is_photo],
             "documents": [d for d in attachments if not d.is_photo],
             "can_upload_documents": request.user.has_permission("documents.add"),
+            "purchase_lines": purchase_lines,
+            "source_supplier": purchase_lines[0].order.supplier if purchase_lines else None,
         },
     )
 

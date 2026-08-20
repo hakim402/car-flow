@@ -9,6 +9,7 @@ from apps.accounting.services import supplier_payments
 from apps.core.decorators import require_permission
 from apps.documents.models import Document, DocumentType
 from apps.payments.models import EntryType, LedgerEntry
+from apps.purchases.models import PurchaseOrderLine
 
 from .forms import SupplierForm
 from .models import Supplier
@@ -55,6 +56,13 @@ def supplier_detail(request, pk):
         object_id=supplier.pk,
         type=EntryType.SUPPLIER_PAYMENT,
     )
+    # Cars bought from this supplier: order lines that reference a vehicle.
+    vehicles_bought = (
+        PurchaseOrderLine.objects.filter(order__supplier=supplier)
+        .exclude(vehicle=None)
+        .select_related("vehicle", "order")
+        .order_by("-order__order_date", "-pk")
+    )
     attachments = supplier.documents.all().select_related("uploaded_by")
     return render(
         request,
@@ -65,6 +73,7 @@ def supplier_detail(request, pk):
             "order_count": orders.count(),
             "payments": payments,
             "total_paid": supplier_payments(supplier),
+            "vehicles_bought": vehicles_bought,
             "logo": supplier.logo,
             "documents": attachments,
             "can_edit": request.user.has_permission("suppliers.change"),
