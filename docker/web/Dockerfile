@@ -47,7 +47,10 @@ COPY . /app
 
 # Windows checkouts may deliver CRLF; normalize the entrypoint and make sure
 # it is executable (COPY from a Windows context does not preserve +x).
-RUN sed -i 's/\r$//' /app/docker/entrypoint.sh && chmod +x /app/docker/entrypoint.sh
+# Templates must be LF too: Django's template lexer splits tokens on \r, so
+# multi-line {# #} comments in CRLF templates render as literal page text.
+RUN sed -i 's/\r$//' /app/docker/entrypoint.sh && chmod +x /app/docker/entrypoint.sh \
+    && find /app/templates -name '*.html' -exec sed -i 's/\r$//' {} +
 
 # Compile translation catalogs at build time (never at container start).
 RUN if ls locale/*/LC_MESSAGES/*.po >/dev/null 2>&1; then django-admin compilemessages; fi

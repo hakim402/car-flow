@@ -2,12 +2,12 @@
 
 {% load i18n %}
 
-{# Project override of Unfold's admin index (templates/ DIRS win over app
+{% comment %}Project override of Unfold's admin index (templates/ DIRS win over app
    loaders): renders the platform KPI cards supplied by
    UNFOLD["DASHBOARD_CALLBACK"] (admin_dashboard_callback, agent.md §8.1)
    above the standard app list + recent actions. Copy of Unfold's own
    admin/index.html structure plus the cards row; utility classes are
-   limited to ones present in Unfold's compiled CSS. #}
+   limited to ones present in Unfold's compiled CSS.{% endcomment %}
 
 {% block title %}{% if subtitle %}{{ subtitle }} | {% endif %}{{ title }} | {{ site_title|default:_('Django site admin') }}{% endblock %}
 

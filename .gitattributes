@@ -1,3 +1,30 @@
-# Shell scripts must stay LF even on Windows checkouts — the container
-# entrypoint breaks on CRLF.
+# Normalize line endings on checkin; force LF for files that break with CRLF:
+# Django's template lexer splits tokens on \r, so multi-line {# #} comments
+# in CRLF templates render as literal text on the page.
+* text=auto eol=lf
+
+*.html text eol=lf
+*.py text eol=lf
+*.txt text eol=lf
+*.md text eol=lf
+*.po text eol=lf
+*.conf text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.css text eol=lf
+*.js text eol=lf
+*.json text eol=lf
+*.ini text eol=lf
+*.cfg text eol=lf
+Dockerfile text eol=lf
 *.sh text eol=lf
+
+# True binary files stay untouched.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.mo binary

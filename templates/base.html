@@ -9,8 +9,12 @@
 <body class="bg-slate-100 min-h-screen text-slate-900 antialiased">
 
 {% if user.is_authenticated %}
-{# Invisible safelist: classes toggled by the inline JS below must exist
-   literally in this file for the Tailwind scanner to generate them. #}
+{% comment %}
+Invisible safelist: classes toggled by the inline JS below must exist
+literally in this file for the Tailwind scanner to generate them.
+({% comment %} instead of {# #}: the template lexer strips only
+single-line {# #} comments.)
+{% endcomment %}
 <span class="hidden translate-x-0 ltr:-translate-x-full rtl:translate-x-full hidden opacity-0 opacity-100"></span>
 
 {# ============================= Sidebar ============================= #}
@@ -210,8 +214,10 @@
 
 {% endif %}
 
-{# Single `content` block for both auth states — Django forbids duplicate
-   block names even across if-branches, so the auth check only wraps chrome. #}
+{% comment %}
+Single `content` block for both auth states — Django forbids duplicate
+block names even across if-branches, so the auth check only wraps chrome.
+{% endcomment %}
 <main class="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8 {% if user.is_authenticated %}flex-1{% endif %}">
     {% if messages %}
         <div class="mb-4 space-y-2">

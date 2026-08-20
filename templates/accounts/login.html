@@ -14,8 +14,8 @@
     <form method="post" class="space-y-4">
         {% csrf_token %}
         <div>
-            {# Field is POSTed as "username" — the key AuthenticationForm
-               reads — but the value is the email address (USERNAME_FIELD). #}
+            {% comment %}Field is POSTed as "username" — the key AuthenticationForm
+               reads — but the value is the email address (USERNAME_FIELD).{% endcomment %}
             <label for="id_username" class="block text-sm font-medium mb-1">{% translate "Email" %}</label>
             <input type="email" name="username" id="id_username" required autofocus
                    autocomplete="username" placeholder="name@company.com"
