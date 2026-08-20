@@ -6,3 +6,5 @@ redis>=5.0
 psycopg[binary]>=3.2
 django-simple-history>=3.7
 django-storages[boto3]>=1.14
+# Modern theme for Django Admin (Super Admin console, agent.md §8.1).
+django-unfold>=0.104,<1.0

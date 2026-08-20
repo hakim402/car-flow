@@ -2,6 +2,7 @@ from django.conf import settings
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
+from django.urls import reverse
 from django.views.decorators.http import require_POST
 
 # Session key LocaleMiddleware used before Django switched the canonical
@@ -43,8 +44,75 @@ class CarFlowLoginView(auth_views.LoginView):
 
 @login_required
 def dashboard(request):
-    """Post-login landing screen; app tiles are added as each app ships."""
-    return render(request, "accounts/dashboard.html")
+    """Post-login landing screen: company KPIs, quick actions and the latest
+    sales. Tenant scoping is automatic — TenantMiddleware filters `objects`
+    to the user's company, while Super Admin (no company) sees platform-wide
+    totals through the same unfiltered manager (§5)."""
+    # Imports stay local: this view lives in the auth app and must not drag
+    # the business models into its module-import graph at startup.
+    from apps.customers.models import Customer
+    from apps.sales.models import Lead, LeadStatus, Sale, SaleStatus
+    from apps.vehicles.models import Vehicle, VehicleStatus
+
+    stats = {
+        "vehicles_in_stock": Vehicle.objects.filter(
+            status=VehicleStatus.IN_STOCK
+        ).count(),
+        "open_leads": Lead.objects.filter(
+            status__in=[LeadStatus.NEW, LeadStatus.CONTACTED, LeadStatus.QUALIFIED]
+        ).count(),
+        "active_sales": Sale.objects.filter(status=SaleStatus.DRAFT).count(),
+        "customers": Customer.objects.count(),
+    }
+    context = {
+        "stats": stats,
+        "recent_sales": Sale.objects.select_related("customer", "vehicle")
+        .order_by("-created_at")[:5],
+        # Super Admin only: platform-wide tenant and user totals (§8.1).
+        "platform": None,
+    }
+    if request.user.company_id is None:
+        from apps.accounts.models import User
+        from apps.organizations.models import Organization
+
+        context["platform"] = {
+            "companies": Organization.objects.count(),
+            "users": User.objects.count(),
+        }
+    return render(request, "accounts/dashboard.html", context)
+
+
+def admin_dashboard_callback(request, context):
+    """Unfold admin index enrichment (UNFOLD["DASHBOARD_CALLBACK"]): platform
+    KPI cards on the Super Admin home screen. Runs inside /admin/ only.
+    Cards link to the models registered in Django Admin (§8.1)."""
+    from apps.accounts.models import Role, User
+    from apps.branches.models import Branch
+    from apps.organizations.models import Organization
+
+    context["navigation"] = [
+        {
+            "title": str(Organization.objects.count()),
+            "link": reverse("admin:organizations_organization_changelist"),
+            "subtitle": "Companies",
+        },
+        {
+            "title": str(Branch.objects.count()),
+            "link": reverse("admin:branches_branch_changelist"),
+            "subtitle": "Branches",
+        },
+        {
+            "title": str(User.objects.count()),
+            "link": reverse("admin:accounts_user_changelist"),
+            "subtitle": "Users",
+        },
+        {
+            "title": str(Role.objects.count()),
+            "link": reverse("admin:accounts_role_changelist"),
+            "subtitle": "Roles",
+        },
+    ]
+    return context
 
 
 @require_POST

@@ -1,0 +1,38 @@
+{% extends 'admin/base.html' %}
+
+{% load i18n %}
+
+{# Project override of Unfold's admin index (templates/ DIRS win over app
+   loaders): renders the platform KPI cards supplied by
+   UNFOLD["DASHBOARD_CALLBACK"] (admin_dashboard_callback, agent.md §8.1)
+   above the standard app list + recent actions. Copy of Unfold's own
+   admin/index.html structure plus the cards row; utility classes are
+   limited to ones present in Unfold's compiled CSS. #}
+
+{% block title %}{% if subtitle %}{{ subtitle }} | {% endif %}{{ title }} | {{ site_title|default:_('Django site admin') }}{% endblock %}
+
+{% block branding %}
+    {% include "unfold/helpers/site_branding.html" %}
+{% endblock %}
+
+{% block content %}
+    {% if navigation %}
+        <div class="flex flex-col gap-4 mb-8 lg:flex-row">
+            {% for item in navigation %}
+                <a href="{{ item.link }}"
+                   class="grow rounded-default border border-base-200 bg-base-50 p-4 dark:border-base-800 dark:bg-base-800">
+                    <p class="font-semibold text-3xl text-primary-600 dark:text-primary-500">{{ item.title }}</p>
+                    <p class="mt-1 text-font-important-light text-sm dark:text-font-important-dark">{{ item.subtitle }}</p>
+                </a>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <div class="flex flex-col lg:flex-row lg:gap-8">
+        <div class="grow">
+            {% include "unfold/helpers/app_list_default.html" %}
+        </div>
+
+        {% include "unfold/helpers/history.html" %}
+    </div>
+{% endblock %}

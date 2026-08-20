@@ -53,6 +53,8 @@ if not _csrf_origins:
 CSRF_TRUSTED_ORIGINS = _csrf_origins
 
 INSTALLED_APPS = [
+    # Unfold theme must precede django.contrib.admin so its templates win.
+    "unfold",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -98,6 +100,27 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = "config.urls"
+
+# --------------------------------------------------------------------------
+# Django Admin theme (django-unfold) — Super Admin console (§8.1)
+# --------------------------------------------------------------------------
+UNFOLD = {
+    "SITE_TITLE": "AUTOMEX CarFlow",
+    "SITE_HEADER": "AUTOMEX CarFlow",
+    "SITE_SUBHEADER": "Super Admin console",
+    "SITE_URL": "/",
+    "SITE_SYMBOL": "settings",
+    # Brand accent (Tailwind amber) to match the app UI.
+    "COLORS": {
+        "primary": {
+            "50": "#fffbeb", "100": "#fef3c7", "200": "#fde68a",
+            "300": "#fcd34d", "400": "#fbbf24", "500": "#f59e0b",
+            "600": "#d97706", "700": "#b45309", "800": "#92400e",
+            "900": "#78350f", "950": "#451a03",
+        },
+    },
+    "DASHBOARD_CALLBACK": "apps.accounts.views.admin_dashboard_callback",
+}
 
 TEMPLATES = [
     {
@@ -153,16 +176,20 @@ LANGUAGES = [
 ]
 LOCALE_PATHS = [BASE_DIR / "locale"]
 
-# "prs" (ISO 639-3) is not in Django's built-in language table; register it
-# for template language metadata, and mark both RTL languages in
-# LANGUAGES_BIDI — that setting is what get_language_bidi() actually reads
-# (§11: Dari and Pashto render right-to-left). Mutated in place because
-# Django keeps a reference to the default list object.
+# "prs" (ISO 639-3) and "ps" are not in Django's built-in language table;
+# register both for template language metadata (get_available_languages
+# raises KeyError otherwise), and mark both RTL languages in LANGUAGES_BIDI —
+# that setting is what get_language_bidi() actually reads (§11: Dari and
+# Pashto render right-to-left). Mutated in place because Django keeps a
+# reference to the default list object.
 from django.conf.locale import LANG_INFO  # noqa: E402
 from django.conf.global_settings import LANGUAGES_BIDI  # noqa: E402
 
 LANG_INFO.setdefault(
     "prs", {"name": "Dari", "name_local": "دری", "bidi": True}
+)
+LANG_INFO.setdefault(
+    "ps", {"name": "Pashto", "name_local": "پښتو", "bidi": True}
 )
 # Mutated in place because Django keeps a reference to the default list.
 for _code in ("prs", "ps"):

@@ -1,0 +1,5 @@
+/* Tailwind entry point — compiled by `npm run css` into static/css/tailwind.css.
+ * Only logical RTL-safe utilities are used in templates (agent.md §11.3). */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

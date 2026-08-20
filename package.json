@@ -1,0 +1,12 @@
+{
+  "name": "automex-car-flow",
+  "private": true,
+  "description": "Front-end asset build for AUTOMEX CarFlow (Tailwind CSS only).",
+  "scripts": {
+    "css": "tailwindcss -i ./css/input.css -o ./static/css/tailwind.css --minify",
+    "css:watch": "tailwindcss -i ./css/input.css -o ./static/css/tailwind.css --watch"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.0"
+  }
+}
