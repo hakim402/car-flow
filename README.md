@@ -213,19 +213,25 @@ cp .env.example .env                  # PowerShell: Copy-Item .env.example .env
 docker compose up --build
 
 # 5. Verify
-#    http://localhost:8765           → redirects to the login page
+#    http://localhost:8000           → redirects to the login page
 ```
 
 `docker compose up` automatically applies `docker-compose.override.yml`
 (development mode: source bind-mounted, Django dev server with auto-reload,
-DEBUG on, Nginx dormant). Migrations run automatically in the `web`
-container on every start.
+DEBUG on, Nginx dormant) and serves on **http://localhost:8000**. Migrations
+run automatically in the `web` container on every start.
+
+> **Two modes, two ports:** bare `docker compose ...` = development on
+> `DEV_PORT` (default **8000**); `docker compose -f docker-compose.yml ...` =
+> production (Nginx + Gunicorn) on `NGINX_PORT` (default **8765**).
+> Containers share the same names, so run only one mode at a time:
+> `docker compose down` before switching.
 
 Sanity check from a terminal:
 
 ```bash
-curl -s -o /dev/null -w "%{http_code}\n" http://localhost:8765/accounts/login/
-# → 200
+curl -s -o /dev/null -w "%{http_code}\n" http://localhost:8000/accounts/login/
+# → 200  (production stack: use http://localhost:8765 instead)
 ```
 
 ---
@@ -244,7 +250,8 @@ docker compose exec web python manage.py createsuperuser
 
 ### Step 2 — create a company and staff via Admin
 
-Log in at `http://localhost:8765/admin/` and create, in order:
+Log in at `http://localhost:8000/admin/` (dev) — or `http://localhost:8765/admin/`
+on the production stack — and create, in order:
 
 1. **Organization** — a company/tenant.
 2. **Branch** *(optional)* — belongs to the organization.
@@ -455,8 +462,14 @@ docker compose logs -f web 2>&1 | tee web.log                    # bash
 ```bash
 docker compose ps                          # db / redis show (healthy)
 docker compose ps --format "{{.Name}}: {{.Status}}"
+# Dev stack:
+curl -s -o /dev/null -w "%{http_code}" http://localhost:8000/accounts/login/
+# Production stack:
 curl -s -o /dev/null -w "%{http_code}" http://localhost:8765/accounts/login/
 ```
+
+All services carry `restart: unless-stopped`, so they come back
+automatically after a Docker Desktop / machine restart.
 
 ### Live inspection / debugging
 
@@ -578,12 +591,13 @@ Quick RTL check: set cookie `django_language=prs` and reload any page —
 
 ## Ports
 
-Both modes use host port **8765** by default:
+Dev and production use **different** host ports so the two stacks never
+collide:
 
-| Mode | Variable | Mapping |
-|---|---|---|
-| Development | `DEV_PORT` | `${DEV_PORT:-8765}` → Django dev server `8000` |
-| Production | `NGINX_PORT` | `${NGINX_PORT:-8765}` → Nginx `80` |
+| Mode | Variable | Default | Mapping |
+|---|---|---|---|
+| Development | `DEV_PORT` | `8000` | `${DEV_PORT:-8000}` → Django dev server `8000` |
+| Production | `NGINX_PORT` | `8765` | `${NGINX_PORT:-8765}` → Nginx `80` |
 
 Change in `.env`, then `docker compose up -d`. Container-internal ports stay
 fixed — only the host mapping changes.
@@ -665,7 +679,8 @@ covered end-to-end in **[`PRODUCTION.md`](PRODUCTION.md)**:
 | Symptom | Fix |
 |---|---|
 | `The Windows Subsystem for Linux is not installed` | `wsl --install` as administrator → reboot → restart Docker Desktop. |
-| `port is already allocated` on `up` | Change `DEV_PORT`/`NGINX_PORT` in `.env`, or stop the conflicting service. |
+| `port is already allocated` on `up` | The other mode's stack is still holding the port — `docker compose down` first, or change `DEV_PORT`/`NGINX_PORT` in `.env`. |
+| App containers stuck in `Created` after switching modes | Dev and prod share container names. Run `docker compose down`, then start the mode you want (bare commands = dev, `-f docker-compose.yml` = prod). |
 | `403 CSRF verification failed` on form POST | Plain-HTTP stack with Secure cookies: set `COOKIES_SECURE=False` in `.env`, then `docker compose up -d --force-recreate web` (add `-f docker-compose.yml` for the prod stack). HTTPS deployments keep it `True`. |
 | `403` + log line `Origin checking failed - … does not match any trusted origins` | The browser's `Origin` header isn't trusted. Origins are auto-derived from `DJANGO_ALLOWED_HOSTS` + port; if your URL differs, set `DJANGO_CSRF_TRUSTED_ORIGINS=https://your.host` in `.env` and recreate `web`. |
 | `403 Forbidden (Permission denied)` on app pages like `/vehicles/add/` | Those pages are company-scoped — the logged-in user must belong to a company with a suitable role. Super Admin (`company=None`) manages tenants via `/admin/`; day-to-day records are added by a company user (e.g. Organization Admin). |

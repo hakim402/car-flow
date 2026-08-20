@@ -15,9 +15,11 @@ services:
     volumes:
       - .:/app
       - media_data:/app/media
+    restart: unless-stopped
     ports:
       # Host port for the dev server (see DEV_PORT in .env); container side stays 8000.
-      - "${DEV_PORT:-8765}:8000"
+      # Defaults to 8000 so dev never collides with the production stack on 8765.
+      - "${DEV_PORT:-8000}:8000"
 
   worker:
     # Same dev image as web (built once by the web service).
@@ -27,6 +29,7 @@ services:
     volumes:
       - .:/app
       - media_data:/app/media
+    restart: unless-stopped
 
   beat:
     image: automex-carflow:dev
@@ -34,6 +37,7 @@ services:
       DJANGO_SETTINGS_MODULE: config.settings.dev
     volumes:
       - .:/app
+    restart: unless-stopped
 
   # Dev talks to Django directly on :8000 — Nginx is production-only.
   # Assigning a never-selected profile keeps the service defined but dormant.

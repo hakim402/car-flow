@@ -14,6 +14,7 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
       interval: 5s
@@ -24,6 +25,7 @@ services:
     image: redis:7-alpine
     volumes:
       - redis_data:/data
+    restart: unless-stopped
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
@@ -47,6 +49,7 @@ services:
     volumes:
       - static_files:/app/staticfiles
       - media_data:/app/media
+    restart: unless-stopped
     depends_on:
       db:
         condition: service_healthy
@@ -62,6 +65,7 @@ services:
       DJANGO_SETTINGS_MODULE: config.settings.prod
     volumes:
       - media_data:/app/media
+    restart: unless-stopped
     depends_on:
       db:
         condition: service_healthy
@@ -75,6 +79,7 @@ services:
       - .env
     environment:
       DJANGO_SETTINGS_MODULE: config.settings.prod
+    restart: unless-stopped
     depends_on:
       db:
         condition: service_healthy
@@ -90,6 +95,7 @@ services:
     ports:
       # Host port for Nginx (see NGINX_PORT in .env); container side stays 80.
       - "${NGINX_PORT:-8765}:80"
+    restart: unless-stopped
     depends_on:
       - web
 
