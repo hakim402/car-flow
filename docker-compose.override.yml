@@ -14,7 +14,8 @@ services:
       - .:/app
       - media_data:/app/media
     ports:
-      - "8000:8000"
+      # Host port for the dev server (see DEV_PORT in .env); container side stays 8000.
+      - "${DEV_PORT:-8765}:8000"
 
   worker:
     build:

@@ -85,7 +85,8 @@ services:
       - static_files:/app/staticfiles:ro
       - media_data:/app/media:ro
     ports:
-      - "${NGINX_PORT:-8000}:80"
+      # Host port for Nginx (see NGINX_PORT in .env); container side stays 80.
+      - "${NGINX_PORT:-8765}:80"
     depends_on:
       - web
 
