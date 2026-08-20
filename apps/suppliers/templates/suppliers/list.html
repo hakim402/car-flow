@@ -18,36 +18,51 @@
         {% translate "Search" %}
     </button>
 </form>
-<div class="bg-white rounded-lg shadow overflow-x-auto">
-    <table class="w-full text-sm">
-        <thead class="bg-slate-50 text-slate-600">
-            <tr>
-                <th class="px-4 py-3 text-start font-medium">{% translate "Name" %}</th>
-                <th class="px-4 py-3 text-start font-medium">{% translate "Contact" %}</th>
-                <th class="px-4 py-3 text-start font-medium">{% translate "Phone" %}</th>
-                <th class="px-4 py-3 text-start font-medium">{% translate "Email" %}</th>
-                <th class="px-4 py-3"></th>
-            </tr>
-        </thead>
-        <tbody class="divide-y divide-slate-200">
-            {% for supplier in suppliers %}
-                <tr class="hover:bg-slate-50">
-                    <td class="px-4 py-3 font-medium">{{ supplier.name }}</td>
-                    <td class="px-4 py-3">{{ supplier.contact_person|default:"—" }}</td>
-                    <td class="px-4 py-3" dir="ltr">{{ supplier.phone|default:"—" }}</td>
-                    <td class="px-4 py-3" dir="ltr">{{ supplier.email|default:"—" }}</td>
-                    <td class="px-4 py-3 text-end">
-                        <a href="{% url 'suppliers:edit' supplier.pk %}" class="text-slate-500 hover:text-slate-800">
-                            {% translate "Edit" %}
-                        </a>
-                    </td>
-                </tr>
-            {% empty %}
-                <tr><td colspan="5" class="px-4 py-8 text-center text-slate-500">
-                    {% translate "No suppliers yet." %}
-                </td></tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    {% for supplier in suppliers %}
+        <a href="{{ supplier.get_absolute_url }}"
+           class="group block bg-white rounded-lg shadow hover:shadow-md transition-shadow overflow-hidden">
+            <div class="flex items-center gap-4 px-4 pt-4">
+                <span class="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-slate-800 text-amber-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                         stroke="currentColor" class="h-7 w-7">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.37a1.5 1.5 0 0 1 1.5-1.5h3a1.5 1.5 0 0 1 1.5 1.5V21" />
+                    </svg>
+                </span>
+                <div class="min-w-0">
+                    <div class="truncate font-medium text-slate-800 group-hover:text-amber-600">
+                        {{ supplier.name }}
+                    </div>
+                    <div class="truncate text-xs text-slate-500">{{ supplier.get_supplier_type_display }}</div>
+                    {% if supplier.country %}
+                        <div class="truncate text-xs text-slate-500">{{ supplier.get_country_display }}</div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="mt-3 border-t border-slate-100 px-4 py-3 text-sm text-slate-600">
+                <div class="flex items-center gap-2" dir="ltr">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                         stroke="currentColor" class="h-4 w-4 shrink-0 text-slate-400">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M2.25 6.75c0 8.28 6.72 15 15 15h2.25a2.25 2.25 0 0 0 2.25-2.25v-1.37c0-.52-.35-.97-.85-1.09l-4.42-1.11a1.13 1.13 0 0 0-1.17.32l-.88 1.1a11.94 11.94 0 0 1-5.3-5.3l1.1-.88c.37-.37.5-.89.32-1.39L7.84 5.1A1.13 1.13 0 0 0 6.75 4.5H5.63a2.25 2.25 0 0 0-2.25 2.25Z" />
+                    </svg>
+                    {{ supplier.phone|default:"—" }}
+                </div>
+                <div class="mt-1 flex items-center gap-2" dir="ltr">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                         stroke="currentColor" class="h-4 w-4 shrink-0 text-slate-400">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.24a2.25 2.25 0 0 1-1.07 1.92l-7.5 4.62a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.92v-.24" />
+                    </svg>
+                    {{ supplier.email|default:"—" }}
+                </div>
+            </div>
+        </a>
+    {% empty %}
+        <div class="col-span-full bg-white rounded-lg shadow px-4 py-8 text-center text-slate-500">
+            {% translate "No suppliers yet." %}
+        </div>
+    {% endfor %}
 </div>
 {% endblock %}

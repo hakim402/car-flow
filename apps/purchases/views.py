@@ -14,10 +14,17 @@ from .receiving import receive_order
 @require_permission("purchases.view")
 def order_list(request):
     queryset = PurchaseOrder.objects.all()  # TenantManager filters by company.
+    status = request.GET.get("status", "").strip()
+    if status in PurchaseStatus.values:
+        queryset = queryset.filter(status=status)
     return render(
         request,
         "purchases/list.html",
-        {"orders": queryset.select_related("supplier", "branch")},
+        {
+            "orders": queryset.select_related("supplier", "branch"),
+            "statuses": PurchaseStatus.choices,
+            "status": status,
+        },
     )
 
 
@@ -40,6 +47,7 @@ def order_create(request):
 def order_detail(request, pk):
     order = get_object_or_404(PurchaseOrder, pk=pk)
     line_form = PurchaseOrderLineForm()
+    active = order.status not in (PurchaseStatus.RECEIVED, PurchaseStatus.CANCELLED)
     return render(
         request,
         "purchases/detail.html",
@@ -48,7 +56,9 @@ def order_detail(request, pk):
             "lines": order.lines.select_related("vehicle"),
             "totals": order.total_by_currency(),
             "line_form": line_form,
-            "can_receive": order.status in (PurchaseStatus.DRAFT, PurchaseStatus.ORDERED),
+            "can_receive": active,
+            "can_edit": active,
+            "next_status": order.next_status,
         },
     )
 
@@ -65,6 +75,25 @@ def order_add_line(request, pk):
         messages.success(request, _("Line added."))
     else:
         messages.error(request, _("Could not add line — check the form values."))
+    return redirect(order)
+
+
+@require_permission("purchases.change")
+@require_POST
+def order_advance(request, pk):
+    """Move the order one step forward (confirm / shipped / at customs).
+    RECEIVED is reached only through order_receive — it creates stock."""
+    order = get_object_or_404(PurchaseOrder, pk=pk)
+    next_status = order.next_status
+    if next_status is None:
+        messages.info(request, _("This order cannot move forward."))
+    else:
+        order.status = next_status
+        order.save(update_fields=["status", "updated_at"])
+        messages.success(
+            request,
+            _("Status updated: %(status)s") % {"status": order.get_status_display()},
+        )
     return redirect(order)
 
 

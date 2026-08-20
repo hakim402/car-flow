@@ -32,6 +32,22 @@ def supplier_create(request):
     return render(request, "suppliers/form.html", {"form": form, "title": _("Add supplier")})
 
 
+@require_permission("suppliers.view")
+def supplier_detail(request, pk):
+    supplier = get_object_or_404(Supplier, pk=pk)
+    orders = supplier.purchase_orders.select_related("branch")
+    return render(
+        request,
+        "suppliers/detail.html",
+        {
+            "supplier": supplier,
+            "orders": orders,
+            "order_count": orders.count(),
+            "can_edit": request.user.has_permission("suppliers.change"),
+        },
+    )
+
+
 @require_permission("suppliers.change")
 def supplier_edit(request, pk):
     supplier = get_object_or_404(Supplier, pk=pk)

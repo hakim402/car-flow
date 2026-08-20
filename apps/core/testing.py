@@ -12,6 +12,7 @@ from apps.communications.models import Channel, ChannelType
 from apps.customers.models import Customer
 from apps.organizations.models import Organization
 from apps.sales.models import Sale
+from apps.suppliers.models import Supplier
 from apps.vehicles.models import Vehicle
 
 
@@ -32,6 +33,14 @@ class UserFactory(factory.django.DjangoModelFactory):
     username = factory.Sequence(lambda n: f"user{n}")
     company = factory.SubFactory(OrganizationFactory)
     password = factory.PostGenerationMethodCall("set_password", "test-password-123")
+
+
+class SupplierFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = Supplier
+
+    company = factory.SubFactory(OrganizationFactory)
+    name = factory.Sequence(lambda n: f"Supplier {n}")
 
 
 class CustomerFactory(factory.django.DjangoModelFactory):

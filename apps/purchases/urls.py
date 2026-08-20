@@ -9,5 +9,6 @@ urlpatterns = [
     path("add/", views.order_create, name="create"),
     path("<int:pk>/", views.order_detail, name="detail"),
     path("<int:pk>/lines/add/", views.order_add_line, name="add_line"),
+    path("<int:pk>/advance/", views.order_advance, name="advance"),
     path("<int:pk>/receive/", views.order_receive, name="receive"),
 ]

@@ -6,22 +6,42 @@
 {% block content %}
 <div class="flex items-center justify-between mb-4">
     <h1 class="text-2xl font-semibold">{{ order }}</h1>
-    {% if can_receive %}
-        <form method="post" action="{% url 'purchases:receive' order.pk %}">
-            {% csrf_token %}
-            <button type="submit"
-                    class="rounded bg-green-600 hover:bg-green-700 text-white px-4 py-2 text-sm">
-                {% translate "Receive order" %}
-            </button>
-        </form>
-    {% endif %}
+    <div class="flex items-center gap-2">
+        {% if next_status and can_edit %}
+            <form method="post" action="{% url 'purchases:advance' order.pk %}">
+                {% csrf_token %}
+                <button type="submit"
+                        class="rounded bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 text-sm">
+                    {% if next_status == "ordered" %}
+                        {% translate "Confirm order" %}
+                    {% elif next_status == "shipped" %}
+                        {% translate "Mark as shipped" %}
+                    {% elif next_status == "customs" %}
+                        {% translate "Arrived at customs" %}
+                    {% endif %}
+                </button>
+            </form>
+        {% endif %}
+        {% if can_receive %}
+            <form method="post" action="{% url 'purchases:receive' order.pk %}">
+                {% csrf_token %}
+                <button type="submit"
+                        class="rounded bg-green-600 hover:bg-green-700 text-white px-4 py-2 text-sm">
+                    {% translate "Receive order" %}
+                </button>
+            </form>
+        {% endif %}
+    </div>
 </div>
 
 <div class="bg-white rounded-lg shadow p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-3 text-sm mb-6">
-    <div><span class="text-slate-500">{% translate "Supplier" %}:</span> {{ order.supplier }}</div>
+    <div><span class="text-slate-500">{% translate "Supplier" %}:</span>
+        <a href="{{ order.supplier.get_absolute_url }}" class="text-slate-800 hover:text-amber-600">{{ order.supplier }}</a>
+    </div>
     <div><span class="text-slate-500">{% translate "Branch" %}:</span> {{ order.branch|default:"—" }}</div>
     <div><span class="text-slate-500">{% translate "Status" %}:</span> {{ order.get_status_display }}</div>
     <div><span class="text-slate-500">{% translate "Order date" %}:</span> {{ order.order_date|date:"SHORT_DATE_FORMAT" }}</div>
+    <div><span class="text-slate-500">{% translate "Purchase type" %}:</span> {{ order.get_purchase_type_display }}</div>
     {% if order.notes %}
         <div class="sm:col-span-2 lg:col-span-4">
             <span class="text-slate-500">{% translate "Notes" %}:</span> {{ order.notes|linebreaksbr }}
@@ -29,7 +49,20 @@
     {% endif %}
 </div>
 
-{# Totals are computed from lines per §6 — never stored. #}
+{% if order.is_import %}
+    <div class="bg-white rounded-lg shadow p-6 mb-6">
+        <h2 class="text-lg font-semibold mb-3">{% translate "Import / shipment tracking" %}</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-3 text-sm">
+            <div><span class="text-slate-500">{% translate "Origin country" %}:</span> {{ order.get_origin_country_display|default:"—" }}</div>
+            <div><span class="text-slate-500">{% translate "Incoterms" %}:</span> {{ order.get_incoterms_display|default:"—" }}</div>
+            <div><span class="text-slate-500">{% translate "Shipping method" %}:</span> {{ order.get_shipping_method_display|default:"—" }}</div>
+            <div><span class="text-slate-500">{% translate "Shipped date" %}:</span> {{ order.shipped_date|date:"SHORT_DATE_FORMAT"|default:"—" }}</div>
+            <div dir="ltr"><span class="text-slate-500">{% translate "Bill of lading no." %}:</span> {{ order.bill_of_lading_no|default:"—" }}</div>
+            <div dir="ltr"><span class="text-slate-500">{% translate "Container no." %}:</span> {{ order.container_no|default:"—" }}</div>
+            <div><span class="text-slate-500">{% translate "Expected arrival" %}:</span> {{ order.eta|date:"SHORT_DATE_FORMAT"|default:"—" }}</div>
+        </div>
+    </div>
+{% endif %}
 <div class="bg-white rounded-lg shadow p-6 mb-6">
     <h2 class="text-lg font-semibold mb-3">{% translate "Lines" %}</h2>
     <table class="w-full text-sm">
@@ -73,7 +106,7 @@
 </div>
 
 {% if can_receive %}
-    <div class="bg-white rounded-lg shadow p-6 max-w-2xl">
+    <div class="bg-white rounded-lg shadow p-6 max-w-2xl mb-6">
         <h2 class="text-lg font-semibold mb-3">{% translate "Add line" %}</h2>
         <form method="post" action="{% url 'purchases:add_line' order.pk %}" novalidate>
             {% csrf_token %}
