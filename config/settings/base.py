@@ -35,6 +35,23 @@ SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "dev-insecure-secret-key")
 DEBUG = env_bool("DJANGO_DEBUG", default=False)
 ALLOWED_HOSTS = env_list("DJANGO_ALLOWED_HOSTS", ["localhost", "127.0.0.1"])
 
+# Browsers send an Origin header on form POSTs; Django checks it against
+# CSRF_TRUSTED_ORIGINS and rejects the request with a 403 ("Origin checking
+# failed") when it is missing. Derived from ALLOWED_HOSTS (http+https, with
+# and without the mapped host port); override explicitly via
+# DJANGO_CSRF_TRUSTED_ORIGINS (comma-separated full URLs incl. scheme).
+_csrf_origins = env_list("DJANGO_CSRF_TRUSTED_ORIGINS", [])
+if not _csrf_origins:
+    _host_port = os.environ.get("NGINX_PORT") or os.environ.get("DEV_PORT") or "8765"
+    _csrf_origins = [
+        f"{scheme}://{host}{suffix}"
+        for host in ALLOWED_HOSTS
+        if host not in ("*", "")
+        for scheme in ("http", "https")
+        for suffix in ("", f":{_host_port}")
+    ]
+CSRF_TRUSTED_ORIGINS = _csrf_origins
+
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
