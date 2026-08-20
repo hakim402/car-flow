@@ -90,6 +90,10 @@ TEMPLATES = [
         "OPTIONS": {
             "context_processors": [
                 "django.template.context_processors.request",
+                # i18n exposes LANGUAGE_CODE/LANGUAGE_BIDI (RTL switching in
+                # base.html); static exposes STATIC_URL for asset links.
+                "django.template.context_processors.i18n",
+                "django.template.context_processors.static",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
             ],
@@ -131,6 +135,22 @@ LANGUAGES = [
     ("ps", "Pashto"),
 ]
 LOCALE_PATHS = [BASE_DIR / "locale"]
+
+# "prs" (ISO 639-3) is not in Django's built-in language table; register it
+# for template language metadata, and mark both RTL languages in
+# LANGUAGES_BIDI — that setting is what get_language_bidi() actually reads
+# (§11: Dari and Pashto render right-to-left). Mutated in place because
+# Django keeps a reference to the default list object.
+from django.conf.locale import LANG_INFO  # noqa: E402
+from django.conf.global_settings import LANGUAGES_BIDI  # noqa: E402
+
+LANG_INFO.setdefault(
+    "prs", {"name": "Dari", "name_local": "دری", "bidi": True}
+)
+# Mutated in place because Django keeps a reference to the default list.
+for _code in ("prs", "ps"):
+    if _code not in LANGUAGES_BIDI:
+        LANGUAGES_BIDI.append(_code)
 
 STATIC_URL = "static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]

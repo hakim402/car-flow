@@ -4,1011 +4,1518 @@ msgid ""
 msgstr ""
 "Project-Id-Version: automex-carflow 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-18 13:40+0000\n"
+"POT-Creation-Date: 2026-08-20 04:36+0000\n"
 "PO-Revision-Date: 2026-08-18 13:40+0000\n"
 "Language: prs\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-msgid "..."
-msgstr ""
-
-msgid "AUTOMEX CarFlow"
-msgstr ""
-
-msgid "Dashboard"
-msgstr "داشبورد"
-
-msgid "Vehicles"
-msgstr "وسایط"
-
-msgid "Inventory"
-msgstr "موجودی"
-
-msgid "Suppliers"
-msgstr "تأمین‌کنندگان"
-
-msgid "Purchases"
-msgstr "خریدها"
-
-msgid "Customers"
-msgstr "مشتریان"
-
-msgid "Sales"
-msgstr "فروشات"
-
-msgid "Leads"
-msgstr "سرنخ‌ها"
-
-msgid "Payments"
-msgstr "پرداخت‌ها"
-
-msgid "Expenses"
-msgstr "مصارف"
-
+#: apps/accounting/templates/accounting/summary.html:4 templates/base.html:25
 msgid "Accounting"
 msgstr "حسابداری"
 
-msgid "Conversations"
-msgstr "گفتگوها"
-
-msgid "Documents"
-msgstr "اسناد"
-
-msgid "Language"
-msgstr "زبان"
-
-msgid "Log out"
-msgstr "خروج"
-
-msgid "System status"
-msgstr ""
-
-msgid "Phase 1 environment is booting module by module."
-msgstr ""
-
-msgid "Log in"
-msgstr ""
-
-msgid "Log in to CarFlow"
-msgstr ""
-
-msgid "Your username and password didn"
-msgstr ""
-
-msgid "Username"
-msgstr ""
-
-msgid "Password"
-msgstr ""
-
-msgid "Super Admin"
-msgstr ""
-
-msgid "Organization Admin"
-msgstr ""
-
-msgid "Branch Manager"
-msgstr ""
-
-msgid "Accountant"
-msgstr ""
-
-msgid "codename"
-msgstr ""
-
-msgid "description"
-msgstr ""
-
-msgid "permission"
-msgstr ""
-
-msgid "permissions"
-msgstr ""
-
-msgid "key"
-msgstr ""
-
-msgid "name"
-msgstr ""
-
-msgid "system role"
-msgstr ""
-
-msgid "role"
-msgstr ""
-
-msgid "roles"
-msgstr ""
-
-msgid "company"
-msgstr ""
-
-msgid "Blank only for Super Admin users."
-msgstr ""
-
-msgid "branch"
-msgstr ""
-
-msgid "preferred language"
-msgstr ""
-
-msgid "user"
-msgstr ""
-
-msgid "users"
-msgstr ""
-
-msgid "created at"
-msgstr ""
-
-msgid "branches"
-msgstr ""
-
-msgid "message"
-msgstr ""
-
-msgid "Type a message…"
-msgstr ""
-
-msgid "type"
-msgstr ""
-
-msgid "active"
-msgstr ""
-
-msgid "credentials (JSON)"
-msgstr ""
-
-msgid "Credentials must be valid JSON."
-msgstr ""
-
-msgid "Credentials must be a JSON object."
-msgstr ""
-
-msgid "WhatsApp"
-msgstr ""
-
-msgid "Messenger"
-msgstr ""
-
-msgid "Instagram"
-msgstr ""
-
-msgid "Telegram"
-msgstr ""
-
-msgid "Email"
-msgstr ""
-
-msgid "SMS"
-msgstr ""
-
-msgid "credentials"
-msgstr ""
-
-msgid "channel"
-msgstr ""
-
-msgid "channels"
-msgstr ""
-
-msgid "Open"
-msgstr ""
-
-msgid "Closed"
-msgstr ""
-
-msgid "customer"
-msgstr ""
-
-msgid "external thread id"
-msgstr ""
-
-msgid "assigned to"
-msgstr ""
-
-msgid "status"
-msgstr ""
-
-msgid "last message at"
-msgstr ""
-
-msgid "conversation"
-msgstr ""
-
-msgid "conversations"
-msgstr ""
-
-msgid "Inbound"
-msgstr ""
-
-msgid "Outbound"
-msgstr ""
-
-msgid "Queued"
-msgstr ""
-
-msgid "Sent"
-msgstr ""
-
-msgid "Delivered"
-msgstr ""
-
-msgid "Read"
-msgstr ""
-
-msgid "Failed"
-msgstr ""
-
-msgid "Skipped (integration disabled)"
-msgstr ""
-
-msgid "direction"
-msgstr ""
-
-msgid "body"
-msgstr ""
-
-msgid "media"
-msgstr ""
-
-msgid "external message id"
-msgstr ""
-
-msgid "raw payload"
-msgstr ""
-
-msgid "messages"
-msgstr ""
-
-msgid "external id"
-msgstr ""
-
-msgid "customer channel identity"
-msgstr ""
-
-msgid "customer channel identities"
-msgstr ""
-
-msgid "Reply sent through the channel adapter."
-msgstr ""
-
-msgid "Could not send the reply."
-msgstr ""
-
-msgid "Channel created."
-msgstr ""
-
-msgid "Add channel"
-msgstr ""
-
-msgid "Channel updated."
-msgstr ""
-
-msgid "Edit channel"
-msgstr ""
-
-msgid "full name"
-msgstr ""
-
-msgid "phone"
-msgstr ""
-
-msgid "email"
-msgstr ""
-
-msgid "national ID"
-msgstr ""
-
-msgid "notes"
-msgstr ""
-
-msgid "created by"
-msgstr ""
-
-msgid "updated at"
-msgstr ""
-
-msgid "customers"
-msgstr ""
-
-msgid "Customer created."
-msgstr ""
-
-msgid "Add customer"
-msgstr "افزودن مشتری"
-
-msgid "Customer updated."
-msgstr ""
-
-msgid "Edit customer"
-msgstr ""
-
-msgid "Attach the document to a vehicle or a customer."
-msgstr ""
-
-msgid "Vehicle photo"
-msgstr ""
-
-msgid "Vehicle document"
-msgstr ""
-
-msgid "Customer document"
-msgstr ""
-
-msgid "Other"
-msgstr ""
-
-msgid "vehicle"
-msgstr ""
-
-msgid "title"
-msgstr ""
-
-msgid "file"
-msgstr ""
-
-msgid "uploaded by"
-msgstr ""
-
-msgid "document"
-msgstr ""
-
-msgid "documents"
-msgstr ""
-
-msgid "Document uploaded."
-msgstr ""
-
-msgid "Upload document"
-msgstr ""
-
-msgid "amount"
-msgstr ""
-
-msgid "currency"
-msgstr ""
-
-msgid "Expense recorded."
-msgstr ""
-
-msgid "Record expense"
-msgstr ""
-
-msgid "Available"
-msgstr ""
-
-msgid "Reserved"
-msgstr ""
-
-msgid "In preparation"
-msgstr ""
-
-msgid "lot / parking code"
-msgstr ""
-
-msgid "received at"
-msgstr ""
-
-msgid "vehicle stock"
-msgstr ""
-
-msgid "organization"
-msgstr ""
-
-msgid "organizations"
-msgstr ""
-
-msgid "sale"
-msgstr ""
-
-msgid "Customer payment"
-msgstr ""
-
-msgid "Supplier payment"
-msgstr ""
-
-msgid "Expense"
-msgstr ""
-
-msgid "related object type"
-msgstr ""
-
-msgid "related object id"
-msgstr ""
-
-msgid "reversal of"
-msgstr ""
-
-msgid "ledger entry"
-msgstr ""
-
-msgid "ledger entries"
-msgstr ""
-
-msgid "Payment recorded."
-msgstr ""
-
-msgid "Record payment"
-msgstr ""
-
-msgid "Entry reversed with a new row."
-msgstr ""
-
-msgid "Draft"
-msgstr ""
-
-msgid "Ordered"
-msgstr ""
-
-msgid "Received"
-msgstr ""
-
-msgid "Cancelled"
-msgstr ""
-
-msgid "reference"
-msgstr ""
-
-msgid "supplier"
-msgstr ""
-
-msgid "order date"
-msgstr ""
-
-msgid "purchase order"
-msgstr ""
-
-msgid "purchase orders"
-msgstr ""
-
-msgid "order"
-msgstr ""
-
-msgid "purchase order line"
-msgstr ""
-
-msgid "purchase order lines"
-msgstr ""
-
-msgid "Purchase price"
-msgstr ""
-
-msgid "Transport"
-msgstr ""
-
-msgid "Customs & duties"
-msgstr ""
-
-msgid "Storage"
-msgstr ""
-
-msgid "Repair & preparation"
-msgstr ""
-
-msgid "cost type"
-msgstr ""
-
-msgid "vehicle cost line"
-msgstr ""
-
-msgid "vehicle cost lines"
-msgstr ""
-
-msgid "Purchase order created — add lines next."
-msgstr ""
-
-msgid "New purchase order"
-msgstr ""
-
-msgid "Line added."
-msgstr ""
-
-msgid "Could not add line — check the form values."
-msgstr ""
-
-msgid "Order received (%(count)d vehicles into stock)."
-msgstr ""
-
-msgid "Walk-in"
-msgstr ""
-
-msgid "Phone call"
-msgstr ""
-
-msgid "Referral"
-msgstr ""
-
-msgid "New"
-msgstr ""
-
-msgid "Contacted"
-msgstr ""
-
-msgid "Qualified"
-msgstr ""
-
-msgid "Converted"
-msgstr ""
-
-msgid "Lost"
-msgstr ""
-
-msgid "vehicle of interest"
-msgstr ""
-
-msgid "source"
-msgstr ""
-
-msgid "lead"
-msgstr ""
-
-msgid "leads"
-msgstr ""
-
-msgid "Accepted"
-msgstr ""
-
-msgid "Declined"
-msgstr ""
-
-msgid "Expired"
-msgstr ""
-
-msgid "valid until"
-msgstr ""
-
-msgid "quotation"
-msgstr ""
-
-msgid "quotations"
-msgstr ""
-
-msgid "Quotation"
-msgstr ""
-
-msgid "Active"
-msgstr ""
-
-msgid "Completed"
-msgstr ""
-
-msgid "deposit amount"
-msgstr ""
-
-msgid "reservation"
-msgstr ""
-
-msgid "reservations"
-msgstr ""
-
-msgid "Reservation"
-msgstr ""
-
-msgid "agreed amount"
-msgstr ""
-
-msgid "sale date"
-msgstr ""
-
-msgid "sales"
-msgstr ""
-
-msgid "Sale"
-msgstr ""
-
-msgid "invoice number"
-msgstr ""
-
-msgid "issued on"
-msgstr ""
-
-msgid "invoice"
-msgstr ""
-
-msgid "invoices"
-msgstr ""
-
-msgid "Lead created."
-msgstr ""
-
-msgid "New lead"
-msgstr ""
-
-msgid "Lead status updated."
-msgstr ""
-
-msgid "Unknown status."
-msgstr ""
-
-msgid "Quotation created."
-msgstr ""
-
-msgid "New quotation"
-msgstr ""
-
-msgid "Quotation status updated."
-msgstr ""
-
-msgid "Reservation created."
-msgstr ""
-
-msgid "New reservation"
-msgstr ""
-
-msgid "Sale created — complete it to close the deal."
-msgstr ""
-
-msgid "New sale"
-msgstr ""
-
-msgid "Sale completed — vehicle marked sold."
-msgstr ""
-
-msgid "Sale could not be completed (already closed?)."
-msgstr ""
-
-msgid "Complete the sale before issuing the invoice."
-msgstr ""
-
-msgid "Invoice %(number)s issued."
-msgstr ""
-
-msgid "contact person"
-msgstr ""
-
-msgid "address"
-msgstr ""
-
-msgid "suppliers"
-msgstr ""
-
-msgid "Supplier created."
-msgstr ""
-
-msgid "Add supplier"
-msgstr ""
-
-msgid "Supplier updated."
-msgstr ""
-
-msgid "Edit supplier"
-msgstr ""
-
-msgid "Branch does not belong to your company."
-msgstr ""
-
-msgid "In transit"
-msgstr ""
-
-msgid "In stock"
-msgstr ""
-
-msgid "Sold"
-msgstr ""
-
-msgid "VIN"
-msgstr "شماره شاسی"
-
-msgid "make"
-msgstr ""
-
-msgid "model"
-msgstr ""
-
-msgid "year"
-msgstr ""
-
-msgid "color"
-msgstr ""
-
-msgid "mileage (km)"
-msgstr ""
-
-msgid "vehicles"
-msgstr ""
-
-msgid "Cost line added."
-msgstr ""
-
-msgid "Could not add cost line — check the form values."
-msgstr ""
-
-msgid "Vehicle created."
-msgstr ""
-
-msgid "Add vehicle"
-msgstr "افزودن وسیطه"
-
-msgid "Vehicle updated."
-msgstr ""
-
-msgid "Edit vehicle"
-msgstr ""
-
-msgid "Edit"
-msgstr "ویرایش"
-
-msgid "Status"
-msgstr "وضعیت"
-
-msgid "Color"
-msgstr ""
-
-msgid "Mileage (km)"
-msgstr ""
-
-msgid "Branch"
-msgstr "شعبه"
-
-msgid "Created"
-msgstr ""
-
-msgid "Notes"
-msgstr "یادداشت‌ها"
-
-msgid "Cost history"
-msgstr ""
-
-msgid "Landed cost"
-msgstr ""
-
-msgid "Date"
-msgstr ""
-
-msgid "Type"
-msgstr ""
-
-msgid "Description"
-msgstr ""
-
-msgid "Amount"
-msgstr ""
-
-msgid "No cost lines yet."
-msgstr ""
-
-msgid "Add cost line"
-msgstr ""
-
-msgid "Save"
-msgstr "ذخیره"
-
-msgid "Cancel"
-msgstr "لغو"
-
-msgid "Search VIN, make, model…"
-msgstr ""
-
-msgid "All statuses"
-msgstr ""
-
-msgid "Filter"
-msgstr ""
-
-msgid "Vehicle"
-msgstr ""
-
-msgid "Year"
-msgstr ""
-
-msgid "No vehicles found."
-msgstr ""
-
-msgid "Search suppliers…"
-msgstr ""
-
-msgid "Search"
-msgstr "جستجو"
-
-msgid "Name"
-msgstr ""
-
-msgid "Contact"
-msgstr ""
-
-msgid "Phone"
-msgstr ""
-
-msgid "No suppliers yet."
-msgstr ""
-
-msgid "Update"
-msgstr ""
-
-msgid "Source"
-msgstr ""
-
-msgid "Customer"
-msgstr ""
-
-msgid "Vehicle of interest"
-msgstr ""
-
-msgid "No leads yet."
-msgstr ""
-
-msgid "Valid until"
-msgstr ""
-
-msgid "Lead"
-msgstr ""
-
-msgid "Quotations"
-msgstr ""
-
-msgid "No quotations yet."
-msgstr ""
-
-msgid "Reservations"
-msgstr ""
-
-msgid "Deposit"
-msgstr ""
-
-msgid "No reservations yet."
-msgstr ""
-
-msgid "Complete sale"
-msgstr ""
-
-msgid "Issue invoice"
-msgstr ""
-
-msgid "Agreed amount"
-msgstr ""
-
-msgid "Sale date"
-msgstr ""
-
-msgid "Invoice"
-msgstr ""
-
-msgid "Number"
-msgstr ""
-
-msgid "Issued on"
-msgstr ""
-
-msgid "No invoice issued yet."
-msgstr ""
-
-msgid "No sales yet."
-msgstr ""
-
-msgid "Receive order"
-msgstr ""
-
-msgid "Supplier"
-msgstr ""
-
-msgid "Order date"
-msgstr ""
-
-msgid "Lines"
-msgstr ""
-
-msgid "No lines yet — add the first line below."
-msgstr ""
-
-msgid "Total"
-msgstr ""
-
-msgid "Add line"
-msgstr ""
-
-msgid "Purchase orders"
-msgstr ""
-
-msgid "Reference"
-msgstr ""
-
-msgid "No purchase orders yet."
-msgstr ""
-
-msgid "Ledger"
-msgstr ""
-
-msgid "Related to"
-msgstr ""
-
-msgid "reversal"
-msgstr ""
-
-msgid "Reverse"
-msgstr ""
-
-msgid "No ledger entries yet."
-msgstr ""
-
-msgid "Lot"
-msgstr ""
-
-msgid "No stock records yet."
-msgstr ""
-
-msgid "Recorded by"
-msgstr ""
-
-msgid "No expenses yet."
-msgstr ""
-
-msgid "Upload"
-msgstr ""
-
-msgid "Title"
-msgstr ""
-
-msgid "Uploaded"
-msgstr ""
-
-msgid "No documents yet."
-msgstr ""
-
-msgid "National ID"
-msgstr ""
-
-msgid "No leads."
-msgstr ""
-
-msgid "Search customers…"
-msgstr ""
-
-msgid "No customers yet."
-msgstr ""
-
-msgid "Channels"
-msgstr ""
-
-msgid "inactive"
-msgstr ""
-
-msgid "No channels configured yet."
-msgstr ""
-
-msgid "Customer profile"
-msgstr ""
-
-msgid "No messages yet."
-msgstr ""
-
-msgid "Send reply"
-msgstr ""
-
-msgid "Channel"
-msgstr ""
-
-msgid "Assigned to"
-msgstr ""
-
-msgid "Last message"
-msgstr ""
-
-msgid "unassigned"
-msgstr ""
-
-msgid "No conversations yet — inbound webhook messages will appear here."
-msgstr ""
-
+#: apps/accounting/templates/accounting/summary.html:7
 msgid "Accounting overview"
 msgstr ""
 
+#: apps/accounting/templates/accounting/summary.html:11
 msgid "Balance"
 msgstr ""
 
+#: apps/accounting/templates/accounting/summary.html:19
 msgid "Money in"
 msgstr ""
 
+#: apps/accounting/templates/accounting/summary.html:27
 msgid "Money out"
 msgstr ""
 
+#: apps/accounting/templates/accounting/summary.html:37
 msgid "Outstanding on completed sales"
 msgstr ""
 
+#: apps/accounting/templates/accounting/summary.html:41
+#: apps/sales/models.py:260
+msgid "Sale"
+msgstr ""
+
+#: apps/accounting/templates/accounting/summary.html:42
+#: apps/communications/templates/communications/conversation_list.html:18
+#: apps/documents/templates/documents/list.html:21
+#: apps/sales/templates/sales/lead_detail.html:25
+#: apps/sales/templates/sales/quotation_detail.html:23
+#: apps/sales/templates/sales/quotation_list.html:19
+#: apps/sales/templates/sales/reservation_list.html:19
+#: apps/sales/templates/sales/sale_detail.html:31
+#: apps/sales/templates/sales/sale_list.html:19
+msgid "Customer"
+msgstr ""
+
+#: apps/accounting/templates/accounting/summary.html:43
 msgid "Outstanding"
 msgstr ""
 
+#: apps/accounting/templates/accounting/summary.html:63
 msgid "No completed sales yet."
 msgstr ""
+
+#: apps/accounts/models.py:16
+msgid "Super Admin"
+msgstr ""
+
+#: apps/accounts/models.py:17
+msgid "Organization Admin"
+msgstr ""
+
+#: apps/accounts/models.py:18
+msgid "Branch Manager"
+msgstr ""
+
+#: apps/accounts/models.py:19 apps/customers/templates/customers/detail.html:37
+#: apps/sales/templates/sales/sale_list.html:4
+#: apps/sales/templates/sales/sale_list.html:8 templates/base.html:21
+msgid "Sales"
+msgstr "فروشات"
+
+#: apps/accounts/models.py:20 apps/inventory/templates/inventory/list.html:4
+#: apps/inventory/templates/inventory/list.html:7 templates/base.html:17
+msgid "Inventory"
+msgstr "موجودی"
+
+#: apps/accounts/models.py:21
+msgid "Accountant"
+msgstr ""
+
+#: apps/accounts/models.py:29
+msgid "codename"
+msgstr ""
+
+#: apps/accounts/models.py:30 apps/expenses/forms.py:11
+#: apps/payments/forms.py:13 apps/payments/models.py:43
+#: apps/purchases/models.py:88 apps/purchases/models.py:121
+msgid "description"
+msgstr ""
+
+#: apps/accounts/models.py:33
+msgid "permission"
+msgstr ""
+
+#: apps/accounts/models.py:34 apps/accounts/models.py:49
+msgid "permissions"
+msgstr ""
+
+#: apps/accounts/models.py:45
+msgid "key"
+msgstr ""
+
+#: apps/accounts/models.py:46 apps/branches/models.py:15
+#: apps/organizations/models.py:9 apps/sales/models.py:36
+#: apps/suppliers/models.py:9
+msgid "name"
+msgstr ""
+
+#: apps/accounts/models.py:47
+msgid "system role"
+msgstr ""
+
+#: apps/accounts/models.py:53
+msgid "role"
+msgstr ""
+
+#: apps/accounts/models.py:54 apps/accounts/models.py:82
+msgid "roles"
+msgstr ""
+
+#: apps/accounts/models.py:69 apps/branches/models.py:13
+msgid "company"
+msgstr ""
+
+#: apps/accounts/models.py:72
+msgid "Blank only for Super Admin users."
+msgstr ""
+
+#: apps/accounts/models.py:78 apps/branches/models.py:19
+#: apps/customers/models.py:23 apps/inventory/models.py:29
+#: apps/purchases/models.py:37 apps/sales/models.py:64
+#: apps/vehicles/models.py:35
+msgid "branch"
+msgstr ""
+
+#: apps/accounts/models.py:85
+msgid "preferred language"
+msgstr ""
+
+#: apps/accounts/models.py:92
+msgid "user"
+msgstr ""
+
+#: apps/accounts/models.py:93
+msgid "users"
+msgstr ""
+
+#: apps/branches/models.py:16 apps/communications/models.py:119
+#: apps/communications/models.py:155 apps/customers/models.py:36
+#: apps/documents/models.py:51 apps/organizations/models.py:10
+#: apps/payments/models.py:70 apps/purchases/models.py:54
+#: apps/purchases/models.py:130 apps/sales/models.py:77
+#: apps/sales/models.py:138 apps/sales/models.py:194 apps/sales/models.py:251
+#: apps/sales/models.py:287 apps/suppliers/models.py:15
+#: apps/vehicles/models.py:40
+msgid "created at"
+msgstr ""
+
+#: apps/branches/models.py:20
+msgid "branches"
+msgstr ""
+
+#: apps/communications/forms.py:13 apps/communications/models.py:122
+msgid "message"
+msgstr ""
+
+#: apps/communications/forms.py:14
+msgid "Type a message…"
+msgstr ""
+
+#: apps/communications/forms.py:19 apps/communications/models.py:28
+#: apps/documents/models.py:39 apps/payments/models.py:40
+msgid "type"
+msgstr ""
+
+#: apps/communications/forms.py:20 apps/communications/models.py:30
+#: apps/communications/templates/communications/channel_list.html:29
+msgid "active"
+msgstr ""
+
+#: apps/communications/forms.py:22
+msgid "credentials (JSON)"
+msgstr ""
+
+#: apps/communications/forms.py:34
+msgid "Credentials must be valid JSON."
+msgstr ""
+
+#: apps/communications/forms.py:36
+msgid "Credentials must be a JSON object."
+msgstr ""
+
+#: apps/communications/models.py:15 apps/sales/models.py:22
+msgid "WhatsApp"
+msgstr ""
+
+#: apps/communications/models.py:16
+msgid "Messenger"
+msgstr ""
+
+#: apps/communications/models.py:17
+msgid "Instagram"
+msgstr ""
+
+#: apps/communications/models.py:18
+msgid "Telegram"
+msgstr ""
+
+#: apps/communications/models.py:19
+#: apps/customers/templates/customers/detail.html:14
+#: apps/customers/templates/customers/list.html:27
+#: apps/suppliers/templates/suppliers/list.html:28
+msgid "Email"
+msgstr ""
+
+#: apps/communications/models.py:20
+msgid "SMS"
+msgstr ""
+
+#: apps/communications/models.py:29
+msgid "credentials"
+msgstr ""
+
+#: apps/communications/models.py:33 apps/communications/models.py:57
+#: apps/communications/models.py:152
+msgid "channel"
+msgstr ""
+
+#: apps/communications/models.py:34
+msgid "channels"
+msgstr ""
+
+#: apps/communications/models.py:42
+msgid "Open"
+msgstr ""
+
+#: apps/communications/models.py:43
+msgid "Closed"
+msgstr ""
+
+#: apps/communications/models.py:51 apps/communications/models.py:146
+#: apps/customers/models.py:40 apps/documents/models.py:34
+#: apps/sales/models.py:42 apps/sales/models.py:105 apps/sales/models.py:164
+#: apps/sales/models.py:220
+msgid "customer"
+msgstr ""
+
+#: apps/communications/models.py:59
+msgid "external thread id"
+msgstr ""
+
+#: apps/communications/models.py:64
+msgid "assigned to"
+msgstr ""
+
+#: apps/communications/models.py:69 apps/communications/models.py:114
+#: apps/inventory/models.py:32 apps/purchases/models.py:42
+#: apps/sales/models.py:58 apps/sales/models.py:127 apps/sales/models.py:183
+#: apps/sales/models.py:240 apps/vehicles/models.py:29
+msgid "status"
+msgstr ""
+
+#: apps/communications/models.py:71
+msgid "last message at"
+msgstr ""
+
+#: apps/communications/models.py:74 apps/communications/models.py:107
+msgid "conversation"
+msgstr ""
+
+#: apps/communications/models.py:75
+msgid "conversations"
+msgstr ""
+
+#: apps/communications/models.py:88
+msgid "Inbound"
+msgstr ""
+
+#: apps/communications/models.py:89
+msgid "Outbound"
+msgstr ""
+
+#: apps/communications/models.py:93
+msgid "Queued"
+msgstr ""
+
+#: apps/communications/models.py:94 apps/sales/models.py:94
+msgid "Sent"
+msgstr ""
+
+#: apps/communications/models.py:95 apps/vehicles/models.py:18
+msgid "Delivered"
+msgstr ""
+
+#: apps/communications/models.py:96
+msgid "Read"
+msgstr ""
+
+#: apps/communications/models.py:97
+msgid "Failed"
+msgstr ""
+
+#: apps/communications/models.py:99
+msgid "Skipped (integration disabled)"
+msgstr ""
+
+#: apps/communications/models.py:109
+msgid "direction"
+msgstr ""
+
+#: apps/communications/models.py:110
+msgid "body"
+msgstr ""
+
+#: apps/communications/models.py:111
+msgid "media"
+msgstr ""
+
+#: apps/communications/models.py:112
+msgid "external message id"
+msgstr ""
+
+#: apps/communications/models.py:118
+msgid "raw payload"
+msgstr ""
+
+#: apps/communications/models.py:123
+msgid "messages"
+msgstr ""
+
+#: apps/communications/models.py:154
+msgid "external id"
+msgstr ""
+
+#: apps/communications/models.py:158
+msgid "customer channel identity"
+msgstr ""
+
+#: apps/communications/models.py:159
+msgid "customer channel identities"
+msgstr ""
+
+#: apps/communications/templates/communications/channel_form.html:14
+#: apps/customers/templates/customers/form.html:14
+#: apps/expenses/templates/expenses/form.html:14
+#: apps/payments/templates/payments/form.html:14
+#: apps/purchases/templates/purchases/form.html:14
+#: apps/sales/templates/sales/form.html:14
+#: apps/suppliers/templates/suppliers/form.html:13
+#: apps/vehicles/templates/vehicles/form.html:13
+msgid "Save"
+msgstr "ذخیره"
+
+#: apps/communications/templates/communications/channel_form.html:17
+#: apps/customers/templates/customers/form.html:17
+#: apps/documents/templates/documents/form.html:17
+#: apps/expenses/templates/expenses/form.html:17
+#: apps/payments/templates/payments/form.html:17
+#: apps/purchases/templates/purchases/form.html:17
+#: apps/sales/templates/sales/form.html:17
+#: apps/suppliers/templates/suppliers/form.html:16
+#: apps/vehicles/templates/vehicles/form.html:16
+msgid "Cancel"
+msgstr "لغو"
+
+#: apps/communications/templates/communications/channel_list.html:4
+#: apps/communications/templates/communications/channel_list.html:8
+#: apps/communications/templates/communications/conversation_list.html:11
+msgid "Channels"
+msgstr ""
+
+#: apps/communications/templates/communications/channel_list.html:11
+#: apps/communications/views.py:69
+msgid "Add channel"
+msgstr ""
+
+#: apps/communications/templates/communications/channel_list.html:18
+#: apps/documents/templates/documents/list.html:19
+#: apps/payments/templates/payments/list.html:25
+#: apps/vehicles/templates/vehicles/detail.html:39
+msgid "Type"
+msgstr ""
+
+#: apps/communications/templates/communications/channel_list.html:19
+#: apps/communications/templates/communications/conversation_list.html:21
+#: apps/inventory/templates/inventory/list.html:29
+#: apps/purchases/templates/purchases/detail.html:23
+#: apps/purchases/templates/purchases/list.html:21
+#: apps/sales/templates/sales/lead_detail.html:11
+#: apps/sales/templates/sales/lead_list.html:30
+#: apps/sales/templates/sales/quotation_detail.html:11
+#: apps/sales/templates/sales/quotation_list.html:23
+#: apps/sales/templates/sales/reservation_list.html:22
+#: apps/sales/templates/sales/sale_detail.html:41
+#: apps/sales/templates/sales/sale_list.html:23
+#: apps/vehicles/templates/vehicles/detail.html:14
+#: apps/vehicles/templates/vehicles/list.html:37
+msgid "Status"
+msgstr "وضعیت"
+
+#: apps/communications/templates/communications/channel_list.html:31
+msgid "inactive"
+msgstr ""
+
+#: apps/communications/templates/communications/channel_list.html:36
+#: apps/customers/templates/customers/detail.html:10
+#: apps/customers/templates/customers/list.html:45
+#: apps/suppliers/templates/suppliers/list.html:41
+#: apps/vehicles/templates/vehicles/detail.html:10
+#: apps/vehicles/templates/vehicles/list.html:55
+msgid "Edit"
+msgstr "ویرایش"
+
+#: apps/communications/templates/communications/channel_list.html:42
+msgid "No channels configured yet."
+msgstr ""
+
+#: apps/communications/templates/communications/conversation_detail.html:12
+msgid "Customer profile"
+msgstr ""
+
+#: apps/communications/templates/communications/conversation_detail.html:30
+msgid "No messages yet."
+msgstr ""
+
+#: apps/communications/templates/communications/conversation_detail.html:41
+msgid "Send reply"
+msgstr ""
+
+#: apps/communications/templates/communications/conversation_list.html:4
+#: apps/communications/templates/communications/conversation_list.html:8
+#: templates/base.html:26
+msgid "Conversations"
+msgstr "گفتگوها"
+
+#: apps/communications/templates/communications/conversation_list.html:19
+msgid "Channel"
+msgstr ""
+
+#: apps/communications/templates/communications/conversation_list.html:20
+msgid "Assigned to"
+msgstr ""
+
+#: apps/communications/templates/communications/conversation_list.html:22
+msgid "Last message"
+msgstr ""
+
+#: apps/communications/templates/communications/conversation_list.html:38
+msgid "unassigned"
+msgstr ""
+
+#: apps/communications/templates/communications/conversation_list.html:47
+msgid "No conversations yet — inbound webhook messages will appear here."
+msgstr ""
+
+#: apps/communications/views.py:43
+msgid "Reply sent through the channel adapter."
+msgstr ""
+
+#: apps/communications/views.py:45
+msgid "Could not send the reply."
+msgstr ""
+
+#: apps/communications/views.py:67
+msgid "Channel created."
+msgstr ""
+
+#: apps/communications/views.py:81
+msgid "Channel updated."
+msgstr ""
+
+#: apps/communications/views.py:86
+msgid "Edit channel"
+msgstr ""
+
+#: apps/customers/models.py:15
+msgid "full name"
+msgstr ""
+
+#: apps/customers/models.py:16 apps/sales/models.py:37
+#: apps/suppliers/models.py:11
+msgid "phone"
+msgstr ""
+
+#: apps/customers/models.py:17 apps/suppliers/models.py:12
+msgid "email"
+msgstr ""
+
+#: apps/customers/models.py:18
+msgid "national ID"
+msgstr ""
+
+#: apps/customers/models.py:27 apps/purchases/models.py:45
+#: apps/sales/models.py:68 apps/sales/models.py:129 apps/sales/models.py:185
+#: apps/sales/models.py:242 apps/suppliers/models.py:14
+#: apps/vehicles/models.py:39
+msgid "notes"
+msgstr ""
+
+#: apps/customers/models.py:32 apps/payments/models.py:66
+#: apps/purchases/models.py:50 apps/purchases/models.py:126
+#: apps/sales/models.py:73 apps/sales/models.py:134 apps/sales/models.py:190
+#: apps/sales/models.py:247 apps/sales/models.py:283
+msgid "created by"
+msgstr ""
+
+#: apps/customers/models.py:37 apps/purchases/models.py:55
+#: apps/sales/models.py:78 apps/sales/models.py:139 apps/sales/models.py:195
+#: apps/sales/models.py:252 apps/vehicles/models.py:41
+msgid "updated at"
+msgstr ""
+
+#: apps/customers/models.py:41
+msgid "customers"
+msgstr ""
+
+#: apps/customers/templates/customers/detail.html:13
+#: apps/customers/templates/customers/list.html:26
+#: apps/sales/templates/sales/lead_detail.html:23
+#: apps/sales/templates/sales/lead_list.html:27
+#: apps/suppliers/templates/suppliers/list.html:27
+msgid "Phone"
+msgstr ""
+
+#: apps/customers/templates/customers/detail.html:15
+msgid "National ID"
+msgstr ""
+
+#: apps/customers/templates/customers/detail.html:16
+#: apps/customers/templates/customers/list.html:28
+#: apps/inventory/templates/inventory/list.html:26
+#: apps/purchases/templates/purchases/detail.html:22
+#: apps/purchases/templates/purchases/list.html:20
+#: apps/sales/templates/sales/lead_detail.html:37
+#: apps/vehicles/templates/vehicles/detail.html:17
+#: apps/vehicles/templates/vehicles/list.html:36
+msgid "Branch"
+msgstr "شعبه"
+
+#: apps/customers/templates/customers/detail.html:18
+#: apps/purchases/templates/purchases/detail.html:27
+#: apps/sales/templates/sales/lead_detail.html:40
+#: apps/sales/templates/sales/quotation_detail.html:46
+#: apps/sales/templates/sales/sale_detail.html:46
+#: apps/vehicles/templates/vehicles/detail.html:20
+msgid "Notes"
+msgstr "یادداشت‌ها"
+
+#: apps/customers/templates/customers/detail.html:24
+#: apps/sales/templates/sales/lead_list.html:4
+#: apps/sales/templates/sales/lead_list.html:8 templates/base.html:22
+msgid "Leads"
+msgstr "سرنخ‌ها"
+
+#: apps/customers/templates/customers/detail.html:32
+msgid "No leads."
+msgstr ""
+
+#: apps/customers/templates/customers/detail.html:46
+#: apps/sales/templates/sales/sale_list.html:42
+msgid "No sales yet."
+msgstr ""
+
+#: apps/customers/templates/customers/list.html:4
+#: apps/customers/templates/customers/list.html:8 templates/base.html:20
+msgid "Customers"
+msgstr "مشتریان"
+
+#: apps/customers/templates/customers/list.html:11 apps/customers/views.py:35
+msgid "Add customer"
+msgstr "افزودن مشتری"
+
+#: apps/customers/templates/customers/list.html:15
+msgid "Search customers…"
+msgstr ""
+
+#: apps/customers/templates/customers/list.html:18
+#: apps/suppliers/templates/suppliers/list.html:18
+msgid "Search"
+msgstr "جستجو"
+
+#: apps/customers/templates/customers/list.html:25
+#: apps/sales/templates/sales/lead_list.html:26
+#: apps/suppliers/templates/suppliers/list.html:25
+msgid "Name"
+msgstr ""
+
+#: apps/customers/templates/customers/list.html:51
+msgid "No customers yet."
+msgstr ""
+
+#: apps/customers/views.py:33
+msgid "Customer created."
+msgstr ""
+
+#: apps/customers/views.py:58
+msgid "Customer updated."
+msgstr ""
+
+#: apps/customers/views.py:63
+msgid "Edit customer"
+msgstr ""
+
+#: apps/documents/forms.py:24
+msgid "Attach the document to a vehicle or a customer."
+msgstr ""
+
+#: apps/documents/models.py:15
+msgid "Vehicle photo"
+msgstr ""
+
+#: apps/documents/models.py:16
+msgid "Vehicle document"
+msgstr ""
+
+#: apps/documents/models.py:17
+msgid "Customer document"
+msgstr ""
+
+#: apps/documents/models.py:18 apps/payments/models.py:24
+#: apps/purchases/models.py:106 apps/sales/models.py:24
+msgid "Other"
+msgstr ""
+
+#: apps/documents/models.py:26 apps/inventory/models.py:23
+#: apps/purchases/models.py:84 apps/purchases/models.py:116
+#: apps/sales/models.py:111 apps/sales/models.py:170 apps/sales/models.py:226
+#: apps/vehicles/models.py:44
+msgid "vehicle"
+msgstr ""
+
+#: apps/documents/models.py:41
+msgid "title"
+msgstr ""
+
+#: apps/documents/models.py:42
+msgid "file"
+msgstr ""
+
+#: apps/documents/models.py:47
+msgid "uploaded by"
+msgstr ""
+
+#: apps/documents/models.py:54
+msgid "document"
+msgstr ""
+
+#: apps/documents/models.py:55
+msgid "documents"
+msgstr ""
+
+#: apps/documents/templates/documents/form.html:14
+msgid "Upload"
+msgstr ""
+
+#: apps/documents/templates/documents/list.html:4
+#: apps/documents/templates/documents/list.html:8 templates/base.html:27
+msgid "Documents"
+msgstr "اسناد"
+
+#: apps/documents/templates/documents/list.html:11 apps/documents/views.py:32
+msgid "Upload document"
+msgstr ""
+
+#: apps/documents/templates/documents/list.html:18
+msgid "Title"
+msgstr ""
+
+#: apps/documents/templates/documents/list.html:20
+#: apps/inventory/templates/inventory/list.html:25
+#: apps/purchases/templates/purchases/detail.html:39
+#: apps/sales/templates/sales/quotation_detail.html:28
+#: apps/sales/templates/sales/quotation_list.html:20
+#: apps/sales/templates/sales/reservation_list.html:20
+#: apps/sales/templates/sales/sale_detail.html:34
+#: apps/sales/templates/sales/sale_list.html:20
+#: apps/vehicles/templates/vehicles/list.html:34
+msgid "Vehicle"
+msgstr ""
+
+#: apps/documents/templates/documents/list.html:22
+msgid "Uploaded"
+msgstr ""
+
+#: apps/documents/templates/documents/list.html:53
+msgid "No documents yet."
+msgstr ""
+
+#: apps/documents/views.py:30
+msgid "Document uploaded."
+msgstr ""
+
+#: apps/expenses/forms.py:9 apps/payments/forms.py:11
+#: apps/payments/models.py:41 apps/purchases/models.py:89
+#: apps/purchases/models.py:119 apps/sales/models.py:123
+#: apps/sales/models.py:277
+msgid "amount"
+msgstr ""
+
+#: apps/expenses/forms.py:10 apps/payments/forms.py:12
+#: apps/payments/models.py:42 apps/purchases/models.py:90
+#: apps/purchases/models.py:120 apps/sales/models.py:124
+#: apps/sales/models.py:181 apps/sales/models.py:237 apps/sales/models.py:278
+msgid "currency"
+msgstr ""
+
+#: apps/expenses/templates/expenses/list.html:4
+#: apps/expenses/templates/expenses/list.html:8 templates/base.html:24
+msgid "Expenses"
+msgstr "مصارف"
+
+#: apps/expenses/templates/expenses/list.html:11 apps/expenses/views.py:34
+#: apps/payments/templates/payments/list.html:12
+msgid "Record expense"
+msgstr ""
+
+#: apps/expenses/templates/expenses/list.html:18
+#: apps/payments/templates/payments/list.html:24
+#: apps/vehicles/templates/vehicles/detail.html:38
+msgid "Date"
+msgstr ""
+
+#: apps/expenses/templates/expenses/list.html:19
+#: apps/payments/templates/payments/list.html:26
+#: apps/purchases/templates/purchases/detail.html:38
+#: apps/vehicles/templates/vehicles/detail.html:40
+msgid "Description"
+msgstr ""
+
+#: apps/expenses/templates/expenses/list.html:20
+msgid "Recorded by"
+msgstr ""
+
+#: apps/expenses/templates/expenses/list.html:21
+#: apps/payments/templates/payments/list.html:28
+#: apps/purchases/templates/purchases/detail.html:40
+#: apps/sales/templates/sales/quotation_detail.html:35
+#: apps/sales/templates/sales/quotation_list.html:21
+#: apps/sales/templates/sales/sale_detail.html:56
+#: apps/vehicles/templates/vehicles/detail.html:41
+msgid "Amount"
+msgstr ""
+
+#: apps/expenses/templates/expenses/list.html:32
+#: apps/payments/templates/payments/list.html:40
+msgid "reversal"
+msgstr ""
+
+#: apps/expenses/templates/expenses/list.html:41
+msgid "No expenses yet."
+msgstr ""
+
+#: apps/expenses/views.py:32
+msgid "Expense recorded."
+msgstr ""
+
+#: apps/inventory/models.py:13
+msgid "Available"
+msgstr ""
+
+#: apps/inventory/models.py:14 apps/vehicles/models.py:16
+msgid "Reserved"
+msgstr ""
+
+#: apps/inventory/models.py:15
+msgid "In preparation"
+msgstr ""
+
+#: apps/inventory/models.py:34
+msgid "lot / parking code"
+msgstr ""
+
+#: apps/inventory/models.py:35
+msgid "received at"
+msgstr ""
+
+#: apps/inventory/models.py:38 apps/inventory/models.py:39
+msgid "vehicle stock"
+msgstr ""
+
+#: apps/inventory/templates/inventory/list.html:11
+#: apps/sales/templates/sales/lead_list.html:16
+#: apps/vehicles/templates/vehicles/list.html:19
+msgid "All statuses"
+msgstr ""
+
+#: apps/inventory/templates/inventory/list.html:17
+#: apps/vehicles/templates/vehicles/list.html:25
+msgid "Filter"
+msgstr ""
+
+#: apps/inventory/templates/inventory/list.html:27
+msgid "Lot"
+msgstr ""
+
+#: apps/inventory/templates/inventory/list.html:28 apps/purchases/models.py:21
+msgid "Received"
+msgstr ""
+
+#: apps/inventory/templates/inventory/list.html:57
+msgid "No stock records yet."
+msgstr ""
+
+#: apps/organizations/models.py:13
+msgid "organization"
+msgstr ""
+
+#: apps/organizations/models.py:14
+msgid "organizations"
+msgstr ""
+
+#: apps/payments/forms.py:10 apps/sales/models.py:255 apps/sales/models.py:273
+msgid "sale"
+msgstr ""
+
+#: apps/payments/models.py:21
+msgid "Customer payment"
+msgstr ""
+
+#: apps/payments/models.py:22
+msgid "Supplier payment"
+msgstr ""
+
+#: apps/payments/models.py:23
+msgid "Expense"
+msgstr ""
+
+#: apps/payments/models.py:48
+msgid "related object type"
+msgstr ""
+
+#: apps/payments/models.py:52
+msgid "related object id"
+msgstr ""
+
+#: apps/payments/models.py:58
+msgid "reversal of"
+msgstr ""
+
+#: apps/payments/models.py:73
+msgid "ledger entry"
+msgstr ""
+
+#: apps/payments/models.py:74
+msgid "ledger entries"
+msgstr ""
+
+#: apps/payments/templates/payments/list.html:4
+#: apps/payments/templates/payments/list.html:8
+msgid "Ledger"
+msgstr ""
+
+#: apps/payments/templates/payments/list.html:16 apps/payments/views.py:33
+msgid "Record payment"
+msgstr ""
+
+#: apps/payments/templates/payments/list.html:27
+msgid "Related to"
+msgstr ""
+
+#: apps/payments/templates/payments/list.html:54
+msgid "Reverse"
+msgstr ""
+
+#: apps/payments/templates/payments/list.html:62
+msgid "No ledger entries yet."
+msgstr ""
+
+#: apps/payments/views.py:31
+msgid "Payment recorded."
+msgstr ""
+
+#: apps/payments/views.py:41
+msgid "Entry reversed with a new row."
+msgstr ""
+
+#: apps/purchases/models.py:19 apps/sales/models.py:93 apps/sales/models.py:210
+msgid "Draft"
+msgstr ""
+
+#: apps/purchases/models.py:20
+msgid "Ordered"
+msgstr ""
+
+#: apps/purchases/models.py:22 apps/sales/models.py:156
+#: apps/sales/models.py:212
+msgid "Cancelled"
+msgstr ""
+
+#: apps/purchases/models.py:26
+msgid "reference"
+msgstr ""
+
+#: apps/purchases/models.py:31 apps/suppliers/models.py:18
+msgid "supplier"
+msgstr ""
+
+#: apps/purchases/models.py:44
+msgid "order date"
+msgstr ""
+
+#: apps/purchases/models.py:58
+msgid "purchase order"
+msgstr ""
+
+#: apps/purchases/models.py:59
+msgid "purchase orders"
+msgstr ""
+
+#: apps/purchases/models.py:78
+msgid "order"
+msgstr ""
+
+#: apps/purchases/models.py:93
+msgid "purchase order line"
+msgstr ""
+
+#: apps/purchases/models.py:94
+msgid "purchase order lines"
+msgstr ""
+
+#: apps/purchases/models.py:101
+msgid "Purchase price"
+msgstr ""
+
+#: apps/purchases/models.py:102
+msgid "Transport"
+msgstr ""
+
+#: apps/purchases/models.py:103
+msgid "Customs & duties"
+msgstr ""
+
+#: apps/purchases/models.py:104
+msgid "Storage"
+msgstr ""
+
+#: apps/purchases/models.py:105
+msgid "Repair & preparation"
+msgstr ""
+
+#: apps/purchases/models.py:118
+msgid "cost type"
+msgstr ""
+
+#: apps/purchases/models.py:133
+msgid "vehicle cost line"
+msgstr ""
+
+#: apps/purchases/models.py:134
+msgid "vehicle cost lines"
+msgstr ""
+
+#: apps/purchases/templates/purchases/detail.html:14
+msgid "Receive order"
+msgstr ""
+
+#: apps/purchases/templates/purchases/detail.html:21
+#: apps/purchases/templates/purchases/list.html:19
+msgid "Supplier"
+msgstr ""
+
+#: apps/purchases/templates/purchases/detail.html:24
+#: apps/purchases/templates/purchases/list.html:22
+msgid "Order date"
+msgstr ""
+
+#: apps/purchases/templates/purchases/detail.html:34
+msgid "Lines"
+msgstr ""
+
+#: apps/purchases/templates/purchases/detail.html:58
+msgid "No lines yet — add the first line below."
+msgstr ""
+
+#: apps/purchases/templates/purchases/detail.html:64
+#: apps/purchases/templates/purchases/list.html:23
+msgid "Total"
+msgstr ""
+
+#: apps/purchases/templates/purchases/detail.html:77
+#: apps/purchases/templates/purchases/detail.html:83
+msgid "Add line"
+msgstr ""
+
+#: apps/purchases/templates/purchases/list.html:4
+#: apps/purchases/templates/purchases/list.html:8
+msgid "Purchase orders"
+msgstr ""
+
+#: apps/purchases/templates/purchases/list.html:11 apps/purchases/views.py:36
+msgid "New purchase order"
+msgstr ""
+
+#: apps/purchases/templates/purchases/list.html:18
+msgid "Reference"
+msgstr ""
+
+#: apps/purchases/templates/purchases/list.html:46
+msgid "No purchase orders yet."
+msgstr ""
+
+#: apps/purchases/views.py:34
+msgid "Purchase order created — add lines next."
+msgstr ""
+
+#: apps/purchases/views.py:65
+msgid "Line added."
+msgstr ""
+
+#: apps/purchases/views.py:67
+msgid "Could not add line — check the form values."
+msgstr ""
+
+#: apps/purchases/views.py:76
+#, python-format
+msgid "Order received (%(count)d vehicles into stock)."
+msgstr ""
+
+#: apps/sales/models.py:20
+msgid "Walk-in"
+msgstr ""
+
+#: apps/sales/models.py:21
+msgid "Phone call"
+msgstr ""
+
+#: apps/sales/models.py:23
+msgid "Referral"
+msgstr ""
+
+#: apps/sales/models.py:28
+msgid "New"
+msgstr ""
+
+#: apps/sales/models.py:29
+msgid "Contacted"
+msgstr ""
+
+#: apps/sales/models.py:30
+msgid "Qualified"
+msgstr ""
+
+#: apps/sales/models.py:31
+msgid "Converted"
+msgstr ""
+
+#: apps/sales/models.py:32
+msgid "Lost"
+msgstr ""
+
+#: apps/sales/models.py:50
+msgid "vehicle of interest"
+msgstr ""
+
+#: apps/sales/models.py:55
+msgid "source"
+msgstr ""
+
+#: apps/sales/models.py:81 apps/sales/models.py:119
+msgid "lead"
+msgstr ""
+
+#: apps/sales/models.py:82
+msgid "leads"
+msgstr ""
+
+#: apps/sales/models.py:95
+msgid "Accepted"
+msgstr ""
+
+#: apps/sales/models.py:96
+msgid "Declined"
+msgstr ""
+
+#: apps/sales/models.py:97
+msgid "Expired"
+msgstr ""
+
+#: apps/sales/models.py:125
+msgid "valid until"
+msgstr ""
+
+#: apps/sales/models.py:142 apps/sales/models.py:176
+msgid "quotation"
+msgstr ""
+
+#: apps/sales/models.py:143
+msgid "quotations"
+msgstr ""
+
+#: apps/sales/models.py:147
+msgid "Quotation"
+msgstr ""
+
+#: apps/sales/models.py:154
+msgid "Active"
+msgstr ""
+
+#: apps/sales/models.py:155 apps/sales/models.py:211
+msgid "Completed"
+msgstr ""
+
+#: apps/sales/models.py:180
+msgid "deposit amount"
+msgstr ""
+
+#: apps/sales/models.py:198 apps/sales/models.py:232
+msgid "reservation"
+msgstr ""
+
+#: apps/sales/models.py:199
+msgid "reservations"
+msgstr ""
+
+#: apps/sales/models.py:203 apps/sales/templates/sales/sale_detail.html:42
+msgid "Reservation"
+msgstr ""
+
+#: apps/sales/models.py:236
+msgid "agreed amount"
+msgstr ""
+
+#: apps/sales/models.py:238
+msgid "sale date"
+msgstr ""
+
+#: apps/sales/models.py:256
+msgid "sales"
+msgstr ""
+
+#: apps/sales/models.py:275
+msgid "invoice number"
+msgstr ""
+
+#: apps/sales/models.py:276
+msgid "issued on"
+msgstr ""
+
+#: apps/sales/models.py:290
+msgid "invoice"
+msgstr ""
+
+#: apps/sales/models.py:291
+msgid "invoices"
+msgstr ""
+
+#: apps/sales/templates/sales/lead_detail.html:18
+#: apps/sales/templates/sales/quotation_detail.html:18
+msgid "Update"
+msgstr ""
+
+#: apps/sales/templates/sales/lead_detail.html:24
+#: apps/sales/templates/sales/lead_list.html:29
+msgid "Source"
+msgstr ""
+
+#: apps/sales/templates/sales/lead_detail.html:30
+#: apps/sales/templates/sales/lead_list.html:28
+msgid "Vehicle of interest"
+msgstr ""
+
+#: apps/sales/templates/sales/lead_detail.html:38
+#: apps/sales/templates/sales/quotation_detail.html:44
+#: apps/sales/templates/sales/reservation_list.html:23
+#: apps/vehicles/templates/vehicles/detail.html:18
+msgid "Created"
+msgstr ""
+
+#: apps/sales/templates/sales/lead_list.html:11 apps/sales/views.py:61
+msgid "New lead"
+msgstr ""
+
+#: apps/sales/templates/sales/lead_list.html:48
+msgid "No leads yet."
+msgstr ""
+
+#: apps/sales/templates/sales/quotation_detail.html:38
+#: apps/sales/templates/sales/quotation_list.html:22
+msgid "Valid until"
+msgstr ""
+
+#: apps/sales/templates/sales/quotation_detail.html:39
+msgid "Lead"
+msgstr ""
+
+#: apps/sales/templates/sales/quotation_list.html:4
+#: apps/sales/templates/sales/quotation_list.html:8
+msgid "Quotations"
+msgstr ""
+
+#: apps/sales/templates/sales/quotation_list.html:11 apps/sales/views.py:110
+msgid "New quotation"
+msgstr ""
+
+#: apps/sales/templates/sales/quotation_list.html:42
+msgid "No quotations yet."
+msgstr ""
+
+#: apps/sales/templates/sales/reservation_list.html:4
+#: apps/sales/templates/sales/reservation_list.html:8
+msgid "Reservations"
+msgstr ""
+
+#: apps/sales/templates/sales/reservation_list.html:11 apps/sales/views.py:165
+msgid "New reservation"
+msgstr ""
+
+#: apps/sales/templates/sales/reservation_list.html:21
+msgid "Deposit"
+msgstr ""
+
+#: apps/sales/templates/sales/reservation_list.html:38
+msgid "No reservations yet."
+msgstr ""
+
+#: apps/sales/templates/sales/sale_detail.html:15
+msgid "Complete sale"
+msgstr ""
+
+#: apps/sales/templates/sales/sale_detail.html:24
+msgid "Issue invoice"
+msgstr ""
+
+#: apps/sales/templates/sales/sale_detail.html:37
+#: apps/sales/templates/sales/sale_list.html:21
+msgid "Agreed amount"
+msgstr ""
+
+#: apps/sales/templates/sales/sale_detail.html:40
+#: apps/sales/templates/sales/sale_list.html:22
+msgid "Sale date"
+msgstr ""
+
+#: apps/sales/templates/sales/sale_detail.html:51
+msgid "Invoice"
+msgstr ""
+
+#: apps/sales/templates/sales/sale_detail.html:54
+msgid "Number"
+msgstr ""
+
+#: apps/sales/templates/sales/sale_detail.html:55
+msgid "Issued on"
+msgstr ""
+
+#: apps/sales/templates/sales/sale_detail.html:61
+msgid "No invoice issued yet."
+msgstr ""
+
+#: apps/sales/templates/sales/sale_list.html:11 apps/sales/views.py:193
+msgid "New sale"
+msgstr ""
+
+#: apps/sales/views.py:59
+msgid "Lead created."
+msgstr ""
+
+#: apps/sales/views.py:80
+msgid "Lead status updated."
+msgstr ""
+
+#: apps/sales/views.py:82 apps/sales/views.py:131
+msgid "Unknown status."
+msgstr ""
+
+#: apps/sales/views.py:108
+msgid "Quotation created."
+msgstr ""
+
+#: apps/sales/views.py:129
+msgid "Quotation status updated."
+msgstr ""
+
+#: apps/sales/views.py:163
+msgid "Reservation created."
+msgstr ""
+
+#: apps/sales/views.py:191
+msgid "Sale created — complete it to close the deal."
+msgstr ""
+
+#: apps/sales/views.py:217
+msgid "Sale completed — vehicle marked sold."
+msgstr ""
+
+#: apps/sales/views.py:219
+msgid "Sale could not be completed (already closed?)."
+msgstr ""
+
+#: apps/sales/views.py:228
+msgid "Complete the sale before issuing the invoice."
+msgstr ""
+
+#: apps/sales/views.py:231
+#, python-format
+msgid "Invoice %(number)s issued."
+msgstr ""
+
+#: apps/suppliers/models.py:10
+msgid "contact person"
+msgstr ""
+
+#: apps/suppliers/models.py:13
+msgid "address"
+msgstr ""
+
+#: apps/suppliers/models.py:19
+msgid "suppliers"
+msgstr ""
+
+#: apps/suppliers/templates/suppliers/list.html:4
+#: apps/suppliers/templates/suppliers/list.html:8 templates/base.html:18
+msgid "Suppliers"
+msgstr "تأمین‌کنندگان"
+
+#: apps/suppliers/templates/suppliers/list.html:11 apps/suppliers/views.py:32
+msgid "Add supplier"
+msgstr ""
+
+#: apps/suppliers/templates/suppliers/list.html:15
+msgid "Search suppliers…"
+msgstr ""
+
+#: apps/suppliers/templates/suppliers/list.html:26
+msgid "Contact"
+msgstr ""
+
+#: apps/suppliers/templates/suppliers/list.html:47
+msgid "No suppliers yet."
+msgstr ""
+
+#: apps/suppliers/views.py:30
+msgid "Supplier created."
+msgstr ""
+
+#: apps/suppliers/views.py:41
+msgid "Supplier updated."
+msgstr ""
+
+#: apps/suppliers/views.py:46
+msgid "Edit supplier"
+msgstr ""
+
+#: apps/vehicles/forms.py:28
+msgid "Branch does not belong to your company."
+msgstr ""
+
+#: apps/vehicles/models.py:14
+msgid "In transit"
+msgstr ""
+
+#: apps/vehicles/models.py:15
+msgid "In stock"
+msgstr ""
+
+#: apps/vehicles/models.py:17
+msgid "Sold"
+msgstr ""
+
+#: apps/vehicles/models.py:22 apps/vehicles/templates/vehicles/detail.html:13
+#: apps/vehicles/templates/vehicles/list.html:33
+msgid "VIN"
+msgstr "شماره شاسی"
+
+#: apps/vehicles/models.py:23
+msgid "make"
+msgstr ""
+
+#: apps/vehicles/models.py:24
+msgid "model"
+msgstr ""
+
+#: apps/vehicles/models.py:25
+msgid "year"
+msgstr ""
+
+#: apps/vehicles/models.py:26
+msgid "color"
+msgstr ""
+
+#: apps/vehicles/models.py:27
+msgid "mileage (km)"
+msgstr ""
+
+#: apps/vehicles/models.py:45
+msgid "vehicles"
+msgstr ""
+
+#: apps/vehicles/templates/vehicles/detail.html:15
+msgid "Color"
+msgstr ""
+
+#: apps/vehicles/templates/vehicles/detail.html:16
+msgid "Mileage (km)"
+msgstr ""
+
+#: apps/vehicles/templates/vehicles/detail.html:27
+msgid "Cost history"
+msgstr ""
+
+#: apps/vehicles/templates/vehicles/detail.html:29
+msgid "Landed cost"
+msgstr ""
+
+#: apps/vehicles/templates/vehicles/detail.html:54
+msgid "No cost lines yet."
+msgstr ""
+
+#: apps/vehicles/templates/vehicles/detail.html:61
+#: apps/vehicles/templates/vehicles/detail.html:67
+msgid "Add cost line"
+msgstr ""
+
+#: apps/vehicles/templates/vehicles/list.html:4
+#: apps/vehicles/templates/vehicles/list.html:8 templates/base.html:16
+msgid "Vehicles"
+msgstr "وسایط"
+
+#: apps/vehicles/templates/vehicles/list.html:11 apps/vehicles/views.py:95
+msgid "Add vehicle"
+msgstr "افزودن وسیطه"
+
+#: apps/vehicles/templates/vehicles/list.html:16
+msgid "Search VIN, make, model…"
+msgstr ""
+
+#: apps/vehicles/templates/vehicles/list.html:35
+msgid "Year"
+msgstr ""
+
+#: apps/vehicles/templates/vehicles/list.html:61
+msgid "No vehicles found."
+msgstr ""
+
+#: apps/vehicles/views.py:79
+msgid "Cost line added."
+msgstr ""
+
+#: apps/vehicles/views.py:81
+msgid "Could not add cost line — check the form values."
+msgstr ""
+
+#: apps/vehicles/views.py:93
+msgid "Vehicle created."
+msgstr ""
+
+#: apps/vehicles/views.py:104
+msgid "Vehicle updated."
+msgstr ""
+
+#: apps/vehicles/views.py:109
+msgid "Edit vehicle"
+msgstr ""
+
+#: templates/accounts/dashboard.html:4 templates/accounts/dashboard.html:7
+#: templates/base.html:15
+msgid "Dashboard"
+msgstr "داشبورد"
+
+#: templates/accounts/dashboard.html:9
+#, python-format
+msgid "Welcome, %(name)s."
+msgstr ""
+
+#: templates/accounts/dashboard.html:14
+msgid "System status"
+msgstr ""
+
+#: templates/accounts/dashboard.html:15
+msgid "Phase 1 environment is booting module by module."
+msgstr ""
+
+#: templates/accounts/login.html:4 templates/accounts/login.html:29
+msgid "Log in"
+msgstr ""
+
+#: templates/accounts/login.html:8
+msgid "Log in to CarFlow"
+msgstr ""
+
+#: templates/accounts/login.html:11
+msgid "Your username and password didn't match. Please try again."
+msgstr ""
+
+#: templates/accounts/login.html:17
+msgid "Username"
+msgstr ""
+
+#: templates/accounts/login.html:22
+msgid "Password"
+msgstr ""
+
+#: templates/base.html:6
+msgid "AUTOMEX CarFlow"
+msgstr ""
+
+#: templates/base.html:19
+msgid "Purchases"
+msgstr "خریدها"
+
+#: templates/base.html:23
+msgid "Payments"
+msgstr "پرداخت‌ها"
+
+#: templates/base.html:33
+msgid "Language"
+msgstr "زبان"
+
+#: templates/base.html:47
+msgid "Log out"
+msgstr "خروج"

@@ -1,7 +1,9 @@
 #!/bin/sh
 # Container entrypoint shared by web / worker / beat / runserver.
-# Waits for the database, applies migrations as an explicit logged step,
-# then starts the role selected via the container `command`.
+# Waits for the database; the web role applies migrations as an explicit
+# logged step (workers must never migrate concurrently — concurrent
+# `migrate` corrupts PostgreSQL state), then starts the role selected
+# via the container `command`.
 set -e
 
 echo "==> Waiting for database at ${DB_HOST}:${DB_PORT:-5432}..."
@@ -23,11 +25,14 @@ do
 done
 echo "==> Database is ready."
 
-echo "==> Applying migrations..."
-python manage.py migrate --noinput
-echo "==> Migrations complete."
+ROLE="${1:-web}"
+if [ "$ROLE" = "web" ] || [ "$ROLE" = "runserver" ]; then
+    echo "==> Applying migrations..."
+    python manage.py migrate --noinput
+    echo "==> Migrations complete."
+fi
 
-case "${1:-web}" in
+case "$ROLE" in
     web)
         echo "==> Starting Gunicorn..."
         exec gunicorn config.wsgi:application \
