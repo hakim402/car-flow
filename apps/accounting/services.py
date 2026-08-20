@@ -70,6 +70,27 @@ def sale_outstanding(sale) -> dict[str, Decimal]:
     return outstanding
 
 
+def supplier_payments(supplier) -> dict[str, Decimal]:
+    """Money paid out to a supplier, net of reversals, per currency
+    (positive magnitude — mirrors `money_out`)."""
+    entries = LedgerEntry.objects.filter(
+        object_id=supplier.pk,
+        content_type_id=_supplier_content_type_id(),
+    )
+    return {
+        currency: -total
+        for currency, total in _net_totals(entries).items()
+    }
+
+
+def _supplier_content_type_id():
+    from django.contrib.contenttypes.models import ContentType
+
+    from apps.suppliers.models import Supplier
+
+    return ContentType.objects.get_for_model(Supplier).pk
+
+
 def _sale_content_type_id():
     from django.contrib.contenttypes.models import ContentType
 

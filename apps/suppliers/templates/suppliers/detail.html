@@ -73,4 +73,70 @@
         <p class="text-sm text-slate-500">{% translate "No purchase orders from this supplier yet." %}</p>
     {% endif %}
 </div>
+
+<div class="bg-white rounded-lg shadow p-6 mt-6">
+    <div class="flex items-center justify-between mb-3">
+        <h2 class="text-lg font-semibold">
+            {% translate "Payments" %}
+            {% if total_paid %}
+                <span class="ms-2 text-sm font-normal text-slate-500">
+                    {% translate "Total paid:" %}
+                    {% for currency, amount in total_paid.items %}
+                        <span class="rounded-full bg-red-100 text-red-700 px-2 py-0.5 text-xs whitespace-nowrap" dir="ltr">{{ amount }} {{ currency }}</span>
+                    {% endfor %}
+                </span>
+            {% endif %}
+        </h2>
+        {% if can_record_payments %}
+            <a href="{% url 'payments:supplier_payment' %}?supplier={{ supplier.pk }}"
+               class="rounded bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 text-sm">
+                {% translate "Record payment" %}
+            </a>
+        {% endif %}
+    </div>
+    {% if payments %}
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="bg-slate-50 text-slate-600">
+                    <tr>
+                        <th class="px-4 py-2 text-start font-medium">{% translate "Date" %}</th>
+                        <th class="px-4 py-2 text-start font-medium">{% translate "Description" %}</th>
+                        <th class="px-4 py-2 text-end font-medium">{% translate "Amount" %}</th>
+                        <th class="px-4 py-2"></th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-200">
+                    {% for entry in payments %}
+                        <tr class="{% if entry.reversal_of %}bg-slate-50 text-slate-500{% endif %}">
+                            <td class="px-4 py-2">{{ entry.created_at|date:"SHORT_DATE_FORMAT" }}</td>
+                            <td class="px-4 py-2">
+                                {{ entry.description|default:"—" }}
+                                {% if entry.reversal_of %}
+                                    <span class="ms-1 rounded bg-red-100 text-red-700 px-1.5 py-0.5 text-xs">
+                                        {% translate "reversal" %}
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td class="px-4 py-2 text-end font-medium text-red-700" dir="ltr">
+                                −{{ entry.amount }} {{ entry.currency }}
+                            </td>
+                            <td class="px-4 py-2 text-end">
+                                {% if can_record_payments and not entry.reversal_of and not entry.reversals.exists %}
+                                    <form method="post" action="{% url 'payments:reverse' entry.pk %}" class="inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="text-slate-500 hover:text-red-700 text-sm">
+                                            {% translate "Reverse" %}
+                                        </button>
+                                    </form>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="text-sm text-slate-500">{% translate "No payments to this supplier yet." %}</p>
+    {% endif %}
+</div>
 {% endblock %}

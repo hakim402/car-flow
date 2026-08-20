@@ -38,6 +38,22 @@ def record_payment(sale, amount, currency, user=None, description="") -> LedgerE
 
 
 @transaction.atomic
+def record_supplier_payment(supplier, amount, currency, user=None, description="") -> LedgerEntry:
+    """Record money paid OUT to a supplier (import invoices, deposits) as
+    one ledger row pointing at the supplier."""
+    return LedgerEntry.objects.create(
+        company=supplier.company,
+        type=EntryType.SUPPLIER_PAYMENT,
+        amount=amount,
+        currency=currency,
+        description=description or f"{supplier}",
+        content_type_id=_content_type_id(supplier),
+        object_id=supplier.pk,
+        created_by=user if user and user.is_authenticated else None,
+    )
+
+
+@transaction.atomic
 def reverse_entry(entry: LedgerEntry, user=None, description="") -> LedgerEntry:
     """Correct a ledger row by appending its mirror image (§6: never edit)."""
     return LedgerEntry.objects.create(
