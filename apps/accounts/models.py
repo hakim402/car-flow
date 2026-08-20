@@ -114,13 +114,15 @@ class User(AbstractUser):
         return self.roles.filter(permissions__codename=codename).exists()
 
     def save(self, *args, **kwargs):
-        """Keep is_staff in lockstep with the Super Admin role (§8.1):
-        True only for Super Admin, False for every other role — Django's own
-        admin login check then locks everyone else out by default."""
+        """Keep is_staff in lockstep with Super Admin access (§8.1):
+        True for Super Admin role holders and Django superusers
+        (`createsuperuser` sets is_superuser without attaching roles),
+        False for every other role — Django's own admin login check then
+        locks everyone else out by default."""
         if self.pk:
             has_super_admin = self.roles.filter(key=SUPER_ADMIN_KEY).exists()
         else:
             # New user: roles are attached after first save; default to locked out.
             has_super_admin = False
-        self.is_staff = has_super_admin
+        self.is_staff = has_super_admin or self.is_superuser
         super().save(*args, **kwargs)

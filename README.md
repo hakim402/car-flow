@@ -666,6 +666,8 @@ covered end-to-end in **[`PRODUCTION.md`](PRODUCTION.md)**:
 | `port is already allocated` on `up` | Change `DEV_PORT`/`NGINX_PORT` in `.env`, or stop the conflicting service. |
 | `403 CSRF verification failed` on form POST | Plain-HTTP stack with Secure cookies: set `COOKIES_SECURE=False` in `.env`, then `docker compose up -d --force-recreate web` (add `-f docker-compose.yml` for the prod stack). HTTPS deployments keep it `True`. |
 | `403` + log line `Origin checking failed - … does not match any trusted origins` | The browser's `Origin` header isn't trusted. Origins are auto-derived from `DJANGO_ALLOWED_HOSTS` + port; if your URL differs, set `DJANGO_CSRF_TRUSTED_ORIGINS=https://your.host` in `.env` and recreate `web`. |
+| `403 Forbidden (Permission denied)` on app pages like `/vehicles/add/` | Those pages are company-scoped — the logged-in user must belong to a company with a suitable role. Super Admin (`company=None`) manages tenants via `/admin/`; day-to-day records are added by a company user (e.g. Organization Admin). |
+| Locked out of `/admin/` | Access requires `is_staff`, which is kept in sync with the Super Admin role / superuser flag on save — re-save the user or tick **Staff status** only for Super Admins (§8.1). |
 | `IntegrityError … pg_type_typname_nsp_index` on first boot | Corrupted first-migration state: `docker compose down -v` then `docker compose up`. (Prevented structurally: only the web service migrates.) |
 | `pytest: not found` in the container | The last build tagged the runtime (prod) image. Rebuild dev: `docker compose build web`. |
 | Changes don't appear | Dev auto-reloads Python/templates; for `.env` changes use `up -d --force-recreate`; for dependency/Dockerfile changes use `up -d --build`. |
