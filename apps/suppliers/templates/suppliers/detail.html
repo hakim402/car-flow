@@ -4,14 +4,28 @@
 {% block title %}{{ supplier }} — AUTOMEX CarFlow{% endblock %}
 
 {% block content %}
-<div class="flex items-center justify-between mb-4">
-    <h1 class="text-2xl font-semibold">{{ supplier.name }}</h1>
-    {% if can_edit %}
-        <a href="{% url 'suppliers:edit' supplier.pk %}"
-           class="rounded bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 text-sm">{% translate "Edit" %}</a>
-    {% endif %}
+<div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+    <div class="flex items-center gap-4">
+        {% if logo %}
+            <img src="{{ logo.file.url }}" alt="{{ supplier.name }}"
+                 class="h-16 w-16 rounded-xl object-cover ring-1 ring-slate-200">
+        {% endif %}
+        <h1 class="text-2xl font-semibold">{{ supplier.name }}</h1>
+    </div>
+    <div class="flex items-center gap-2">
+        {% if can_upload_documents %}
+            <a href="{% url 'documents:upload_for_supplier' supplier.pk %}"
+               class="rounded bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 text-sm">
+                {% translate "Add logo / document" %}
+            </a>
+        {% endif %}
+        {% if can_edit %}
+            <a href="{% url 'suppliers:edit' supplier.pk %}"
+               class="rounded bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 text-sm">{% translate "Edit" %}</a>
+        {% endif %}
+    </div>
 </div>
-<div class="bg-white rounded-lg shadow p-6 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 text-sm mb-6">
+<div class="card p-6 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 text-sm mb-6">
     <div><span class="text-slate-500">{% translate "Type" %}:</span> {{ supplier.get_supplier_type_display }}</div>
     <div><span class="text-slate-500">{% translate "Country" %}:</span> {{ supplier.get_country_display|default:"—" }}</div>
     <div><span class="text-slate-500">{% translate "Contact person" %}:</span> {{ supplier.contact_person|default:"—" }}</div>
@@ -25,41 +39,41 @@
     {% endif %}
 </div>
 
-<div class="bg-white rounded-lg shadow p-6">
+<div class="card p-6">
     <h2 class="text-lg font-semibold mb-3">
         {% blocktranslate count counter=order_count %}Purchase order{% plural %}Purchase orders{% endblocktranslate %}
         <span class="text-slate-400 text-sm font-normal">({{ order_count }})</span>
     </h2>
     {% if orders %}
         <div class="overflow-x-auto">
-            <table class="w-full text-sm">
-                <thead class="bg-slate-50 text-slate-600">
+            <table class="data-table">
+                <thead>
                     <tr>
-                        <th class="px-4 py-2 text-start font-medium">{% translate "Reference" %}</th>
-                        <th class="px-4 py-2 text-start font-medium">{% translate "Type" %}</th>
-                        <th class="px-4 py-2 text-start font-medium">{% translate "Status" %}</th>
-                        <th class="px-4 py-2 text-start font-medium">{% translate "Order date" %}</th>
-                        <th class="px-4 py-2 text-end font-medium">{% translate "Total" %}</th>
+                        <th class="px-4 py-3">{% translate "Reference" %}</th>
+                        <th class="px-4 py-3">{% translate "Type" %}</th>
+                        <th class="px-4 py-3">{% translate "Status" %}</th>
+                        <th class="px-4 py-3">{% translate "Order date" %}</th>
+                        <th class="px-4 py-3 text-end">{% translate "Total" %}</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-200">
+                <tbody>
                     {% for order in orders %}
-                        <tr class="hover:bg-slate-50">
-                            <td class="px-4 py-2">
+                        <tr>
+                            <td class="px-4 py-3">
                                 <a href="{{ order.get_absolute_url }}" class="font-medium text-slate-800 hover:text-amber-600">
                                     {{ order }}
                                 </a>
                             </td>
-                            <td class="px-4 py-2">
+                            <td class="px-4 py-3">
                                 {% if order.is_import %}
                                     <span class="rounded-full bg-sky-100 text-sky-700 px-2 py-0.5 text-xs">{{ order.get_purchase_type_display }}</span>
                                 {% else %}
                                     <span class="rounded-full bg-slate-100 text-slate-600 px-2 py-0.5 text-xs">{{ order.get_purchase_type_display }}</span>
                                 {% endif %}
                             </td>
-                            <td class="px-4 py-2">{{ order.get_status_display }}</td>
-                            <td class="px-4 py-2">{{ order.order_date|date:"SHORT_DATE_FORMAT" }}</td>
-                            <td class="px-4 py-2 text-end" dir="ltr">
+                            <td class="px-4 py-3">{{ order.get_status_display }}</td>
+                            <td class="px-4 py-3">{{ order.order_date|date:"SHORT_DATE_FORMAT" }}</td>
+                            <td class="px-4 py-3 text-end" dir="ltr">
                                 {% for currency, amount in order.total_by_currency.items %}
                                     <span class="whitespace-nowrap">{{ amount }} {{ currency }}</span>{% if not forloop.last %}<br>{% endif %}
                                 {% empty %}—{% endfor %}
@@ -74,7 +88,50 @@
     {% endif %}
 </div>
 
-<div class="bg-white rounded-lg shadow p-6 mt-6">
+<div class="card p-6 mt-6">
+    <div class="flex items-center justify-between mb-3">
+        <h2 class="text-lg font-semibold">
+            {% translate "Documents" %}
+            <span class="text-slate-400 text-sm font-normal">({{ documents|length }})</span>
+        </h2>
+    </div>
+    {% if documents %}
+        <div class="overflow-x-auto">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th class="px-4 py-3">{% translate "Title" %}</th>
+                        <th class="px-4 py-3">{% translate "Type" %}</th>
+                        <th class="px-4 py-3">{% translate "Uploaded" %}</th>
+                        <th class="px-4 py-3">{% translate "By" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for document in documents %}
+                        <tr>
+                            <td class="px-4 py-3">
+                                <a href="{{ document.file.url }}" target="_blank" rel="noopener"
+                                   class="font-medium text-slate-800 hover:text-amber-600">{{ document }}</a>
+                            </td>
+                            <td class="px-4 py-3">{{ document.get_doc_type_display }}</td>
+                            <td class="px-4 py-3">{{ document.created_at|date:"SHORT_DATE_FORMAT" }}</td>
+                            <td class="px-4 py-3">{{ document.uploaded_by.get_username|default:"—" }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="text-sm text-slate-500">
+            {% translate "No documents yet." %}
+            {% if can_upload_documents %}
+                <a class="text-amber-600 hover:text-amber-700" href="{% url 'documents:upload_for_supplier' supplier.pk %}">{% translate "Upload the first one." %}</a>
+            {% endif %}
+        </p>
+    {% endif %}
+</div>
+
+<div class="card p-6 mt-6">
     <div class="flex items-center justify-between mb-3">
         <h2 class="text-lg font-semibold">
             {% translate "Payments" %}
@@ -96,20 +153,20 @@
     </div>
     {% if payments %}
         <div class="overflow-x-auto">
-            <table class="w-full text-sm">
-                <thead class="bg-slate-50 text-slate-600">
+            <table class="data-table">
+                <thead>
                     <tr>
-                        <th class="px-4 py-2 text-start font-medium">{% translate "Date" %}</th>
-                        <th class="px-4 py-2 text-start font-medium">{% translate "Description" %}</th>
-                        <th class="px-4 py-2 text-end font-medium">{% translate "Amount" %}</th>
-                        <th class="px-4 py-2"></th>
+                        <th class="px-4 py-3">{% translate "Date" %}</th>
+                        <th class="px-4 py-3">{% translate "Description" %}</th>
+                        <th class="px-4 py-3 text-end">{% translate "Amount" %}</th>
+                        <th class="px-4 py-3"></th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-200">
+                <tbody>
                     {% for entry in payments %}
                         <tr class="{% if entry.reversal_of %}bg-slate-50 text-slate-500{% endif %}">
-                            <td class="px-4 py-2">{{ entry.created_at|date:"SHORT_DATE_FORMAT" }}</td>
-                            <td class="px-4 py-2">
+                            <td class="px-4 py-3">{{ entry.created_at|date:"SHORT_DATE_FORMAT" }}</td>
+                            <td class="px-4 py-3">
                                 {{ entry.description|default:"—" }}
                                 {% if entry.reversal_of %}
                                     <span class="ms-1 rounded bg-red-100 text-red-700 px-1.5 py-0.5 text-xs">
@@ -117,10 +174,10 @@
                                     </span>
                                 {% endif %}
                             </td>
-                            <td class="px-4 py-2 text-end font-medium text-red-700" dir="ltr">
+                            <td class="px-4 py-3 text-end font-medium text-red-700" dir="ltr">
                                 −{{ entry.amount }} {{ entry.currency }}
                             </td>
-                            <td class="px-4 py-2 text-end">
+                            <td class="px-4 py-3 text-end">
                                 {% if can_record_payments and not entry.reversal_of and not entry.reversals.exists %}
                                     <form method="post" action="{% url 'payments:reverse' entry.pk %}" class="inline">
                                         {% csrf_token %}

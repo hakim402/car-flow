@@ -21,15 +21,20 @@
 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
     {% for supplier in suppliers %}
         <a href="{{ supplier.get_absolute_url }}"
-           class="group block bg-white rounded-lg shadow hover:shadow-md transition-shadow overflow-hidden">
+           class="group block card transition-shadow hover:shadow-md hover:ring-amber-300 overflow-hidden">
             <div class="flex items-center gap-4 px-4 pt-4">
-                <span class="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-slate-800 text-amber-400">
+                {% if supplier.logo %}
+                    <img src="{{ supplier.logo.file.url }}" alt="{{ supplier.name }}"
+                         class="h-14 w-14 shrink-0 rounded-lg object-cover ring-1 ring-slate-200">
+                {% else %}
+                    <span class="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-slate-800 text-amber-400">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                          stroke="currentColor" class="h-7 w-7">
                         <path stroke-linecap="round" stroke-linejoin="round"
                               d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.37a1.5 1.5 0 0 1 1.5-1.5h3a1.5 1.5 0 0 1 1.5 1.5V21" />
                     </svg>
-                </span>
+                    </span>
+                {% endif %}
                 <div class="min-w-0">
                     <div class="truncate font-medium text-slate-800 group-hover:text-amber-600">
                         {{ supplier.name }}
@@ -60,7 +65,7 @@
             </div>
         </a>
     {% empty %}
-        <div class="col-span-full bg-white rounded-lg shadow px-4 py-8 text-center text-slate-500">
+        <div class="col-span-full card px-4 py-8 text-center text-slate-500">
             {% translate "No suppliers yet." %}
         </div>
     {% endfor %}

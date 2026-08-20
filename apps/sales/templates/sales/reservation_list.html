@@ -11,9 +11,9 @@
         {% translate "New reservation" %}
     </a>
 </div>
-<div class="bg-white rounded-lg shadow overflow-x-auto">
-    <table class="w-full text-sm">
-        <thead class="bg-slate-50 text-slate-600">
+<div class="card overflow-x-auto">
+    <table class="data-table">
+        <thead>
             <tr>
                 <th class="px-4 py-3 text-start font-medium">#</th>
                 <th class="px-4 py-3 text-start font-medium">{% translate "Customer" %}</th>
@@ -23,9 +23,9 @@
                 <th class="px-4 py-3 text-start font-medium">{% translate "Created" %}</th>
             </tr>
         </thead>
-        <tbody class="divide-y divide-slate-200">
+        <tbody>
             {% for reservation in reservations %}
-                <tr class="hover:bg-slate-50">
+                <tr>
                     <td class="px-4 py-3 font-medium">{{ reservation.pk }}</td>
                     <td class="px-4 py-3">{{ reservation.customer }}</td>
                     <td class="px-4 py-3">{{ reservation.vehicle }}</td>

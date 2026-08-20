@@ -43,3 +43,21 @@ class Supplier(TenantModel):
 
     def get_absolute_url(self):
         return reverse("suppliers:detail", kwargs={"pk": self.pk})
+
+    @property
+    def logo(self):
+        """Most recent supplier-logo document, if any.
+
+        The list view prefetches logos into a `logo_list` attribute; fall
+        back to a scoped query when the attribute is absent.
+        """
+        logo_list = getattr(self, "logo_list", None)
+        if logo_list is not None:
+            return logo_list[0] if logo_list else None
+        from apps.documents.models import Document, DocumentType
+
+        return (
+            self.documents.filter(doc_type=DocumentType.SUPPLIER_LOGO)
+            .order_by("-created_at", "-pk")
+            .first()
+        )

@@ -25,6 +25,9 @@ class DocumentType(models.TextChoices):
     ELECTRICITY_BILL = "electricity_bill", _("Electricity bill")
     OTHER_BILL = "other_bill", _("Other bill")
     CUSTOMER_DOCUMENT = "customer_document", _("Other customer document")
+    SUPPLIER_LOGO = "supplier_logo", _("Supplier logo / photo")
+    SUPPLIER_LICENSE = "supplier_license", _("Supplier business license")
+    SUPPLIER_DOCUMENT = "supplier_document", _("Other supplier document")
     OTHER = "other", _("Other")
 
 
@@ -49,6 +52,13 @@ CUSTOMER_DOC_TYPES = [
     DocumentType.CUSTOMER_DOCUMENT,
 ]
 
+#: Types a supplier upload box may create (logo, license, paperwork).
+SUPPLIER_DOC_TYPES = [
+    DocumentType.SUPPLIER_LOGO,
+    DocumentType.SUPPLIER_LICENSE,
+    DocumentType.SUPPLIER_DOCUMENT,
+]
+
 
 class Document(TenantModel):
     vehicle = models.ForeignKey(
@@ -64,6 +74,14 @@ class Document(TenantModel):
         on_delete=models.PROTECT,
         related_name="documents",
         verbose_name=_("customer"),
+        null=True,
+        blank=True,
+    )
+    supplier = models.ForeignKey(
+        "suppliers.Supplier",
+        on_delete=models.PROTECT,
+        related_name="documents",
+        verbose_name=_("supplier"),
         null=True,
         blank=True,
     )

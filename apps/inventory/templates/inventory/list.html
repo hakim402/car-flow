@@ -18,9 +18,9 @@
     </button>
 </form>
 
-<div class="bg-white rounded-lg shadow overflow-x-auto">
-    <table class="w-full text-sm">
-        <thead class="bg-slate-50 text-slate-600">
+<div class="card overflow-x-auto">
+    <table class="data-table">
+        <thead>
             <tr>
                 <th class="px-4 py-3 text-start font-medium">{% translate "Vehicle" %}</th>
                 <th class="px-4 py-3 text-start font-medium">{% translate "Branch" %}</th>
@@ -29,9 +29,9 @@
                 <th class="px-4 py-3 text-start font-medium">{% translate "Status" %}</th>
             </tr>
         </thead>
-        <tbody class="divide-y divide-slate-200">
+        <tbody>
             {% for item in stock_items %}
-                <tr class="hover:bg-slate-50">
+                <tr>
                     <td class="px-4 py-3">
                         <a href="{{ item.vehicle.get_absolute_url }}" class="text-amber-600 hover:underline">
                             {{ item.vehicle }}

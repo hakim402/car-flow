@@ -11,9 +11,9 @@
         {% translate "Record expense" %}
     </a>
 </div>
-<div class="bg-white rounded-lg shadow overflow-x-auto">
-    <table class="w-full text-sm">
-        <thead class="bg-slate-50 text-slate-600">
+<div class="card overflow-x-auto">
+    <table class="data-table">
+        <thead>
             <tr>
                 <th class="px-4 py-3 text-start font-medium">{% translate "Date" %}</th>
                 <th class="px-4 py-3 text-start font-medium">{% translate "Description" %}</th>
@@ -21,9 +21,9 @@
                 <th class="px-4 py-3 text-end font-medium">{% translate "Amount" %}</th>
             </tr>
         </thead>
-        <tbody class="divide-y divide-slate-200">
+        <tbody>
             {% for expense in expenses %}
-                <tr class="hover:bg-slate-50 {% if expense.reversal_of %}bg-slate-50 text-slate-500{% endif %}">
+                <tr class="{% if expense.reversal_of %}bg-slate-50 text-slate-500{% endif %}">
                     <td class="px-4 py-3">{{ expense.created_at|date:"SHORT_DATE_FORMAT" }}</td>
                     <td class="px-4 py-3">
                         {{ expense.description|default:"—" }}

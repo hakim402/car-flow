@@ -3,3 +3,25 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer components {
+    /* Shared card wrapper for panels and tables. */
+    .card {
+        @apply rounded-xl bg-white shadow-sm ring-1 ring-slate-200;
+    }
+
+    /* Full-width data table: header band, zebra rows, row hover. Explicit
+       row utilities in templates (e.g. reversal styling) take precedence. */
+    .data-table {
+        @apply w-full text-sm;
+    }
+    .data-table thead {
+        @apply bg-slate-50/80 text-slate-500;
+    }
+    .data-table thead th {
+        @apply whitespace-nowrap text-start text-xs font-semibold uppercase tracking-wider;
+    }
+    .data-table tbody tr {
+        @apply border-t border-slate-100 transition-colors odd:bg-white even:bg-slate-50/60 hover:bg-slate-50;
+    }
+}

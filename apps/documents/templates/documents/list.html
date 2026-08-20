@@ -11,20 +11,21 @@
         {% translate "Upload document" %}
     </a>
 </div>
-<div class="bg-white rounded-lg shadow overflow-x-auto">
-    <table class="w-full text-sm">
-        <thead class="bg-slate-50 text-slate-600">
+<div class="card overflow-x-auto">
+    <table class="data-table">
+        <thead>
             <tr>
-                <th class="px-4 py-3 text-start font-medium">{% translate "Title" %}</th>
-                <th class="px-4 py-3 text-start font-medium">{% translate "Type" %}</th>
-                <th class="px-4 py-3 text-start font-medium">{% translate "Vehicle" %}</th>
-                <th class="px-4 py-3 text-start font-medium">{% translate "Customer" %}</th>
-                <th class="px-4 py-3 text-start font-medium">{% translate "Uploaded" %}</th>
+                <th class="px-4 py-3">{% translate "Title" %}</th>
+                <th class="px-4 py-3">{% translate "Type" %}</th>
+                <th class="px-4 py-3">{% translate "Vehicle" %}</th>
+                <th class="px-4 py-3">{% translate "Customer" %}</th>
+                <th class="px-4 py-3">{% translate "Supplier" %}</th>
+                <th class="px-4 py-3">{% translate "Uploaded" %}</th>
             </tr>
         </thead>
-        <tbody class="divide-y divide-slate-200">
+        <tbody>
             {% for document in documents %}
-                <tr class="hover:bg-slate-50">
+                <tr>
                     <td class="px-4 py-3">
                         <a href="{{ document.file.url }}" target="_blank" rel="noopener"
                            class="font-medium text-slate-800 hover:text-amber-600">
@@ -46,10 +47,17 @@
                             </a>
                         {% else %}—{% endif %}
                     </td>
+                    <td class="px-4 py-3">
+                        {% if document.supplier %}
+                            <a class="text-slate-700 hover:text-amber-600" href="{{ document.supplier.get_absolute_url }}">
+                                {{ document.supplier }}
+                            </a>
+                        {% else %}—{% endif %}
+                    </td>
                     <td class="px-4 py-3">{{ document.created_at|date:"SHORT_DATE_FORMAT" }}</td>
                 </tr>
             {% empty %}
-                <tr><td colspan="5" class="px-4 py-8 text-center text-slate-500">
+                <tr><td colspan="6" class="px-4 py-8 text-center text-slate-500">
                     {% translate "No documents yet." %}
                 </td></tr>
             {% endfor %}

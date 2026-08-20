@@ -11,9 +11,9 @@
         {% translate "New sale" %}
     </a>
 </div>
-<div class="bg-white rounded-lg shadow overflow-x-auto">
-    <table class="w-full text-sm">
-        <thead class="bg-slate-50 text-slate-600">
+<div class="card overflow-x-auto">
+    <table class="data-table">
+        <thead>
             <tr>
                 <th class="px-4 py-3 text-start font-medium">#</th>
                 <th class="px-4 py-3 text-start font-medium">{% translate "Customer" %}</th>
@@ -23,9 +23,9 @@
                 <th class="px-4 py-3 text-start font-medium">{% translate "Status" %}</th>
             </tr>
         </thead>
-        <tbody class="divide-y divide-slate-200">
+        <tbody>
             {% for sale in sales %}
-                <tr class="hover:bg-slate-50">
+                <tr>
                     <td class="px-4 py-3">
                         <a href="{{ sale.get_absolute_url }}" class="font-medium text-slate-800 hover:text-amber-600">
                             {{ sale.pk }}

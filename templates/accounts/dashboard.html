@@ -110,7 +110,7 @@
     </div>
     {% if recent_sales %}
     <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-slate-100 text-sm">
+        <table class="data-table">
             <thead>
                 <tr class="text-start text-xs uppercase tracking-wider text-slate-400">
                     <th class="px-5 py-3 text-start font-medium">{% translate "Customer" %}</th>
@@ -120,9 +120,9 @@
                     <th class="px-5 py-3 text-start font-medium">{% translate "Date" %}</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-slate-100">
+            <tbody>
                 {% for sale in recent_sales %}
-                <tr class="hover:bg-slate-50">
+                <tr>
                     <td class="px-5 py-3 font-medium">
                         <a href="{% url 'sales:sale_detail' sale.pk %}" class="hover:text-amber-600">{{ sale.customer.full_name }}</a>
                     </td>

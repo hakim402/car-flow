@@ -19,4 +19,10 @@ urlpatterns = [
         views.document_upload,
         name="upload_for_customer",
     ),
+    # Upload box reached from a supplier detail page (supplier locked).
+    path(
+        "add/supplier/<int:supplier_pk>/",
+        views.document_upload,
+        name="upload_for_supplier",
+    ),
 ]

@@ -34,7 +34,7 @@
     </div>
 </div>
 
-<div class="bg-white rounded-lg shadow p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-3 text-sm mb-6">
+<div class="card p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-3 text-sm mb-6">
     <div><span class="text-slate-500">{% translate "Supplier" %}:</span>
         <a href="{{ order.supplier.get_absolute_url }}" class="text-slate-800 hover:text-amber-600">{{ order.supplier }}</a>
     </div>
@@ -50,7 +50,7 @@
 </div>
 
 {% if order.is_import %}
-    <div class="bg-white rounded-lg shadow p-6 mb-6">
+    <div class="card p-6 mb-6">
         <h2 class="text-lg font-semibold mb-3">{% translate "Import / shipment tracking" %}</h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-3 text-sm">
             <div><span class="text-slate-500">{% translate "Origin country" %}:</span> {{ order.get_origin_country_display|default:"—" }}</div>
@@ -63,17 +63,17 @@
         </div>
     </div>
 {% endif %}
-<div class="bg-white rounded-lg shadow p-6 mb-6">
+<div class="card p-6 mb-6">
     <h2 class="text-lg font-semibold mb-3">{% translate "Lines" %}</h2>
-    <table class="w-full text-sm">
-        <thead class="bg-slate-50 text-slate-600">
+    <table class="data-table">
+        <thead>
             <tr>
                 <th class="px-4 py-2 text-start font-medium">{% translate "Description" %}</th>
                 <th class="px-4 py-2 text-start font-medium">{% translate "Vehicle" %}</th>
                 <th class="px-4 py-2 text-end font-medium">{% translate "Amount" %}</th>
             </tr>
         </thead>
-        <tbody class="divide-y divide-slate-200">
+        <tbody>
             {% for line in lines %}
                 <tr>
                     <td class="px-4 py-2">{{ line.description }}</td>
@@ -106,7 +106,7 @@
 </div>
 
 {% if can_receive %}
-    <div class="bg-white rounded-lg shadow p-6 max-w-2xl mb-6">
+    <div class="card p-6 max-w-2xl mb-6">
         <h2 class="text-lg font-semibold mb-3">{% translate "Add line" %}</h2>
         <form method="post" action="{% url 'purchases:add_line' order.pk %}" novalidate>
             {% csrf_token %}

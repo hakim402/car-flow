@@ -219,7 +219,7 @@ single-line {# #} comments.)
 Single `content` block for both auth states — Django forbids duplicate
 block names even across if-branches, so the auth check only wraps chrome.
 {% endcomment %}
-<main class="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8 {% if user.is_authenticated %}flex-1{% endif %}">
+<main class="mx-auto w-full max-w-none px-4 py-6 sm:px-6 lg:px-8 {% if user.is_authenticated %}flex-1{% endif %}">
     {% if messages %}
         <div class="mb-4 space-y-2">
             {% for message in messages %}

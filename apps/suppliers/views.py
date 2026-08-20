@@ -1,11 +1,13 @@
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
+from django.db.models import Prefetch
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import gettext_lazy as _
 
 from apps.accounting.services import supplier_payments
 from apps.core.decorators import require_permission
+from apps.documents.models import Document, DocumentType
 from apps.payments.models import EntryType, LedgerEntry
 
 from .forms import SupplierForm
@@ -16,6 +18,15 @@ from .models import Supplier
 def supplier_list(request):
     search = request.GET.get("q", "").strip()
     queryset = Supplier.objects.all()  # TenantManager filters by company.
+    queryset = queryset.prefetch_related(
+        Prefetch(
+            "documents",
+            queryset=Document.objects.filter(doc_type=DocumentType.SUPPLIER_LOGO).order_by(
+                "-created_at", "-pk"
+            ),
+            to_attr="logo_list",
+        )
+    )
     if search:
         queryset = queryset.filter(name__icontains=search)
     return render(request, "suppliers/list.html", {"suppliers": queryset, "q": search})
@@ -44,6 +55,7 @@ def supplier_detail(request, pk):
         object_id=supplier.pk,
         type=EntryType.SUPPLIER_PAYMENT,
     )
+    attachments = supplier.documents.all().select_related("uploaded_by")
     return render(
         request,
         "suppliers/detail.html",
@@ -53,8 +65,11 @@ def supplier_detail(request, pk):
             "order_count": orders.count(),
             "payments": payments,
             "total_paid": supplier_payments(supplier),
+            "logo": supplier.logo,
+            "documents": [a for a in attachments if not a.is_photo],
             "can_edit": request.user.has_permission("suppliers.change"),
             "can_record_payments": request.user.has_permission("payments.add"),
+            "can_upload_documents": request.user.has_permission("documents.add"),
         },
     )
 
