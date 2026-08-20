@@ -274,10 +274,15 @@ CELERY_BEAT_SCHEDULE = {}
 # File storage backend (§12.2): local `media/` volume by default, S3 when
 # `S3_ENABLED` is on. This block is the ONLY place S3 is referenced — app
 # code just uses `FileField` and never knows where bytes land.
+# Static files use the manifest storage: collectstatic emits hashed copies
+# (tailwind.abc123.css) and {% static %} resolves to them, so nginx's
+# 30-day Cache-Control never serves a stale stylesheet after a rebuild.
 # --------------------------------------------------------------------------
 STORAGES = {
     "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
-    "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.ManifestStaticFilesStorage"
+    },
 }
 if S3_ENABLED:
     STORAGES["default"] = {

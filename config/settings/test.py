@@ -28,5 +28,11 @@ CELERY_TASK_EAGER_PROPAGATES = True
 
 EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
 
+# Manifest storage needs a collected staticfiles.json the suite never builds;
+# plain storage keeps {% static %} resolution working under DEBUG=False.
+STORAGES["staticfiles"] = {  # noqa: F405
+    "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"
+}
+
 # Fast password hashing for auth-heavy tests.
 PASSWORD_HASHERS = ["django.contrib.auth.hashers.MD5PasswordHasher"]

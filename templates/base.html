@@ -1,10 +1,10 @@
-{% load i18n %}<!DOCTYPE html>
+{% load i18n static %}<!DOCTYPE html>
 <html lang="{{ LANGUAGE_CODE }}" dir="{% if LANGUAGE_BIDI %}rtl{% else %}ltr{% endif %}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}{% translate "AUTOMEX CarFlow" %}{% endblock %}</title>
-    <link rel="stylesheet" href="{{ STATIC_URL }}css/tailwind.css">
+    <link rel="stylesheet" href="{% static 'css/tailwind.css' %}">
 </head>
 <body class="bg-slate-100 min-h-screen text-slate-900 antialiased">
 
