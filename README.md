@@ -313,6 +313,7 @@ credential blank — this is enforced by the test suite.
 | `pytest: not found` in a container | The last build tagged the production (runtime) image. Rebuild dev: `docker compose build web`. |
 | Static files missing in production stack | The image collects them at build time; rebuild: `docker compose -f docker-compose.yml build`. |
 | Blank/untranslated UI in Dari/Pashto | Check the `django_language` cookie / user preference, and that `.mo` catalogs are compiled. |
+| `403 CSRF verification failed` on form POST (prod stack) | You're serving plain HTTP but cookies are Secure. Set `COOKIES_SECURE=False` in `.env`, then `docker compose -f docker-compose.yml up -d --force-recreate web`. (HTTPS deployments keep it True.) |
 
 ---
 

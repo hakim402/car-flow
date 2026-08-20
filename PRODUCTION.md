@@ -88,6 +88,10 @@ DB_PORT=5432
 
 NGINX_PORT=8765        # host port users will hit
 
+# ONLY if you serve over plain HTTP (no TLS anywhere in front): secure
+# cookies would break login/CSRF, so opt out. Keep True for HTTPS.
+COOKIES_SECURE=False
+
 # Leave every *_ENABLED flag False until you really configure a provider.
 ```
 

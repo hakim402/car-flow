@@ -7,8 +7,13 @@ DEBUG = False
 
 # HTTPS behind Nginx.
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
+# Secure cookies only work over HTTPS. They stay on by default (real
+# deployments are TLS-terminated before traffic reaches this app), but a
+# plain-HTTP deployment — e.g. the prod stack run locally — must set
+# COOKIES_SECURE=False or every form POST fails with a CSRF 403.
+COOKIES_SECURE = env_bool("COOKIES_SECURE", default=True)  # noqa: F405
+SESSION_COOKIE_SECURE = COOKIES_SECURE
+CSRF_COOKIE_SECURE = COOKIES_SECURE
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = "DENY"
 
