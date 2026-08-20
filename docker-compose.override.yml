@@ -7,6 +7,8 @@ services:
       context: .
       dockerfile: docker/web/Dockerfile
       target: dev
+    # Distinct tag per mode — see docker-compose.yml.
+    image: automex-carflow:dev
     command: runserver
     environment:
       DJANGO_SETTINGS_MODULE: config.settings.dev
@@ -18,10 +20,8 @@ services:
       - "${DEV_PORT:-8765}:8000"
 
   worker:
-    build:
-      context: .
-      dockerfile: docker/web/Dockerfile
-      target: dev
+    # Same dev image as web (built once by the web service).
+    image: automex-carflow:dev
     environment:
       DJANGO_SETTINGS_MODULE: config.settings.dev
     volumes:
@@ -29,10 +29,7 @@ services:
       - media_data:/app/media
 
   beat:
-    build:
-      context: .
-      dockerfile: docker/web/Dockerfile
-      target: dev
+    image: automex-carflow:dev
     environment:
       DJANGO_SETTINGS_MODULE: config.settings.dev
     volumes:

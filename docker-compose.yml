@@ -35,7 +35,10 @@ services:
       context: .
       dockerfile: docker/web/Dockerfile
       target: runtime
-    image: automex-carflow
+    # Distinct tag per mode: dev and prod must never overwrite each other's
+    # image (a stale dev tag under the shared name boots without app code
+    # and dies instantly -> nginx 502).
+    image: automex-carflow:prod
     command: web
     env_file:
       - .env
@@ -51,7 +54,7 @@ services:
         condition: service_healthy
 
   worker:
-    image: automex-carflow
+    image: automex-carflow:prod
     command: worker
     env_file:
       - .env
@@ -66,7 +69,7 @@ services:
         condition: service_healthy
 
   beat:
-    image: automex-carflow
+    image: automex-carflow:prod
     command: beat
     env_file:
       - .env

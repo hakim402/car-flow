@@ -77,8 +77,10 @@ document management, audit trails, and an omnichannel **Conversation Hub**
 
 ### One image, three roles
 
-`web`, `worker`, and `beat` share the `automex-carflow` image; the container
-`command` selects the role via `docker/entrypoint.sh`. The entrypoint waits
+`web`, `worker`, and `beat` share ONE image — `automex-carflow:dev` in
+development, `automex-carflow:prod` in production (separate tags so the two
+modes never overwrite each other); the container `command` selects the role
+via `docker/entrypoint.sh`. The entrypoint waits
 for the database, and **only the `web` role runs migrations** — concurrent
 `migrate` from several containers corrupts PostgreSQL.
 
@@ -669,7 +671,7 @@ covered end-to-end in **[`PRODUCTION.md`](PRODUCTION.md)**:
 | `403 Forbidden (Permission denied)` on app pages like `/vehicles/add/` | Those pages are company-scoped — the logged-in user must belong to a company with a suitable role. Super Admin (`company=None`) manages tenants via `/admin/`; day-to-day records are added by a company user (e.g. Organization Admin). |
 | Locked out of `/admin/` | Access requires `is_staff`, which is kept in sync with the Super Admin role / superuser flag on save — re-save the user or tick **Staff status** only for Super Admins (§8.1). |
 | `IntegrityError … pg_type_typname_nsp_index` on first boot | Corrupted first-migration state: `docker compose down -v` then `docker compose up`. (Prevented structurally: only the web service migrates.) |
-| `pytest: not found` in the container | The last build tagged the runtime (prod) image. Rebuild dev: `docker compose build web`. |
+| `pytest: not found` in the container | Dev image missing/not built yet: `docker compose build web` (dev and prod use separate tags `:dev` / `:prod`, so they can coexist). |
 | Changes don't appear | Dev auto-reloads Python/templates; for `.env` changes use `up -d --force-recreate`; for dependency/Dockerfile changes use `up -d --build`. |
 | Static files missing in prod stack | They're collected at build time — rebuild: `docker compose -f docker-compose.yml build`. |
 | Blank/untranslated UI in Dari/Pashto | Check the `django_language` cookie / user preference and that `.mo` catalogs are compiled. |
