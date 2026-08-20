@@ -21,9 +21,9 @@ def supplier_list(request):
     queryset = queryset.prefetch_related(
         Prefetch(
             "documents",
-            queryset=Document.objects.filter(doc_type=DocumentType.SUPPLIER_LOGO).order_by(
-                "-created_at", "-pk"
-            ),
+            queryset=Document.objects.filter(
+                doc_type__in=(DocumentType.SUPPLIER_LOGO, DocumentType.SUPPLIER_PHOTO)
+            ).order_by("-created_at", "-pk"),
             to_attr="logo_list",
         )
     )
@@ -66,7 +66,7 @@ def supplier_detail(request, pk):
             "payments": payments,
             "total_paid": supplier_payments(supplier),
             "logo": supplier.logo,
-            "documents": [a for a in attachments if not a.is_photo],
+            "documents": attachments,
             "can_edit": request.user.has_permission("suppliers.change"),
             "can_record_payments": request.user.has_permission("payments.add"),
             "can_upload_documents": request.user.has_permission("documents.add"),

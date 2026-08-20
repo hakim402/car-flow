@@ -26,6 +26,7 @@ class DocumentType(models.TextChoices):
     OTHER_BILL = "other_bill", _("Other bill")
     CUSTOMER_DOCUMENT = "customer_document", _("Other customer document")
     SUPPLIER_LOGO = "supplier_logo", _("Supplier logo / photo")
+    SUPPLIER_PHOTO = "supplier_photo", _("Supplier portrait photo")
     SUPPLIER_LICENSE = "supplier_license", _("Supplier business license")
     SUPPLIER_DOCUMENT = "supplier_document", _("Other supplier document")
     OTHER = "other", _("Other")
@@ -52,10 +53,18 @@ CUSTOMER_DOC_TYPES = [
     DocumentType.CUSTOMER_DOCUMENT,
 ]
 
-#: Types a supplier upload box may create (logo, license, paperwork).
+#: Types a supplier upload box may create. Businesses upload logos and
+#: licenses; private sellers (individuals) upload portraits, tazkera/passport
+#: and the car paperwork tied to the sale.
 SUPPLIER_DOC_TYPES = [
     DocumentType.SUPPLIER_LOGO,
+    DocumentType.SUPPLIER_PHOTO,
     DocumentType.SUPPLIER_LICENSE,
+    DocumentType.TAZKERA,
+    DocumentType.PASSPORT,
+    DocumentType.LICENSE,
+    DocumentType.CUSTOMS,
+    DocumentType.SALE_DOCUMENT,
     DocumentType.SUPPLIER_DOCUMENT,
 ]
 
@@ -113,4 +122,5 @@ class Document(TenantModel):
         return self.doc_type in (
             DocumentType.VEHICLE_PHOTO,
             DocumentType.CUSTOMER_PHOTO,
+            DocumentType.SUPPLIER_PHOTO,
         )

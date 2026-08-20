@@ -25,9 +25,9 @@
             <div class="flex items-center gap-4 px-4 pt-4">
                 {% if supplier.logo %}
                     <img src="{{ supplier.logo.file.url }}" alt="{{ supplier.name }}"
-                         class="h-14 w-14 shrink-0 rounded-lg object-cover ring-1 ring-slate-200">
+                         class="h-14 w-14 shrink-0 {% if supplier.is_individual %}rounded-full{% else %}rounded-lg{% endif %} object-cover ring-1 ring-slate-200">
                 {% else %}
-                    <span class="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-slate-800 text-amber-400">
+                    <span class="flex h-14 w-14 shrink-0 items-center justify-center {% if supplier.is_individual %}rounded-full{% else %}rounded-lg{% endif %} bg-slate-800 text-amber-400">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                          stroke="currentColor" class="h-7 w-7">
                         <path stroke-linecap="round" stroke-linejoin="round"
@@ -39,7 +39,17 @@
                     <div class="truncate font-medium text-slate-800 group-hover:text-amber-600">
                         {{ supplier.name }}
                     </div>
-                    <div class="truncate text-xs text-slate-500">{{ supplier.get_supplier_type_display }}</div>
+                    <div class="mt-0.5 flex flex-wrap items-center gap-1">
+                        {% if supplier.is_individual %}
+                            <span class="rounded-full bg-emerald-100 text-emerald-700 px-2 py-0.5 text-xs whitespace-nowrap">{{ supplier.get_kind_display }}</span>
+                        {% else %}
+                            <span class="rounded-full bg-slate-100 text-slate-600 px-2 py-0.5 text-xs whitespace-nowrap">{{ supplier.get_kind_display }}</span>
+                        {% endif %}
+                        <span class="truncate text-xs text-slate-500">{{ supplier.get_supplier_type_display }}</span>
+                    </div>
+                    {% if supplier.national_id %}
+                        <div class="truncate text-xs text-slate-500" dir="ltr">{% translate "Tazkera" %}: {{ supplier.national_id }}</div>
+                    {% endif %}
                     {% if supplier.country %}
                         <div class="truncate text-xs text-slate-500">{{ supplier.get_country_display }}</div>
                     {% endif %}

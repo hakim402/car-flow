@@ -26,7 +26,15 @@
     </div>
 </div>
 <div class="card p-6 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 text-sm mb-6">
+    <div><span class="text-slate-500">{% translate "Kind" %}:</span>
+        {% if supplier.is_individual %}
+            <span class="rounded-full bg-emerald-100 text-emerald-700 px-2 py-0.5 text-xs">{{ supplier.get_kind_display }}</span>
+        {% else %}
+            <span class="rounded-full bg-slate-100 text-slate-600 px-2 py-0.5 text-xs">{{ supplier.get_kind_display }}</span>
+        {% endif %}
+    </div>
     <div><span class="text-slate-500">{% translate "Type" %}:</span> {{ supplier.get_supplier_type_display }}</div>
+    <div><span class="text-slate-500">{% translate "Tazkera / national ID" %}:</span> <span dir="ltr">{{ supplier.national_id|default:"—" }}</span></div>
     <div><span class="text-slate-500">{% translate "Country" %}:</span> {{ supplier.get_country_display|default:"—" }}</div>
     <div><span class="text-slate-500">{% translate "Contact person" %}:</span> {{ supplier.contact_person|default:"—" }}</div>
     <div><span class="text-slate-500">{% translate "Phone" %}:</span> <span dir="ltr">{{ supplier.phone|default:"—" }}</span></div>

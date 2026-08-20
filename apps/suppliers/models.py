@@ -15,13 +15,31 @@ class SupplierType(models.TextChoices):
     OTHER = "other", _("Other")
 
 
+class SupplierKind(models.TextChoices):
+    """Cars are sometimes bought from private people, not just companies
+    (§9): an individual supplier carries personal ID data (tazkera/passport)
+    instead of business paperwork."""
+
+    BUSINESS = "business", _("Business")
+    INDIVIDUAL = "individual", _("Individual (person)")
+
+
 class Supplier(TenantModel):
     name = models.CharField(_("name"), max_length=200)
+    kind = models.CharField(
+        _("kind"),
+        max_length=20,
+        choices=SupplierKind.choices,
+        default=SupplierKind.BUSINESS,
+    )
     supplier_type = models.CharField(
         _("supplier type"),
         max_length=20,
         choices=SupplierType.choices,
         default=SupplierType.LOCAL_DEALER,
+    )
+    national_id = models.CharField(
+        _("tazkera / national ID no."), max_length=50, blank=True
     )
     country = models.CharField(
         _("country"), max_length=5, choices=COUNTRIES, blank=True
@@ -45,11 +63,16 @@ class Supplier(TenantModel):
         return reverse("suppliers:detail", kwargs={"pk": self.pk})
 
     @property
-    def logo(self):
-        """Most recent supplier-logo document, if any.
+    def is_individual(self):
+        return self.kind == SupplierKind.INDIVIDUAL
 
-        The list view prefetches logos into a `logo_list` attribute; fall
-        back to a scoped query when the attribute is absent.
+    @property
+    def logo(self):
+        """Most recent logo/portrait document, if any.
+
+        Businesses upload a logo, private sellers a portrait photo — both
+        serve as the supplier's picture. The list view prefetches them into
+        a `logo_list` attribute; fall back to a scoped query otherwise.
         """
         logo_list = getattr(self, "logo_list", None)
         if logo_list is not None:
@@ -57,7 +80,9 @@ class Supplier(TenantModel):
         from apps.documents.models import Document, DocumentType
 
         return (
-            self.documents.filter(doc_type=DocumentType.SUPPLIER_LOGO)
+            self.documents.filter(
+                doc_type__in=(DocumentType.SUPPLIER_LOGO, DocumentType.SUPPLIER_PHOTO)
+            )
             .order_by("-created_at", "-pk")
             .first()
         )

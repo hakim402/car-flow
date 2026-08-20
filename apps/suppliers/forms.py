@@ -10,7 +10,9 @@ class SupplierForm(StyledFormMixin, forms.ModelForm):
         model = Supplier
         fields = [
             "name",
+            "kind",
             "supplier_type",
+            "national_id",
             "country",
             "contact_person",
             "phone",
