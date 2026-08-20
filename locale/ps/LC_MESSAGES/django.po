@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: automex-carflow 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-20 04:36+0000\n"
+"POT-Creation-Date: 2026-08-20 07:18+0000\n"
 "PO-Revision-Date: 2026-08-18 13:40+0000\n"
 "Language: ps\n"
 "MIME-Version: 1.0\n"
@@ -123,34 +123,43 @@ msgstr ""
 msgid "role"
 msgstr ""
 
-#: apps/accounts/models.py:54 apps/accounts/models.py:82
+#: apps/accounts/models.py:54 apps/accounts/models.py:93
 msgid "roles"
 msgstr ""
 
-#: apps/accounts/models.py:69 apps/branches/models.py:13
+#: apps/accounts/models.py:69
+msgid "username"
+msgstr ""
+
+#: apps/accounts/models.py:71 apps/customers/models.py:17
+#: apps/suppliers/models.py:12
+msgid "email"
+msgstr ""
+
+#: apps/accounts/models.py:80 apps/branches/models.py:13
 msgid "company"
 msgstr ""
 
-#: apps/accounts/models.py:72
+#: apps/accounts/models.py:83
 msgid "Blank only for Super Admin users."
 msgstr ""
 
-#: apps/accounts/models.py:78 apps/branches/models.py:19
+#: apps/accounts/models.py:89 apps/branches/models.py:19
 #: apps/customers/models.py:23 apps/inventory/models.py:29
 #: apps/purchases/models.py:37 apps/sales/models.py:64
 #: apps/vehicles/models.py:35
 msgid "branch"
 msgstr ""
 
-#: apps/accounts/models.py:85
+#: apps/accounts/models.py:96
 msgid "preferred language"
 msgstr ""
 
-#: apps/accounts/models.py:92
+#: apps/accounts/models.py:103
 msgid "user"
 msgstr ""
 
-#: apps/accounts/models.py:93
+#: apps/accounts/models.py:104
 msgid "users"
 msgstr ""
 
@@ -219,8 +228,9 @@ msgstr ""
 #: apps/customers/templates/customers/detail.html:14
 #: apps/customers/templates/customers/list.html:27
 #: apps/suppliers/templates/suppliers/list.html:28
+#: templates/accounts/login.html:19
 msgid "Email"
-msgstr ""
+msgstr "برېښنالیک"
 
 #: apps/communications/models.py:20
 msgid "SMS"
@@ -489,10 +499,6 @@ msgstr ""
 #: apps/customers/models.py:16 apps/sales/models.py:37
 #: apps/suppliers/models.py:11
 msgid "phone"
-msgstr ""
-
-#: apps/customers/models.py:17 apps/suppliers/models.py:12
-msgid "email"
 msgstr ""
 
 #: apps/customers/models.py:18
@@ -1480,7 +1486,7 @@ msgstr ""
 msgid "Phase 1 environment is booting module by module."
 msgstr ""
 
-#: templates/accounts/login.html:4 templates/accounts/login.html:29
+#: templates/accounts/login.html:4 templates/accounts/login.html:32
 msgid "Log in"
 msgstr ""
 
@@ -1489,14 +1495,10 @@ msgid "Log in to CarFlow"
 msgstr ""
 
 #: templates/accounts/login.html:11
-msgid "Your username and password didn't match. Please try again."
-msgstr ""
+msgid "Your email and password didn't match. Please try again."
+msgstr "ستاسو برېښنالیک او پټنوم سره سمون نه لري. مهرباني وکړئ بیا هڅه وکړئ."
 
-#: templates/accounts/login.html:17
-msgid "Username"
-msgstr ""
-
-#: templates/accounts/login.html:22
+#: templates/accounts/login.html:25
 msgid "Password"
 msgstr ""
 

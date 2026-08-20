@@ -60,7 +60,18 @@ class Role(models.Model):
 
 class User(AbstractUser):
     """Internal staff/dealer user. Belongs to one company (tenant) and
-    optionally one branch; Super Admin users have no company."""
+    optionally one branch; Super Admin users have no company.
+
+    Login identifier is the **email address** (§8); `username` survives only
+    as an optional display/legacy label."""
+
+    username = models.CharField(
+        _("username"), max_length=150, blank=True, null=True
+    )
+    email = models.EmailField(_("email"), unique=True)
+
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS: list[str] = []
 
     company = models.ForeignKey(
         "organizations.Organization",
@@ -91,7 +102,7 @@ class User(AbstractUser):
     class Meta:
         verbose_name = _("user")
         verbose_name_plural = _("users")
-        ordering = ["username"]
+        ordering = ["email"]
 
     def has_role(self, role_key: str) -> bool:
         return self.roles.filter(key=role_key).exists()

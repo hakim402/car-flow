@@ -26,6 +26,9 @@ class UserFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = get_user_model()
 
+    # email is the login identifier (USERNAME_FIELD) and unique — the
+    # sequence keeps factory users collision-free.
+    email = factory.Sequence(lambda n: f"user{n}@example.com")
     username = factory.Sequence(lambda n: f"user{n}")
     company = factory.SubFactory(OrganizationFactory)
     password = factory.PostGenerationMethodCall("set_password", "test-password-123")

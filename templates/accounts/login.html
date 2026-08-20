@@ -8,14 +8,17 @@
     <h1 class="text-xl font-semibold mb-4 text-center">{% translate "Log in to CarFlow" %}</h1>
     {% if form.errors %}
         <div class="mb-4 rounded border border-red-300 bg-red-50 px-4 py-2 text-sm text-red-800">
-            {% translate "Your username and password didn't match. Please try again." %}
+            {% translate "Your email and password didn't match. Please try again." %}
         </div>
     {% endif %}
     <form method="post" class="space-y-4">
         {% csrf_token %}
         <div>
-            <label for="id_username" class="block text-sm font-medium mb-1">{% translate "Username" %}</label>
-            <input type="text" name="username" id="id_username" required autofocus
+            {# Field is POSTed as "username" — the key AuthenticationForm
+               reads — but the value is the email address (USERNAME_FIELD). #}
+            <label for="id_username" class="block text-sm font-medium mb-1">{% translate "Email" %}</label>
+            <input type="email" name="username" id="id_username" required autofocus
+                   autocomplete="username" placeholder="name@company.com"
                    class="w-full rounded border border-slate-300 px-3 py-2 focus:border-amber-500 focus:outline-none">
         </div>
         <div>
