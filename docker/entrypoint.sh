@@ -4,6 +4,11 @@
 # logged step (workers must never migrate concurrently — concurrent
 # `migrate` corrupts PostgreSQL state), then starts the role selected
 # via the container `command`.
+# The web role also re-runs collectstatic on boot: the `static_files`
+# named volume only copies image content when FIRST created, so a volume
+# made by an older image masks build-time collectstatic output (stale
+# admin/Unfold assets → unstyled UI). Collecting at start keeps the
+# volume in sync with the running image.
 set -e
 
 echo "==> Waiting for database at ${DB_HOST}:${DB_PORT:-5432}..."
@@ -30,6 +35,12 @@ if [ "$ROLE" = "web" ] || [ "$ROLE" = "runserver" ]; then
     echo "==> Applying migrations..."
     python manage.py migrate --noinput
     echo "==> Migrations complete."
+fi
+
+if [ "$ROLE" = "web" ]; then
+    echo "==> Collecting static files..."
+    python manage.py collectstatic --noinput >/dev/null
+    echo "==> Static files ready."
 fi
 
 case "$ROLE" in
