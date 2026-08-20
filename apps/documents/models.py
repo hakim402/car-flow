@@ -13,9 +13,26 @@ from apps.core.tenancy import TenantModel
 
 class DocumentType(models.TextChoices):
     VEHICLE_PHOTO = "vehicle_photo", _("Vehicle photo")
-    VEHICLE_DOCUMENT = "vehicle_document", _("Vehicle document")
+    LICENSE = "license", _("Vehicle license")
+    SALE_DOCUMENT = "sale_document", _("Sale document")
+    INSURANCE = "insurance", _("Insurance policy")
+    CUSTOMS = "customs", _("Customs / import document")
+    INSPECTION = "inspection", _("Inspection report")
+    VEHICLE_DOCUMENT = "vehicle_document", _("Other vehicle document")
     CUSTOMER_DOCUMENT = "customer_document", _("Customer document")
     OTHER = "other", _("Other")
+
+
+#: Types a vehicle upload box may create (everything customer-unrelated).
+VEHICLE_DOC_TYPES = [
+    DocumentType.VEHICLE_PHOTO,
+    DocumentType.LICENSE,
+    DocumentType.SALE_DOCUMENT,
+    DocumentType.INSURANCE,
+    DocumentType.CUSTOMS,
+    DocumentType.INSPECTION,
+    DocumentType.VEHICLE_DOCUMENT,
+]
 
 
 class Document(TenantModel):
@@ -57,3 +74,7 @@ class Document(TenantModel):
 
     def __str__(self):
         return self.title or self.file.name
+
+    @property
+    def is_photo(self):
+        return self.doc_type == DocumentType.VEHICLE_PHOTO

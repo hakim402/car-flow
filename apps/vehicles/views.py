@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
+from django.db.models import Prefetch
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_POST
@@ -20,6 +21,8 @@ def _current_company_or_deny(request):
 
 @require_permission("vehicles.view")
 def vehicle_list(request):
+    from apps.documents.models import Document, DocumentType
+
     queryset = Vehicle.objects.all()  # TenantManager filters by company.
     if request.user.branch_id:
         # Branch users see their own branch's fleet by default.
@@ -32,11 +35,19 @@ def vehicle_list(request):
         ) | queryset.filter(model__icontains=search)
     if status in VehicleStatus.values:
         queryset = queryset.filter(status=status)
+    # Card thumbnail = oldest photo; one prefetch query for the whole grid.
+    photos = Prefetch(
+        "documents",
+        queryset=Document.objects.filter(doc_type=DocumentType.VEHICLE_PHOTO).order_by(
+            "created_at", "pk"
+        ),
+        to_attr="photo_list",
+    )
     return render(
         request,
         "vehicles/list.html",
         {
-            "vehicles": queryset.select_related("branch"),
+            "vehicles": queryset.select_related("branch").prefetch_related(photos),
             "statuses": VehicleStatus.choices,
             "q": search,
             "status": status,
@@ -50,6 +61,7 @@ def vehicle_detail(request, pk):
     from apps.purchases.services import vehicle_landed_cost
 
     vehicle = get_object_or_404(Vehicle, pk=pk)
+    attachments = vehicle.documents.all().select_related("uploaded_by")
     return render(
         request,
         "vehicles/detail.html",
@@ -58,6 +70,10 @@ def vehicle_detail(request, pk):
             "cost_lines": vehicle.cost_lines.all(),
             "landed_cost": vehicle_landed_cost(vehicle),
             "cost_form": VehicleCostLineForm(),
+            # Gallery + paperwork split on the photo doc type.
+            "photos": [d for d in attachments if d.is_photo],
+            "documents": [d for d in attachments if not d.is_photo],
+            "can_upload_documents": request.user.has_permission("documents.add"),
         },
     )
 

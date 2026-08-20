@@ -26,42 +26,50 @@
     </button>
 </form>
 
-<div class="bg-white rounded-lg shadow overflow-x-auto">
-    <table class="w-full text-sm">
-        <thead class="bg-slate-50 text-slate-600 text-start">
-            <tr>
-                <th class="px-4 py-3 text-start font-medium">{% translate "VIN" %}</th>
-                <th class="px-4 py-3 text-start font-medium">{% translate "Vehicle" %}</th>
-                <th class="px-4 py-3 text-start font-medium">{% translate "Year" %}</th>
-                <th class="px-4 py-3 text-start font-medium">{% translate "Branch" %}</th>
-                <th class="px-4 py-3 text-start font-medium">{% translate "Status" %}</th>
-                <th class="px-4 py-3"></th>
-            </tr>
-        </thead>
-        <tbody class="divide-y divide-slate-200">
-            {% for vehicle in vehicles %}
-                <tr class="hover:bg-slate-50">
-                    <td class="px-4 py-3 font-mono text-xs">{{ vehicle.vin }}</td>
-                    <td class="px-4 py-3">
-                        <a href="{{ vehicle.get_absolute_url }}" class="text-amber-600 hover:underline">
+{# Card grid: primary photo + quick facts; click through to the full record. #}
+<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    {% for vehicle in vehicles %}
+        <a href="{{ vehicle.get_absolute_url }}"
+           class="group overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition hover:border-amber-300 hover:shadow">
+            <div class="aspect-video w-full overflow-hidden bg-slate-200">
+                {% if vehicle.primary_photo %}
+                    <img src="{{ vehicle.primary_photo.file.url }}"
+                         alt="{{ vehicle.make }} {{ vehicle.model }}"
+                         class="h-full w-full object-cover transition duration-200 group-hover:scale-105">
+                {% else %}
+                    <div class="flex h-full items-center justify-center text-slate-400">
+                        <svg class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" />
+                        </svg>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="p-4">
+                <div class="flex items-start justify-between gap-2">
+                    <div>
+                        <p class="font-semibold text-slate-900 group-hover:text-amber-600">
                             {{ vehicle.make }} {{ vehicle.model }}
-                        </a>
-                    </td>
-                    <td class="px-4 py-3">{{ vehicle.year }}</td>
-                    <td class="px-4 py-3">{{ vehicle.branch|default:"—" }}</td>
-                    <td class="px-4 py-3">{{ vehicle.get_status_display }}</td>
-                    <td class="px-4 py-3 text-end">
-                        <a href="{% url 'vehicles:edit' vehicle.pk %}" class="text-slate-500 hover:text-slate-800">
-                            {% translate "Edit" %}
-                        </a>
-                    </td>
-                </tr>
-            {% empty %}
-                <tr><td colspan="6" class="px-4 py-8 text-center text-slate-500">
-                    {% translate "No vehicles found." %}
-                </td></tr>
-            {% endfor %}
-        </tbody>
-    </table>
+                        </p>
+                        <p class="text-xs text-slate-500">{{ vehicle.year }}{% if vehicle.color %} · {{ vehicle.color }}{% endif %} · {{ vehicle.mileage }} {% translate "km" %}</p>
+                    </div>
+                    <span class="whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-medium
+                        {% if vehicle.status == 'sold' or vehicle.status == 'delivered' %}bg-green-100 text-green-700
+                        {% elif vehicle.status == 'reserved' %}bg-sky-100 text-sky-700
+                        {% elif vehicle.status == 'in_stock' %}bg-amber-100 text-amber-700
+                        {% else %}bg-slate-100 text-slate-600{% endif %}">
+                        {{ vehicle.get_status_display }}
+                    </span>
+                </div>
+                <p class="mt-2 font-mono text-xs text-slate-400">{{ vehicle.vin }}</p>
+                {% if vehicle.branch %}
+                    <p class="mt-1 text-xs text-slate-400">{{ vehicle.branch }}</p>
+                {% endif %}
+            </div>
+        </a>
+    {% empty %}
+        <div class="col-span-full rounded-lg bg-white px-4 py-10 text-center text-slate-500 shadow">
+            {% translate "No vehicles found." %}
+        </div>
+    {% endfor %}
 </div>
 {% endblock %}

@@ -1,10 +1,11 @@
 from django import forms
+from django.utils.translation import gettext_lazy as _
 
 from apps.core.forms import StyledFormMixin
 from apps.customers.models import Customer
 from apps.vehicles.models import Vehicle
 
-from .models import Document
+from .models import VEHICLE_DOC_TYPES, Document, DocumentType
 
 
 class DocumentForm(StyledFormMixin, forms.ModelForm):
@@ -23,3 +24,26 @@ class DocumentForm(StyledFormMixin, forms.ModelForm):
         if not cleaned.get("vehicle") and not cleaned.get("customer"):
             raise forms.ValidationError(_("Attach the document to a vehicle or a customer."))
         return cleaned
+
+
+class VehicleDocumentForm(DocumentForm):
+    """Upload box on the vehicle detail page: the vehicle is fixed (hidden
+    input), customer is irrelevant, and only vehicle-related types apply."""
+
+    def __init__(self, *args, vehicle=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.vehicle = vehicle
+        del self.fields["customer"]
+        self.fields["vehicle"].widget = forms.HiddenInput()
+        if vehicle is not None:
+            self.fields["vehicle"].initial = vehicle
+        self.fields["doc_type"].choices = [
+            choice
+            for choice in DocumentType.choices
+            if choice[0] in VEHICLE_DOC_TYPES
+        ]
+
+    def clean(self):
+        # Skip DocumentForm.clean: customer is gone and vehicle is enforced
+        # by the locked hidden field.
+        return super(DocumentForm, self).clean()

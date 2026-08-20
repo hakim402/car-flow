@@ -51,5 +51,21 @@ class Vehicle(TenantModel):
     def __str__(self):
         return f"{self.year} {self.make} {self.model} ({self.vin})"
 
+    @property
+    def primary_photo(self):
+        """Oldest vehicle photo (card thumbnail). Prefetched `photo_list`
+        (set by the list view) avoids a query per card; falls back to a
+        scoped query on direct use (e.g. the detail page)."""
+        photo_list = getattr(self, "photo_list", None)
+        if photo_list is not None:
+            return photo_list[0] if photo_list else None
+        from apps.documents.models import Document, DocumentType
+
+        return (
+            self.documents.filter(doc_type=DocumentType.VEHICLE_PHOTO)
+            .order_by("created_at", "pk")
+            .first()
+        )
+
     def get_absolute_url(self):
         return reverse("vehicles:detail", kwargs={"pk": self.pk})
