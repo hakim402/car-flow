@@ -27,6 +27,18 @@ FROM builder AS dev
 
 RUN pip install -r requirements/dev.txt
 
+# Same role-dispatch entrypoint as runtime. It lives OUTSIDE /app because the
+# dev stack bind-mounts the source tree over /app (which would shadow it, and
+# Windows checkouts would deliver it with CRLF line endings). The build-time
+# sed normalizes CRLF; the compose `command` (runserver/worker/beat) selects
+# the role inside entrypoint.sh.
+COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN sed -i 's/\r$//' /usr/local/bin/entrypoint.sh \
+    && chmod +x /usr/local/bin/entrypoint.sh
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+CMD ["runserver"]
+
 # ---------- runtime: slim production image ----------
 FROM python:3.12-slim AS runtime
 
