@@ -335,6 +335,8 @@ Add certbot, mount `./certs` and obtain the certificate for your domain,
 then extend `docker/nginx/nginx.conf`:
 
 ```nginx
+resolver 127.0.0.11 valid=10s ipv6=off;
+
 server {
     listen 80;
     server_name carflow.example.com;
@@ -353,7 +355,8 @@ server {
     location /static/ { alias /app/staticfiles/; expires 30d; }
     location /media/  { alias /app/media/;      expires 7d;  }
     location / {
-        proxy_pass http://carflow_web;
+        set $backend http://web:8000;
+        proxy_pass $backend;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -362,8 +365,9 @@ server {
 }
 ```
 
-(Keep the `upstream carflow_web { server web:8000; }` block, mount the cert
-directory into the nginx service, and map port 443.)
+(Keep the `resolver 127.0.0.11 valid=10s ipv6=off;` line and the
+variable-based `proxy_pass` so `web` re-resolves after container recreates,
+mount the cert directory into the nginx service, and map port 443.)
 
 ---
 
