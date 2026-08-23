@@ -1,11 +1,14 @@
 /* AUTOMEX CarFlow — login page styles.
    Design authored by the product owner; moved verbatim from the template's
    inline <style> block into this external file. Do not redesign.
+   Brand treatment (owner-approved): full-viewport height and amber accent
+   color applied over the original layout.
    Invisible hardening only: icon offsets on the inputs use logical
    properties so the layout mirrors correctly in Dari/Pashto RTL (§11.3). */
 
 .carflow-login {
-    min-height: 680px;
+    min-height: 100vh;
+    min-height: 100dvh;
     display: grid;
     grid-template-columns: minmax(0, 1.08fr) minmax(420px, .92fr);
     background: #fff;
@@ -55,16 +58,21 @@
 .brand-icon {
     width: 38px;
     height: 38px;
-    border: 1px solid rgba(255,255,255,.2);
+    border: 1px solid rgba(251, 191, 36, .35);
     border-radius: 10px;
     display: grid;
     place-items: center;
-    background: rgba(255,255,255,.06);
+    background: rgba(251, 191, 36, .08);
+    color: #fbbf24;
 }
 
 .brand-icon svg {
     width: 22px;
     height: 22px;
+}
+
+.brand-accent {
+    color: #fbbf24;
 }
 
 .login-hero {
@@ -91,8 +99,8 @@
     width: 7px;
     height: 7px;
     border-radius: 50%;
-    background: white;
-    box-shadow: 0 0 0 5px rgba(255,255,255,.08);
+    background: #fbbf24;
+    box-shadow: 0 0 0 5px rgba(251, 191, 36, .15);
 }
 
 .login-hero h2 {
@@ -102,6 +110,10 @@
     line-height: 1.02;
     letter-spacing: -.055em;
     font-weight: 750;
+}
+
+.hero-accent {
+    color: #fbbf24;
 }
 
 .login-hero p {
@@ -127,9 +139,14 @@
     bottom: 10px;
     width: 430px;
     height: 105px;
-    background: rgba(255,255,255,.09);
     border-radius: 50%;
     filter: blur(32px);
+    background: radial-gradient(
+        closest-side,
+        rgba(245, 158, 11, .32),
+        rgba(255, 255, 255, .08) 60%,
+        transparent
+    );
 }
 
 .animated-car {
@@ -192,6 +209,18 @@
     opacity: .95;
 }
 
+/* Brand amber headlight on the nose of the car. */
+.car-light {
+    position: absolute;
+    right: 7%;
+    bottom: 56px;
+    width: 12px;
+    height: 8px;
+    border-radius: 4px;
+    background: #fbbf24;
+    box-shadow: 0 0 14px 4px rgba(251, 191, 36, .55);
+}
+
 .car-wheel {
     position: absolute;
     bottom: 14px;
@@ -248,7 +277,7 @@
         linear-gradient(
             90deg,
             transparent,
-            rgba(255,255,255,.85),
+            rgba(251, 191, 36, .85),
             transparent
         );
     animation: roadMove 1.7s linear infinite;
@@ -277,6 +306,11 @@
 }
 
 /* FEATURES */
+
+.login-check {
+    color: #fbbf24;
+    font-weight: 700;
+}
 
 .login-features {
     position: relative;
@@ -366,8 +400,8 @@
 }
 
 .login-input:focus {
-    border-color: #6b7280;
-    box-shadow: 0 0 0 3px rgba(100,110,120,.12);
+    border-color: #f59e0b;
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, .18);
 }
 
 .password-toggle {
@@ -400,7 +434,7 @@
     min-height: 50px;
     border: none;
     border-radius: 10px;
-    background: #0c0e11;
+    background: #f59e0b;
     color: white;
     font-size: 14px;
     font-weight: 700;
@@ -409,7 +443,12 @@
 }
 
 .login-button:hover {
-    background: #22262b;
+    background: #d97706;
+}
+
+.login-button:focus-visible {
+    outline: 3px solid rgba(245, 158, 11, .35);
+    outline-offset: 2px;
 }
 
 .login-button:disabled {
@@ -445,7 +484,8 @@
     }
 
     .login-form-side {
-        min-height: 650px;
+        min-height: 100vh;
+        min-height: 100dvh;
         padding: 36px 24px;
     }
 

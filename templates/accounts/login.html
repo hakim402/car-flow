@@ -8,7 +8,8 @@
 {% endblock %}
 
 {% block content %}
-
+{# Full-bleed: cancel the base <main> padding so the panel fills the viewport. #}
+<div class="-mx-4 -my-6 sm:-mx-6 lg:-mx-8">
 <div class="carflow-login">
 
     <!-- LEFT VISUAL -->
@@ -33,7 +34,7 @@
                 </svg>
             </div>
 
-            AUTOMEX CarFlow
+            AUTOMEX <span class="brand-accent">CarFlow</span>
         </div>
 
 
@@ -47,7 +48,7 @@
             <h2>
                 {% translate "Every vehicle." %}
                 <br>
-                {% translate "One intelligent system." %}
+                <span class="hero-accent">{% translate "One intelligent system." %}</span>
             </h2>
 
             <p>
@@ -63,6 +64,8 @@
                 <div class="animated-car">
 
                     <div class="car-body"></div>
+
+                    <div class="car-light"></div>
 
                     <div class="car-wheel car-wheel-left"></div>
 
@@ -80,15 +83,15 @@
         <div class="login-features">
 
             <div class="login-feature">
-                ✓ {% translate "Secure database" %}
+                <span class="login-check">✓</span> {% translate "Secure database" %}
             </div>
 
             <div class="login-feature">
-                ✓ {% translate "Vehicle records" %}
+                <span class="login-check">✓</span> {% translate "Vehicle records" %}
             </div>
 
             <div class="login-feature">
-                ✓ {% translate "Export management" %}
+                <span class="login-check">✓</span> {% translate "Export management" %}
             </div>
 
         </div>
@@ -259,6 +262,7 @@
 
     </section>
 
+</div>
 </div>
 
 {% endblock %}
