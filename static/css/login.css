@@ -1,0 +1,180 @@
+/* AUTOMEX CarFlow — login page art layer.
+   Layout/typography lives in the template as Tailwind utilities; this file
+   holds only what utilities cannot express: the gradient overlay, the CSS
+   car illustration and its keyframe animations.
+   All positioning uses logical properties so Dari/Pashto RTL mirrors
+   correctly (agent.md §11.3). */
+
+/* Soft spotlight overlay on the dark visual panel. */
+.login-visual-fx::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at 76% 27%, rgba(255, 255, 255, .08), transparent 26%),
+        linear-gradient(135deg, rgba(255, 255, 255, .03), transparent 42%);
+    pointer-events: none;
+}
+
+/* ---------------- Car illustration ---------------- */
+
+.car-stage {
+    position: relative;
+    height: 255px;
+    margin-top: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+}
+
+.car-glow {
+    position: absolute;
+    bottom: 10px;
+    width: 430px;
+    height: 105px;
+    border-radius: 50%;
+    filter: blur(32px);
+    /* Brand amber halo instead of plain white. */
+    background: radial-gradient(
+        closest-side,
+        rgba(245, 158, 11, .30),
+        rgba(255, 255, 255, .07) 62%,
+        transparent
+    );
+}
+
+.animated-car {
+    position: relative;
+    width: min(540px, 94%);
+    height: 182px;
+    animation: carFloat 3.2s ease-in-out infinite;
+}
+
+.car-body {
+    position: absolute;
+    left: 8%;
+    right: 8%;
+    bottom: 35px;
+    height: 78px;
+    border-radius: 58% 42% 16% 18% / 70% 60% 30% 32%;
+    background: linear-gradient(180deg, #f0f2f5 0%, #a7adb5 42%, #656b72 100%);
+    box-shadow:
+        inset 0 6px 15px rgba(255, 255, 255, .55),
+        0 20px 40px rgba(0, 0, 0, .38);
+}
+
+.car-body::before {
+    content: "";
+    position: absolute;
+    left: 20%;
+    top: -61px;
+    width: 57%;
+    height: 72px;
+    background: linear-gradient(155deg, #bfc5cb, #535a61 76%);
+    clip-path: polygon(18% 100%, 34% 11%, 75% 7%, 100% 100%);
+    border-radius: 20px 28px 0 0;
+}
+
+.car-body::after {
+    content: "";
+    position: absolute;
+    left: 35%;
+    top: -50px;
+    width: 36%;
+    height: 46px;
+    background: linear-gradient(145deg, #20262d, #78838d);
+    clip-path: polygon(10% 100%, 24% 8%, 73% 6%, 98% 100%);
+    opacity: .95;
+}
+
+/* Brand amber headlight on the nose of the car. */
+.car-light {
+    position: absolute;
+    inset-inline-end: 7%;
+    bottom: 56px;
+    width: 12px;
+    height: 8px;
+    border-radius: 4px;
+    background: #fbbf24;
+    box-shadow: 0 0 14px 4px rgba(251, 191, 36, .55);
+}
+
+.car-wheel {
+    position: absolute;
+    bottom: 14px;
+    width: 63px;
+    height: 63px;
+    border-radius: 50%;
+    background: #111;
+    border: 9px solid #2d3137;
+    box-shadow:
+        0 0 0 2px #777 inset,
+        0 9px 18px rgba(0, 0, 0, .5);
+    animation: wheelSpin 1.1s linear infinite;
+}
+
+.car-wheel::after {
+    content: "";
+    position: absolute;
+    inset: 15px;
+    border: 3px solid #9298a0;
+    border-radius: 50%;
+}
+
+.car-wheel-left {
+    inset-inline-start: 20%;
+}
+
+.car-wheel-right {
+    inset-inline-end: 19%;
+}
+
+.road-line {
+    position: absolute;
+    bottom: 8px;
+    width: 90%;
+    height: 1px;
+    overflow: hidden;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .24), transparent);
+}
+
+.road-line::after {
+    content: "";
+    position: absolute;
+    top: -1px;
+    left: -35%;
+    width: 35%;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, rgba(251, 191, 36, .85), transparent);
+    animation: roadMove 1.7s linear infinite;
+}
+
+@keyframes carFloat {
+    0%, 100% {
+        transform: translate3d(0, 0, 0) rotate(0deg);
+    }
+
+    50% {
+        transform: translate3d(10px, -6px, 0) rotate(-.4deg);
+    }
+}
+
+@keyframes wheelSpin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes roadMove {
+    to {
+        left: 110%;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .animated-car,
+    .car-wheel,
+    .road-line::after {
+        animation: none !important;
+    }
+}

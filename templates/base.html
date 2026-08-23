@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}{% translate "AUTOMEX CarFlow" %}{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'css/tailwind.css' %}">
+    {% block extra_head %}{% endblock %}
 </head>
 <body class="bg-slate-100 min-h-screen text-slate-900 antialiased">
 
@@ -291,5 +292,6 @@ block names even across if-branches, so the auth check only wraps chrome.
     });
 })();
 </script>
+{% block extra_js %}{% endblock %}
 </body>
 </html>
