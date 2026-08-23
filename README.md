@@ -519,7 +519,9 @@ Docker development needs **no Node**. After adding new Tailwind classes to
 templates, rebuild the stylesheet on the host:
 
 ```bash
-npx tailwindcss@3.4.17 -i static/css/src.css -o static/css/tailwind.css --minify
+npm run css
+# or without the package scripts:
+# npx tailwindcss@3.4.17 -i css/input.css -o static/css/tailwind.css --minify
 ```
 
 In production, static files are collected at image **build time** and served
