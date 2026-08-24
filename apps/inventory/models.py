@@ -6,6 +6,7 @@ One VehicleStock row per vehicle currently held at a branch; purchase receipt
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+from apps.core.models import CompanyConsistencyMixin
 from apps.core.tenancy import TenantModel
 
 
@@ -15,7 +16,9 @@ class StockStatus(models.TextChoices):
     IN_PREPARATION = "in_preparation", _("In preparation")
 
 
-class VehicleStock(TenantModel):
+class VehicleStock(TenantModel, CompanyConsistencyMixin):
+    company_relations = ("vehicle", "branch")
+
     vehicle = models.OneToOneField(
         "vehicles.Vehicle",
         on_delete=models.PROTECT,

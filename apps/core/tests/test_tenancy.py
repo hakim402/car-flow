@@ -63,7 +63,7 @@ def test_bulk_update_only_touches_current_tenant(two_companies):
         updated = Vehicle.objects.update(notes="scoped write")
     assert updated == 1
 
-    vehicle_b.refresh_from_db()
+    vehicle_b = Vehicle.all_objects.get(pk=vehicle_b.pk)
     assert vehicle_b.notes == ""
 
 
@@ -88,6 +88,25 @@ def test_explicit_query_requires_tenant_context(two_companies):
     assert get_current_company() is None
     with pytest.raises(NoTenantContext):
         Vehicle.objects.for_current_company()
+
+
+@pytest.mark.django_db
+def test_default_manager_is_fail_closed_without_context(two_companies):
+    """Phase 1 (README §25.1): without a tenant context the default manager
+    must RAISE, never silently return all rows."""
+    company_a, _ = two_companies
+    VehicleFactory(company=company_a)
+    assert get_current_company() is None
+
+    with pytest.raises(NoTenantContext):
+        Vehicle.objects.all()
+    with pytest.raises(NoTenantContext):
+        Vehicle.objects.count()
+    with pytest.raises(NoTenantContext):
+        Vehicle.objects.get(pk=1)
+
+    # The explicit escape hatch still sees everything.
+    assert Vehicle.all_objects.count() == 1
 
 
 @pytest.mark.django_db

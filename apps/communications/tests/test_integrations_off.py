@@ -18,6 +18,7 @@ from apps.communications.models import (
     MessageStatus,
 )
 from apps.communications.services import process_inbound_payload, send_reply
+from apps.core.tenancy import company_scope
 from apps.core.testing import ChannelFactory, CustomerFactory
 
 TOGGLES = (
@@ -59,11 +60,12 @@ def test_factory_returns_null_adapter_when_disabled():
 def test_send_reply_persists_skipped_disabled():
     customer = CustomerFactory()
     channel = ChannelFactory(company=customer.company, type="whatsapp")
-    conversation = Conversation.objects.create(
-        company=customer.company, customer=customer, channel=channel
-    )
+    with company_scope(customer.company):
+        conversation = Conversation.objects.create(
+            company=customer.company, customer=customer, channel=channel
+        )
 
-    message = send_reply(conversation, "Hello from CarFlow")
+        message = send_reply(conversation, "Hello from CarFlow")
     assert message.status == MessageStatus.SKIPPED_DISABLED
     assert message.direction == MessageDirection.OUT
     assert message.body == "Hello from CarFlow"
@@ -73,21 +75,22 @@ def test_send_reply_persists_skipped_disabled():
 def test_notify_runs_through_null_adapter():
     customer = CustomerFactory()
     channel = ChannelFactory(company=customer.company, type="whatsapp")
-    CustomerChannelIdentity.objects.create(
-        company=customer.company,
-        customer=customer,
-        channel=channel,
-        external_id="waid:93700000001",
-    )
+    with company_scope(customer.company):
+        CustomerChannelIdentity.objects.create(
+            company=customer.company,
+            customer=customer,
+            channel=channel,
+            external_id="waid:93700000001",
+        )
 
-    sent = notification_engine.notify(
-        "payment_recorded",
-        company=customer.company,
-        customer=customer,
-        context={"amount": "5,000", "currency": "USD"},
-    )
-    assert sent == 1
-    message = Conversation.objects.get(customer=customer).messages.get()
+        sent = notification_engine.notify(
+            "payment_recorded",
+            company=customer.company,
+            customer=customer,
+            context={"amount": "5,000", "currency": "USD"},
+        )
+        assert sent == 1
+        message = Conversation.objects.get(customer=customer).messages.get()
     assert message.status == MessageStatus.SKIPPED_DISABLED
     assert "5,000 USD" in message.body
 
@@ -95,7 +98,8 @@ def test_notify_runs_through_null_adapter():
 @pytest.mark.django_db
 def test_inbound_parsing_is_a_noop_when_disabled():
     channel = ChannelFactory(type="whatsapp")
-    stored = process_inbound_payload(channel, {"object": "whatsapp_business_account"})
+    with company_scope(channel.company):
+        stored = process_inbound_payload(channel, {"object": "whatsapp_business_account"})
     assert stored == 0
 
 

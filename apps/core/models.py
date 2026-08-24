@@ -27,3 +27,27 @@ class ImmutableModel(models.Model):
             f"{type(self).__name__} rows cannot be deleted; record a "
             "correction/reversal row instead."
         )
+
+
+class CompanyConsistencyMixin:
+    """Reusable same-company validation (README §25.2): `company_relations`
+    lists the attribute names of tenant-scoped relations; `clean()` rejects
+    any relation whose company differs from this row's.
+
+    `TenantModel` already places this mixin BEFORE `models.Model` in its
+    bases so `clean()` wins over Django's no-op `Model.clean()`; listing it
+    again on a concrete model documents the rule. Unsaved rows
+    (`company_id is None`) skip the check."""
+
+    company_relations: tuple[str, ...] = ()
+
+    def clean(self):
+        super().clean()
+        if self.company_id is None:
+            return
+        from .validation import validate_same_company
+
+        validate_same_company(
+            self.company,
+            {attr: getattr(self, attr) for attr in self.company_relations},
+        )

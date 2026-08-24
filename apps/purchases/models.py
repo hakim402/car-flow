@@ -11,7 +11,7 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from apps.core.constants import COUNTRIES, CURRENCIES, DEFAULT_CURRENCY
-from apps.core.models import ImmutableModel
+from apps.core.models import CompanyConsistencyMixin, ImmutableModel
 from apps.core.tenancy import TenantModel
 
 
@@ -55,7 +55,9 @@ NEXT_STATUS = {
 }
 
 
-class PurchaseOrder(TenantModel):
+class PurchaseOrder(TenantModel, CompanyConsistencyMixin):
+    company_relations = ("supplier", "branch")
+
     reference = models.CharField(_("reference"), max_length=50, blank=True)
     supplier = models.ForeignKey(
         "suppliers.Supplier",
@@ -160,6 +162,10 @@ class PurchaseOrderLine(models.Model):
     class Meta:
         verbose_name = _("purchase order line")
         verbose_name_plural = _("purchase order lines")
+        constraints = [
+            # Money rows are positive (README §28).
+            models.CheckConstraint(condition=models.Q(amount__gt=0), name="po_line_amount_positive"),
+        ]
 
     def __str__(self):
         return f"{self.description} — {self.amount} {self.currency}"
@@ -174,8 +180,10 @@ class CostType(models.TextChoices):
     OTHER = "other", _("Other")
 
 
-class VehicleCostLine(TenantModel, ImmutableModel):
+class VehicleCostLine(TenantModel, ImmutableModel, CompanyConsistencyMixin):
     """One immutable row per cost event on a vehicle (§6)."""
+
+    company_relations = ("vehicle",)
 
     vehicle = models.ForeignKey(
         "vehicles.Vehicle",
@@ -201,6 +209,10 @@ class VehicleCostLine(TenantModel, ImmutableModel):
         verbose_name = _("vehicle cost line")
         verbose_name_plural = _("vehicle cost lines")
         ordering = ["created_at"]
+        constraints = [
+            # Stored amounts are always positive (README §28).
+            models.CheckConstraint(condition=models.Q(amount__gt=0), name="vehicle_cost_line_amount_positive"),
+        ]
 
     def __str__(self):
         return f"{self.get_cost_type_display()} — {self.amount} {self.currency}"

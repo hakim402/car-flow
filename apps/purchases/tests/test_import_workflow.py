@@ -64,12 +64,12 @@ def test_advance_walks_import_statuses(client, purchase_user, import_order):
             reverse("purchases:advance", args=[import_order.pk])
         )
         assert response.status_code == 302
-        import_order.refresh_from_db()
+        import_order = PurchaseOrder.all_objects.get(pk=import_order.pk)
         assert import_order.status == expected
 
     # Customs is the last advance step — receiving is a separate action.
     response = client.post(reverse("purchases:advance", args=[import_order.pk]))
-    import_order.refresh_from_db()
+    import_order = PurchaseOrder.all_objects.get(pk=import_order.pk)
     assert import_order.status == PurchaseStatus.CUSTOMS
 
 
@@ -84,12 +84,12 @@ def test_domestic_order_only_confirms_then_stops(client, purchase_user):
     client.force_login(purchase_user)
 
     client.post(reverse("purchases:advance", args=[order.pk]))
-    order.refresh_from_db()
+    order = PurchaseOrder.all_objects.get(pk=order.pk)
     assert order.status == PurchaseStatus.ORDERED
 
     # No transit/customs steps for domestic purchases.
     client.post(reverse("purchases:advance", args=[order.pk]))
-    order.refresh_from_db()
+    order = PurchaseOrder.all_objects.get(pk=order.pk)
     assert order.status == PurchaseStatus.ORDERED
 
 
@@ -111,11 +111,11 @@ def test_receive_import_order_records_cost_and_stock(client, purchase_user, impo
     response = client.post(reverse("purchases:receive", args=[import_order.pk]))
 
     assert response.status_code == 302
-    import_order.refresh_from_db()
+    import_order = PurchaseOrder.all_objects.get(pk=import_order.pk)
     assert import_order.status == PurchaseStatus.RECEIVED
     cost = VehicleCostLine.all_objects.get(vehicle=vehicle, cost_type=CostType.PURCHASE)
     assert cost.currency == "USD"
-    assert VehicleStock.objects.filter(vehicle=vehicle, branch=branch).exists()
+    assert VehicleStock.all_objects.filter(vehicle=vehicle, branch=branch).exists()
 
 
 @pytest.mark.django_db

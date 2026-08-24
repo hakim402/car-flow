@@ -9,6 +9,8 @@ import logging
 
 from django.utils.translation import gettext
 
+from apps.core.tenancy import company_scope
+
 from .models import CustomerChannelIdentity
 from .services import send_reply
 
@@ -39,18 +41,21 @@ def notify(event: str, company, customer, context: dict | None = None) -> int:
     from .models import Conversation  # local import: avoid app-loading cycles
 
     sent = 0
-    identities = CustomerChannelIdentity.objects.filter(
-        company=company, customer=customer, channel__active=True
-    ).select_related("channel")
-    for identity in identities:
-        conversation, _ = Conversation.objects.get_or_create(
-            company=company,
-            channel=identity.channel,
-            customer=customer,
-            external_thread_id=identity.external_id,
-        )
-        send_reply(conversation, text)
-        sent += 1
+    # `notify` may run from services, signals or Celery tasks: scope the
+    # tenant-scoped queries explicitly so it works without a request (§25.1).
+    with company_scope(company):
+        identities = CustomerChannelIdentity.objects.filter(
+            company=company, customer=customer, channel__active=True
+        ).select_related("channel")
+        for identity in identities:
+            conversation, _ = Conversation.objects.get_or_create(
+                company=company,
+                channel=identity.channel,
+                customer=customer,
+                external_thread_id=identity.external_id,
+            )
+            send_reply(conversation, text)
+            sent += 1
     if sent == 0:
         logger.info("notify(%s): no channel identities for customer %s", event, customer.pk)
     return sent

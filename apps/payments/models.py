@@ -13,7 +13,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from apps.core.constants import CURRENCIES, DEFAULT_CURRENCY
-from apps.core.models import ImmutableModel
+from apps.core.models import CompanyConsistencyMixin, ImmutableModel
 from apps.core.tenancy import TenantModel
 
 
@@ -33,9 +33,11 @@ ENTRY_DIRECTION = {
 }
 
 
-class LedgerEntry(TenantModel, ImmutableModel):
+class LedgerEntry(TenantModel, ImmutableModel, CompanyConsistencyMixin):
     """One immutable row per financial event. `related_object` points at the
     business document the money relates to (e.g. a Sale)."""
+
+    company_relations = ("related_object",)
 
     type = models.CharField(_("type"), max_length=30, choices=EntryType.choices)
     amount = models.DecimalField(_("amount"), max_digits=14, decimal_places=2)
@@ -73,6 +75,18 @@ class LedgerEntry(TenantModel, ImmutableModel):
         verbose_name = _("ledger entry")
         verbose_name_plural = _("ledger entries")
         ordering = ["-created_at"]
+        constraints = [
+            # One normal reversal per original entry, at the database level
+            # (README §16, §28): racing corrections cannot double-reverse.
+            models.UniqueConstraint(
+                fields=["reversal_of"],
+                condition=models.Q(reversal_of__isnull=False),
+                name="one_reversal_per_ledger_entry",
+            ),
+            # Stored amounts are always positive (README §28); direction
+            # comes from the entry type, never from a negative amount.
+            models.CheckConstraint(condition=models.Q(amount__gt=0), name="ledger_entry_amount_positive"),
+        ]
 
     def __str__(self):
         return f"{self.get_type_display()} — {self.amount} {self.currency}"

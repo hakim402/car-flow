@@ -5,10 +5,11 @@ idempotent when repeated.
 """
 import logging
 
-from django.db import transaction
+from django.db import IntegrityError, transaction
 from django.utils import timezone
 
 from apps.communications import notification_engine
+from apps.core.validation import validate_same_company
 from apps.vehicles.models import VehicleStatus
 
 from .models import Invoice, ReservationStatus, Sale, SaleStatus
@@ -22,6 +23,16 @@ def complete_sale(sale: Sale, user=None) -> bool:
     reservation. Returns False when the sale was already completed/cancelled."""
     if sale.status != SaleStatus.DRAFT:
         return False
+    # Cross-tenant references must be impossible through the write path
+    # (README §25.2).
+    validate_same_company(
+        sale.company,
+        {
+            "customer": sale.customer,
+            "vehicle": sale.vehicle,
+            "reservation": sale.reservation,
+        },
+    )
     sale.status = SaleStatus.COMPLETED
     sale.save(update_fields=["status", "updated_at"])
     vehicle = sale.vehicle
@@ -45,16 +56,26 @@ def complete_sale(sale: Sale, user=None) -> bool:
 
 @transaction.atomic
 def issue_invoice(sale: Sale, user=None) -> Invoice:
-    """Issue the (single) invoice for a completed sale; idempotent."""
+    """Issue the (single) invoice for a completed sale; idempotent.
+
+    The `UNIQUE(sale)` database constraint (README §28) is the backstop for
+    two concurrent requests: the loser catches `IntegrityError` and returns
+    the winner's invoice instead of creating a duplicate."""
     existing = sale.invoices.first()
     if existing is not None:
         return existing
-    return Invoice.objects.create(
-        company=sale.company,
-        sale=sale,
-        number=f"INV-{sale.pk:06d}",
-        issued_on=timezone.localdate(),
-        amount=sale.agreed_amount,
-        currency=sale.currency,
-        created_by=user if user and user.is_authenticated else None,
-    )
+    try:
+        # Inner atomic keeps the outer transaction usable after the
+        # savepoint rollback triggered by a concurrent duplicate insert.
+        with transaction.atomic():
+            return Invoice.objects.create(
+                company=sale.company,
+                sale=sale,
+                number=f"INV-{sale.pk:06d}",
+                issued_on=timezone.localdate(),
+                amount=sale.agreed_amount,
+                currency=sale.currency,
+                created_by=user if user and user.is_authenticated else None,
+            )
+    except IntegrityError:
+        return sale.invoices.first()

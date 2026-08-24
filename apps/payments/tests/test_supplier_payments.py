@@ -10,6 +10,7 @@ from django.urls import reverse
 
 from apps.accounts.models import Permission, Role
 from apps.accounting.services import supplier_payments
+from apps.core.tenancy import company_scope
 from apps.core.testing import SupplierFactory, UserFactory
 from apps.payments.models import EntryType, LedgerEntry
 from apps.payments.services import record_supplier_payment, reverse_entry
@@ -40,9 +41,11 @@ def supplier(finance_user):
 
 @pytest.mark.django_db
 def test_record_supplier_payment_writes_ledger_row(finance_user, supplier):
-    entry = record_supplier_payment(
-        supplier, Decimal("5000.00"), "USD", user=finance_user, description="PO IMP-1 deposit"
-    )
+    with company_scope(finance_user.company):
+        entry = record_supplier_payment(
+            supplier, Decimal("5000.00"), "USD", user=finance_user,
+            description="PO IMP-1 deposit",
+        )
 
     assert entry.type == EntryType.SUPPLIER_PAYMENT
     assert entry.direction == "out"
@@ -52,17 +55,18 @@ def test_record_supplier_payment_writes_ledger_row(finance_user, supplier):
 
 @pytest.mark.django_db
 def test_supplier_payments_totals_net_reversals(supplier):
-    first = record_supplier_payment(supplier, Decimal("5000.00"), "USD")
-    record_supplier_payment(supplier, Decimal("1200.00"), "AFN")
+    with company_scope(supplier.company):
+        first = record_supplier_payment(supplier, Decimal("5000.00"), "USD")
+        record_supplier_payment(supplier, Decimal("1200.00"), "AFN")
 
-    totals = supplier_payments(supplier)
-    assert totals["USD"] == Decimal("5000.00")
-    assert totals["AFN"] == Decimal("1200.00")
+        totals = supplier_payments(supplier)
+        assert totals["USD"] == Decimal("5000.00")
+        assert totals["AFN"] == Decimal("1200.00")
 
-    # Correcting a payment appends a mirror row; the total shrinks, the
-    # original row is never touched.
-    reverse_entry(first)
-    totals = supplier_payments(supplier)
+        # Correcting a payment appends a mirror row; the total shrinks, the
+        # original row is never touched.
+        reverse_entry(first)
+        totals = supplier_payments(supplier)
     assert totals["USD"] == ZERO
     assert LedgerEntry.all_objects.filter(pk=first.pk).exists()
 
@@ -91,7 +95,8 @@ def test_pay_supplier_view_records_and_redirects(client, finance_user, supplier)
 
 @pytest.mark.django_db
 def test_supplier_detail_shows_payment_history_and_totals(client, finance_user, supplier):
-    record_supplier_payment(supplier, Decimal("5000.00"), "USD", description="Deposit")
+    with company_scope(finance_user.company):
+        record_supplier_payment(supplier, Decimal("5000.00"), "USD", description="Deposit")
     client.force_login(finance_user)
 
     response = client.get(supplier.get_absolute_url())

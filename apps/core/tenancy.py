@@ -9,6 +9,8 @@ from contextvars import ContextVar
 
 from django.db import models
 
+from .models import CompanyConsistencyMixin
+
 # Request-scoped tenant context, set by TenantMiddleware.
 _current_company = ContextVar("carflow_current_company", default=None)
 
@@ -59,22 +61,33 @@ class TenantQuerySet(models.QuerySet):
 
 
 class TenantManager(models.Manager.from_queryset(TenantQuerySet)):
-    """Default manager: tenant-filtered when context exists.
+    """Fail-closed default manager (README §2.5, §25.1).
 
-    `objects` filters by the current company; `all_objects` is an explicit,
-    auditable escape hatch for Super Admin tooling and cross-tenant jobs.
+    `objects` filters by the current company and RAISES `NoTenantContext`
+    when no tenant context exists — tenant-scoped access must never fail
+    open. `all_objects` is the explicit, auditable escape hatch for trusted
+    Super Admin/system operations (cross-tenant jobs, admin, audits).
     """
 
     def get_queryset(self):
         company = get_current_company()
-        queryset = TenantQuerySet(self.model, using=self._db)
-        if company is not None:
-            return queryset.filter(company=company)
-        return queryset
+        if company is None:
+            raise NoTenantContext(
+                "Tenant-scoped query on "
+                f"{self.model.__name__} without tenant context. "
+                "Requests go through TenantMiddleware; background work must "
+                "use company_scope(); unrestricted system access must use "
+                "all_objects explicitly."
+            )
+        return TenantQuerySet(self.model, using=self._db).filter(company=company)
 
 
-class TenantModel(models.Model):
-    """Abstract base for every tenant-scoped model (§5)."""
+class TenantModel(CompanyConsistencyMixin, models.Model):
+    """Abstract base for every tenant-scoped model (§5).
+
+    `CompanyConsistencyMixin` is the FIRST base so its `clean()` resolves
+    before Django's no-op `Model.clean()` (§25.2) — the mixin listed again
+    on concrete models is documentation, not the mechanism."""
 
     company = models.ForeignKey(
         "organizations.Organization",

@@ -38,7 +38,9 @@ def _entry(company, **kwargs):
         currency="USD",
     )
     defaults.update(kwargs)
-    return LedgerEntry.objects.create(**defaults)
+    # The fail-closed tenant manager needs explicit context (§25.1).
+    with company_scope(company):
+        return LedgerEntry.objects.create(**defaults)
 
 
 @pytest.mark.django_db

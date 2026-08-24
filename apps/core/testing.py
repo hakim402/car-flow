@@ -23,6 +23,22 @@ class OrganizationFactory(factory.django.DjangoModelFactory):
     name = factory.Sequence(lambda n: f"Company {chr(65 + n % 26)}{n}")
 
 
+class TenantFactory(factory.django.DjangoModelFactory):
+    """Base for tenant-model factories.
+
+    The default manager is fail-closed and raises without tenant context
+    (§25.1); factories must go through the explicit `all_objects` manager
+    (the auditable escape hatch) instead.
+    """
+
+    class Meta:
+        abstract = True
+
+    @classmethod
+    def _get_manager(cls, model_class):
+        return model_class.all_objects
+
+
 class UserFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = get_user_model()
@@ -35,7 +51,7 @@ class UserFactory(factory.django.DjangoModelFactory):
     password = factory.PostGenerationMethodCall("set_password", "test-password-123")
 
 
-class SupplierFactory(factory.django.DjangoModelFactory):
+class SupplierFactory(TenantFactory):
     class Meta:
         model = Supplier
 
@@ -43,7 +59,7 @@ class SupplierFactory(factory.django.DjangoModelFactory):
     name = factory.Sequence(lambda n: f"Supplier {n}")
 
 
-class CustomerFactory(factory.django.DjangoModelFactory):
+class CustomerFactory(TenantFactory):
     class Meta:
         model = Customer
 
@@ -52,7 +68,7 @@ class CustomerFactory(factory.django.DjangoModelFactory):
     phone = factory.Sequence(lambda n: f"+937000000{n:02d}")
 
 
-class VehicleFactory(factory.django.DjangoModelFactory):
+class VehicleFactory(TenantFactory):
     class Meta:
         model = Vehicle
 
@@ -63,7 +79,7 @@ class VehicleFactory(factory.django.DjangoModelFactory):
     year = 2022
 
 
-class SaleFactory(factory.django.DjangoModelFactory):
+class SaleFactory(TenantFactory):
     class Meta:
         model = Sale
 
@@ -80,7 +96,7 @@ class SaleFactory(factory.django.DjangoModelFactory):
     sale_date = factory.Faker("date_this_year")
 
 
-class ChannelFactory(factory.django.DjangoModelFactory):
+class ChannelFactory(TenantFactory):
     class Meta:
         model = Channel
 

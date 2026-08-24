@@ -1,1428 +1,2219 @@
-# AUTOMEX CarFlow
-
-**Internal automotive ERP for multi-company car dealerships** — inventory,
-purchasing, sales pipeline, payments on an append-only financial ledger,
-document management, audit trails, and an omnichannel **Conversation Hub**
-(WhatsApp · Messenger · Instagram · Telegram · Email · SMS).
-
-| | |
-|---|---|
-| **Stack** | Python 3.12 · Django 5.2 LTS · PostgreSQL 16 · Redis 7 · Celery · Tailwind CSS · Docker |
-| **Languages** | English · Dari (`prs`) · Pashto (`ps`) — full RTL support |
-| **Deployment** | Single Docker image, three roles (web / worker / beat) behind Nginx |
-| **Docs** | [`agent.md`](agent.md) (specification) · [`PRODUCTION.md`](PRODUCTION.md) (deployment) |
-
-> Every external integration is toggleable. The entire system boots and runs
-> with **zero providers configured** — disabled channels degrade to
-> Null/console adapters automatically.
-
+AUTOMEX CarFlow
+> **Authoritative target architecture and implementation contract for coding agents.**
+>
+> This README describes the design CarFlow **must converge to**. If the existing
+> code conflicts with this document, agents must update the implementation and
+> migrations rather than preserving obsolete behavior. Preserve existing data
+> safely during migrations.
+AUTOMEX CarFlow is an internal, multi-company automotive ERP for dealerships
+that buy vehicles from local individuals, domestic dealers, foreign dealers,
+auctions, and other suppliers; manage receiving and inventory; run a CRM and
+sales pipeline; collect customer payments; pay suppliers; record expenses;
+calculate vehicle profitability; and operate an omnichannel Conversation Hub.
+Area	Standard
+Backend	Python 3.12 · Django 5.2 LTS
+Database	PostgreSQL 16
+Cache / queue	Redis 7
+Background work	Celery + Celery Beat
+Frontend	Django Templates + Tailwind CSS
+Web server	Gunicorn behind Nginx
+Storage	Local media in development; S3-compatible storage optional
+Audit	`django-simple-history` + immutable financial/event records
+Languages	English · Dari (`prs`) · Pashto (`ps`)
+Direction	Full LTR/RTL support
+Deployment	Docker; one application image with `web`, `worker`, `beat` roles
+All external providers are optional. CarFlow must boot and operate with every
+integration disabled and all provider credentials empty.
 ---
-
-## Table of contents
-
-1. [Feature overview](#feature-overview)
-2. [Architecture](#architecture)
-3. [Data model reference](#data-model-reference)
-4. [Technology stack](#technology-stack)
-5. [Repository layout](#repository-layout)
-6. [Prerequisites](#prerequisites)
-7. [Quick start](#quick-start)
-8. [Users, companies, and roles](#users-companies-and-roles)
-9. [Configuration reference (`.env`)](#configuration-reference-env)
-10. [Everyday Docker commands](#everyday-docker-commands)
-11. [Logging & observability](#logging--observability)
-12. [Development workflow](#development-workflow)
-13. [Testing](#testing)
-14. [Internationalization (i18n)](#internationalization-i18n)
-15. [Ports](#ports)
-16. [Integrations overview](#integrations-overview)
-17. [Backups](#backups)
-18. [Deployment](#deployment)
-19. [Security practices](#security-practices)
-20. [Troubleshooting](#troubleshooting)
-
+1. Product scope
+CarFlow covers these connected business domains:
+Organizations, branches, users, roles, and permissions.
+Sellers/suppliers: individuals, domestic businesses, foreign dealers,
+auctions, brokers, and logistics partners.
+Vehicle acquisition and purchase orders.
+Immutable per-vehicle landed-cost events.
+Inventory locations, current stock state, and movement history.
+Customers, leads, quotations, reservations, sales, and invoices.
+Customer payments, supplier payments, cashboxes, bank accounts, and receipts.
+Operating expenses and expense categories.
+Operational accounting: cash position, receivables, payables, gross profit,
+inventory value, and vehicle profitability.
+Documents and photos.
+Audit history.
+Omnichannel conversations and notifications.
+What CarFlow is not yet
+The financial subsystem in this architecture is an operational financial
+ledger, not a full statutory double-entry general ledger.
+Do not claim that CarFlow has a complete balance sheet, chart of accounts,
+debit/credit journal, tax engine, or statutory financial statements unless
+those modules are implemented separately later.
 ---
-
-## Feature overview
-
-| Domain | Capabilities |
-|---|---|
-| **Multi-tenancy** | Multiple companies, each with branches. Data isolation enforced at the ORM level (`TenantManager`) — cross-company reads are impossible through normal code paths; an explicit `all_objects` escape hatch exists for Super-Admin tooling only. |
-| **Vehicles & inventory** | Vehicle registry (VIN unique per company), per-branch stock, lifecycle: in transit → in stock → reserved → sold → delivered. |
-| **Purchasing** | Suppliers, purchase orders, receiving flow. Vehicle cost is **never stored on the vehicle** — it is computed from immutable `VehicleCostLine` rows. |
-| **Sales pipeline** | Lead → Quotation → Reservation → Sale → Invoice. Completing a sale updates stock and notifies the customer automatically. |
-| **Money** | Append-only ledger (`LedgerEntry`): rows are never updated or deleted; corrections are mirror rows with `reversal_of`. Balances and outstanding amounts are always computed aggregates — never stored columns. |
-| **Audit** | `django-simple-history` tracks changes on business models (immutable financial rows are excluded by design). |
-| **Conversation Hub** | One inbox per company across all channels. Unknown senders automatically become new customers (never silently merged). Raw provider payloads are persisted before parsing; webhook redelivery is deduplicated. |
-| **Notifications** | Business code calls exactly one function — `notification_engine.notify(event, company, customer, context)` — which fans out over all of the customer's active channel identities. |
-| **Documents** | Per-entity file uploads; storage backend switches between local `media/` volume and S3-compatible object storage via a single flag. |
-| **i18n** | UI chrome in English / Dari / Pashto, per-user language preference, automatic RTL rendering for `prs` and `ps`. |
-| **Access control** | Six seeded roles (Super Admin, Organization Admin, Branch Manager, Sales, Inventory, Accountant) plus custom roles/permissions as plain database rows. Django Admin restricted to Super Admin only. |
-
----
-
-## Architecture
-
+2. Core architectural principles
+2.1 Modular monolith
+CarFlow is intentionally a Django modular monolith.
+Do not split the system into microservices unless there is a demonstrated
+operational need. PostgreSQL remains the source of truth.
+```text
+                         ┌──────────────────┐
+                         │      Nginx       │
+                         └────────┬─────────┘
+                                  │
+                         ┌────────▼─────────┐
+                         │      Django      │
+                         │ Modular Monolith │
+                         └────────┬─────────┘
+                                  │
+          ┌───────────────────────┼───────────────────────┐
+          │                       │                       │
+          ▼                       ▼                       ▼
+     PostgreSQL                 Redis                Object Storage
+    source of truth       cache / Celery broker      local / S3
+                                  │
+                                  ▼
+                           Celery Workers
+                                  │
+                      ┌───────────┴───────────┐
+                      ▼                       ▼
+                 Notifications          Integrations
 ```
-┌──────────────┐     ┌───────────────────────────────────────────────┐
-│    Nginx     │────▶│  web        Gunicorn (prod) / runserver (dev) │
-│ /static/     │     ├───────────────────────────────────────────────┤
-│ /media/      │     │  worker     Celery — webhook processing       │
-│ everything   │     ├───────────────────────────────────────────────┤
-│ else proxied │     │  beat       Celery Beat — scheduled jobs      │
-└──────────────┘     └────────┬──────────────────────────┬───────────┘
-                              ▼                          ▼
-                        PostgreSQL 16                  Redis 7
-                        (all data)            (cache + Celery broker)
+2.2 Hard business invariants belong below the UI
+Forms are not enough.
+Critical invariants must be enforced by the strongest practical combination of:
+PostgreSQL constraints,
+transactions,
+row locks or atomic conditional updates,
+service-layer validation,
+model validation where appropriate,
+permission checks.
+Shell scripts, Celery tasks, imports, APIs, and future code can bypass forms.
+2.3 Explicit money
+Every monetary amount must always have a currency.
+Use `Decimal`.
+Never use floating point for money.
+Never silently convert currencies.
+Aggregates are grouped by currency unless a deliberate FX/reporting feature
+is added later.
+Transaction time and record-creation time are separate concepts.
+2.4 Immutable financial history
+Financial facts and landed-cost events are append-only.
+Corrections are new records, never edits to historical monetary rows.
+Application-level immutability is required, but coding agents must also use
+database-level protections wherever practical so `QuerySet.update()`, raw SQL,
+admin mistakes, or bulk operations cannot silently rewrite financial history.
+2.5 Fail-closed tenancy
+Tenant-scoped queries must never fail open.
+For a `TenantModel`:
+```text
+request/company context exists  -> automatically filter by company
+no company context              -> raise NoTenantContext
 ```
-
-### One image, three roles
-
-`web`, `worker`, and `beat` share ONE image — `automex-carflow:dev` in
-development, `automex-carflow:prod` in production (separate tags so the two
-modes never overwrite each other); the container `command` selects the role
-via `docker/entrypoint.sh`. The entrypoint waits
-for the database, and **only the `web` role runs migrations** — concurrent
-`migrate` from several containers corrupts PostgreSQL.
-
-### Application map (`apps/`)
-
-| App | Responsibility |
-|---|---|
-| `core` | Tenancy primitives (`TenantModel`/`TenantManager`), `ImmutableModel`, constants, shared factories for tests |
-| `organizations` | Companies (tenants) |
-| `branches` | Branches per company |
-| `accounts` | Custom `User`, roles, permissions, login/dashboard |
-| `vehicles` | Vehicle registry and lifecycle |
-| `inventory` | Per-branch stock (`VehicleStock`) |
-| `suppliers` | Supplier directory |
-| `purchases` | Purchase orders, receiving, immutable `VehicleCostLine` |
-| `customers` | Customer directory + channel identities |
-| `sales` | Lead / Quotation / Reservation / Sale / Invoice pipeline |
-| `payments` | The append-only **ledger** (`LedgerEntry`) |
-| `expenses` | Expense capture (writes through the ledger) |
-| `accounting` | Computed aggregates: balance, money in/out, sale outstanding |
-| `audit` | `django-simple-history` wiring |
-| `communications` | Conversation Hub: models, channel adapters, notification engine, webhooks |
-| `documents` | File uploads with pluggable storage backend |
-
-### Non-negotiable design rules (from `agent.md`)
-
-1. **Fully Dockerized** — no host-level services required.
-2. **Internal system behind login** — every page requires authentication.
-3. **Trilingual + RTL** — `en` / `prs` / `ps`; direction driven by language.
-4. **Toggleable integrations** — `*_ENABLED` flags; Null/console fallbacks;
-   the app must boot with all flags off and empty credentials (enforced by tests).
-5. **Append-only ledger** — financial rows are never updated or deleted.
-6. **Business apps never import provider code** — only
-   `notification_engine.notify(...)`; the adapter factory is the single place
-   that reads integration flags.
-7. **Explicit money** — every amount carries its currency.
-8. **Multi-tenancy via `company_id`** — custom manager + middleware, never client input.
-9. **Django Admin for Super Admin only.**
-
+Unrestricted access must be explicit:
+```python
+Model.all_objects
+```
+and limited to trusted Super Admin/system operations.
+Background jobs must enter an explicit:
+```python
+with company_scope(company):
+    ...
+```
+Never use client-provided `company_id` to establish tenancy.
+2.6 Provider isolation
+Business apps never import or call provider-specific SDK/API code.
+Business code calls:
+```python
+notification_engine.notify(...)
+```
+Provider routing and integration flags live only in the communications adapter
+layer.
 ---
-
-## Data model reference
-
-> Generated from `apps/*/models.py`, `apps/*/services.py` and `apps/*/views.py`.
-> The system has **23 Django models** across 14 apps. `expenses` and
-> `accounting` deliberately define **no models** — an expense is a
-> `LedgerEntry` row and accounting is computed from ledger rows. `core`
-> contributes only abstract bases (`TenantModel`, `ImmutableModel`).
-> `django-simple-history` adds 9 auto-generated `Historical*` tables on top
-> (see [Audit history](#audit-history)).
-
-### Model inventory (all 23 models)
-
-| # | App | Model | Base classes | Purpose |
-|---|-----|-------|--------------|---------|
-| 1 | `accounts` | `Permission` | `models.Model` | One granular permission token (`sales.view`, `payments.add`, …) |
-| 2 | `accounts` | `Role` | `models.Model` | Named bundle of permissions; 6 system roles seeded by migration |
-| 3 | `accounts` | `User` | `AbstractUser` | Staff login — identifier is the **email**, not the username |
-| 4 | `organizations` | `Organization` | `models.Model` | **The tenant** — a company / dealership group |
-| 5 | `branches` | `Branch` | `models.Model` | Child scope under a company (unique name per company) |
-| 6 | `vehicles` | `Vehicle` | `TenantModel` | Vehicle registry (VIN unique per company) |
-| 7 | `inventory` | `VehicleStock` | `TenantModel` | One stock row per vehicle currently held at a branch |
-| 8 | `suppliers` | `Supplier` | `TenantModel` | Business / individual sellers and agents |
-| 9 | `purchases` | `PurchaseOrder` | `TenantModel` | PO header (domestic or import, shipment tracking) |
-| 10 | `purchases` | `PurchaseOrderLine` | `models.Model` | One PO line — the link between a purchase and a vehicle |
-| 11 | `purchases` | `VehicleCostLine` | `TenantModel` + `ImmutableModel` | One immutable cost event per vehicle (landed-cost ledger) |
-| 12 | `customers` | `Customer` | `TenantModel` | Buyer directory |
-| 13 | `sales` | `Lead` | `TenantModel` | Pipeline stage 1 |
-| 14 | `sales` | `Quotation` | `TenantModel` | Pipeline stage 2 |
-| 15 | `sales` | `Reservation` | `TenantModel` | Pipeline stage 3 (flips the vehicle to reserved) |
-| 16 | `sales` | `Sale` | `TenantModel` | Pipeline stage 4 |
-| 17 | `sales` | `Invoice` | `TenantModel` + `ImmutableModel` | Issued invoice — append-only, one per sale |
-| 18 | `payments` | `LedgerEntry` | `TenantModel` + `ImmutableModel` | **The append-only financial ledger** |
-| 19 | `documents` | `Document` | `TenantModel` | Photo/document attached to vehicle, customer or supplier |
-| 20 | `communications` | `Channel` | `TenantModel` | A configured messaging channel (WhatsApp, Messenger, …) |
-| 21 | `communications` | `Conversation` | `TenantModel` | One thread with a customer on a channel |
-| 22 | `communications` | `Message` | `TenantModel` | One message row (inbound / outbound) |
-| 23 | `communications` | `CustomerChannelIdentity` | `TenantModel` | Maps one external sender id to exactly one customer |
-
-### Entity relationship map
-
-```
-Organization (tenant — the root of everything)
+3. Application map
+Recommended Django apps:
+App	Responsibility
+`core`	Tenancy, immutability, shared constraints/helpers, money utilities
+`organizations`	Organizations/companies
+`branches`	Branch hierarchy
+`accounts`	User, roles, permissions, authentication
+`suppliers`	Seller/supplier directory
+`vehicles`	Permanent vehicle identity
+`purchases`	Acquisition orders, PO lines, receiving, landed costs
+`inventory`	Stock position, physical locations, movement history
+`customers`	Customer directory
+`sales`	Leads, activities, quotations, reservations, sales, invoices
+`payments`	Financial accounts, ledger, payment recording/reversal
+`expenses`	Expense categories and expense-facing workflow
+`accounting`	Read-only financial/reporting services
+`documents`	Attachments and photos
+`communications`	Conversation Hub, channel adapters, webhooks
+`audit`	History configuration
+`accounting` should remain primarily a calculation/reporting layer. Do not
+duplicate authoritative monetary values into summary models unless there is a
+measured performance requirement and a clear reconciliation mechanism.
+---
+4. Domain model overview
+```text
+Organization
+│
 ├── Branch
-│     └── branch-scoped rows: User, Vehicle, VehicleStock, Customer, Lead,
-│                             PurchaseOrder (all carry an optional branch FK)
-├── User ── roles (M2M) ── Role ── permissions (M2M) ── Permission
+│    └── InventoryLocation
 │
-├── Supplier ── PurchaseOrder ── lines ── PurchaseOrderLine
-│                                            └── vehicle (FK) ──► Vehicle
+├── User ── roles ── Role ── permissions ── Permission
 │
-├── Customer ◄── Lead
-│              Quotation ── customer (FK) ──► Customer
-│              Reservation ─ customer + vehicle (FK)
-│              Sale ─ customer + vehicle (+ optional reservation)
-│              Invoice ── sale (FK, immutable, one per sale)
+├── Supplier / Seller
+│    └── PurchaseOrder
+│         └── PurchaseOrderLine ──► Vehicle
 │
-├── LedgerEntry (immutable)
-│      ├── related_object (GenericFK) ──► Sale / Supplier / any model
-│      └── reversal_of (self FK) ──► LedgerEntry
+├── Vehicle
+│    ├── VehicleCostLine
+│    ├── VehicleStock
+│    │    └── InventoryLocation
+│    └── InventoryMovement
 │
-├── Document (FK vehicle | customer | supplier — exactly one target)
+├── Customer
+│    ├── Lead
+│    │    └── LeadActivity
+│    ├── Quotation
+│    ├── Reservation
+│    ├── Sale
+│    │    └── Invoice
+│    └── CustomerChannelIdentity
 │
-├── Vehicle ── VehicleStock (OneToOne, branch)
-│      └── VehicleCostLine (FK vehicle, immutable, landed-cost ledger)
+├── FinancialAccount
+│    └── LedgerEntry
 │
-└── Channel ── Conversation (customer + channel + external thread id)
-       │             └── Message (FK conversation; unique external id)
-       └── CustomerChannelIdentity (customer + channel + external id)
+├── ExpenseCategory
+│
+├── Document
+│
+└── Channel
+     └── Conversation
+          └── Message
 ```
-
-### How the models connect — the eight links
-
-1. **The tenant root.** Every `TenantModel` carries `company` (FK →
-   `Organization`, PROTECT). `Branch` also points to `Organization`;
-   branch-scoped records (`Vehicle`, `VehicleStock`, `Customer`, `Lead`,
-   `PurchaseOrder`) additionally carry an optional `branch` FK. The
-   `TenantManager` auto-filters every query to the request's company;
-   `all_objects` is the explicit Super-Admin escape hatch.
-
-2. **Users, roles, permissions.** `User.roles` (M2M → `Role`) →
-   `Role.permissions` (M2M → `Permission`, codenames like `sales.view`).
-   `User.company` is null only for Super Admin; `User.save()` keeps
-   `is_staff` in sync with the Super Admin role / superuser flag, which
-   locks Django Admin to Super Admin only.
-
-3. **Purchasing chain.** `Supplier` → `PurchaseOrder` (FK supplier,
-   PROTECT) → `PurchaseOrderLine` (FK order, CASCADE) → `Vehicle` (FK
-   vehicle, PROTECT, optional). The supplier of a vehicle is *derived* —
-   `Vehicle.source_supplier` returns the supplier of the first purchase
-   line that references the vehicle.
-
-4. **Receiving side effects.** `receive_order()` writes into
-   `VehicleCostLine` (one immutable row per vehicle line), updates
-   `Vehicle`, and creates `VehicleStock`. A vehicle's total cost
-   (`vehicle_landed_cost`) is an aggregate over `VehicleCostLine` rows —
-   never a stored column.
-
-5. **Sales pipeline.** `Customer` ← `Lead` → `Quotation` → `Reservation` →
-   `Sale` → `Invoice`. Quotation / Reservation / Sale each FK → `Customer`
-   (PROTECT) and → `Vehicle` (PROTECT; Quotation's is optional). Creating a
-   reservation flips the vehicle to `RESERVED`; completing a sale flips it
-   to `SOLD`, closes the active reservation, and issues at most one
-   immutable `Invoice` (`INV-{pk:06d}`).
-
-6. **The money spine.** Every money movement is one immutable `LedgerEntry`
-   row: `customer_payment` (money **in**, GFK → `Sale`), `supplier_payment`
-   (money **out**, GFK → `Supplier`), `expense` (money **out**, no GFK),
-   `other` (money **in**). Corrections are NEW rows whose `reversal_of` FK
-   points at the original. All balances / outstanding amounts are computed
-   aggregates (`apps/accounting/services.py`) — per currency, never
-   converted.
-
-7. **Documents.** `Document` has three nullable FKs (`vehicle`, `customer`,
-   `supplier`) — the form enforces exactly one target. `doc_type` plus the
-   per-target type lists (`VEHICLE_DOC_TYPES`, `CUSTOMER_DOC_TYPES`,
-   `SUPPLIER_DOC_TYPES`) restrict what each upload box can create.
-
-8. **Conversation Hub.** `Channel` (type + credentials JSON) →
-   `Conversation` (customer + channel + external thread id) → `Message`
-   (direction, status, raw payload). `CustomerChannelIdentity` maps an
-   external sender id to exactly one `Customer` — unknown senders create a
-   new customer (never silently merged). Business apps only ever call
-   `notification_engine.notify(...)`.
-
-### Model dictionary — every column of every model
-
-#### `accounts.Permission` — granular permission token
-
-Tenant-scoped permission token beyond Django's app-level permissions.
-Business views check these for object-level access.
-
-| Column | Type | Details |
-|---|---|---|
-| `codename` | `CharField(100)` | **Unique.** E.g. `sales.view`, `payments.add`. Seeded by migration `0003_seed_permissions`. |
-| `description` | `CharField(255)` | Optional human-readable description. |
-
-#### `accounts.Role` — named bundle of permissions
-
-| Column | Type | Details |
-|---|---|---|
-| `key` | `SlugField(50)` | **Unique.** E.g. `org_admin`, `branch_manager`. |
-| `name` | `CharField(100)` | Display name. |
-| `system` | `BooleanField` | Default `False`, non-editable; `True` for the 6 seeded roles. |
-| `permissions` | M2M → `Permission` | Optional. |
-
-Seeded roles (migration `0002_seed_builtin_roles`): `super_admin`,
-`org_admin`, `branch_manager`, `sales`, `inventory`, `accountant`.
-Permission grants (migration `0003_seed_permissions`) follow
-`{app}.{action}` codenames (`view`/`add`/`change`) over the 10 business
-apps; `org_admin` gets all of them, the other roles get subsets.
-
-#### `accounts.User` — internal staff login
-
-Login identifier is the **email** (`USERNAME_FIELD = "email"`); `username`
-survives only as an optional legacy/display label. Inherits all standard
-`AbstractUser` columns (`password`, `last_login`, `is_superuser`,
-`first_name`, `last_name`, `is_active`, `date_joined`, `groups`,
-`user_permissions`) plus:
-
-| Column | Type | Details |
-|---|---|---|
-| `username` | `CharField(150)` | Null/blank — optional label only. |
-| `email` | `EmailField` | **Unique.** The login id. |
-| `company` | FK → `Organization` | `PROTECT`. Null/blank **only for Super Admin**. |
-| `branch` | FK → `Branch` | `PROTECT`. Null/blank. |
-| `roles` | M2M → `Role` | Optional. |
-| `preferred_language` | `CharField(8)` | Default `en`; choices `en` / `prs` / `ps`. Drives the session language after login. |
-
-Model logic: `has_role(key)`, `is_super_admin` property,
-`permission_codenames()`, `has_permission(codename)` (superuser bypasses),
-and `save()` keeps `is_staff = has_super_admin or is_superuser` in sync,
-which is what locks Django Admin to Super Admin.
-
-#### `organizations.Organization` — the tenant
-
-Not tenant-scoped itself — it **is** the tenant.
-
-| Column | Type | Details |
-|---|---|---|
-| `name` | `CharField(200)` | Company name. |
-| `created_at` | `DateTimeField` | `auto_now_add`. |
-
-#### `branches.Branch` — child scope under a company
-
-| Column | Type | Details |
-|---|---|---|
-| `company` | FK → `Organization` | `PROTECT`. |
-| `name` | `CharField(200)` | |
-| `created_at` | `DateTimeField` | `auto_now_add`. |
-
-Constraint: **unique `(company, name)`**.
-
-#### `vehicles.Vehicle` — vehicle registry (`TenantModel`)
-
-| Column | Type | Details |
-|---|---|---|
-| `company` | FK → `Organization` | From `TenantModel` (`PROTECT`). |
-| `vin` | `CharField(17)` | Vehicle Identification Number. |
-| `make` | `CharField(100)` | |
-| `model` | `CharField(100)` | |
-| `year` | `PositiveSmallIntegerField` | |
-| `color` | `CharField(50)` | Optional. |
-| `mileage` | `PositiveIntegerField` | Default `0`. |
-| `status` | `CharField(20)` | `in_transit` / `in_stock` / `reserved` / `sold` / `delivered`; default `in_transit`. |
-| `branch` | FK → `Branch` | `PROTECT`. Null/blank. |
-| `notes` | `TextField` | Optional. |
-| `created_at` / `updated_at` | `DateTimeField` | Auto. |
-
-Constraint: **unique `(company, vin)`**. Deliberately **no cost columns** —
-cost is computed from `VehicleCostLine` rows. Properties:
-`primary_photo` (oldest vehicle photo), `source_supplier` (derived from
-purchase lines).
-
-#### `inventory.VehicleStock` — branch stock row (`TenantModel`)
-
-| Column | Type | Details |
-|---|---|---|
-| `company` | FK → `Organization` | From `TenantModel`. |
-| `vehicle` | `OneToOneField` → `Vehicle` | `PROTECT`. One stock row per vehicle. |
-| `branch` | FK → `Branch` | `PROTECT`. Where the car sits. |
-| `status` | `CharField(20)` | `available` / `reserved` / `in_preparation`; default `available`. |
-| `lot_code` | `CharField(50)` | Optional parking/lot code. |
-| `received_at` | `DateTimeField` | `auto_now_add`. |
-
-Created by purchase receiving; branch users only see their branch's rows.
-
-#### `suppliers.Supplier` — supplier directory (`TenantModel`)
-
-| Column | Type | Details |
-|---|---|---|
-| `company` | FK → `Organization` | From `TenantModel`. |
-| `name` | `CharField(200)` | |
-| `kind` | `CharField(20)` | `business` / `individual`; default `business`. |
-| `supplier_type` | `CharField(20)` | `local_dealer` / `overseas_dealer` / `auction` / `broker` / `shipping_agent` / `other`; default `local_dealer`. |
-| `national_id` | `CharField(50)` | Optional (tazkera / national ID). |
-| `country` | `CharField(5)` | `COUNTRIES` choices; optional. |
-| `contact_person` | `CharField(200)` | Optional. |
-| `phone` | `CharField(50)` | Optional. |
-| `email` | `EmailField` | Optional. |
-| `address` | `TextField` | Optional. |
-| `notes` | `TextField` | Optional. |
-| `created_at` | `DateTimeField` | `auto_now_add`. |
-
-Properties: `is_individual`; `logo` (most recent `supplier_logo` /
-`supplier_photo` document).
-
-#### `purchases.PurchaseOrder` — PO header (`TenantModel`)
-
-| Column | Type | Details |
-|---|---|---|
-| `company` | FK → `Organization` | From `TenantModel`. |
-| `reference` | `CharField(50)` | Optional free-text reference. |
-| `supplier` | FK → `Supplier` | `PROTECT`. |
-| `branch` | FK → `Branch` | `PROTECT`. Null/blank. |
-| `status` | `CharField(20)` | `draft` / `ordered` / `shipped` / `customs` / `received` / `cancelled`; default `draft`. |
-| `purchase_type` | `CharField(20)` | `domestic` / `import`; default `domestic`. |
-| `order_date` | `DateField` | Required. |
-| `origin_country` | `CharField(5)` | Optional; **required by the form for imports**. |
-| `incoterms` | `CharField(10)` | `EXW` / `FOB` / `CFR` / `CIF` / `DAP` / `DDP`; optional. |
-| `shipping_method` | `CharField(20)` | `container` / `ro_ro` / `land` / `air` / `other`; optional. |
-| `bill_of_lading_no` | `CharField(100)` | Optional. |
-| `container_no` | `CharField(100)` | Optional. |
-| `shipped_date` | `DateField` | Null/blank. |
-| `eta` | `DateField` | Null/blank. |
-| `notes` | `TextField` | Optional. |
-| `created_by` | FK → `User` | `PROTECT`. Null/blank. |
-| `created_at` / `updated_at` | `DateTimeField` | Auto. |
-
-Logic: `total_by_currency()` (computed from lines, never stored);
-`is_import`; `next_status` — imports walk `draft → ordered → shipped →
-customs` (`NEXT_STATUS` map), domestic orders go `draft → ordered` and
-then straight to receiving. `RECEIVED` is reachable **only** through
-`receive_order()`.
-
-#### `purchases.PurchaseOrderLine` — one PO line
-
-**Not tenant-scoped** (a child of the tenant-scoped order).
-
-| Column | Type | Details |
-|---|---|---|
-| `order` | FK → `PurchaseOrder` | `CASCADE`. |
-| `vehicle` | FK → `Vehicle` | `PROTECT`. Null/blank — **the car↔purchase link**. |
-| `description` | `CharField(255)` | |
-| `amount` | `DecimalField(14, 2)` | |
-| `currency` | `CharField(3)` | `CURRENCIES`; default `AFN`. |
-
-#### `purchases.VehicleCostLine` — immutable vehicle cost event (`TenantModel` + `ImmutableModel`)
-
-| Column | Type | Details |
-|---|---|---|
-| `company` | FK → `Organization` | From `TenantModel`. |
-| `vehicle` | FK → `Vehicle` | `PROTECT`. |
-| `cost_type` | `CharField(20)` | `purchase` / `transport` / `customs` / `storage` / `repair` / `other`. |
-| `amount` | `DecimalField(14, 2)` | |
-| `currency` | `CharField(3)` | Default `AFN`. |
-| `description` | `CharField(255)` | Optional. |
-| `created_by` | FK → `User` | `PROTECT`. Null/blank. |
-| `created_at` | `DateTimeField` | `auto_now_add`. |
-
-**Immutable:** `save()` on an existing row raises `ImmutableRecordError`;
-`delete()` always raises. `vehicle_landed_cost(vehicle)` sums these rows
-per currency.
-
-#### `customers.Customer` — buyer directory (`TenantModel`)
-
-| Column | Type | Details |
-|---|---|---|
-| `company` | FK → `Organization` | From `TenantModel`. |
-| `full_name` | `CharField(200)` | |
-| `phone` | `CharField(50)` | Optional. |
-| `email` | `EmailField` | Optional. |
-| `national_id` | `CharField(50)` | Optional. |
-| `branch` | FK → `Branch` | `PROTECT`. Null/blank. |
-| `notes` | `TextField` | Optional. |
-| `created_by` | FK → `User` | `PROTECT`. Null/blank. |
-| `created_at` / `updated_at` | `DateTimeField` | Auto. |
-
-Property: `primary_photo` (oldest customer photo).
-
-#### `sales.Lead` — pipeline stage 1 (`TenantModel`)
-
-| Column | Type | Details |
-|---|---|---|
-| `company` | FK → `Organization` | From `TenantModel`. |
-| `name` | `CharField(200)` | Lead's name. |
-| `phone` | `CharField(50)` | Optional. |
-| `customer` | FK → `Customer` | `PROTECT`. Null/blank. |
-| `vehicle_of_interest` | FK → `Vehicle` | `SET_NULL`. Null/blank. |
-| `source` | `CharField(20)` | `walk_in` / `phone` / `whatsapp` / `referral` / `other`; default `walk_in`. |
-| `status` | `CharField(20)` | `new` / `contacted` / `qualified` / `converted` / `lost`; default `new`. |
-| `branch` | FK → `Branch` | `PROTECT`. Null/blank. |
-| `notes` | `TextField` | Optional. |
-| `created_by` | FK → `User` | `PROTECT`. Null/blank. |
-| `created_at` / `updated_at` | `DateTimeField` | Auto. |
-
-#### `sales.Quotation` — pipeline stage 2 (`TenantModel`)
-
-| Column | Type | Details |
-|---|---|---|
-| `company` | FK → `Organization` | From `TenantModel`. |
-| `customer` | FK → `Customer` | `PROTECT`. |
-| `vehicle` | FK → `Vehicle` | `PROTECT`. Null/blank. |
-| `lead` | FK → `Lead` | `SET_NULL`. Null/blank. |
-| `amount` | `DecimalField(14, 2)` | |
-| `currency` | `CharField(3)` | Default `AFN`. |
-| `valid_until` | `DateField` | Required. |
-| `status` | `CharField(20)` | `draft` / `sent` / `accepted` / `declined` / `expired`; default `draft`. |
-| `notes` | `TextField` | Optional. |
-| `created_by` | FK → `User` | `PROTECT`. Null/blank. |
-| `created_at` / `updated_at` | `DateTimeField` | Auto. |
-
-#### `sales.Reservation` — pipeline stage 3 (`TenantModel`)
-
-| Column | Type | Details |
-|---|---|---|
-| `company` | FK → `Organization` | From `TenantModel`. |
-| `customer` | FK → `Customer` | `PROTECT`. |
-| `vehicle` | FK → `Vehicle` | `PROTECT`. |
-| `quotation` | FK → `Quotation` | `PROTECT`. Null/blank. |
-| `deposit_amount` | `DecimalField(14, 2)` | |
-| `currency` | `CharField(3)` | Default `AFN`. |
-| `status` | `CharField(20)` | `active` / `completed` / `cancelled`; default `active`. |
-| `notes` | `TextField` | Optional. |
-| `created_by` | FK → `User` | `PROTECT`. Null/blank. |
-| `created_at` / `updated_at` | `DateTimeField` | Auto. |
-
-Logic: creating a reservation (atomic) flips an `IN_STOCK` vehicle to
-`RESERVED` so it cannot be double-sold.
-
-#### `sales.Sale` — pipeline stage 4 (`TenantModel`)
-
-| Column | Type | Details |
-|---|---|---|
-| `company` | FK → `Organization` | From `TenantModel`. |
-| `customer` | FK → `Customer` | `PROTECT`. |
-| `vehicle` | FK → `Vehicle` | `PROTECT`. |
-| `reservation` | FK → `Reservation` | `PROTECT`. Null/blank. |
-| `agreed_amount` | `DecimalField(14, 2)` | |
-| `currency` | `CharField(3)` | Default `AFN`. |
-| `sale_date` | `DateField` | Required. |
-| `status` | `CharField(20)` | `draft` / `completed` / `cancelled`; default `draft`. |
-| `notes` | `TextField` | Optional. |
-| `created_by` | FK → `User` | `PROTECT`. Null/blank. |
-| `created_at` / `updated_at` | `DateTimeField` | Auto. |
-
-Logic: `complete_sale()` (atomic, DRAFT only) flips the vehicle to `SOLD`,
-closes the active reservation, and notifies the customer;
-`issue_invoice()` is idempotent — one immutable invoice per sale.
-
-#### `sales.Invoice` — immutable issued invoice (`TenantModel` + `ImmutableModel`)
-
-| Column | Type | Details |
-|---|---|---|
-| `company` | FK → `Organization` | From `TenantModel`. |
-| `sale` | FK → `Sale` | `PROTECT`. |
-| `number` | `CharField(50)` | Generated as `INV-{sale.pk:06d}`. |
-| `issued_on` | `DateField` | |
-| `amount` | `DecimalField(14, 2)` | Copied from the sale. |
-| `currency` | `CharField(3)` | |
-| `created_by` | FK → `User` | `PROTECT`. Null/blank. |
-| `created_at` | `DateTimeField` | `auto_now_add`. |
-
-Constraint: **unique `(company, number)`**. Immutable like all financial
-rows — corrections go through the ledger, never by editing an invoice.
-
-#### `payments.LedgerEntry` — the append-only ledger (`TenantModel` + `ImmutableModel`)
-
-| Column | Type | Details |
-|---|---|---|
-| `company` | FK → `Organization` | From `TenantModel`. |
-| `type` | `CharField(30)` | `customer_payment` / `supplier_payment` / `expense` / `other`. |
-| `amount` | `DecimalField(14, 2)` | Always positive; direction comes from `type`. |
-| `currency` | `CharField(3)` | Default `AFN`. |
-| `description` | `CharField(255)` | Optional. |
-| `content_type` | FK → `ContentType` | `PROTECT`. Null/blank (GenericFK part 1). |
-| `object_id` | `BigIntegerField` | Null/blank (GenericFK part 2). |
-| `related_object` | `GenericForeignKey` | The business row the money relates to (`Sale`, `Supplier`, …). |
-| `reversal_of` | FK → `LedgerEntry` (self) | `PROTECT`. Null/blank — points at the corrected row. |
-| `created_by` | FK → `User` | `PROTECT`. Null/blank. |
-| `created_at` | `DateTimeField` | `auto_now_add`. |
-
-Money direction map (`ENTRY_DIRECTION`): `customer_payment` → **in**,
-`supplier_payment` → **out**, `expense` → **out**, `other` → **in**.
-Properties: `direction`, `signed_amount` (±). Corrections are new rows
-created by `reverse_entry()` with the same type/amount/currency/GFK and
-`reversal_of` pointing at the original — updates and deletes raise
-`ImmutableRecordError` at the model level.
-
-#### `documents.Document` — file attachments (`TenantModel`)
-
-| Column | Type | Details |
-|---|---|---|
-| `company` | FK → `Organization` | From `TenantModel`. |
-| `vehicle` | FK → `Vehicle` | `PROTECT`. Null/blank. |
-| `customer` | FK → `Customer` | `PROTECT`. Null/blank. |
-| `supplier` | FK → `Supplier` | `PROTECT`. Null/blank. |
-| `doc_type` | `CharField(30)` | 18 choices — see below; default `other`. |
-| `title` | `CharField(255)` | Optional. |
-| `file` | `FileField` | `upload_to="documents/%Y/%m/"`. |
-| `uploaded_by` | FK → `User` | `PROTECT`. Null/blank. |
-| `created_at` | `DateTimeField` | `auto_now_add`. |
-
-`doc_type` choices: `vehicle_photo`, `license`, `sale_document`,
-`insurance`, `customs`, `inspection`, `vehicle_document`, `customer_photo`,
-`tazkera`, `passport`, `electricity_bill`, `other_bill`, `customer_document`,
-`supplier_logo`, `supplier_photo`, `supplier_license`, `supplier_document`,
-`other`. Exactly one of `vehicle`/`customer`/`supplier` is required (form
-level); each upload box restricts the type picker to its list
-(`VEHICLE_DOC_TYPES`, `CUSTOMER_DOC_TYPES`, `SUPPLIER_DOC_TYPES`).
-Property: `is_photo` splits galleries from paperwork.
-
-#### `communications.Channel` — messaging channel config (`TenantModel`)
-
-| Column | Type | Details |
-|---|---|---|
-| `company` | FK → `Organization` | From `TenantModel`. |
-| `type` | `CharField(20)` | `whatsapp` / `messenger` / `instagram` / `telegram` / `email` / `sms`. |
-| `credentials` | `JSONField` | Default `{}`; e.g. `{"phone_number_id": "…"}`. |
-| `active` | `BooleanField` | Default `True`. |
-
-#### `communications.Conversation` — one thread (`TenantModel`)
-
-| Column | Type | Details |
-|---|---|---|
-| `company` | FK → `Organization` | From `TenantModel`. |
-| `customer` | FK → `Customer` | `PROTECT`. |
-| `channel` | FK → `Channel` | `PROTECT`. |
-| `external_thread_id` | `CharField(255)` | Optional provider thread id. |
-| `assigned_to` | FK → `User` | `SET_NULL`. Null/blank. |
-| `status` | `CharField(20)` | `open` / `closed`; default `open`. |
-| `last_message_at` | `DateTimeField` | Null/blank; bumped on every message. |
-
-#### `communications.Message` — one message (`TenantModel`)
-
-| Column | Type | Details |
-|---|---|---|
-| `company` | FK → `Organization` | From `TenantModel`. |
-| `conversation` | FK → `Conversation` | `CASCADE`. |
-| `direction` | `CharField(5)` | `in` (inbound) / `out` (outbound). |
-| `body` | `TextField` | |
-| `media` | `JSONField` | Default `[]`. |
-| `external_message_id` | `CharField(255)` | Optional provider id. |
-| `status` | `CharField(20)` | `queued` / `sent` / `delivered` / `read` / `failed` / `skipped_disabled`; default `queued`. |
-| `raw_payload` | `JSONField` | Null/blank — the raw provider payload persisted **before** parsing. |
-| `created_at` | `DateTimeField` | `auto_now_add`. |
-
-Constraint: **unique `(company, external_message_id)`** where
-`external_message_id ≠ ""` — webhook redelivery can never create
-duplicates.
-
-#### `communications.CustomerChannelIdentity` — sender id map (`TenantModel`)
-
-| Column | Type | Details |
-|---|---|---|
-| `company` | FK → `Organization` | From `TenantModel`. |
-| `customer` | FK → `Customer` | `PROTECT`. |
-| `channel` | FK → `Channel` | `PROTECT`. |
-| `external_id` | `CharField(255)` | The provider's sender id. |
-| `created_at` | `DateTimeField` | `auto_now_add`. |
-
-Constraint: **unique `(company, channel, external_id)`** — one external id
-maps to exactly one customer; distinct ids are never merged silently.
-
-### Abstract bases (not tables)
-
-- **`TenantModel`** (`apps/core/tenancy.py`) — adds `company` FK →
-  `Organization` (`PROTECT`, `related_name="+"`) and replaces `objects`
-  with `TenantManager` (auto-filtered by the request tenant via a
-  `ContextVar`); `all_objects` is the explicit unfiltered escape hatch.
-- **`ImmutableModel`** (`apps/core/models.py`) — `save()` raises
-  `ImmutableRecordError` when editing an existing row; `delete()` always
-  raises. Used by `VehicleCostLine`, `LedgerEntry`, `Invoice`.
-
-### Audit history
-
-`apps/audit/apps.py` registers `django-simple-history` on 9 models:
-`Vehicle`, `VehicleStock`, `Supplier`, `PurchaseOrder`, `Customer`, `Lead`,
-`Quotation`, `Reservation`, `Sale` — producing 9 auto-generated
-`Historical*` tables. `LedgerEntry`, `VehicleCostLine` and `Invoice` are
-deliberately **not** registered (they are already immutable append-only
-rows). `HistoryRequestMiddleware` records the acting user on each history
-row.
-
-### Full business logic by domain
-
-#### 1. Multi-tenancy (`apps/core`)
-
-- `TenantMiddleware` reads the **authenticated user's company** (never
-  client input) and sets a request-scoped `ContextVar`; it resets the
-  context when the request finishes.
-- `TenantManager.get_queryset()` filters by that company when the context
-  is set; without context (Super Admin, shell, Celery) it returns
-  unfiltered rows — Super Admin's dashboard therefore shows platform-wide
-  totals through the same manager.
-- `for_current_company()` raises `NoTenantContext` when used outside a
-  tenant context; background jobs wrap themselves in `company_scope()`.
-- Every create view stamps `obj.company = request.user.company` and raises
-  `PermissionDenied` for company-less (Super Admin) users; forms scope FK
-  querysets through the tenant managers and validate branch ownership
-  (e.g. `VehicleForm.clean` rejects a foreign branch).
-
-#### 2. Auth, roles, permissions (`apps/accounts`)
-
-- Login is by **email**; `CarFlowLoginView` activates the user's
-  `preferred_language` immediately after authentication (sets the
-  `django_language` session key + cookie — Django 5's LocaleMiddleware
-  reads the cookie).
-- `require_permission(codename)` decorates every business view:
-  unauthenticated → redirect to login; missing permission → 403.
-- `User.save()` keeps `is_staff` in lockstep with the Super Admin role /
-  superuser flag — Django Admin (`/admin/`) is Super Admin only. Super
-  Admin (`company=None`) manages tenants in Admin; business records are
-  created by company users.
-- `set_language` POST updates the language cookie, the session, and
-  `User.preferred_language`, then reloads the same page.
-- `admin_dashboard_callback` adds platform KPI cards (companies, branches,
-  users, roles) to the Unfold admin home.
-
-#### 3. Vehicles & inventory (`apps/vehicles`, `apps/inventory`)
-
-- `Vehicle` is unique per `(company, vin)` and carries **no cost columns**.
-- Lifecycle: `in_transit` → `in_stock` (purchase receiving) → `reserved`
-  (reservation created) → `sold` (`complete_sale`) → `delivered`.
-- Branch users see only their branch's fleet (list filtered by
-  `request.user.branch_id`); search matches VIN/make/model; status filter
-  validates against `VehicleStatus.values`.
-- `VehicleStock` is OneToOne per vehicle, created at receiving; its status
-  (`available` / `reserved` / `in_preparation`) is maintained manually
-  from the inventory list; inventory lists are branch-scoped for branch
-  users.
-
-#### 4. Purchasing & receiving (`apps/purchases`)
-
-- Status machine: `draft → ordered → shipped → customs → received`
-  (imports) or `draft → ordered → received` (domestic), plus `cancelled`;
-  `order_advance` moves one legal step at a time via `next_status`;
-  `RECEIVED` is reachable **only** through `receive_order()`.
-- Import orders must set `origin_country` (form validation).
-- `receive_order()` runs in one transaction and is idempotent per line:
-  returns `0` if the order is already `RECEIVED`; for every line with a
-  vehicle it appends one `VehicleCostLine` (type `purchase`, amount /
-  currency from the line, description `"PO {order}"`) unless an identical
-  row already exists, sets the vehicle's branch (order branch or the
-  vehicle's own) and status `IN_STOCK`, and `get_or_create`s the
-  `VehicleStock`; finally flips the order to `RECEIVED` and returns the
-  number of vehicles received.
-- `vehicle_add_cost` appends any other cost event (transport, customs,
-  storage, repair, other) — immutable rows, corrections are new rows.
-- `vehicle_landed_cost(vehicle)` aggregates cost lines per currency;
-  conversion happens only at display time.
-
-#### 5. Sales pipeline (`apps/sales`)
-
-- Create views stamp `company` + `created_by`; `Lead` and `Quotation`
-  statuses update via POST endpoints that validate the status value.
-- `reservation_create` (atomic) flips an `IN_STOCK` vehicle to `RESERVED`
-  so it cannot be double-sold.
-- `sale_detail` computes `can_complete` (status is `draft`) and
-  `can_invoice` (status is `completed` and no invoice exists yet).
-- `complete_sale()` (atomic): DRAFT-only → sale `COMPLETED`, vehicle
-  `SOLD`, active reservation `COMPLETED`, then notifies the customer with
-  the `sale_completed` event (notification failure is logged and never
-  breaks the sale).
-- `issue_invoice()` is idempotent: if an invoice exists it returns it;
-  otherwise creates the immutable `Invoice` with number `INV-{pk:06d}`,
-  today's date, and the sale's amount/currency. The view refuses to issue
-  before the sale is completed.
-
-#### 6. Money & accounting (`apps/payments`, `apps/expenses`, `apps/accounting`)
-
-- **Everything writes through the ledger.** `record_payment()` creates one
-  `customer_payment` row (GFK → `Sale`) and fires the `payment_recorded`
-  notification (never breaks the ledger write); `record_supplier_payment()`
-  creates a `supplier_payment` row (GFK → `Supplier`); `record_expense()`
-  creates an `expense` row with no GFK.
-- `reverse_entry()` corrects a row by appending its **mirror image**: same
-  type, amount, currency, GFK, plus `reversal_of` → the original row.
-- `_net_totals()` (accounting) is the heart of every figure: a reversal
-  row is counted **against its original row's direction** and negated, so
-  an expense reversal reduces money-out while a payment reversal reduces
-  money-in.
-- Derived figures — all per currency, never converted:
-  `ledger_balance()` (in − out), `money_in()` (gross received, net of
-  payment reversals), `money_out()` (gross paid, net of reversals),
-  `sale_payments(sale)`, `sale_outstanding(sale)` (agreed amount − paid),
-  `supplier_payments(supplier)` (net paid to a supplier).
-- The accounting summary view renders balance, money in/out, and the
-  outstanding amount of every completed sale — all computed from ledger
-  rows.
-
-#### 7. Expenses (`apps/expenses`)
-
-- No model. The list view filters `LedgerEntry` by `type=expense`; the
-  create view writes through `record_expense(company, …)`. Company-less
-  users are denied.
-
-#### 8. Documents (`apps/documents`)
-
-- One upload view, four shapes: generic (`DocumentForm` — requires at
-  least one of vehicle/customer/supplier), or locked to a vehicle /
-  customer / supplier (`VehicleDocumentForm`, `CustomerDocumentForm`,
-  `SupplierDocumentForm`) with the target as a hidden field and the
-  `doc_type` picker restricted to the target's allowed type list.
-- After upload the user lands back on the target's detail page. `is_photo`
-  splits galleries vs paperwork; card thumbnails/avatars/logos use
-  prefetched lists (`photo_list`, `logo_list`, `purchase_line_list`) to
-  avoid per-card queries.
-- Storage is decided only in settings: local `media/` volume by default,
-  S3 when `S3_ENABLED` is on (`STORAGES` block); app code only uses
-  `FileField`.
-
-#### 9. Conversation Hub & notifications (`apps/communications`)
-
-- **Outbound:** business code calls exactly one function —
-  `notification_engine.notify(event, company, customer, context)`. Known
-  events and templates: `payment_recorded` ("Payment of {amount}
-  {currency} was recorded…"), `sale_completed` ("Your purchase of
-  {vehicle} is complete…"). The engine translates the template, resolves
-  the customer's active channel identities, `get_or_create`s a
-  `Conversation` per identity, and sends via `send_reply` — returning the
-  number of attempts. Unknown events or missing context log and return 0.
-- `send_reply()` calls the channel adapter and persists the attempt: Null
-  adapter (integration off) → `skipped_disabled`; success → `sent`;
-  failure → `failed`. Bumps `conversation.last_message_at`.
-- **Inbound:** `process_inbound_payload()` dedupes on `external_message_id`
-  first, resolves the customer (`resolve_customer`: known identity →
-  existing customer; unknown → **new customer** named "<Channel display>
-  <last 6 digits>" + a new identity row — never a silent merge), then
-  stores the message (direction `in`, status `delivered`, raw payload) and
-  bumps `last_message_at`.
-- **Meta webhook** (`/webhooks/meta/`): GET performs the `hub.mode=
-  subscribe` URL-verification handshake (echoes `hub.challenge` only when
-  `META_ENABLED` and the verify token match; otherwise 403). POST:
-  refuses with **503** while disabled; verifies the HMAC-SHA256
-  `X-Hub-Signature-256` signature against `META_APP_SECRET` (403 on
-  mismatch); rejects unparseable bodies with 400; then enqueues
-  `process_meta_webhook.delay(payload)` and returns **200 immediately** —
-  Meta retries up to 7 days on non-200, so the endpoint stays fast and
-  idempotent.
-- The Celery task `process_meta_webhook` replays one payload against every
-  active Meta-family channel (`Channel.all_objects`) — dedupe constraints
-  make redelivery harmless.
-- `get_channel_adapter()` is the **only** place that reads `*_ENABLED`
-  flags: Meta family + `META_ENABLED` → `MetaAdapter`, everything else →
-  `NullChannelAdapter`. `MetaAdapter` sends through the Graph API `v19.0`
-  `/{endpoint_id}/messages` endpoint (Bearer `META_ACCESS_TOKEN`, 15 s
-  timeout), picks the endpoint id from the channel's credentials with env
-  fallbacks, and normalizes inbound payloads walking
-  `entry → changes → value → messages`.
-
-#### 10. Audit (`apps/audit`)
-
-- `django-simple-history` records every change on the 9 business models;
-  `HistoryRequestMiddleware` stamps the acting user; immutable financial
-  rows are excluded by design.
-
-#### 11. Integration toggles (`config/checks.py`)
-
-- System check `carflow.E001` fails startup fast when an `*_ENABLED` flag
-  is `True` but any of its required credentials is blank (named variable
-  in the error); with every flag off, boot must succeed with empty
-  credentials — the test suite enforces this contract.
-
-#### 12. i18n & RTL (`config/settings/base.py`, `apps/accounts/views.py`)
-
-- Languages `en` (English), `prs` (Dari), `ps` (Pashto); `prs` and `ps`
-  are registered in `LANG_INFO` and `LANGUAGES_BIDI` so templates render
-  `dir="rtl"` automatically.
-- Language switching persists in three places: the `django_language`
-  cookie (what LocaleMiddleware actually reads), the session (legacy
-  compatibility), and `User.preferred_language` (used at next login).
-
-#### 13. Dashboard (`apps/accounts/views.py`)
-
-- Company users see KPIs: vehicles in stock, open leads (new / contacted /
-  qualified), active (draft) sales, customer count, and the 5 latest
-  sales. Super Admin (no company) additionally sees platform totals
-  (companies + users) and, in `/admin/`, the Unfold KPI cards.
-
 ---
-
-## Technology stack
-
-| Layer | Technology |
-|---|---|
-| Language / framework | Python 3.12, Django 5.2 LTS |
-| Frontend | Django Templates + Tailwind CSS 3.4 (compiled stylesheet committed) |
-| Database | PostgreSQL 16 (containerized; pluggable to external) |
-| Cache / broker | Redis 7 |
-| Async tasks | Celery + Celery Beat |
-| App server | Gunicorn (production), Django dev server (development) |
-| Reverse proxy | Nginx 1.27 (static/media + proxy) |
-| Audit | django-simple-history |
-| Storage | django-storages[boto3] (optional S3), local `media/` volume by default |
-| Tests | pytest + pytest-django + factory_boy |
-
----
-
-## Repository layout
-
+5. Organizations, branches, users, and permissions
+5.1 Organization
+The organization is the tenant root.
+Recommended fields:
+```text
+Organization
+- id
+- name
+- created_at
 ```
+It is not itself a `TenantModel`.
+5.2 Branch
+```text
+Branch
+- id
+- company -> Organization
+- name
+- active
+- created_at
+```
+Constraint:
+```text
+UNIQUE(company, name)
+```
+5.3 User
+Authentication uses email as the login identifier.
+```text
+User
+- email                         UNIQUE
+- username                      optional legacy/display field
+- first_name
+- last_name
+- company -> Organization       null only for Super Admin
+- branch -> Branch              nullable
+- roles -> Role M2M
+- preferred_language            en / prs / ps
+- is_active
+- standard Django auth fields
+```
+A user's branch must belong to the user's company.
+5.4 Roles
+Seed at least:
+```text
+super_admin
+org_admin
+branch_manager
+sales
+inventory
+accountant
+```
+Custom roles and permissions remain database rows.
+Granular permissions follow:
+```text
+{domain}.{action}
+```
+Examples:
+```text
+sales.view
+sales.add
+sales.change
+payments.add
+expenses.add
+inventory.transfer
+```
+Django Admin is restricted to Super Admin.
+---
+6. Sellers, suppliers, and acquisition
+A vehicle acquired by AUTOMEX must always be traceable to the party from whom
+it was acquired.
+Use a single seller/supplier master rather than separate tables for private
+people and companies.
+6.1 Supplier
+Keep the model name `Supplier` if preferred in code; UI text may use
+Seller / Supplier.
+```text
+Supplier
+- id
+- company
+- name
+- kind
+- supplier_type
+- national_id
+- country
+- contact_person
+- phone
+- email
+- address
+- notes
+- created_at
+```
+`kind`:
+```text
+individual
+business
+```
+`supplier_type`:
+```text
+local_seller
+local_dealer
+overseas_dealer
+auction
+broker
+shipping_agent
+other
+```
+Examples:
+```text
+Ahmad Rahimi
+kind = individual
+supplier_type = local_seller
+country = Afghanistan
+```
+```text
+Tokyo Auto Export Co.
+kind = business
+supplier_type = overseas_dealer
+country = Japan
+```
+6.2 PurchaseOrder
+```text
+PurchaseOrder
+- id
+- company
+- reference / number
+- supplier
+- branch
+- status
+- purchase_type
+- order_date
+- origin_country
+- incoterms
+- shipping_method
+- bill_of_lading_no
+- container_no
+- shipped_date
+- eta
+- notes
+- created_by
+- created_at
+- updated_at
+```
+`purchase_type`:
+```text
+domestic
+import
+```
+Status machine:
+Domestic:
+```text
+DRAFT -> ORDERED -> RECEIVED
+```
+Import:
+```text
+DRAFT -> ORDERED -> SHIPPED -> CUSTOMS -> RECEIVED
+```
+Both may transition to `CANCELLED` only where business rules permit.
+`RECEIVED` must only be reachable through the receiving service.
+6.3 PurchaseOrderLine
+Each line is the explicit acquisition record for a specific vehicle.
+```text
+PurchaseOrderLine
+- id
+- order -> PurchaseOrder
+- vehicle -> Vehicle
+- description
+- amount
+- currency
+```
+A vehicle's acquisition seller is derived through the relevant purchase line
+and purchase order.
+Do not permanently store `supplier_id` on `Vehicle`.
+Do not define `source_supplier` as "the first PO ever" without considering
+re-acquisition. If CarFlow supports a vehicle being sold and later bought back,
+the current/latest acquisition must be derived from the latest valid acquisition
+event.
+6.4 Receiving
+`receive_order()` must be:
+transactional,
+idempotent,
+concurrency-safe.
+For each vehicle line:
+confirm the line belongs to the order/company,
+append the purchase `VehicleCostLine` once,
+create/initialize current inventory stock,
+assign the receiving branch/location,
+record an inventory movement of type `RECEIVE`,
+set the order to `RECEIVED` after all lines succeed.
+Never partly receive an order and mark the whole order received unless partial
+receiving is explicitly implemented.
+---
+7. Vehicle identity and landed cost
+7.1 Vehicle
+`Vehicle` is the permanent registry identity, not the inventory status engine.
+Recommended fields:
+```text
+Vehicle
+- id
+- company
+- vin
+- make
+- model
+- year
+- color
+- mileage
+- notes
+- created_at
+- updated_at
+```
+Constraint:
+```text
+UNIQUE(company, vin)
+```
+Do not store:
+```text
+purchase_cost
+landed_cost
+profit
+balance
+```
+as mutable columns.
+7.2 VehicleCostLine
+Vehicle landed cost is an append-only stream of cost events.
+```text
+VehicleCostLine
+- id
+- company
+- vehicle
+- cost_type
+- amount
+- currency
+- description
+- source_type / source reference as designed
+- reversal_of -> VehicleCostLine nullable
+- created_by
+- transaction_date
+- created_at
+```
+`cost_type`:
+```text
+purchase
+transport
+customs
+storage
+repair
+inspection
+other
+```
+Amounts are positive. A reversal negates the original event in calculation.
+Example:
+```text
+Purchase          +20,000 USD
+Shipping           +1,500 USD
+Customs            +3,000 USD
+Bad repair entry     +700 USD
+Reversal              -700 USD
+Correct repair        +500 USD
+--------------------------------
+Net landed cost     25,000 USD
+```
+Rules:
+rows are immutable,
+deletion is forbidden,
+one original cost event may be reversed at most once unless a deliberate
+reinstatement workflow is implemented,
+a reversal must use the same company, vehicle, amount, currency, and cost
+classification as the original,
+landed cost is always calculated from net cost events.
+---
+8. Inventory architecture
+`VehicleStock` is the authoritative current inventory position.
+Do not maintain overlapping "availability" states independently on both
+`Vehicle` and `VehicleStock`.
+8.1 InventoryLocation
+A branch may contain several physical locations.
+```text
+InventoryLocation
+- id
+- company
+- branch
+- name
+- type
+- code
+- active
+- created_at
+```
+Types:
+```text
+showroom
+warehouse
+yard
+workshop
+inspection
+lot
+other
+```
+Examples:
+```text
+Kabul Main Showroom
+Kabul Warehouse A
+Kabul Workshop
+Herat Storage Yard
+```
+Constraint:
+```text
+UNIQUE(company, branch, code)    where code is populated
+```
+The location's branch must belong to the same company.
+8.2 VehicleStock
+One current stock row per vehicle.
+```text
+VehicleStock
+- id
+- company
+- vehicle                  OneToOne
+- branch
+- location
+- status
+- lot_code
+- condition
+- received_at
+- available_at
+- reserved_at
+- sold_at
+- delivered_at
+- created_at
+- updated_at
+```
+Recommended `status`:
+```text
+IN_TRANSIT
+RECEIVED
+INSPECTION
+PREPARATION
+AVAILABLE
+RESERVED
+SOLD
+DELIVERED
+```
+Not every vehicle must pass through every stage.
+Domestic example:
+```text
+RECEIVED -> AVAILABLE -> RESERVED -> SOLD -> DELIVERED
+```
+Import example:
+```text
+IN_TRANSIT -> RECEIVED -> INSPECTION -> PREPARATION
+-> AVAILABLE -> RESERVED -> SOLD -> DELIVERED
+```
+`condition` is a separate concept:
+```text
+NEW
+EXCELLENT
+GOOD
+FAIR
+DAMAGED
+NEEDS_REPAIR
+```
+Do not mix condition and availability.
+8.3 InventoryMovement
+Current location alone is insufficient. Preserve physical history.
+```text
+InventoryMovement
+- id
+- company
+- vehicle
+- movement_type
+- from_branch
+- to_branch
+- from_location
+- to_location
+- performed_by
+- moved_at
+- notes
+```
+Movement types:
+```text
+RECEIVE
+TRANSFER
+MOVE
+RESERVE
+RELEASE
+SALE
+DELIVERY
+RETURN
+ADJUSTMENT
+```
+Inventory services update `VehicleStock` and append the corresponding
+`InventoryMovement` in one transaction.
+Do not delete `VehicleStock` after sale or delivery. Historical stock data is
+required for aging and reporting.
+8.4 Inventory aging
+Derive inventory age from dates rather than storing it.
+Examples:
+```text
+days_in_inventory = today - received_at
+days_to_sale      = sold_at - received_at
+days_to_delivery  = delivered_at - received_at
+```
+Dashboard buckets:
+```text
+0-30 days
+31-60 days
+61-90 days
+90+ days
+```
+---
+9. Customers and CRM
+9.1 Customer
+```text
+Customer
+- id
+- company
+- full_name
+- phone
+- email
+- national_id
+- branch
+- notes
+- created_by
+- created_at
+- updated_at
+```
+Unknown inbound social senders may create a provisional customer identity, but
+CarFlow must never silently merge two different external identities.
+9.2 Lead
+A lead represents a sales opportunity before a complete customer record is
+necessarily required.
+```text
+Lead
+- id
+- company
+- name
+- phone
+- customer                  nullable
+- vehicle_of_interest       nullable
+- source
+- status
+- branch
+- assigned_to               nullable User
+- lost_reason               nullable
+- notes
+- created_by
+- created_at
+- updated_at
+```
+Sources:
+```text
+walk_in
+phone
+whatsapp
+messenger
+instagram
+telegram
+email
+referral
+website
+other
+```
+Statuses:
+```text
+NEW
+CONTACTED
+QUALIFIED
+CONVERTED
+LOST
+```
+Lost reasons:
+```text
+PRICE_TOO_HIGH
+BOUGHT_ELSEWHERE
+NO_RESPONSE
+FINANCING
+VEHICLE_UNAVAILABLE
+CHANGED_MIND
+OTHER
+```
+When a lead becomes a real customer:
+create or select the correct `Customer`,
+link `lead.customer`,
+set status to `CONVERTED`.
+Do not duplicate customers automatically based only on similar names.
+9.3 LeadActivity
+Recommended CRM activity history:
+```text
+LeadActivity
+- id
+- company
+- lead
+- activity_type
+- notes
+- performed_by
+- scheduled_at
+- completed_at
+- created_at
+```
+Types:
+```text
+CALL
+WHATSAPP
+EMAIL
+MEETING
+SHOWROOM_VISIT
+TEST_DRIVE
+FOLLOW_UP
+NOTE
+```
+---
+10. Quotation
+```text
+Quotation
+- id
+- company
+- number
+- customer
+- vehicle
+- lead
+- amount
+- currency
+- valid_until
+- status
+- notes
+- created_by
+- created_at
+- updated_at
+```
+Status:
+```text
+DRAFT
+SENT
+ACCEPTED
+DECLINED
+EXPIRED
+```
+Number example:
+```text
+QT-2026-000123
+```
+Rules:
+quotation number is unique per company,
+a sent/accepted quotation is commercial history,
+price revisions should normally create a new quotation or explicit revision,
+not silently rewrite an accepted quote,
+quotation customer/vehicle/lead must belong to the same company,
+quotation currency must match any reservation created from it unless a
+deliberate conversion workflow exists.
+---
+11. Reservation
+A reservation reserves inventory. It is not itself proof that money was
+received.
+```text
+Reservation
+- id
+- company
+- customer
+- vehicle
+- quotation
+- required_deposit_amount
+- currency
+- expires_at
+- status
+- notes
+- created_by
+- created_at
+- updated_at
+```
+Status:
+```text
+ACTIVE
+COMPLETED
+CANCELLED
+EXPIRED
+```
+Reservation creation
+Must be concurrency-safe.
+Within one transaction:
+lock/select the current stock row with `select_for_update()` or perform
+an atomic conditional update,
+require stock status `AVAILABLE`,
+ensure there is no other active reservation,
+create reservation,
+set `VehicleStock.status = RESERVED`,
+set `reserved_at`,
+append `InventoryMovement(RESERVE)`.
+Database constraint:
+```text
+at most one ACTIVE reservation per vehicle
+```
+`transaction.atomic()` alone is not sufficient without locking or equivalent
+atomic concurrency control.
+Reservation cancellation/expiry
+Within one transaction:
+```text
+Reservation ACTIVE -> CANCELLED / EXPIRED
+VehicleStock RESERVED -> AVAILABLE
+append InventoryMovement(RELEASE)
+```
+Celery Beat may expire overdue active reservations.
+Deposit
+`required_deposit_amount` means the requested deposit.
+Actual money received is always a ledger/payment transaction.
+Never infer "paid" from `Reservation.required_deposit_amount`.
+---
+12. Sale
+Use separate dimensions for commercial, payment, and fulfillment state.
+12.1 Sale model
+```text
+Sale
+- id
+- company
+- customer
+- vehicle
+- reservation
+- agreed_amount
+- currency
+- sale_date
+- status
+- notes
+- created_by
+- created_at
+- updated_at
+```
+Commercial `status`:
+```text
+DRAFT
+CONFIRMED
+CANCELLED
+```
+Payment and delivery states are derived where possible:
+```text
+payment_status:
+UNPAID
+PARTIAL
+PAID
+
+delivery_status:
+PENDING
+READY
+DELIVERED
+```
+Do not overload a single sale-status column with every financial and inventory
+state.
+12.2 Confirm sale
+`confirm_sale()` must be transactional and concurrency-safe.
+Requirements:
+sale is `DRAFT`,
+vehicle belongs to company,
+customer belongs to company,
+vehicle is currently reserved for this sale/customer or is explicitly
+allowed for a direct sale,
+no other confirmed sale exists for the active ownership cycle,
+inventory is locked.
+On success:
+`Sale.status = CONFIRMED`,
+complete linked active reservation,
+`VehicleStock.status = SOLD`,
+set `sold_at`,
+append `InventoryMovement(SALE)`,
+issue invoice idempotently or make it immediately available for issuance,
+enqueue customer notification after transaction commit.
+Notification failure must never roll back a valid sale.
+12.3 Cancel sale
+Cancellation rules depend on whether:
+an invoice exists,
+payments exist,
+the vehicle was delivered.
+Do not delete a confirmed financial transaction.
+Use explicit cancellation/reversal services.
+If money must be returned, record refunds/reversals in the financial ledger.
+---
+13. Invoice
+Invoice is immutable once issued.
+```text
+Invoice
+- id
+- company
+- sale                     OneToOne
+- number
+- issued_on
+- due_date
+- amount
+- currency
+- customer_snapshot
+- vehicle_snapshot
+- created_by
+- created_at
+```
+Number example:
+```text
+INV-2026-000500
+```
+Constraints:
+```text
+UNIQUE(company, number)
+UNIQUE(sale)
+```
+`issue_invoice()` is idempotent and concurrency-safe.
+Old invoices must not change because a customer later edits their address or a
+vehicle description changes. Snapshot the necessary issued-time data or store a
+permanent generated representation.
+---
+14. Financial accounts
+CarFlow must know where money physically resides.
+14.1 FinancialAccount
+```text
+FinancialAccount
+- id
+- company
+- branch                    nullable
+- name
+- account_type
+- currency
+- active
+- notes
+- created_at
+```
+Types:
+```text
+CASH
+BANK
+OTHER
+```
+Examples:
+```text
+Kabul AFN Cashbox
+Kabul USD Cashbox
+Azizi Bank AFN
+Azizi Bank USD
+Bank of America USD
+```
+An account has one native currency in the initial architecture.
+Balances are computed from ledger entries. Do not store a mutable
+`current_balance`.
+---
+15. Ledger and payments
+`LedgerEntry` is the append-only money spine.
+15.1 LedgerEntry
+Recommended target fields:
+```text
+LedgerEntry
+- id
+- company
+- entry_type
+- amount
+- currency
+- account -> FinancialAccount
+- payment_method
+- transaction_date
+- description
+- reference
+- receipt_number
+- customer                   nullable
+- sale                       nullable
+- reservation                nullable
+- purchase_order             nullable
+- supplier                   nullable/derived where useful
+- expense_category           nullable
+- reversal_of -> LedgerEntry nullable
+- created_by
+- created_at
+```
+Prefer explicit foreign keys for core financial relationships over a
+`GenericForeignKey`.
+If legacy GFK data exists, migrate it safely.
+`entry_type`:
+```text
+CUSTOMER_PAYMENT
+SUPPLIER_PAYMENT
+EXPENSE
+REFUND
+OTHER_IN
+OTHER_OUT
+```
+Direction is derived from entry type.
+Example mapping:
+```text
+CUSTOMER_PAYMENT -> IN
+SUPPLIER_PAYMENT -> OUT
+EXPENSE          -> OUT
+REFUND           -> OUT
+OTHER_IN         -> IN
+OTHER_OUT        -> OUT
+```
+All stored amounts are positive.
+15.2 Payment methods
+Initial enum:
+```text
+CASH
+BANK_TRANSFER
+CARD
+CHECK
+MOBILE_MONEY
+OTHER
+```
+15.3 Customer payment
+`record_customer_payment()` records actual money received.
+Required information should include:
+```text
+company
+customer
+amount
+currency
+financial account
+transaction date
+payment method
+sale and/or reservation context
+created_by
+```
+Optional:
+```text
+reference
+description
+receipt number
+```
+The payment currency must match the target sale/reservation currency unless an
+explicit FX workflow exists.
+After commit, CarFlow may send a `payment_recorded` notification.
+15.4 Reservation deposit
+Deposits are customer payments linked to the reservation and customer.
+When a sale is created from that reservation, accounting services include valid
+net reservation payments in the sale's paid amount.
+Do not duplicate the deposit as a second payment when converting reservation to
+sale.
+15.5 Sale payment calculations
+Never store mutable:
+```text
+sale.paid_amount
+sale.outstanding_amount
+```
+Derive:
+```text
+paid = net valid payments allocated/related to sale
+     + valid reservation deposits carried into that sale
+
+outstanding = sale.agreed_amount - paid
+```
+Payment status:
+```text
+if paid <= 0                 -> UNPAID
+if 0 < paid < agreed_amount  -> PARTIAL
+if paid >= agreed_amount     -> PAID
+```
+Business rules should decide whether overpayment is allowed and how it is
+represented.
+15.6 Supplier payment
+Supplier payments must primarily identify what purchase is being paid.
+```text
+record_supplier_payment(
+    purchase_order=...,
+    account=...,
+    amount=...,
+    currency=...,
+    ...
+)
+```
+The supplier is derived from `purchase_order.supplier` or redundantly stored
+only if a consistency check enforces equality.
+This enables:
+```text
+purchase_order_total
+supplier_paid
+supplier_outstanding
+```
+Avoid linking supplier payment only to the supplier when a concrete PO exists.
+15.7 Receipts
+Every customer payment should have a stable printable reference/receipt number.
+Example:
+```text
+RCT-2026-000182
+```
+Receipt generation must reference immutable ledger data and must not mutate the
+financial record.
+---
+16. Reversals and corrections
+Historical financial rows are never edited or deleted.
+Correction:
+```text
+original entry
+      ↑
+reversal entry
+```
+A reversal uses the same:
+company,
+monetary amount,
+currency,
+account,
+relevant business references,
+and points to `reversal_of`.
+Accounting calculations subtract the original economic effect.
+Database/service rules:
+one original entry can be reversed at most once in the normal workflow,
+an entry cannot reverse itself,
+cross-company reversal is forbidden,
+arbitrary reversal trees are forbidden,
+use an explicit reinstatement service if restoring a reversed transaction is
+ever required,
+immutable rows are protected at both Django and database level where
+practical.
+---
+17. Expenses
+Operating expenses are money out that are not capitalized into a specific
+vehicle's landed cost.
+17.1 ExpenseCategory
+```text
+ExpenseCategory
+- id
+- company
+- name
+- code
+- active
+- created_at
+```
+Examples:
+```text
+Rent
+Fuel
+Marketing
+Utilities
+Salary
+Software
+Travel
+Bank Fees
+Office Supplies
+Legal
+General
+```
+17.2 Expense workflow
+An expense is still an immutable ledger entry, not a duplicate mutable amount in
+another table.
+Expense-facing forms capture:
+```text
+transaction_date
+category
+amount
+currency
+financial account
+branch
+vendor/payee text
+reference
+description
+created_by
+```
+Then write:
+```text
+LedgerEntry.entry_type = EXPENSE
+```
+If an `Expense` wrapper/model is introduced for richer non-financial metadata,
+the ledger remains the authoritative money movement.
+17.3 Vehicle cost vs operating expense
+This distinction is mandatory.
+Costs directly attributable to acquiring/preparing a sale vehicle:
+```text
+purchase price
+vehicle shipping
+vehicle customs
+vehicle inspection
+vehicle-specific repair
+vehicle-specific storage
+vehicle-specific transport
+```
+belong in `VehicleCostLine`.
+General business costs:
+```text
+office rent
+staff salary
+marketing
+internet
+software
+office utilities
+general travel
+general bank fees
+```
+belong in expenses.
+Do not record the same economic cost as both a vehicle cost and an operating
+expense unless there is an intentional accounting allocation design.
+---
+18. Operational accounting and reporting
+The `accounting` app calculates reports from authoritative transactional data.
+18.1 Cash balance
+Per financial account:
+```text
+account_balance =
+net money in - net money out
+```
+Also aggregate by:
+branch,
+currency,
+account type,
+date range.
+18.2 Money in / money out
+Keep separate from revenue and expense recognition.
+```text
+MONEY IN != REVENUE
+MONEY OUT != BUSINESS EXPENSE
+```
+A customer may owe money on a sale even when cash has not yet arrived.
+A supplier purchase may create a payable before cash leaves the bank.
+18.3 Accounts receivable
+For confirmed/invoiced sales:
+```text
+receivable =
+sale agreed amount - net customer payments/deposits applied to sale
+```
+Report:
+```text
+customer
+sale/invoice
+due date
+currency
+amount
+paid
+outstanding
+age
+```
+Suggested aging:
+```text
+Current
+1-30 days
+31-60 days
+61-90 days
+90+ days
+```
+18.4 Accounts payable
+Per purchase order:
+```text
+payable =
+purchase order total - net supplier payments linked to order
+```
+Report by:
+supplier,
+purchase order,
+due/aging if added,
+branch,
+currency.
+18.5 Vehicle gross profit
+```text
+gross_profit =
+sale agreed amount - net vehicle landed cost
+```
+Only compare directly when sale and landed cost are in the same currency or an
+explicit FX conversion/reporting policy exists.
+```text
+gross_margin_percent =
+gross_profit / sale agreed amount * 100
+```
+Do not store these as mutable columns.
+18.6 Inventory value
+Per currency:
+```text
+inventory_value =
+sum(net landed cost of vehicles still economically in inventory)
+```
+Define whether `SOLD` but not `DELIVERED` vehicles remain in inventory-value
+reports according to business policy; document the policy in tests.
+18.7 Recommended dashboard KPIs
+Sales:
+```text
+open leads
+qualified leads
+lead conversion rate
+quotations sent
+reservations active
+confirmed sales
+sales by salesperson
+sales by branch
+```
+Inventory:
+```text
+available vehicles
+reserved vehicles
+sold pending delivery
+inventory age buckets
+vehicles in preparation
+inventory value
+```
+Finance:
+```text
+cash by account
+money in
+money out
+accounts receivable
+accounts payable
+customer outstanding
+supplier outstanding
+gross profit
+gross margin
+expenses by category
+```
+---
+19. End-to-end sales workflow
+Canonical workflow:
+```text
+LEAD
+  │
+  ▼
+QUALIFIED
+  │
+  ▼
+CUSTOMER
+  │
+  ▼
+QUOTATION
+  │
+  ▼
+ACCEPTED
+  │
+  ▼
+RESERVATION
+  │
+  ├── optional CUSTOMER PAYMENT / DEPOSIT
+  │
+  ▼
+SALE DRAFT
+  │
+  ▼
+CONFIRMED
+  │
+  ▼
+INVOICE
+  │
+  ├── PAYMENT #1
+  ├── PAYMENT #2
+  └── PAYMENT #N
+  │
+  ▼
+PAID / OUTSTANDING
+  │
+  ▼
+READY FOR DELIVERY
+  │
+  ▼
+DELIVERED
+```
+Example:
+```text
+Quotation               31,500 USD
+Reservation deposit      2,000 USD
+Payment #2              15,000 USD
+Payment #3               5,000 USD
+-----------------------------------
+Paid                     22,000 USD
+Outstanding               9,500 USD
+```
+If landed cost is:
+```text
+25,100 USD
+```
+then:
+```text
+Gross profit = 6,400 USD
+```
+---
+20. End-to-end supplier workflow
+```text
+SELLER / SUPPLIER
+       │
+       ▼
+PURCHASE ORDER
+       │
+       ├── Vehicle A
+       ├── Vehicle B
+       └── Vehicle C
+       │
+       ▼
+RECEIVING
+       │
+       ├── VehicleCostLine(purchase)
+       ├── VehicleStock
+       └── InventoryMovement(RECEIVE)
+       │
+       ▼
+SUPPLIER PAYMENTS
+       │
+       ▼
+PURCHASE OUTSTANDING / ACCOUNTS PAYABLE
+```
+Example:
+```text
+PO total              100,000 USD
+Payment #1             20,000 USD
+Payment #2             50,000 USD
+---------------------------------
+Paid                   70,000 USD
+Outstanding            30,000 USD
+```
+---
+21. Delivery workflow
+A vehicle being sold and a vehicle physically leaving AUTOMEX are different
+events.
+```text
+CONFIRMED SALE
+     │
+     ▼
+VehicleStock = SOLD
+     │
+     ├── collect remaining payment
+     ├── complete paperwork
+     └── prepare vehicle
+     │
+     ▼
+READY
+     │
+     ▼
+DELIVER
+     │
+     ▼
+VehicleStock = DELIVERED
+delivered_at set
+InventoryMovement(DELIVERY)
+```
+Do not delete the stock row after delivery.
+---
+22. Documents
+`Document` may attach to supported business entities.
+At minimum:
+```text
+Document
+- id
+- company
+- vehicle          nullable
+- customer         nullable
+- supplier         nullable
+- doc_type
+- title
+- file
+- uploaded_by
+- created_at
+```
+If retaining the three-FK design, enforce exactly one target with a database
+`CheckConstraint`, not only form validation.
+Document target must belong to the same company.
+Recommended document types include:
+Vehicle:
+```text
+vehicle_photo
+license
+sale_document
+insurance
+customs
+inspection
+vehicle_document
+```
+Customer:
+```text
+customer_photo
+tazkera
+passport
+electricity_bill
+other_bill
+customer_document
+```
+Supplier:
+```text
+supplier_logo
+supplier_photo
+supplier_license
+supplier_document
+```
+Plus:
+```text
+other
+```
+Storage selection is configured in settings; app code uses Django storage APIs.
+---
+23. Conversation Hub
+23.1 Channel
+```text
+Channel
+- id
+- company
+- type
+- provider_account_id
+- secret_reference / encrypted credentials strategy
+- active
+```
+Supported types may include:
+```text
+whatsapp
+messenger
+instagram
+telegram
+email
+sms
+```
+Do not store long-lived provider secrets as readable plain JSON when avoidable.
+Use external secrets or encryption-at-rest with a key outside PostgreSQL.
+23.2 CustomerChannelIdentity
+```text
+CustomerChannelIdentity
+- company
+- customer
+- channel
+- external_id
+- created_at
+```
+Constraint:
+```text
+UNIQUE(company, channel, external_id)
+```
+23.3 Conversation
+```text
+Conversation
+- company
+- customer
+- channel
+- external_thread_id
+- assigned_to
+- status
+- last_message_at
+```
+23.4 Message
+```text
+Message
+- company
+- conversation
+- direction
+- body
+- media
+- external_message_id
+- status
+- raw_payload
+- created_at
+```
+Deduplication should be scoped to the provider account/channel:
+```text
+UNIQUE(channel, external_message_id)
+```
+where `external_message_id` is populated.
+Do not rely on `UNIQUE(company, external_message_id)` across unrelated
+providers.
+23.5 Inbound webhooks
+Flow:
+```text
+provider webhook
+-> verify signature
+-> identify exact provider account/channel
+-> enqueue raw event
+-> return fast success
+-> worker parses
+-> deduplicates
+-> resolves identity/customer
+-> creates Message
+```
+Do not replay every webhook against every active Meta channel.
+Resolve the channel from provider identifiers such as page/account/phone-number
+IDs before processing.
+Unknown sender behavior:
+```text
+known external identity -> existing customer
+unknown external identity -> provisional/new customer + new identity
+```
+Never silently merge unknown senders.
+23.6 Raw payload retention
+Raw payloads are useful for troubleshooting but may contain personal data.
+Implement a documented retention policy, for example 30-90 days, and redact
+secrets/tokens before persistence.
+---
+24. Notifications
+Business code calls only:
+```python
+notification_engine.notify(
+    event=...,
+    company=...,
+    customer=...,
+    context=...,
+)
+```
+Known events may include:
+```text
+quotation_sent
+reservation_created
+reservation_expiring
+sale_confirmed
+payment_recorded
+payment_due
+vehicle_ready
+vehicle_delivered
+```
+Sending is best-effort and must not invalidate the underlying business
+transaction.
+Use `transaction.on_commit()` before enqueueing notifications generated by a
+database transaction.
+Disabled adapters create a clear skipped status and do not crash business code.
+---
+25. Multi-tenancy details
+25.1 TenantModel
+Abstract base:
+```text
+company -> Organization (PROTECT)
+objects -> fail-closed TenantManager
+all_objects -> explicit unfiltered manager
+```
+`TenantManager.get_queryset()`:
+```text
+tenant context present -> filter company
+tenant context missing -> raise NoTenantContext
+```
+Do not return all rows by default when context is absent.
+25.2 Cross-tenant relationship integrity
+Every service must validate same-company relationships.
+Examples:
+```text
+Sale.company == Sale.customer.company
+Sale.company == Sale.vehicle.company
+Reservation.company == Reservation.vehicle.company
+PurchaseOrder.company == PurchaseOrder.supplier.company
+VehicleStock.company == VehicleStock.vehicle.company
+Conversation.company == Conversation.customer.company
+Conversation.company == Conversation.channel.company
+Document.company == attached target.company
+LedgerEntry.company == referenced business objects.company
+```
+Use database-level enforcement where practical for the highest-risk
+relationships.
+---
+26. Concurrency rules
+Critical workflows must be tested under concurrent PostgreSQL transactions.
+Reservation
+Two users cannot reserve one vehicle.
+Use:
+```python
+select_for_update()
+```
+or an atomic conditional update plus database uniqueness.
+Sale
+Two sales cannot confirm against the same available ownership cycle.
+Lock the stock/reservation rows.
+Invoice
+Two requests cannot issue two invoices for one sale.
+Use `OneToOneField` / unique DB constraint and transactional idempotency.
+Receiving
+Two workers cannot receive the same PO/line twice.
+Use row locks and idempotency constraints.
+Reversal
+Two users cannot reverse the same ledger/cost entry twice.
+Use uniqueness on `reversal_of`.
+---
+27. Audit
+Use `django-simple-history` for mutable business records such as:
+```text
+Vehicle
+VehicleStock
+InventoryLocation
+Supplier
+PurchaseOrder
+Customer
+Lead
+Quotation
+Reservation
+Sale
+```
+Include inventory movements as explicit event history.
+Immutable rows such as:
+```text
+LedgerEntry
+VehicleCostLine
+Invoice
+```
+do not need ordinary edit history because they are append-only, but their
+creation user/time and reversal relationships must be preserved.
+---
+28. Database constraints checklist
+Coding agents must implement these or equivalent protections where supported.
+Identity
+```text
+Vehicle: UNIQUE(company, vin)
+Branch: UNIQUE(company, name)
+Quotation: UNIQUE(company, number)
+Invoice: UNIQUE(company, number)
+Invoice: UNIQUE(sale)
+```
+Workflow
+```text
+Reservation: max one ACTIVE reservation per vehicle
+LedgerEntry: max one normal reversal per original entry
+VehicleCostLine: max one normal reversal per original entry
+Message: UNIQUE(channel, external_message_id) when populated
+CustomerChannelIdentity: UNIQUE(company, channel, external_id)
+VehicleStock: OneToOne(vehicle)
+```
+Documents
+Exactly one document target if using the multi-FK design.
+Money
+```text
+amount > 0
+currency is valid
+account currency == ledger currency
+```
+unless a dedicated FX workflow is introduced.
+---
+29. Service-layer boundaries
+Views should be thin.
+Business mutations belong in domain services, for example:
+```text
+purchases/services.py
+- receive_order(...)
+- add_vehicle_cost(...)
+- reverse_vehicle_cost(...)
+
+inventory/services.py
+- receive_vehicle(...)
+- transfer_vehicle(...)
+- move_vehicle(...)
+- start_inspection(...)
+- mark_available(...)
+- release_reservation(...)
+- deliver_vehicle(...)
+
+sales/services.py
+- convert_lead(...)
+- create_reservation(...)
+- expire_reservation(...)
+- cancel_reservation(...)
+- confirm_sale(...)
+- cancel_sale(...)
+- issue_invoice(...)
+
+payments/services.py
+- record_customer_payment(...)
+- record_supplier_payment(...)
+- record_expense(...)
+- reverse_entry(...)
+
+accounting/services.py
+- account_balance(...)
+- money_in(...)
+- money_out(...)
+- sale_payments(...)
+- sale_outstanding(...)
+- purchase_payments(...)
+- purchase_outstanding(...)
+- accounts_receivable(...)
+- accounts_payable(...)
+- vehicle_gross_profit(...)
+- inventory_value(...)
+```
+Do not hide major business mutations in model `save()` signals.
+Explicit services are easier to reason about, test, and make transactional.
+---
+30. Data integrity vs cached/derived fields
+Do not persist derived monetary values merely for convenience.
+Derived:
+```text
+vehicle landed cost
+sale paid amount
+sale outstanding
+purchase paid amount
+purchase outstanding
+financial account balance
+gross profit
+gross margin
+inventory age
+AR/AP totals
+```
+If performance later requires materialized/cached values, introduce them only
+with:
+clear ownership,
+invalidation strategy,
+reconciliation tests,
+ability to recompute from authoritative events.
+---
+31. Technology stack
+Layer	Technology
+Language / framework	Python 3.12 · Django 5.2 LTS
+Frontend	Django Templates + Tailwind CSS
+Database	PostgreSQL 16
+Cache / broker	Redis 7
+Async	Celery + Celery Beat
+App server	Gunicorn
+Reverse proxy	Nginx
+Storage	Django storage API; local / S3-compatible
+Audit	`django-simple-history`
+Testing	pytest · pytest-django · factory_boy
+---
+32. Docker architecture
+One app image, three roles:
+```text
+web     -> Gunicorn
+worker  -> Celery worker
+beat    -> Celery Beat
+```
+Only one controlled deployment step should run migrations.
+Do not rely on multiple replicas simultaneously invoking `migrate`.
+Services:
+```text
+nginx
+web
+worker
+beat
+postgres
+redis
+```
+Development may use Django's development server and bind-mounted source.
+---
+33. Repository layout
+Recommended structure:
+```text
 car-flow/
-├── apps/                        # Django apps (one package per domain)
-│   ├── core/                    # tenancy, immutability, test factories
-│   ├── communications/          # Conversation Hub
-│   ├── payments/                # append-only ledger
-│   ├── accounting/              # computed aggregates
-│   └── ...                      # (see architecture table)
+├── apps/
+│   ├── core/
+│   ├── organizations/
+│   ├── branches/
+│   ├── accounts/
+│   ├── suppliers/
+│   ├── vehicles/
+│   ├── purchases/
+│   ├── inventory/
+│   ├── customers/
+│   ├── sales/
+│   ├── payments/
+│   ├── expenses/
+│   ├── accounting/
+│   ├── documents/
+│   ├── communications/
+│   └── audit/
 ├── config/
 │   ├── settings/
-│   │   ├── base.py              # shared settings + integration toggles
-│   │   ├── dev.py               # development (DEBUG, eager Celery)
-│   │   ├── test.py              # pytest (SQLite, all integrations off)
-│   │   └── prod.py              # production (secure cookies, logging)
-│   ├── urls.py                  # all app URLs + /webhooks/meta/
-│   ├── celery.py                # Celery app
-│   └── checks.py                # toggle-validation system checks
+│   │   ├── base.py
+│   │   ├── dev.py
+│   │   ├── test.py
+│   │   └── prod.py
+│   ├── urls.py
+│   ├── celery.py
+│   └── checks.py
 ├── docker/
-│   ├── web/Dockerfile           # multi-stage: builder / dev / runtime
-│   ├── entrypoint.sh            # DB wait + migrate (web only) + role start
-│   └── nginx/nginx.conf         # static/media serving + proxy
-├── locale/{en,prs,ps}/          # translation catalogs (.po sources)
-├── requirements/                # base / dev / prod dependency sets
-├── scripts/                     # helper scripts
-├── static/, templates/          # global assets + base templates
-├── docker-compose.yml           # production stack
-├── docker-compose.override.yml  # dev overrides (applied automatically)
-├── .env.example                 # template for your local .env
-├── pytest.ini                   # test configuration
-├── README.md / PRODUCTION.md    # documentation
-└── agent.md                     # authoritative build specification
+│   ├── web/Dockerfile
+│   ├── entrypoint.sh
+│   └── nginx/nginx.conf
+├── locale/
+├── requirements/
+├── scripts/
+├── static/
+├── templates/
+├── docker-compose.yml
+├── docker-compose.override.yml
+├── .env.example
+├── pytest.ini
+├── README.md
+├── PRODUCTION.md
+└── agent.md
 ```
-
 ---
-
-## Prerequisites
-
-| Requirement | Details |
-|---|---|
-| **Docker Desktop** with Compose plugin | Docker Engine ≥ 24, Compose ≥ 2.20. |
-| **WSL 2** *(Windows only)* | `wsl --install` as administrator → reboot → enable the WSL backend in Docker Desktop settings. |
-| **Git** | For cloning the repository. |
-| **Free host port** | Default **8765** ([changeable](#ports)). |
-
-Python, Node.js, PostgreSQL and Redis are **not** required on the host —
-everything runs in containers. (Optional host tooling: Python + venv for
-faster test loops, Node for Tailwind rebuilds.)
-
----
-
-## Quick start
-
-Works identically on Windows (PowerShell), macOS and Linux.
-
+34. Quick start
+Example development workflow:
 ```bash
-# 1. Clone
-git clone https://github.com/hakim402/car-flow.git
+git clone <repository-url>
 cd car-flow
 
-# 2. Create your environment file
-cp .env.example .env                  # PowerShell: Copy-Item .env.example .env
-
-# 3. Edit .env — minimum changes:
-#    • DJANGO_SECRET_KEY  → long random value
-#      (generate: docker run --rm python:3.12-slim python -c "import secrets;print(secrets.token_urlsafe(50))")
-#    • DB_PASSWORD        → a private password
-#    • leave every *_ENABLED flag False and every credential blank
-
-# 4. Build and start (first build takes several minutes)
+cp .env.example .env
 docker compose up --build
-
-# 5. Verify
-#    http://localhost:8000           → redirects to the login page
 ```
+Minimum environment configuration:
+```text
+DJANGO_SECRET_KEY=<strong random value>
+DB_PASSWORD=<private password>
 
-`docker compose up` automatically applies `docker-compose.override.yml`
-(development mode: source bind-mounted, Django dev server with auto-reload,
-DEBUG on, Nginx dormant) and serves on **http://localhost:8000**. Migrations
-run automatically in the `web` container on every start.
-
-> **Two modes, two ports:** bare `docker compose ...` = development on
-> `DEV_PORT` (default **8000**); `docker compose -f docker-compose.yml ...` =
-> production (Nginx + Gunicorn) on `NGINX_PORT` (default **8765**).
-> Containers share the same names, so run only one mode at a time:
-> `docker compose down` before switching.
-
-Sanity check from a terminal:
-
+all *_ENABLED provider flags = False
+provider credentials = blank
+```
+Verify:
 ```bash
-curl -s -o /dev/null -w "%{http_code}\n" http://localhost:8000/accounts/login/
-# → 200  (production stack: use http://localhost:8765 instead)
+curl -I http://localhost:8000/accounts/login/
 ```
-
+Production should be served through TLS and Nginx/Gunicorn.
 ---
-
-## Users, companies, and roles
-
-Everything sits behind login. Roles are seeded by migrations.
-
-### Step 1 — create a Super Admin
-
-The only role allowed into Django Admin (`/admin/`):
-
+35. Configuration contract
+All secrets/config are environment-driven.
+Core:
+```text
+DJANGO_SECRET_KEY
+DJANGO_DEBUG
+DJANGO_ALLOWED_HOSTS
+DJANGO_CSRF_TRUSTED_ORIGINS
+DJANGO_SETTINGS_MODULE
+```
+Database:
+```text
+DB_NAME
+DB_USER
+DB_PASSWORD
+DB_HOST
+DB_PORT
+```
+Redis/Celery:
+```text
+REDIS_URL
+CELERY_BROKER_URL
+CELERY_RESULT_BACKEND
+```
+Storage:
+```text
+S3_ENABLED
+S3_ENDPOINT_URL
+S3_ACCESS_KEY_ID
+S3_SECRET_ACCESS_KEY
+S3_BUCKET_NAME
+```
+Integrations must have:
+```text
+<PROVIDER>_ENABLED=False
+```
+by default.
+A Django system check must reject an enabled integration with missing required
+credentials.
+---
+36. Security
+Minimum production requirements:
+HTTPS.
+Secure session and CSRF cookies.
+`DEBUG=False`.
+Strict `ALLOWED_HOSTS`.
+CSRF trusted origins configured.
+`X-Frame-Options` or CSP frame policy.
+Content-type sniffing protection.
+Secrets excluded from Git.
+Super Admin only in Django Admin.
+Least-privilege role permissions.
+Tenant fail-closed manager.
+Same-company relationship validation.
+File upload validation.
+Provider webhook signature verification.
+Rate limiting on sensitive public endpoints where appropriate.
+Database backups.
+S3 bucket/private media policy where applicable.
+No plaintext tenant provider secrets if avoidable.
+---
+37. Testing strategy
+Fast tests are useful, but PostgreSQL integration tests are mandatory for
+critical invariants.
+37.1 Unit tests
+Cover:
+```text
+service validation
+status transitions
+accounting calculations
+permission checks
+money/currency validation
+notification adapter selection
+```
+37.2 PostgreSQL integration tests
+Mandatory cases:
+```text
+two users reserve same vehicle
+two users confirm sale against same vehicle
+two requests issue invoice simultaneously
+two users reverse same payment simultaneously
+two workers receive same PO
+cross-tenant FK/reference attempt
+tenant manager without context
+duplicate provider webhook
+reservation expiry release
+deposit carried into sale once
+supplier payment updates correct PO outstanding
+vehicle-cost reversal changes landed cost correctly
+document exactly-one-target DB constraint
+```
+Do not rely only on SQLite for transaction, locking, partial-unique, JSON, or
+PostgreSQL-specific constraint behavior.
+37.3 Required invariant gates
+CI must fail if:
+integrations-off boot fails,
+tenant isolation fails,
+immutable monetary rows can be edited/deleted,
+duplicate active reservation is possible,
+duplicate invoice for sale is possible,
+duplicate reversal is possible,
+accounting net calculations disagree with ledger events.
+---
+38. Internationalization and RTL
+Supported:
+```text
+en   English
+prs  Dari
+ps   Pashto
+```
+Dari and Pashto render RTL.
+Rules:
+every user-facing server-rendered string is translatable,
+use logical Tailwind/CSS properties (`ms-*`, `me-*`, `text-start`,
+`text-end`) instead of hard-coded left/right where possible,
+user language preference persists,
+`<html lang="..." dir="...">` must be correct.
+Typical catalog flow:
 ```bash
-docker compose exec web python manage.py createsuperuser
+python manage.py makemessages -l en -l prs -l ps
+python manage.py compilemessages
 ```
-
-### Step 2 — create a company and staff via Admin
-
-Log in at `http://localhost:8000/admin/` (dev) — or `http://localhost:8765/admin/`
-on the production stack — and create, in order:
-
-1. **Organization** — a company/tenant.
-2. **Branch** *(optional)* — belongs to the organization.
-3. **User** — assign `company` (required), optionally `branch`, one or more
-   `roles`, and a `preferred_language` (`en` / `prs` / `ps`).
-
-> A Super Admin has no company. Every regular user belongs to exactly one
-> company — that company is the tenant all their data is scoped to.
-
-### Alternative — create a company + org admin from the shell
-
+---
+39. Observability
+Development:
+```text
+Docker logs
+Django logs
+Celery logs
+PostgreSQL health
+Redis health
+```
+Production recommendation:
+```text
+structured JSON logs
+Sentry (errors)
+metrics (Prometheus-compatible or equivalent)
+dashboarding (Grafana or equivalent)
+Celery task failure monitoring
+database health/backup alerts
+```
+Financial/business service failures should log:
+```text
+company
+user
+operation
+business object IDs
+correlation/request ID
+```
+without leaking credentials or sensitive payloads.
+---
+40. Backups
+Back up both:
+PostgreSQL.
+Media/object storage.
+A database backup without vehicle/customer documents is incomplete.
+Example PostgreSQL backup:
 ```bash
-docker compose exec web python manage.py shell
+docker compose exec -T db \
+  pg_dump -U carflow -d carflow > backup_$(date +%F).sql
 ```
-
-```python
-from apps.organizations.models import Organization
-from apps.accounts.models import Role, User
-
-org = Organization.objects.create(name="AUTOMEX Kabul")
-user = User.objects.create_user(
-    username="manager", password="change-me-strong", company=org,
-)
-user.roles.add(Role.objects.get(key="org_admin"))
-user.save()   # re-save keeps is_staff in sync with the role set
+Test restore procedures periodically.
+Production backup policy should define:
+```text
+frequency
+retention
+encryption
+offsite copy
+restore test schedule
+RPO
+RTO
 ```
-
-### Seeded roles
-
-| Key | Purpose |
-|---|---|
-| `super_admin` | Platform owner; sole Admin access; no company |
-| `org_admin` | Runs a company (branches, users, all data) |
-| `branch_manager` | Manages one branch |
-| `sales` | Pipeline and payments |
-| `inventory` | Vehicles, stock, receiving |
-| `accountant` | Payments, expenses, accounting |
-
-Custom roles and granular permissions are plain database rows — see
-[`PRODUCTION.md` §5](PRODUCTION.md#5-users-companies-branches-roles).
-
-### Password resets
-
-```bash
-docker compose exec web python manage.py changepassword <username>
+---
+41. Migration guidance for coding agents
+The existing implementation may still reflect the older architecture.
+Agents must make incremental migrations; do not destructively reset production
+data.
+Recommended order:
+Phase 1 — integrity foundation
+Make tenant manager fail closed.
+Add same-company service validation.
+Add DB constraints for:
+one invoice per sale,
+one active reservation per vehicle,
+one reversal per original ledger entry,
+document exactly one target.
+Add PostgreSQL concurrency tests.
+Phase 2 — inventory redesign
+Add `InventoryLocation`.
+Add `InventoryMovement`.
+Expand/migrate `VehicleStock`.
+Make `VehicleStock` the authoritative inventory state.
+Remove/deprecate overlapping availability state from `Vehicle`.
+Update purchasing/reservation/sale services.
+Phase 3 — financial account/payment redesign
+Add `FinancialAccount`.
+Add `transaction_date`, payment method, account, reference, receipt number.
+Replace/migrate core GFK payment relationships with explicit references.
+Link supplier payment to `PurchaseOrder`.
+Support reservation deposits as true payments.
+Protect immutable ledger rows at DB level.
+Prevent duplicate reversals.
+Phase 4 — landed-cost correction
+Add `reversal_of` to `VehicleCostLine`.
+Migrate cost calculation to net events.
+Protect cost rows at DB level.
+Add reversal tests.
+Phase 5 — CRM/sales improvements
+Add lead assignment and lost reason.
+Add `LeadActivity`.
+Add quotation number/revision approach.
+Add reservation expiry.
+Split commercial/payment/delivery state semantics.
+Add invoice due date and snapshots.
+Phase 6 — reporting
+Add:
+```text
+account balances
+AR
+AP
+vehicle gross profit
+gross margin
+inventory aging
+inventory value
+expense-by-category
+salesperson/branch performance
 ```
+Every phase must include migrations and tests.
+---
+42. Coding-agent rules
+These rules are mandatory.
+Do not rewrite unrelated modules while implementing one feature.
+Do not delete historical business/financial data to simplify a migration.
+Write data migrations when semantics change.
+Use PostgreSQL constraints for critical invariants.
+Use transactions for multi-row business changes.
+Use row locks/atomic conditional writes for concurrency-sensitive flows.
+Never trust client-provided tenant IDs.
+Never silently convert currency.
+Never store derived balances/profits as authoritative fields.
+Never update/delete immutable financial/cost records.
+Never treat a reservation deposit amount field as an actual payment.
+Never record supplier payment without its PO when the PO is known.
+Never duplicate one economic event as both vehicle cost and general
+expense without an intentional allocation rule.
+Never send provider API calls directly from sales/payments/purchases.
+Enqueue non-critical notifications only after DB commit.
+Never rely on form validation for critical database invariants.
+Keep views thin; business mutations belong in services.
+Add tests for every new state transition and constraint.
+Preserve English/Dari/Pashto and RTL compatibility.
+Update this README and migrations together when architecture changes.
+---
+43. Definition of done for a business feature
+A feature is not complete when only the UI works.
+It is complete when:
+model/schema is correct,
+tenant rules are enforced,
+permissions are enforced,
+service API exists,
+transaction/concurrency behavior is correct,
+database constraints exist where needed,
+audit/immutability behavior is correct,
+translations are supported,
+tests exist,
+PostgreSQL integration tests pass where applicable,
+failure behavior is defined,
+documentation is updated.
+---
+44. Final target workflow
+```text
+                           AUTOMEX CARFLOW
 
-### Resetting the whole environment
+SELLER / SUPPLIER
+       │
+       ▼
+PURCHASE ORDER
+       │
+       ├────────► SUPPLIER PAYMENTS ─────► ACCOUNTS PAYABLE
+       │
+       ▼
+VEHICLE ACQUISITION
+       │
+       ▼
+LANDED COST EVENTS
+       │
+       ▼
+RECEIVING
+       │
+       ▼
+INVENTORY
+       │
+       ├── Location
+       ├── Movement History
+       ├── Inspection
+       ├── Preparation
+       └── Available
+       │
+       ▼
+LEAD / CUSTOMER
+       │
+       ▼
+QUOTATION
+       │
+       ▼
+RESERVATION
+       │
+       ├────────► DEPOSIT / PAYMENT
+       │
+       ▼
+SALE
+       │
+       ▼
+INVOICE
+       │
+       ├────────► CUSTOMER PAYMENTS ─────► ACCOUNTS RECEIVABLE
+       │
+       ▼
+SOLD / READY
+       │
+       ▼
+DELIVERED
+       │
+       ▼
+VEHICLE GROSS PROFIT
 
-```bash
-docker compose down -v     # stops containers AND deletes DB/media volumes
-docker compose up --build  # fresh, migrated database
+GENERAL OPERATING EXPENSES
+       │
+       ▼
+FINANCIAL LEDGER
+       │
+       ▼
+FINANCIAL ACCOUNTS
+       │
+       ▼
+CASH / BANK POSITION
+
+ALL AUTHORITATIVE EVENTS
+       │
+       ▼
+ACCOUNTING & MANAGEMENT REPORTING
 ```
-
-> ⚠️ `-v` wipes the database. Never use it against production.
-
----
-
-## Configuration reference (`.env`)
-
-All configuration is environment-driven. The full documented template is
-[`.env.example`](.env.example).
-
-### Core
-
-| Variable | Default | Description |
-|---|---|---|
-| `DJANGO_SECRET_KEY` | — | **Required.** Long random secret for signing. |
-| `DJANGO_DEBUG` | `False` | Never `True` outside local development. |
-| `DJANGO_ALLOWED_HOSTS` | `localhost,127.0.0.1` | Comma-separated hostnames served. |
-| `DJANGO_SETTINGS_MODULE` | set by compose | `dev` / `test` / `prod` — usually untouched. |
-
-### Database & Redis
-
-| Variable | Default | Description |
-|---|---|---|
-| `DB_NAME` / `DB_USER` / `DB_PASSWORD` | `carflow`/`carflow`/— | Used by the app **and** the `db` container. |
-| `DB_HOST` / `DB_PORT` | `db` / `5432` | Point elsewhere for an external PostgreSQL. |
-| `REDIS_URL` | `redis://redis:6379/0` | Django cache + Celery broker/backend. |
-
-### Ports & servers
-
-| Variable | Default | Description |
-|---|---|---|
-| `NGINX_PORT` | `8765` | Host port mapped to Nginx (production). |
-| `DEV_PORT` | `8765` | Host port mapped to the dev server (development). |
-| `GUNICORN_WORKERS` | `3` | Gunicorn worker processes (production). |
-| `GUNICORN_TIMEOUT` | `60` | Worker timeout in seconds. |
-
-### Security
-
-| Variable | Default | Description |
-|---|---|---|
-| `COOKIES_SECURE` | `True` | HTTPS-only session/CSRF cookies. Set `False` **only** for plain-HTTP deployments, or every form POST fails with a CSRF 403. |
-
-### Integration toggles
-
-Every provider follows the same pattern: one `*_ENABLED` master flag plus
-credential variables. When the flag is `False`, credentials may be blank and
-the system uses Null/console adapters.
-
-| Provider | Flag | Credentials |
-|---|---|---|
-| WhatsApp / Messenger / Instagram | `META_ENABLED` | `META_APP_ID`, `META_APP_SECRET`, `META_ACCESS_TOKEN`, `META_WEBHOOK_VERIFY_TOKEN`, `META_WHATSAPP_PHONE_NUMBER_ID`, `META_MESSENGER_PAGE_ID`, `META_INSTAGRAM_PAGE_ID` |
-| Telegram | `TELEGRAM_ENABLED` | `TELEGRAM_BOT_TOKEN` *(adapter arrives in Phase 2)* |
-| SMS | `SMS_ENABLED` | `SMS_GATEWAY_URL`, `SMS_GATEWAY_API_KEY` |
-| Email | `EMAIL_ENABLED` | `EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_HOST_USER`, `EMAIL_HOST_PASSWORD`, `EMAIL_USE_TLS`, `DEFAULT_FROM_EMAIL` |
-| S3 storage | `S3_ENABLED` | `S3_ENDPOINT_URL`, `S3_ACCESS_KEY`, `S3_SECRET_KEY`, `S3_BUCKET_NAME` |
-
-**Contract:** the app must boot with every flag `False` and every credential
-blank — this is enforced by the test suite.
-
----
-
-## Everyday Docker commands
-
-All commands run from the repository root.
-
-### Service lifecycle
-
-| Task | Command |
-|---|---|
-| Start (foreground logs, Ctrl+C stops) | `docker compose up` |
-| Start detached | `docker compose up -d` |
-| Build images (after dependency/Dockerfile changes) | `docker compose build` |
-| Build + (re)start detached | `docker compose up -d --build` |
-| Restart one service | `docker compose restart web` |
-| Force-recreate a container (env changed) | `docker compose up -d --force-recreate web` |
-| Stop (keeps data) | `docker compose down` |
-| Stop **and delete data** | `docker compose down -v` |
-| Service status / ports | `docker compose ps` |
-| List images | `docker images automex-carflow` |
-| Disk usage | `docker system df` |
-
-> Add `-f docker-compose.yml` to any command to target the **production**
-> stack explicitly (skips the dev override), e.g.
-> `docker compose -f docker-compose.yml ps`.
-
-### Application access
-
-| Task | Command |
-|---|---|
-| Django shell | `docker compose exec web python manage.py shell` |
-| Database shell (psql) | `docker compose exec db psql -U carflow -d carflow` |
-| Redis CLI | `docker compose exec redis redis-cli` |
-| Shell inside the app container | `docker compose exec web sh` |
-| One-off command in a **fresh** container | `docker compose run --rm web <cmd>` |
-
-### Django management
-
-| Task | Command |
-|---|---|
-| Run migrations manually | `docker compose exec web python manage.py migrate` |
-| Show migration state | `docker compose exec web python manage.py showmigrations` |
-| Create migrations after model edits | `docker compose exec web python manage.py makemigrations <app>` |
-| System checks | `docker compose exec web python manage.py check` |
-| Create Super Admin | `docker compose exec web python manage.py createsuperuser` |
-| Change password | `docker compose exec web python manage.py changepassword <user>` |
-| Show URLs | `docker compose exec web python manage.py show_urls` *(if installed)* or read `config/urls.py` |
-| Collect static files | done at image build time; rebuild the image if needed |
-
----
-
-## Logging & observability
-
-### Reading logs
-
-| What | Command |
-|---|---|
-| **All services, live** | `docker compose logs -f` |
-| One service, live | `docker compose logs -f web` |
-| Several services | `docker compose logs -f web worker` |
-| Last N lines | `docker compose logs --tail 100 web` |
-| Since a time window | `docker compose logs --since 30m web` |
-| With timestamps | `docker compose logs -f -t web` |
-| Plain docker (container name) | `docker logs -f automex-car-flow-web-1` |
-
-Container names follow `automex-car-flow-<service>-1`: `web`, `worker`,
-`beat`, `db`, `redis` (add `-f docker-compose.yml` for the prod stack).
-
-### What to look for per service
-
-| Service | Healthy log signature |
-|---|---|
-| `web` | `==> Migrations complete.` then `Starting Gunicorn...` / `Starting Django dev server...` |
-| `worker` | `celery@<host> ready.` and `Connected to redis://redis:6379/0` |
-| `beat` | `beat: Starting...` |
-| `db` | `database system is ready to accept connections` |
-
-### Log levels
-
-Production logging is configured in `config/settings/prod.py`
-(console handler, structured single-line format). Adjust via env when
-starting the stack, e.g. `DJANGO_LOG_LEVEL=DEBUG` in `.env`, then
-`docker compose up -d --force-recreate web`. Celery verbosity:
-`CELERY_LOG_LEVEL=debug`.
-
-### Saving logs to a file
-
-```bash
-docker compose logs --no-color web > web.log          # snapshot
-docker compose logs -f web 2>&1 | Tee-Object -FilePath web.log   # live (PowerShell)
-docker compose logs -f web 2>&1 | tee web.log                    # bash
+The central design objective is simple:
+> Every important business question must be answerable from traceable,
+> tenant-safe, transactionally correct source data without manually fixing
+> conflicting status or balance fields.
+Examples:
+```text
+Who did we buy this vehicle from?
+What did this vehicle really cost?
+Where is the vehicle now?
+Where has it been?
+Who is it reserved for?
+How much has the customer paid?
+How much does the customer still owe?
+Which bank/cashbox received the money?
+How much do we still owe the supplier for this PO?
+What did we spend on general operations?
+What was the gross profit on this vehicle?
+Who changed the business record?
+What financial correction reversed the original entry?
 ```
-
-### Health checks
-
-```bash
-docker compose ps                          # db / redis show (healthy)
-docker compose ps --format "{{.Name}}: {{.Status}}"
-# Dev stack:
-curl -s -o /dev/null -w "%{http_code}" http://localhost:8000/accounts/login/
-# Production stack:
-curl -s -o /dev/null -w "%{http_code}" http://localhost:8765/accounts/login/
-```
-
-All services carry `restart: unless-stopped`, so they come back
-automatically after a Docker Desktop / machine restart.
-
-### Live inspection / debugging
-
-```bash
-docker compose exec web python manage.py shell          # ORM queries
-docker compose exec db psql -U carflow -d carflow \
-  -c "select count(*) from payments_ledgerentry;"       # direct DB look
-docker stats                                            # CPU/RAM per container
-docker compose exec web sh -c "ls /app/media"           # inspect volumes
-```
-
-### Webhook traffic
-
-Meta webhook endpoint: `/webhooks/meta/`.
-- Returns **503** while `META_ENABLED=False` (expected in dev).
-- Inbound payloads are stored verbatim on `Message.raw_payload` before
-  parsing — inspect them via the Conversations UI or the DB.
-
----
-
-## Development workflow
-
-### Editing code
-
-- **Python/templates:** the dev stack bind-mounts the source; the dev server
-  auto-reloads on save. Settings changes also trigger a reload.
-- **Dependencies (`requirements/*.txt`):** rebuild →
-  `docker compose build web && docker compose up -d`.
-- **Dockerfile / entrypoint:** `docker compose up -d --build`.
-- **New app:** create the package under `apps/`, add it to
-  `INSTALLED_APPS` in `config/settings/base.py`, run `makemigrations <app>`.
-
-### Model → migration loop
-
-```bash
-docker compose exec web python manage.py makemigrations <app>
-docker compose exec web python manage.py migrate
-docker compose exec web python manage.py check
-```
-
-Commit migration files together with the model changes.
-
-### Static files & Tailwind
-
-The compiled stylesheet is committed (`static/css/tailwind.css`), so ordinary
-Docker development needs **no Node**. After adding new Tailwind classes to
-templates, rebuild the stylesheet on the host:
-
-```bash
-npm run css
-# or without the package scripts:
-# npx tailwindcss@3.4.17 -i css/input.css -o static/css/tailwind.css --minify
-```
-
-In production, static files are collected at image **build time** and served
-by Nginx from the `static_files` volume.
-
-### Code conventions (short version)
-
-- All user-facing strings wrapped in `{% translate "…" %}` / `gettext_lazy`.
-- Money always as `amount + currency` (Decimal, never float).
-- Tenant-scoped models inherit `TenantModel`; never filter by client input.
-- Financial rows inherit `ImmutableModel`; corrections are reversal rows.
-- Business apps call `notification_engine.notify(...)` — never providers.
-- Tailwind logical properties only (`ms-*`, `text-start`) for RTL safety.
-
----
-
-## Testing
-
-The mandatory test gates (ledger immutability, tenant isolation,
-integrations-off boot) live in `apps/*/tests/`.
-
-```bash
-# In the container — identical environment to production
-docker compose run --rm web pytest
-docker compose run --rm web pytest -q apps/payments          # one app
-docker compose run --rm web pytest -k test_reversal          # by name
-
-# On the host (SQLite, no services needed)
-python -m venv .venv
-.venv\Scripts\pip install -r requirements/dev.txt    # Windows
-.venv\Scripts\python -m pytest                       # Windows
-# macOS/Linux: .venv/bin/pip ... && .venv/bin/python -m pytest
-```
-
-The suite runs under `config/settings/test.py`: SQLite, eager Celery, and
-**every `*_ENABLED` flag off with empty credentials** — the suite itself is
-the integrations-off boot gate.
-
----
-
-## Internationalization (i18n)
-
-Languages: `en` (English), `prs` (Dari, RTL), `ps` (Pashto, RTL).
-`prs` and `ps` render `dir="rtl"` automatically; users choose their language
-from the header dropdown (stored in a cookie) or via `User.preferred_language`.
-
-Workflow after adding/changing strings:
-
-```bash
-# 1. Extract into locale/{en,prs,ps}/LC_MESSAGES/django.po
-docker compose run --rm web python manage.py makemessages -l en -l prs -l ps
-
-# 2. Fill in the msgstr entries for prs / ps
-
-# 3. Compile to binary .mo catalogs
-docker compose run --rm web python manage.py compilemessages
-
-# 4. Reload the page (dev) — the production image compiles at build time
-```
-
-Hosts without GNU gettext can regenerate catalogs with
-`python scripts/extract_messages.py`, but `makemessages` in Docker is the
-canonical flow.
-
-Quick RTL check: set cookie `django_language=prs` and reload any page —
-`<html lang="prs" dir="rtl">` must appear.
-
----
-
-## Ports
-
-Dev and production use **different** host ports so the two stacks never
-collide:
-
-| Mode | Variable | Default | Mapping |
-|---|---|---|---|
-| Development | `DEV_PORT` | `8000` | `${DEV_PORT:-8000}` → Django dev server `8000` |
-| Production | `NGINX_PORT` | `8765` | `${NGINX_PORT:-8765}` → Nginx `80` |
-
-Change in `.env`, then `docker compose up -d`. Container-internal ports stay
-fixed — only the host mapping changes.
-
----
-
-## Integrations overview
-
-- **Inbound:** provider webhooks hit `/webhooks/<provider>/` → signature
-  verification → raw payload enqueued → `200` returned immediately. The
-  worker parses, deduplicates on external message IDs, resolves the customer
-  (§7.4: unknown sender ⇒ new customer, never silent merge), and stores the
-  message in the Conversation Hub.
-- **Outbound:** business events (`payment_recorded`, `sale_completed`, …)
-  call `notification_engine.notify(...)`; the engine resolves the customer's
-  active channel identities and sends through each channel's adapter.
-- **Disabled channels:** outbound attempts are persisted with status
-  `skipped_disabled`; inbound endpoints refuse with `503`. Nothing crashes,
-  nothing is lost.
-
-Enabling providers, Meta webhook configuration, and per-channel credentials:
-[`PRODUCTION.md` §8](PRODUCTION.md#8-enabling-integrations-when-ready).
-
----
-
-## Backups
-
-```bash
-# Database dump (timestamped)
-docker compose exec -T db pg_dump -U carflow -d carflow > backup_$(date +%F).sql
-
-# Restore
-docker compose exec -T db psql -U carflow -d carflow < backup_2026-08-20.sql
-```
-
-Media lives in the `media_data` volume — snapshot it alongside the dump when
-using local storage. Full backup/restore procedures:
-[`PRODUCTION.md` §4c](PRODUCTION.md#4c-backups--restore).
-
----
-
-## Deployment
-
-Production deployment (TLS, external PostgreSQL, roles, operations) is
-covered end-to-end in **[`PRODUCTION.md`](PRODUCTION.md)**:
-
-1. [Production architecture](PRODUCTION.md#1-production-architecture)
-2. [Server prerequisites](PRODUCTION.md#2-server-prerequisites)
-3. [First deployment](PRODUCTION.md#3-first-deployment)
-4. [PostgreSQL (containerized & external)](PRODUCTION.md#4-postgresql)
-5. [Users, companies, branches, roles](PRODUCTION.md#5-users-companies-branches-roles)
-6. [Nginx configuration](PRODUCTION.md#6-nginx-in-this-stack)
-7. [HTTPS / TLS termination](PRODUCTION.md#7-https--tls-termination)
-8. [Enabling integrations](PRODUCTION.md#8-enabling-integrations-when-ready)
-9. [Updates, rollbacks, operations](PRODUCTION.md#9-updates-rollbacks-operations)
-10. [Security checklist](PRODUCTION.md#10-security-checklist)
-
----
-
-## Security practices
-
-- **Login everywhere.** No public endpoint except provider webhooks (which
-  verify signatures and refuse while disabled).
-- **Tenant isolation** at the ORM layer; bulk operations through the default
-  manager only ever touch the current tenant.
-- **Append-only money.** Ledger rows cannot be updated or deleted at the
-  model level; corrections are signed reversal rows.
-- **Secure cookies** in production (`COOKIES_SECURE=True` default),
-  `X-Frame-Options: DENY`, content-type nosniff.
-- **Secrets only in `.env`** (git-ignored); `.env.example` ships no secrets.
-- **Least privilege:** Django Admin for Super Admin only; granular
-  permission codenames per role.
-- **No provider secrets in code** — all credentials are env-driven.
-
----
-
-## Troubleshooting
-
-| Symptom | Fix |
-|---|---|
-| `The Windows Subsystem for Linux is not installed` | `wsl --install` as administrator → reboot → restart Docker Desktop. |
-| `port is already allocated` on `up` | The other mode's stack is still holding the port — `docker compose down` first, or change `DEV_PORT`/`NGINX_PORT` in `.env`. |
-| App containers stuck in `Created` after switching modes | Dev and prod share container names. Run `docker compose down`, then start the mode you want (bare commands = dev, `-f docker-compose.yml` = prod). |
-| `403 CSRF verification failed` on form POST | Plain-HTTP stack with Secure cookies: set `COOKIES_SECURE=False` in `.env`, then `docker compose up -d --force-recreate web` (add `-f docker-compose.yml` for the prod stack). HTTPS deployments keep it `True`. |
-| `403` + log line `Origin checking failed - … does not match any trusted origins` | The browser's `Origin` header isn't trusted. Origins are auto-derived from `DJANGO_ALLOWED_HOSTS` + port; if your URL differs, set `DJANGO_CSRF_TRUSTED_ORIGINS=https://your.host` in `.env` and recreate `web`. |
-| `403 Forbidden (Permission denied)` on app pages like `/vehicles/add/` | Those pages are company-scoped — the logged-in user must belong to a company with a suitable role. Super Admin (`company=None`) manages tenants via `/admin/`; day-to-day records are added by a company user (e.g. Organization Admin). |
-| Locked out of `/admin/` | Access requires `is_staff`, which is kept in sync with the Super Admin role / superuser flag on save — re-save the user or tick **Staff status** only for Super Admins (§8.1). |
-| `IntegrityError … pg_type_typname_nsp_index` on first boot | Corrupted first-migration state: `docker compose down -v` then `docker compose up`. (Prevented structurally: only the web service migrates.) |
-| `pytest: not found` in the container | Dev image missing/not built yet: `docker compose build web` (dev and prod use separate tags `:dev` / `:prod`, so they can coexist). |
-| Changes don't appear | Dev auto-reloads Python/templates; for `.env` changes use `up -d --force-recreate`; for dependency/Dockerfile changes use `up -d --build`. |
-| Static files missing in prod stack | They're collected at build time — rebuild: `docker compose -f docker-compose.yml build`. |
-| Blank/untranslated UI in Dari/Pashto | Check the `django_language` cookie / user preference and that `.mo` catalogs are compiled. |
-| Webhook returns 503 | Expected while the provider's `*_ENABLED` flag is `False`. |
-| Outbound messages show `skipped_disabled` | Same cause — the channel's integration is off by design (§12). |
-| Container restarts in a loop | Check `docker compose logs <service>`; usually DB wait or a missing env var. |
-| Slow first build | Base packages are downloaded once; later builds reuse the layer cache. |
-
----
-
-## License & support
-
-Internal project of AUTOMEX. For the complete product and architecture
-specification see [`agent.md`](agent.md); for deployment runbooks see
-[`PRODUCTION.md`](PRODUCTION.md).
+CarFlow should answer all of these directly from its authoritative data model.

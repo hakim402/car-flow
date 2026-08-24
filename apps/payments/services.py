@@ -2,9 +2,12 @@
 the ledger; there is no other way to move money)."""
 import logging
 
-from django.db import transaction
+from django.core.exceptions import ValidationError
+from django.db import IntegrityError, transaction
+from django.utils.translation import gettext_lazy as _
 
 from apps.communications import notification_engine
+from apps.core.validation import validate_same_company
 
 from .models import EntryType, LedgerEntry
 
@@ -14,6 +17,9 @@ logger = logging.getLogger(__name__)
 @transaction.atomic
 def record_payment(sale, amount, currency, user=None, description="") -> LedgerEntry:
     """Record a customer payment against a sale as one ledger row."""
+    # Cross-tenant references must be impossible through the write path
+    # (README §25.2): a payment belongs to the sale's customer and company.
+    validate_same_company(sale.company, {"sale customer": sale.customer})
     entry = LedgerEntry.objects.create(
         company=sale.company,
         type=EntryType.CUSTOMER_PAYMENT,
@@ -55,18 +61,31 @@ def record_supplier_payment(supplier, amount, currency, user=None, description="
 
 @transaction.atomic
 def reverse_entry(entry: LedgerEntry, user=None, description="") -> LedgerEntry:
-    """Correct a ledger row by appending its mirror image (§6: never edit)."""
-    return LedgerEntry.objects.create(
-        company=entry.company,
-        type=entry.type,
-        amount=entry.amount,
-        currency=entry.currency,
-        description=description or f"Reversal of {entry.pk}",
-        content_type=entry.content_type,
-        object_id=entry.object_id,
-        reversal_of=entry,
-        created_by=user if user and user.is_authenticated else None,
-    )
+    """Correct a ledger row by appending its mirror image (§6: never edit).
+
+    Rules (README §16): an original entry can be reversed at most once, a
+    reversal cannot itself be reversed, and the database uniqueness on
+    `reversal_of` protects the race between two simultaneous corrections."""
+    if entry.reversal_of_id is not None:
+        raise ValidationError(_("A reversal cannot be reversed."))
+    if entry.reversals.exists():
+        raise ValidationError(_("This entry has already been reversed."))
+    try:
+        return LedgerEntry.objects.create(
+            company=entry.company,
+            type=entry.type,
+            amount=entry.amount,
+            currency=entry.currency,
+            description=description or f"Reversal of {entry.pk}",
+            content_type=entry.content_type,
+            object_id=entry.object_id,
+            reversal_of=entry,
+            created_by=user if user and user.is_authenticated else None,
+        )
+    except IntegrityError:
+        # Concurrent reversal lost the race against the unique constraint;
+        # surface it as a business error, not a 500.
+        raise ValidationError(_("This entry has already been reversed."))
 
 
 def _content_type_id(instance):

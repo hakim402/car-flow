@@ -16,6 +16,24 @@ from .models import (
 
 
 class DocumentForm(StyledFormMixin, forms.ModelForm):
+    # Tenant-FK fields are declared, not auto-generated: the fail-closed
+    # tenant manager must never run at import time; __init__ scopes them.
+    vehicle = forms.ModelChoiceField(
+        label=Document._meta.get_field("vehicle").verbose_name,
+        queryset=Vehicle.all_objects.none(),
+        required=False,
+    )
+    customer = forms.ModelChoiceField(
+        label=Document._meta.get_field("customer").verbose_name,
+        queryset=Customer.all_objects.none(),
+        required=False,
+    )
+    supplier = forms.ModelChoiceField(
+        label=Document._meta.get_field("supplier").verbose_name,
+        queryset=Supplier.all_objects.none(),
+        required=False,
+    )
+
     class Meta:
         model = Document
         fields = ["doc_type", "title", "vehicle", "customer", "supplier", "file"]

@@ -8,6 +8,7 @@ from django.conf import settings
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+from apps.core.models import CompanyConsistencyMixin
 from apps.core.tenancy import TenantModel
 
 
@@ -69,7 +70,9 @@ SUPPLIER_DOC_TYPES = [
 ]
 
 
-class Document(TenantModel):
+class Document(TenantModel, CompanyConsistencyMixin):
+    company_relations = ("vehicle", "customer", "supplier")
+
     vehicle = models.ForeignKey(
         "vehicles.Vehicle",
         on_delete=models.PROTECT,
@@ -113,6 +116,18 @@ class Document(TenantModel):
         verbose_name = _("document")
         verbose_name_plural = _("documents")
         ordering = ["-created_at"]
+        constraints = [
+            # Exactly one target, enforced at the database level (README §28):
+            # shell scripts, imports and future code bypass form validation.
+            models.CheckConstraint(
+                condition=(
+                    models.Q(vehicle__isnull=False, customer__isnull=True, supplier__isnull=True)
+                    | models.Q(vehicle__isnull=True, customer__isnull=False, supplier__isnull=True)
+                    | models.Q(vehicle__isnull=True, customer__isnull=True, supplier__isnull=False)
+                ),
+                name="document_exactly_one_target",
+            ),
+        ]
 
     def __str__(self):
         return self.title or self.file.name

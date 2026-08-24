@@ -7,6 +7,7 @@ from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
+from apps.core.models import CompanyConsistencyMixin
 from apps.core.tenancy import TenantModel
 
 
@@ -18,7 +19,9 @@ class VehicleStatus(models.TextChoices):
     DELIVERED = "delivered", _("Delivered")
 
 
-class Vehicle(TenantModel):
+class Vehicle(TenantModel, CompanyConsistencyMixin):
+    company_relations = ("branch",)
+
     vin = models.CharField(_("VIN"), max_length=17)
     make = models.CharField(_("make"), max_length=100)
     model = models.CharField(_("model"), max_length=100)

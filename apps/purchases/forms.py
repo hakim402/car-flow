@@ -10,6 +10,13 @@ from .models import PurchaseOrder, PurchaseOrderLine, PurchaseType, VehicleCostL
 
 
 class PurchaseOrderForm(StyledFormMixin, forms.ModelForm):
+    # Declared, not auto-generated: the tenant manager is fail-closed and
+    # must never run at import time; __init__ scopes it to the company.
+    supplier = forms.ModelChoiceField(
+        label=PurchaseOrder._meta.get_field("supplier").verbose_name,
+        queryset=Supplier.all_objects.none(),
+    )
+
     class Meta:
         model = PurchaseOrder
         fields = [
@@ -56,6 +63,12 @@ class PurchaseOrderForm(StyledFormMixin, forms.ModelForm):
 
 
 class PurchaseOrderLineForm(StyledFormMixin, forms.ModelForm):
+    # Same fail-closed rationale as PurchaseOrderForm.supplier.
+    vehicle = forms.ModelChoiceField(
+        label=PurchaseOrderLine._meta.get_field("vehicle").verbose_name,
+        queryset=Vehicle.all_objects.none(),
+    )
+
     class Meta:
         model = PurchaseOrderLine
         fields = ["description", "vehicle", "amount", "currency"]

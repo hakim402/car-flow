@@ -12,7 +12,7 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from apps.core.constants import CURRENCIES, DEFAULT_CURRENCY
-from apps.core.models import ImmutableModel
+from apps.core.models import CompanyConsistencyMixin, ImmutableModel
 from apps.core.tenancy import TenantModel
 
 
@@ -32,7 +32,9 @@ class LeadStatus(models.TextChoices):
     LOST = "lost", _("Lost")
 
 
-class Lead(TenantModel):
+class Lead(TenantModel, CompanyConsistencyMixin):
+    company_relations = ("customer", "vehicle_of_interest", "branch")
+
     name = models.CharField(_("name"), max_length=200)
     phone = models.CharField(_("phone"), max_length=50, blank=True)
     customer = models.ForeignKey(
@@ -97,7 +99,9 @@ class QuotationStatus(models.TextChoices):
     EXPIRED = "expired", _("Expired")
 
 
-class Quotation(TenantModel):
+class Quotation(TenantModel, CompanyConsistencyMixin):
+    company_relations = ("customer", "vehicle", "lead")
+
     customer = models.ForeignKey(
         "customers.Customer",
         on_delete=models.PROTECT,
@@ -156,7 +160,9 @@ class ReservationStatus(models.TextChoices):
     CANCELLED = "cancelled", _("Cancelled")
 
 
-class Reservation(TenantModel):
+class Reservation(TenantModel, CompanyConsistencyMixin):
+    company_relations = ("customer", "vehicle", "quotation")
+
     customer = models.ForeignKey(
         "customers.Customer",
         on_delete=models.PROTECT,
@@ -198,6 +204,15 @@ class Reservation(TenantModel):
         verbose_name = _("reservation")
         verbose_name_plural = _("reservations")
         ordering = ["-created_at"]
+        constraints = [
+            # At most one ACTIVE reservation per vehicle, at the database
+            # level (README §28): two racing requests cannot double-reserve.
+            models.UniqueConstraint(
+                fields=["vehicle"],
+                condition=models.Q(status=ReservationStatus.ACTIVE),
+                name="one_active_reservation_per_vehicle",
+            ),
+        ]
 
     def __str__(self):
         return f"{_('Reservation')} #{self.pk} — {self.vehicle}"
@@ -212,7 +227,9 @@ class SaleStatus(models.TextChoices):
     CANCELLED = "cancelled", _("Cancelled")
 
 
-class Sale(TenantModel):
+class Sale(TenantModel, CompanyConsistencyMixin):
+    company_relations = ("customer", "vehicle", "reservation")
+
     customer = models.ForeignKey(
         "customers.Customer",
         on_delete=models.PROTECT,
@@ -263,8 +280,10 @@ class Sale(TenantModel):
         return reverse("sales:sale_detail", kwargs={"pk": self.pk})
 
 
-class Invoice(TenantModel, ImmutableModel):
+class Invoice(TenantModel, ImmutableModel, CompanyConsistencyMixin):
     """An issued invoice is a financial document: append-only (§6)."""
+
+    company_relations = ("sale",)
 
     sale = models.ForeignKey(
         Sale,
@@ -291,7 +310,12 @@ class Invoice(TenantModel, ImmutableModel):
         verbose_name_plural = _("invoices")
         ordering = ["-created_at"]
         constraints = [
-            models.UniqueConstraint(fields=["company", "number"], name="unique_invoice_number_per_company")
+            models.UniqueConstraint(fields=["company", "number"], name="unique_invoice_number_per_company"),
+            # One invoice per sale, enforced by the database (README §28):
+            # issue_invoice() stays idempotent under concurrency.
+            models.UniqueConstraint(fields=["sale"], name="unique_invoice_per_sale"),
+            # Money rows are positive (README §28).
+            models.CheckConstraint(condition=models.Q(amount__gt=0), name="invoice_amount_positive"),
         ]
 
     def __str__(self):

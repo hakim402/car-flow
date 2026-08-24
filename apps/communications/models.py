@@ -8,6 +8,7 @@ from django.conf import settings
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+from apps.core.models import CompanyConsistencyMixin
 from apps.core.tenancy import TenantModel
 
 
@@ -43,7 +44,9 @@ class ConversationStatus(models.TextChoices):
     CLOSED = "closed", _("Closed")
 
 
-class Conversation(TenantModel):
+class Conversation(TenantModel, CompanyConsistencyMixin):
+    company_relations = ("customer", "channel")
+
     customer = models.ForeignKey(
         "customers.Customer",
         on_delete=models.PROTECT,
@@ -135,9 +138,11 @@ class Message(TenantModel):
         return f"{self.get_direction_display()} — {self.body[:40]}"
 
 
-class CustomerChannelIdentity(TenantModel):
+class CustomerChannelIdentity(TenantModel, CompanyConsistencyMixin):
     """Maps one external provider id to exactly one customer (§7.4).
     Never merge distinct external ids silently."""
+
+    company_relations = ("customer", "channel")
 
     customer = models.ForeignKey(
         "customers.Customer",

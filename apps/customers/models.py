@@ -8,10 +8,13 @@ from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
+from apps.core.models import CompanyConsistencyMixin
 from apps.core.tenancy import TenantModel
 
 
-class Customer(TenantModel):
+class Customer(TenantModel, CompanyConsistencyMixin):
+    company_relations = ("branch",)
+
     full_name = models.CharField(_("full name"), max_length=200)
     phone = models.CharField(_("phone"), max_length=50, blank=True)
     email = models.EmailField(_("email"), blank=True)
