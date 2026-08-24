@@ -22,23 +22,24 @@ document management, audit trails, and an omnichannel **Conversation Hub**
 
 1. [Feature overview](#feature-overview)
 2. [Architecture](#architecture)
-3. [Technology stack](#technology-stack)
-4. [Repository layout](#repository-layout)
-5. [Prerequisites](#prerequisites)
-6. [Quick start](#quick-start)
-7. [Users, companies, and roles](#users-companies-and-roles)
-8. [Configuration reference (`.env`)](#configuration-reference-env)
-9. [Everyday Docker commands](#everyday-docker-commands)
-10. [Logging & observability](#logging--observability)
-11. [Development workflow](#development-workflow)
-12. [Testing](#testing)
-13. [Internationalization (i18n)](#internationalization-i18n)
-14. [Ports](#ports)
-15. [Integrations overview](#integrations-overview)
-16. [Backups](#backups)
-17. [Deployment](#deployment)
-18. [Security practices](#security-practices)
-19. [Troubleshooting](#troubleshooting)
+3. [Data model reference](#data-model-reference)
+4. [Technology stack](#technology-stack)
+5. [Repository layout](#repository-layout)
+6. [Prerequisites](#prerequisites)
+7. [Quick start](#quick-start)
+8. [Users, companies, and roles](#users-companies-and-roles)
+9. [Configuration reference (`.env`)](#configuration-reference-env)
+10. [Everyday Docker commands](#everyday-docker-commands)
+11. [Logging & observability](#logging--observability)
+12. [Development workflow](#development-workflow)
+13. [Testing](#testing)
+14. [Internationalization (i18n)](#internationalization-i18n)
+15. [Ports](#ports)
+16. [Integrations overview](#integrations-overview)
+17. [Backups](#backups)
+18. [Deployment](#deployment)
+19. [Security practices](#security-practices)
+20. [Troubleshooting](#troubleshooting)
 
 ---
 
@@ -119,6 +120,727 @@ for the database, and **only the `web` role runs migrations** — concurrent
 7. **Explicit money** — every amount carries its currency.
 8. **Multi-tenancy via `company_id`** — custom manager + middleware, never client input.
 9. **Django Admin for Super Admin only.**
+
+---
+
+## Data model reference
+
+> Generated from `apps/*/models.py`, `apps/*/services.py` and `apps/*/views.py`.
+> The system has **23 Django models** across 14 apps. `expenses` and
+> `accounting` deliberately define **no models** — an expense is a
+> `LedgerEntry` row and accounting is computed from ledger rows. `core`
+> contributes only abstract bases (`TenantModel`, `ImmutableModel`).
+> `django-simple-history` adds 9 auto-generated `Historical*` tables on top
+> (see [Audit history](#audit-history)).
+
+### Model inventory (all 23 models)
+
+| # | App | Model | Base classes | Purpose |
+|---|-----|-------|--------------|---------|
+| 1 | `accounts` | `Permission` | `models.Model` | One granular permission token (`sales.view`, `payments.add`, …) |
+| 2 | `accounts` | `Role` | `models.Model` | Named bundle of permissions; 6 system roles seeded by migration |
+| 3 | `accounts` | `User` | `AbstractUser` | Staff login — identifier is the **email**, not the username |
+| 4 | `organizations` | `Organization` | `models.Model` | **The tenant** — a company / dealership group |
+| 5 | `branches` | `Branch` | `models.Model` | Child scope under a company (unique name per company) |
+| 6 | `vehicles` | `Vehicle` | `TenantModel` | Vehicle registry (VIN unique per company) |
+| 7 | `inventory` | `VehicleStock` | `TenantModel` | One stock row per vehicle currently held at a branch |
+| 8 | `suppliers` | `Supplier` | `TenantModel` | Business / individual sellers and agents |
+| 9 | `purchases` | `PurchaseOrder` | `TenantModel` | PO header (domestic or import, shipment tracking) |
+| 10 | `purchases` | `PurchaseOrderLine` | `models.Model` | One PO line — the link between a purchase and a vehicle |
+| 11 | `purchases` | `VehicleCostLine` | `TenantModel` + `ImmutableModel` | One immutable cost event per vehicle (landed-cost ledger) |
+| 12 | `customers` | `Customer` | `TenantModel` | Buyer directory |
+| 13 | `sales` | `Lead` | `TenantModel` | Pipeline stage 1 |
+| 14 | `sales` | `Quotation` | `TenantModel` | Pipeline stage 2 |
+| 15 | `sales` | `Reservation` | `TenantModel` | Pipeline stage 3 (flips the vehicle to reserved) |
+| 16 | `sales` | `Sale` | `TenantModel` | Pipeline stage 4 |
+| 17 | `sales` | `Invoice` | `TenantModel` + `ImmutableModel` | Issued invoice — append-only, one per sale |
+| 18 | `payments` | `LedgerEntry` | `TenantModel` + `ImmutableModel` | **The append-only financial ledger** |
+| 19 | `documents` | `Document` | `TenantModel` | Photo/document attached to vehicle, customer or supplier |
+| 20 | `communications` | `Channel` | `TenantModel` | A configured messaging channel (WhatsApp, Messenger, …) |
+| 21 | `communications` | `Conversation` | `TenantModel` | One thread with a customer on a channel |
+| 22 | `communications` | `Message` | `TenantModel` | One message row (inbound / outbound) |
+| 23 | `communications` | `CustomerChannelIdentity` | `TenantModel` | Maps one external sender id to exactly one customer |
+
+### Entity relationship map
+
+```
+Organization (tenant — the root of everything)
+├── Branch
+│     └── branch-scoped rows: User, Vehicle, VehicleStock, Customer, Lead,
+│                             PurchaseOrder (all carry an optional branch FK)
+├── User ── roles (M2M) ── Role ── permissions (M2M) ── Permission
+│
+├── Supplier ── PurchaseOrder ── lines ── PurchaseOrderLine
+│                                            └── vehicle (FK) ──► Vehicle
+│
+├── Customer ◄── Lead
+│              Quotation ── customer (FK) ──► Customer
+│              Reservation ─ customer + vehicle (FK)
+│              Sale ─ customer + vehicle (+ optional reservation)
+│              Invoice ── sale (FK, immutable, one per sale)
+│
+├── LedgerEntry (immutable)
+│      ├── related_object (GenericFK) ──► Sale / Supplier / any model
+│      └── reversal_of (self FK) ──► LedgerEntry
+│
+├── Document (FK vehicle | customer | supplier — exactly one target)
+│
+├── Vehicle ── VehicleStock (OneToOne, branch)
+│      └── VehicleCostLine (FK vehicle, immutable, landed-cost ledger)
+│
+└── Channel ── Conversation (customer + channel + external thread id)
+       │             └── Message (FK conversation; unique external id)
+       └── CustomerChannelIdentity (customer + channel + external id)
+```
+
+### How the models connect — the eight links
+
+1. **The tenant root.** Every `TenantModel` carries `company` (FK →
+   `Organization`, PROTECT). `Branch` also points to `Organization`;
+   branch-scoped records (`Vehicle`, `VehicleStock`, `Customer`, `Lead`,
+   `PurchaseOrder`) additionally carry an optional `branch` FK. The
+   `TenantManager` auto-filters every query to the request's company;
+   `all_objects` is the explicit Super-Admin escape hatch.
+
+2. **Users, roles, permissions.** `User.roles` (M2M → `Role`) →
+   `Role.permissions` (M2M → `Permission`, codenames like `sales.view`).
+   `User.company` is null only for Super Admin; `User.save()` keeps
+   `is_staff` in sync with the Super Admin role / superuser flag, which
+   locks Django Admin to Super Admin only.
+
+3. **Purchasing chain.** `Supplier` → `PurchaseOrder` (FK supplier,
+   PROTECT) → `PurchaseOrderLine` (FK order, CASCADE) → `Vehicle` (FK
+   vehicle, PROTECT, optional). The supplier of a vehicle is *derived* —
+   `Vehicle.source_supplier` returns the supplier of the first purchase
+   line that references the vehicle.
+
+4. **Receiving side effects.** `receive_order()` writes into
+   `VehicleCostLine` (one immutable row per vehicle line), updates
+   `Vehicle`, and creates `VehicleStock`. A vehicle's total cost
+   (`vehicle_landed_cost`) is an aggregate over `VehicleCostLine` rows —
+   never a stored column.
+
+5. **Sales pipeline.** `Customer` ← `Lead` → `Quotation` → `Reservation` →
+   `Sale` → `Invoice`. Quotation / Reservation / Sale each FK → `Customer`
+   (PROTECT) and → `Vehicle` (PROTECT; Quotation's is optional). Creating a
+   reservation flips the vehicle to `RESERVED`; completing a sale flips it
+   to `SOLD`, closes the active reservation, and issues at most one
+   immutable `Invoice` (`INV-{pk:06d}`).
+
+6. **The money spine.** Every money movement is one immutable `LedgerEntry`
+   row: `customer_payment` (money **in**, GFK → `Sale`), `supplier_payment`
+   (money **out**, GFK → `Supplier`), `expense` (money **out**, no GFK),
+   `other` (money **in**). Corrections are NEW rows whose `reversal_of` FK
+   points at the original. All balances / outstanding amounts are computed
+   aggregates (`apps/accounting/services.py`) — per currency, never
+   converted.
+
+7. **Documents.** `Document` has three nullable FKs (`vehicle`, `customer`,
+   `supplier`) — the form enforces exactly one target. `doc_type` plus the
+   per-target type lists (`VEHICLE_DOC_TYPES`, `CUSTOMER_DOC_TYPES`,
+   `SUPPLIER_DOC_TYPES`) restrict what each upload box can create.
+
+8. **Conversation Hub.** `Channel` (type + credentials JSON) →
+   `Conversation` (customer + channel + external thread id) → `Message`
+   (direction, status, raw payload). `CustomerChannelIdentity` maps an
+   external sender id to exactly one `Customer` — unknown senders create a
+   new customer (never silently merged). Business apps only ever call
+   `notification_engine.notify(...)`.
+
+### Model dictionary — every column of every model
+
+#### `accounts.Permission` — granular permission token
+
+Tenant-scoped permission token beyond Django's app-level permissions.
+Business views check these for object-level access.
+
+| Column | Type | Details |
+|---|---|---|
+| `codename` | `CharField(100)` | **Unique.** E.g. `sales.view`, `payments.add`. Seeded by migration `0003_seed_permissions`. |
+| `description` | `CharField(255)` | Optional human-readable description. |
+
+#### `accounts.Role` — named bundle of permissions
+
+| Column | Type | Details |
+|---|---|---|
+| `key` | `SlugField(50)` | **Unique.** E.g. `org_admin`, `branch_manager`. |
+| `name` | `CharField(100)` | Display name. |
+| `system` | `BooleanField` | Default `False`, non-editable; `True` for the 6 seeded roles. |
+| `permissions` | M2M → `Permission` | Optional. |
+
+Seeded roles (migration `0002_seed_builtin_roles`): `super_admin`,
+`org_admin`, `branch_manager`, `sales`, `inventory`, `accountant`.
+Permission grants (migration `0003_seed_permissions`) follow
+`{app}.{action}` codenames (`view`/`add`/`change`) over the 10 business
+apps; `org_admin` gets all of them, the other roles get subsets.
+
+#### `accounts.User` — internal staff login
+
+Login identifier is the **email** (`USERNAME_FIELD = "email"`); `username`
+survives only as an optional legacy/display label. Inherits all standard
+`AbstractUser` columns (`password`, `last_login`, `is_superuser`,
+`first_name`, `last_name`, `is_active`, `date_joined`, `groups`,
+`user_permissions`) plus:
+
+| Column | Type | Details |
+|---|---|---|
+| `username` | `CharField(150)` | Null/blank — optional label only. |
+| `email` | `EmailField` | **Unique.** The login id. |
+| `company` | FK → `Organization` | `PROTECT`. Null/blank **only for Super Admin**. |
+| `branch` | FK → `Branch` | `PROTECT`. Null/blank. |
+| `roles` | M2M → `Role` | Optional. |
+| `preferred_language` | `CharField(8)` | Default `en`; choices `en` / `prs` / `ps`. Drives the session language after login. |
+
+Model logic: `has_role(key)`, `is_super_admin` property,
+`permission_codenames()`, `has_permission(codename)` (superuser bypasses),
+and `save()` keeps `is_staff = has_super_admin or is_superuser` in sync,
+which is what locks Django Admin to Super Admin.
+
+#### `organizations.Organization` — the tenant
+
+Not tenant-scoped itself — it **is** the tenant.
+
+| Column | Type | Details |
+|---|---|---|
+| `name` | `CharField(200)` | Company name. |
+| `created_at` | `DateTimeField` | `auto_now_add`. |
+
+#### `branches.Branch` — child scope under a company
+
+| Column | Type | Details |
+|---|---|---|
+| `company` | FK → `Organization` | `PROTECT`. |
+| `name` | `CharField(200)` | |
+| `created_at` | `DateTimeField` | `auto_now_add`. |
+
+Constraint: **unique `(company, name)`**.
+
+#### `vehicles.Vehicle` — vehicle registry (`TenantModel`)
+
+| Column | Type | Details |
+|---|---|---|
+| `company` | FK → `Organization` | From `TenantModel` (`PROTECT`). |
+| `vin` | `CharField(17)` | Vehicle Identification Number. |
+| `make` | `CharField(100)` | |
+| `model` | `CharField(100)` | |
+| `year` | `PositiveSmallIntegerField` | |
+| `color` | `CharField(50)` | Optional. |
+| `mileage` | `PositiveIntegerField` | Default `0`. |
+| `status` | `CharField(20)` | `in_transit` / `in_stock` / `reserved` / `sold` / `delivered`; default `in_transit`. |
+| `branch` | FK → `Branch` | `PROTECT`. Null/blank. |
+| `notes` | `TextField` | Optional. |
+| `created_at` / `updated_at` | `DateTimeField` | Auto. |
+
+Constraint: **unique `(company, vin)`**. Deliberately **no cost columns** —
+cost is computed from `VehicleCostLine` rows. Properties:
+`primary_photo` (oldest vehicle photo), `source_supplier` (derived from
+purchase lines).
+
+#### `inventory.VehicleStock` — branch stock row (`TenantModel`)
+
+| Column | Type | Details |
+|---|---|---|
+| `company` | FK → `Organization` | From `TenantModel`. |
+| `vehicle` | `OneToOneField` → `Vehicle` | `PROTECT`. One stock row per vehicle. |
+| `branch` | FK → `Branch` | `PROTECT`. Where the car sits. |
+| `status` | `CharField(20)` | `available` / `reserved` / `in_preparation`; default `available`. |
+| `lot_code` | `CharField(50)` | Optional parking/lot code. |
+| `received_at` | `DateTimeField` | `auto_now_add`. |
+
+Created by purchase receiving; branch users only see their branch's rows.
+
+#### `suppliers.Supplier` — supplier directory (`TenantModel`)
+
+| Column | Type | Details |
+|---|---|---|
+| `company` | FK → `Organization` | From `TenantModel`. |
+| `name` | `CharField(200)` | |
+| `kind` | `CharField(20)` | `business` / `individual`; default `business`. |
+| `supplier_type` | `CharField(20)` | `local_dealer` / `overseas_dealer` / `auction` / `broker` / `shipping_agent` / `other`; default `local_dealer`. |
+| `national_id` | `CharField(50)` | Optional (tazkera / national ID). |
+| `country` | `CharField(5)` | `COUNTRIES` choices; optional. |
+| `contact_person` | `CharField(200)` | Optional. |
+| `phone` | `CharField(50)` | Optional. |
+| `email` | `EmailField` | Optional. |
+| `address` | `TextField` | Optional. |
+| `notes` | `TextField` | Optional. |
+| `created_at` | `DateTimeField` | `auto_now_add`. |
+
+Properties: `is_individual`; `logo` (most recent `supplier_logo` /
+`supplier_photo` document).
+
+#### `purchases.PurchaseOrder` — PO header (`TenantModel`)
+
+| Column | Type | Details |
+|---|---|---|
+| `company` | FK → `Organization` | From `TenantModel`. |
+| `reference` | `CharField(50)` | Optional free-text reference. |
+| `supplier` | FK → `Supplier` | `PROTECT`. |
+| `branch` | FK → `Branch` | `PROTECT`. Null/blank. |
+| `status` | `CharField(20)` | `draft` / `ordered` / `shipped` / `customs` / `received` / `cancelled`; default `draft`. |
+| `purchase_type` | `CharField(20)` | `domestic` / `import`; default `domestic`. |
+| `order_date` | `DateField` | Required. |
+| `origin_country` | `CharField(5)` | Optional; **required by the form for imports**. |
+| `incoterms` | `CharField(10)` | `EXW` / `FOB` / `CFR` / `CIF` / `DAP` / `DDP`; optional. |
+| `shipping_method` | `CharField(20)` | `container` / `ro_ro` / `land` / `air` / `other`; optional. |
+| `bill_of_lading_no` | `CharField(100)` | Optional. |
+| `container_no` | `CharField(100)` | Optional. |
+| `shipped_date` | `DateField` | Null/blank. |
+| `eta` | `DateField` | Null/blank. |
+| `notes` | `TextField` | Optional. |
+| `created_by` | FK → `User` | `PROTECT`. Null/blank. |
+| `created_at` / `updated_at` | `DateTimeField` | Auto. |
+
+Logic: `total_by_currency()` (computed from lines, never stored);
+`is_import`; `next_status` — imports walk `draft → ordered → shipped →
+customs` (`NEXT_STATUS` map), domestic orders go `draft → ordered` and
+then straight to receiving. `RECEIVED` is reachable **only** through
+`receive_order()`.
+
+#### `purchases.PurchaseOrderLine` — one PO line
+
+**Not tenant-scoped** (a child of the tenant-scoped order).
+
+| Column | Type | Details |
+|---|---|---|
+| `order` | FK → `PurchaseOrder` | `CASCADE`. |
+| `vehicle` | FK → `Vehicle` | `PROTECT`. Null/blank — **the car↔purchase link**. |
+| `description` | `CharField(255)` | |
+| `amount` | `DecimalField(14, 2)` | |
+| `currency` | `CharField(3)` | `CURRENCIES`; default `AFN`. |
+
+#### `purchases.VehicleCostLine` — immutable vehicle cost event (`TenantModel` + `ImmutableModel`)
+
+| Column | Type | Details |
+|---|---|---|
+| `company` | FK → `Organization` | From `TenantModel`. |
+| `vehicle` | FK → `Vehicle` | `PROTECT`. |
+| `cost_type` | `CharField(20)` | `purchase` / `transport` / `customs` / `storage` / `repair` / `other`. |
+| `amount` | `DecimalField(14, 2)` | |
+| `currency` | `CharField(3)` | Default `AFN`. |
+| `description` | `CharField(255)` | Optional. |
+| `created_by` | FK → `User` | `PROTECT`. Null/blank. |
+| `created_at` | `DateTimeField` | `auto_now_add`. |
+
+**Immutable:** `save()` on an existing row raises `ImmutableRecordError`;
+`delete()` always raises. `vehicle_landed_cost(vehicle)` sums these rows
+per currency.
+
+#### `customers.Customer` — buyer directory (`TenantModel`)
+
+| Column | Type | Details |
+|---|---|---|
+| `company` | FK → `Organization` | From `TenantModel`. |
+| `full_name` | `CharField(200)` | |
+| `phone` | `CharField(50)` | Optional. |
+| `email` | `EmailField` | Optional. |
+| `national_id` | `CharField(50)` | Optional. |
+| `branch` | FK → `Branch` | `PROTECT`. Null/blank. |
+| `notes` | `TextField` | Optional. |
+| `created_by` | FK → `User` | `PROTECT`. Null/blank. |
+| `created_at` / `updated_at` | `DateTimeField` | Auto. |
+
+Property: `primary_photo` (oldest customer photo).
+
+#### `sales.Lead` — pipeline stage 1 (`TenantModel`)
+
+| Column | Type | Details |
+|---|---|---|
+| `company` | FK → `Organization` | From `TenantModel`. |
+| `name` | `CharField(200)` | Lead's name. |
+| `phone` | `CharField(50)` | Optional. |
+| `customer` | FK → `Customer` | `PROTECT`. Null/blank. |
+| `vehicle_of_interest` | FK → `Vehicle` | `SET_NULL`. Null/blank. |
+| `source` | `CharField(20)` | `walk_in` / `phone` / `whatsapp` / `referral` / `other`; default `walk_in`. |
+| `status` | `CharField(20)` | `new` / `contacted` / `qualified` / `converted` / `lost`; default `new`. |
+| `branch` | FK → `Branch` | `PROTECT`. Null/blank. |
+| `notes` | `TextField` | Optional. |
+| `created_by` | FK → `User` | `PROTECT`. Null/blank. |
+| `created_at` / `updated_at` | `DateTimeField` | Auto. |
+
+#### `sales.Quotation` — pipeline stage 2 (`TenantModel`)
+
+| Column | Type | Details |
+|---|---|---|
+| `company` | FK → `Organization` | From `TenantModel`. |
+| `customer` | FK → `Customer` | `PROTECT`. |
+| `vehicle` | FK → `Vehicle` | `PROTECT`. Null/blank. |
+| `lead` | FK → `Lead` | `SET_NULL`. Null/blank. |
+| `amount` | `DecimalField(14, 2)` | |
+| `currency` | `CharField(3)` | Default `AFN`. |
+| `valid_until` | `DateField` | Required. |
+| `status` | `CharField(20)` | `draft` / `sent` / `accepted` / `declined` / `expired`; default `draft`. |
+| `notes` | `TextField` | Optional. |
+| `created_by` | FK → `User` | `PROTECT`. Null/blank. |
+| `created_at` / `updated_at` | `DateTimeField` | Auto. |
+
+#### `sales.Reservation` — pipeline stage 3 (`TenantModel`)
+
+| Column | Type | Details |
+|---|---|---|
+| `company` | FK → `Organization` | From `TenantModel`. |
+| `customer` | FK → `Customer` | `PROTECT`. |
+| `vehicle` | FK → `Vehicle` | `PROTECT`. |
+| `quotation` | FK → `Quotation` | `PROTECT`. Null/blank. |
+| `deposit_amount` | `DecimalField(14, 2)` | |
+| `currency` | `CharField(3)` | Default `AFN`. |
+| `status` | `CharField(20)` | `active` / `completed` / `cancelled`; default `active`. |
+| `notes` | `TextField` | Optional. |
+| `created_by` | FK → `User` | `PROTECT`. Null/blank. |
+| `created_at` / `updated_at` | `DateTimeField` | Auto. |
+
+Logic: creating a reservation (atomic) flips an `IN_STOCK` vehicle to
+`RESERVED` so it cannot be double-sold.
+
+#### `sales.Sale` — pipeline stage 4 (`TenantModel`)
+
+| Column | Type | Details |
+|---|---|---|
+| `company` | FK → `Organization` | From `TenantModel`. |
+| `customer` | FK → `Customer` | `PROTECT`. |
+| `vehicle` | FK → `Vehicle` | `PROTECT`. |
+| `reservation` | FK → `Reservation` | `PROTECT`. Null/blank. |
+| `agreed_amount` | `DecimalField(14, 2)` | |
+| `currency` | `CharField(3)` | Default `AFN`. |
+| `sale_date` | `DateField` | Required. |
+| `status` | `CharField(20)` | `draft` / `completed` / `cancelled`; default `draft`. |
+| `notes` | `TextField` | Optional. |
+| `created_by` | FK → `User` | `PROTECT`. Null/blank. |
+| `created_at` / `updated_at` | `DateTimeField` | Auto. |
+
+Logic: `complete_sale()` (atomic, DRAFT only) flips the vehicle to `SOLD`,
+closes the active reservation, and notifies the customer;
+`issue_invoice()` is idempotent — one immutable invoice per sale.
+
+#### `sales.Invoice` — immutable issued invoice (`TenantModel` + `ImmutableModel`)
+
+| Column | Type | Details |
+|---|---|---|
+| `company` | FK → `Organization` | From `TenantModel`. |
+| `sale` | FK → `Sale` | `PROTECT`. |
+| `number` | `CharField(50)` | Generated as `INV-{sale.pk:06d}`. |
+| `issued_on` | `DateField` | |
+| `amount` | `DecimalField(14, 2)` | Copied from the sale. |
+| `currency` | `CharField(3)` | |
+| `created_by` | FK → `User` | `PROTECT`. Null/blank. |
+| `created_at` | `DateTimeField` | `auto_now_add`. |
+
+Constraint: **unique `(company, number)`**. Immutable like all financial
+rows — corrections go through the ledger, never by editing an invoice.
+
+#### `payments.LedgerEntry` — the append-only ledger (`TenantModel` + `ImmutableModel`)
+
+| Column | Type | Details |
+|---|---|---|
+| `company` | FK → `Organization` | From `TenantModel`. |
+| `type` | `CharField(30)` | `customer_payment` / `supplier_payment` / `expense` / `other`. |
+| `amount` | `DecimalField(14, 2)` | Always positive; direction comes from `type`. |
+| `currency` | `CharField(3)` | Default `AFN`. |
+| `description` | `CharField(255)` | Optional. |
+| `content_type` | FK → `ContentType` | `PROTECT`. Null/blank (GenericFK part 1). |
+| `object_id` | `BigIntegerField` | Null/blank (GenericFK part 2). |
+| `related_object` | `GenericForeignKey` | The business row the money relates to (`Sale`, `Supplier`, …). |
+| `reversal_of` | FK → `LedgerEntry` (self) | `PROTECT`. Null/blank — points at the corrected row. |
+| `created_by` | FK → `User` | `PROTECT`. Null/blank. |
+| `created_at` | `DateTimeField` | `auto_now_add`. |
+
+Money direction map (`ENTRY_DIRECTION`): `customer_payment` → **in**,
+`supplier_payment` → **out**, `expense` → **out**, `other` → **in**.
+Properties: `direction`, `signed_amount` (±). Corrections are new rows
+created by `reverse_entry()` with the same type/amount/currency/GFK and
+`reversal_of` pointing at the original — updates and deletes raise
+`ImmutableRecordError` at the model level.
+
+#### `documents.Document` — file attachments (`TenantModel`)
+
+| Column | Type | Details |
+|---|---|---|
+| `company` | FK → `Organization` | From `TenantModel`. |
+| `vehicle` | FK → `Vehicle` | `PROTECT`. Null/blank. |
+| `customer` | FK → `Customer` | `PROTECT`. Null/blank. |
+| `supplier` | FK → `Supplier` | `PROTECT`. Null/blank. |
+| `doc_type` | `CharField(30)` | 18 choices — see below; default `other`. |
+| `title` | `CharField(255)` | Optional. |
+| `file` | `FileField` | `upload_to="documents/%Y/%m/"`. |
+| `uploaded_by` | FK → `User` | `PROTECT`. Null/blank. |
+| `created_at` | `DateTimeField` | `auto_now_add`. |
+
+`doc_type` choices: `vehicle_photo`, `license`, `sale_document`,
+`insurance`, `customs`, `inspection`, `vehicle_document`, `customer_photo`,
+`tazkera`, `passport`, `electricity_bill`, `other_bill`, `customer_document`,
+`supplier_logo`, `supplier_photo`, `supplier_license`, `supplier_document`,
+`other`. Exactly one of `vehicle`/`customer`/`supplier` is required (form
+level); each upload box restricts the type picker to its list
+(`VEHICLE_DOC_TYPES`, `CUSTOMER_DOC_TYPES`, `SUPPLIER_DOC_TYPES`).
+Property: `is_photo` splits galleries from paperwork.
+
+#### `communications.Channel` — messaging channel config (`TenantModel`)
+
+| Column | Type | Details |
+|---|---|---|
+| `company` | FK → `Organization` | From `TenantModel`. |
+| `type` | `CharField(20)` | `whatsapp` / `messenger` / `instagram` / `telegram` / `email` / `sms`. |
+| `credentials` | `JSONField` | Default `{}`; e.g. `{"phone_number_id": "…"}`. |
+| `active` | `BooleanField` | Default `True`. |
+
+#### `communications.Conversation` — one thread (`TenantModel`)
+
+| Column | Type | Details |
+|---|---|---|
+| `company` | FK → `Organization` | From `TenantModel`. |
+| `customer` | FK → `Customer` | `PROTECT`. |
+| `channel` | FK → `Channel` | `PROTECT`. |
+| `external_thread_id` | `CharField(255)` | Optional provider thread id. |
+| `assigned_to` | FK → `User` | `SET_NULL`. Null/blank. |
+| `status` | `CharField(20)` | `open` / `closed`; default `open`. |
+| `last_message_at` | `DateTimeField` | Null/blank; bumped on every message. |
+
+#### `communications.Message` — one message (`TenantModel`)
+
+| Column | Type | Details |
+|---|---|---|
+| `company` | FK → `Organization` | From `TenantModel`. |
+| `conversation` | FK → `Conversation` | `CASCADE`. |
+| `direction` | `CharField(5)` | `in` (inbound) / `out` (outbound). |
+| `body` | `TextField` | |
+| `media` | `JSONField` | Default `[]`. |
+| `external_message_id` | `CharField(255)` | Optional provider id. |
+| `status` | `CharField(20)` | `queued` / `sent` / `delivered` / `read` / `failed` / `skipped_disabled`; default `queued`. |
+| `raw_payload` | `JSONField` | Null/blank — the raw provider payload persisted **before** parsing. |
+| `created_at` | `DateTimeField` | `auto_now_add`. |
+
+Constraint: **unique `(company, external_message_id)`** where
+`external_message_id ≠ ""` — webhook redelivery can never create
+duplicates.
+
+#### `communications.CustomerChannelIdentity` — sender id map (`TenantModel`)
+
+| Column | Type | Details |
+|---|---|---|
+| `company` | FK → `Organization` | From `TenantModel`. |
+| `customer` | FK → `Customer` | `PROTECT`. |
+| `channel` | FK → `Channel` | `PROTECT`. |
+| `external_id` | `CharField(255)` | The provider's sender id. |
+| `created_at` | `DateTimeField` | `auto_now_add`. |
+
+Constraint: **unique `(company, channel, external_id)`** — one external id
+maps to exactly one customer; distinct ids are never merged silently.
+
+### Abstract bases (not tables)
+
+- **`TenantModel`** (`apps/core/tenancy.py`) — adds `company` FK →
+  `Organization` (`PROTECT`, `related_name="+"`) and replaces `objects`
+  with `TenantManager` (auto-filtered by the request tenant via a
+  `ContextVar`); `all_objects` is the explicit unfiltered escape hatch.
+- **`ImmutableModel`** (`apps/core/models.py`) — `save()` raises
+  `ImmutableRecordError` when editing an existing row; `delete()` always
+  raises. Used by `VehicleCostLine`, `LedgerEntry`, `Invoice`.
+
+### Audit history
+
+`apps/audit/apps.py` registers `django-simple-history` on 9 models:
+`Vehicle`, `VehicleStock`, `Supplier`, `PurchaseOrder`, `Customer`, `Lead`,
+`Quotation`, `Reservation`, `Sale` — producing 9 auto-generated
+`Historical*` tables. `LedgerEntry`, `VehicleCostLine` and `Invoice` are
+deliberately **not** registered (they are already immutable append-only
+rows). `HistoryRequestMiddleware` records the acting user on each history
+row.
+
+### Full business logic by domain
+
+#### 1. Multi-tenancy (`apps/core`)
+
+- `TenantMiddleware` reads the **authenticated user's company** (never
+  client input) and sets a request-scoped `ContextVar`; it resets the
+  context when the request finishes.
+- `TenantManager.get_queryset()` filters by that company when the context
+  is set; without context (Super Admin, shell, Celery) it returns
+  unfiltered rows — Super Admin's dashboard therefore shows platform-wide
+  totals through the same manager.
+- `for_current_company()` raises `NoTenantContext` when used outside a
+  tenant context; background jobs wrap themselves in `company_scope()`.
+- Every create view stamps `obj.company = request.user.company` and raises
+  `PermissionDenied` for company-less (Super Admin) users; forms scope FK
+  querysets through the tenant managers and validate branch ownership
+  (e.g. `VehicleForm.clean` rejects a foreign branch).
+
+#### 2. Auth, roles, permissions (`apps/accounts`)
+
+- Login is by **email**; `CarFlowLoginView` activates the user's
+  `preferred_language` immediately after authentication (sets the
+  `django_language` session key + cookie — Django 5's LocaleMiddleware
+  reads the cookie).
+- `require_permission(codename)` decorates every business view:
+  unauthenticated → redirect to login; missing permission → 403.
+- `User.save()` keeps `is_staff` in lockstep with the Super Admin role /
+  superuser flag — Django Admin (`/admin/`) is Super Admin only. Super
+  Admin (`company=None`) manages tenants in Admin; business records are
+  created by company users.
+- `set_language` POST updates the language cookie, the session, and
+  `User.preferred_language`, then reloads the same page.
+- `admin_dashboard_callback` adds platform KPI cards (companies, branches,
+  users, roles) to the Unfold admin home.
+
+#### 3. Vehicles & inventory (`apps/vehicles`, `apps/inventory`)
+
+- `Vehicle` is unique per `(company, vin)` and carries **no cost columns**.
+- Lifecycle: `in_transit` → `in_stock` (purchase receiving) → `reserved`
+  (reservation created) → `sold` (`complete_sale`) → `delivered`.
+- Branch users see only their branch's fleet (list filtered by
+  `request.user.branch_id`); search matches VIN/make/model; status filter
+  validates against `VehicleStatus.values`.
+- `VehicleStock` is OneToOne per vehicle, created at receiving; its status
+  (`available` / `reserved` / `in_preparation`) is maintained manually
+  from the inventory list; inventory lists are branch-scoped for branch
+  users.
+
+#### 4. Purchasing & receiving (`apps/purchases`)
+
+- Status machine: `draft → ordered → shipped → customs → received`
+  (imports) or `draft → ordered → received` (domestic), plus `cancelled`;
+  `order_advance` moves one legal step at a time via `next_status`;
+  `RECEIVED` is reachable **only** through `receive_order()`.
+- Import orders must set `origin_country` (form validation).
+- `receive_order()` runs in one transaction and is idempotent per line:
+  returns `0` if the order is already `RECEIVED`; for every line with a
+  vehicle it appends one `VehicleCostLine` (type `purchase`, amount /
+  currency from the line, description `"PO {order}"`) unless an identical
+  row already exists, sets the vehicle's branch (order branch or the
+  vehicle's own) and status `IN_STOCK`, and `get_or_create`s the
+  `VehicleStock`; finally flips the order to `RECEIVED` and returns the
+  number of vehicles received.
+- `vehicle_add_cost` appends any other cost event (transport, customs,
+  storage, repair, other) — immutable rows, corrections are new rows.
+- `vehicle_landed_cost(vehicle)` aggregates cost lines per currency;
+  conversion happens only at display time.
+
+#### 5. Sales pipeline (`apps/sales`)
+
+- Create views stamp `company` + `created_by`; `Lead` and `Quotation`
+  statuses update via POST endpoints that validate the status value.
+- `reservation_create` (atomic) flips an `IN_STOCK` vehicle to `RESERVED`
+  so it cannot be double-sold.
+- `sale_detail` computes `can_complete` (status is `draft`) and
+  `can_invoice` (status is `completed` and no invoice exists yet).
+- `complete_sale()` (atomic): DRAFT-only → sale `COMPLETED`, vehicle
+  `SOLD`, active reservation `COMPLETED`, then notifies the customer with
+  the `sale_completed` event (notification failure is logged and never
+  breaks the sale).
+- `issue_invoice()` is idempotent: if an invoice exists it returns it;
+  otherwise creates the immutable `Invoice` with number `INV-{pk:06d}`,
+  today's date, and the sale's amount/currency. The view refuses to issue
+  before the sale is completed.
+
+#### 6. Money & accounting (`apps/payments`, `apps/expenses`, `apps/accounting`)
+
+- **Everything writes through the ledger.** `record_payment()` creates one
+  `customer_payment` row (GFK → `Sale`) and fires the `payment_recorded`
+  notification (never breaks the ledger write); `record_supplier_payment()`
+  creates a `supplier_payment` row (GFK → `Supplier`); `record_expense()`
+  creates an `expense` row with no GFK.
+- `reverse_entry()` corrects a row by appending its **mirror image**: same
+  type, amount, currency, GFK, plus `reversal_of` → the original row.
+- `_net_totals()` (accounting) is the heart of every figure: a reversal
+  row is counted **against its original row's direction** and negated, so
+  an expense reversal reduces money-out while a payment reversal reduces
+  money-in.
+- Derived figures — all per currency, never converted:
+  `ledger_balance()` (in − out), `money_in()` (gross received, net of
+  payment reversals), `money_out()` (gross paid, net of reversals),
+  `sale_payments(sale)`, `sale_outstanding(sale)` (agreed amount − paid),
+  `supplier_payments(supplier)` (net paid to a supplier).
+- The accounting summary view renders balance, money in/out, and the
+  outstanding amount of every completed sale — all computed from ledger
+  rows.
+
+#### 7. Expenses (`apps/expenses`)
+
+- No model. The list view filters `LedgerEntry` by `type=expense`; the
+  create view writes through `record_expense(company, …)`. Company-less
+  users are denied.
+
+#### 8. Documents (`apps/documents`)
+
+- One upload view, four shapes: generic (`DocumentForm` — requires at
+  least one of vehicle/customer/supplier), or locked to a vehicle /
+  customer / supplier (`VehicleDocumentForm`, `CustomerDocumentForm`,
+  `SupplierDocumentForm`) with the target as a hidden field and the
+  `doc_type` picker restricted to the target's allowed type list.
+- After upload the user lands back on the target's detail page. `is_photo`
+  splits galleries vs paperwork; card thumbnails/avatars/logos use
+  prefetched lists (`photo_list`, `logo_list`, `purchase_line_list`) to
+  avoid per-card queries.
+- Storage is decided only in settings: local `media/` volume by default,
+  S3 when `S3_ENABLED` is on (`STORAGES` block); app code only uses
+  `FileField`.
+
+#### 9. Conversation Hub & notifications (`apps/communications`)
+
+- **Outbound:** business code calls exactly one function —
+  `notification_engine.notify(event, company, customer, context)`. Known
+  events and templates: `payment_recorded` ("Payment of {amount}
+  {currency} was recorded…"), `sale_completed` ("Your purchase of
+  {vehicle} is complete…"). The engine translates the template, resolves
+  the customer's active channel identities, `get_or_create`s a
+  `Conversation` per identity, and sends via `send_reply` — returning the
+  number of attempts. Unknown events or missing context log and return 0.
+- `send_reply()` calls the channel adapter and persists the attempt: Null
+  adapter (integration off) → `skipped_disabled`; success → `sent`;
+  failure → `failed`. Bumps `conversation.last_message_at`.
+- **Inbound:** `process_inbound_payload()` dedupes on `external_message_id`
+  first, resolves the customer (`resolve_customer`: known identity →
+  existing customer; unknown → **new customer** named "<Channel display>
+  <last 6 digits>" + a new identity row — never a silent merge), then
+  stores the message (direction `in`, status `delivered`, raw payload) and
+  bumps `last_message_at`.
+- **Meta webhook** (`/webhooks/meta/`): GET performs the `hub.mode=
+  subscribe` URL-verification handshake (echoes `hub.challenge` only when
+  `META_ENABLED` and the verify token match; otherwise 403). POST:
+  refuses with **503** while disabled; verifies the HMAC-SHA256
+  `X-Hub-Signature-256` signature against `META_APP_SECRET` (403 on
+  mismatch); rejects unparseable bodies with 400; then enqueues
+  `process_meta_webhook.delay(payload)` and returns **200 immediately** —
+  Meta retries up to 7 days on non-200, so the endpoint stays fast and
+  idempotent.
+- The Celery task `process_meta_webhook` replays one payload against every
+  active Meta-family channel (`Channel.all_objects`) — dedupe constraints
+  make redelivery harmless.
+- `get_channel_adapter()` is the **only** place that reads `*_ENABLED`
+  flags: Meta family + `META_ENABLED` → `MetaAdapter`, everything else →
+  `NullChannelAdapter`. `MetaAdapter` sends through the Graph API `v19.0`
+  `/{endpoint_id}/messages` endpoint (Bearer `META_ACCESS_TOKEN`, 15 s
+  timeout), picks the endpoint id from the channel's credentials with env
+  fallbacks, and normalizes inbound payloads walking
+  `entry → changes → value → messages`.
+
+#### 10. Audit (`apps/audit`)
+
+- `django-simple-history` records every change on the 9 business models;
+  `HistoryRequestMiddleware` stamps the acting user; immutable financial
+  rows are excluded by design.
+
+#### 11. Integration toggles (`config/checks.py`)
+
+- System check `carflow.E001` fails startup fast when an `*_ENABLED` flag
+  is `True` but any of its required credentials is blank (named variable
+  in the error); with every flag off, boot must succeed with empty
+  credentials — the test suite enforces this contract.
+
+#### 12. i18n & RTL (`config/settings/base.py`, `apps/accounts/views.py`)
+
+- Languages `en` (English), `prs` (Dari), `ps` (Pashto); `prs` and `ps`
+  are registered in `LANG_INFO` and `LANGUAGES_BIDI` so templates render
+  `dir="rtl"` automatically.
+- Language switching persists in three places: the `django_language`
+  cookie (what LocaleMiddleware actually reads), the session (legacy
+  compatibility), and `User.preferred_language` (used at next login).
+
+#### 13. Dashboard (`apps/accounts/views.py`)
+
+- Company users see KPIs: vehicles in stock, open leads (new / contacted /
+  qualified), active (draft) sales, customer count, and the 5 latest
+  sales. Super Admin (no company) additionally sees platform totals
+  (companies + users) and, in `/admin/`, the Unfold KPI cards.
 
 ---
 
