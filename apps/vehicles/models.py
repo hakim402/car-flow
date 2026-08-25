@@ -2,6 +2,10 @@
 
 Deliberately NO cost columns here: a vehicle's total cost is computed from
 `purchases.VehicleCostLine` rows (§6), never stored where it can drift.
+
+Inventory state is authoritative on `inventory.VehicleStock` (§8); the
+legacy `status` mirror below is DEPRECATED and kept only for migration
+history. It will be removed in a later migration once no code depends on it.
 """
 from django.db import models
 from django.urls import reverse
@@ -12,6 +16,12 @@ from apps.core.tenancy import TenantModel
 
 
 class VehicleStatus(models.TextChoices):
+    """DEPRECATED (Phase 2): superseded by `inventory.StockStatus`.
+
+    Kept only so existing rows survive migration history. Do not read or
+    write this in new code; the authoritative lifecycle is VehicleStock.status.
+    """
+
     IN_TRANSIT = "in_transit", _("In transit")
     IN_STOCK = "in_stock", _("In stock")
     RESERVED = "reserved", _("Reserved")
@@ -29,7 +39,14 @@ class Vehicle(TenantModel, CompanyConsistencyMixin):
     color = models.CharField(_("color"), max_length=50, blank=True)
     mileage = models.PositiveIntegerField(_("mileage (km)"), default=0)
     status = models.CharField(
-        _("status"), max_length=20, choices=VehicleStatus.choices, default=VehicleStatus.IN_TRANSIT
+        _("status"),
+        max_length=20,
+        choices=VehicleStatus.choices,
+        default=VehicleStatus.IN_TRANSIT,
+        help_text=_(
+            "Deprecated: the authoritative inventory state lives on "
+            "inventory.VehicleStock.status (§8). Do not use."
+        ),
     )
     branch = models.ForeignKey(
         "branches.Branch",

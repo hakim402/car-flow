@@ -18,10 +18,12 @@ urlpatterns = [
     # Reservations
     path("reservations/", views.reservation_list, name="reservation_list"),
     path("reservations/add/", views.reservation_create, name="reservation_create"),
+    path("reservations/<int:pk>/cancel/", views.reservation_cancel, name="reservation_cancel"),
     # Sales + invoices
     path("sales/", views.sale_list, name="sale_list"),
     path("sales/add/", views.sale_create, name="sale_create"),
     path("sales/<int:pk>/", views.sale_detail, name="sale_detail"),
     path("sales/<int:pk>/complete/", views.sale_complete, name="sale_complete"),
+    path("sales/<int:pk>/deliver/", views.sale_deliver, name="sale_deliver"),
     path("sales/<int:pk>/invoice/", views.sale_issue_invoice, name="sale_issue_invoice"),
 ]

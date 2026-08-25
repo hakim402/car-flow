@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% translate "Inventory locations" %} — AUTOMEX CarFlow{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-4">
+    <h1 class="text-2xl font-semibold">{% translate "Inventory locations" %}</h1>
+    <a href="{% url 'inventory:list' %}"
+       class="rounded bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 text-sm">
+        {% translate "Back to inventory" %}
+    </a>
+</div>
+
+<div class="bg-white rounded-lg shadow p-6 mb-6">
+    <h2 class="text-lg font-semibold mb-3">{% translate "Add location" %}</h2>
+    <form method="post" action="{% url 'inventory:location_create' %}" class="grid grid-cols-1 md:grid-cols-5 gap-3">
+        {% csrf_token %}
+        <select name="branch" class="rounded border border-slate-300 px-3 py-2 text-sm" required>
+            <option value="">{% translate "Branch…" %}</option>
+            {% for branch in request.user.company.branches.all %}
+                <option value="{{ branch.pk }}">{{ branch }}</option>
+            {% endfor %}
+        </select>
+        <input type="text" name="name" placeholder="{% translate 'Name (e.g. Kabul Main Showroom)' %}"
+               class="rounded border border-slate-300 px-3 py-2 text-sm" required>
+        <select name="type" class="rounded border border-slate-300 px-3 py-2 text-sm">
+            {% for value, label in location_types %}
+                <option value="{{ value }}">{{ label }}</option>
+            {% endfor %}
+        </select>
+        <input type="text" name="code" placeholder="{% translate 'Code (optional, unique per branch)' %}"
+               class="rounded border border-slate-300 px-3 py-2 text-sm">
+        <button type="submit" class="rounded bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 text-sm">
+            {% translate "Create" %}
+        </button>
+    </form>
+</div>
+
+<div class="card overflow-x-auto">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th class="px-4 py-3 text-start font-medium">{% translate "Branch" %}</th>
+                <th class="px-4 py-3 text-start font-medium">{% translate "Name" %}</th>
+                <th class="px-4 py-3 text-start font-medium">{% translate "Type" %}</th>
+                <th class="px-4 py-3 text-start font-medium">{% translate "Code" %}</th>
+                <th class="px-4 py-3 text-start font-medium">{% translate "Active" %}</th>
+                <th class="px-4 py-3 text-start font-medium">{% translate "Actions" %}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for location in locations %}
+                <tr>
+                    <td class="px-4 py-3">{{ location.branch }}</td>
+                    <td class="px-4 py-3">{{ location.name }}</td>
+                    <td class="px-4 py-3">{{ location.get_type_display }}</td>
+                    <td class="px-4 py-3 font-mono">{{ location.code|default:"—" }}</td>
+                    <td class="px-4 py-3">
+                        {% if location.active %}{% translate "Yes" %}{% else %}{% translate "No" %}{% endif %}
+                    </td>
+                    <td class="px-4 py-3">
+                        <form method="post" action="{% url 'inventory:location_toggle' location.pk %}">
+                            {% csrf_token %}
+                            <button type="submit"
+                                    class="rounded bg-slate-100 text-slate-700 hover:bg-slate-200 px-2 py-1 text-xs">
+                                {% if location.active %}{% translate "Deactivate" %}{% else %}{% translate "Activate" %}{% endif %}
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="6" class="px-4 py-8 text-center text-slate-500">
+                    {% translate "No locations yet." %}
+                </td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

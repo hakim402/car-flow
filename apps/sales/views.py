@@ -1,12 +1,13 @@
 from django.contrib import messages
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_POST
 
 from apps.core.decorators import require_permission
-from apps.vehicles.models import VehicleStatus
+from apps.inventory.models import StockStatus
+from apps.inventory.services import deliver_stock, release_stock, reserve_stock
 
 from .forms import LeadForm, QuotationForm, ReservationForm, SaleForm
 from .models import (
@@ -15,6 +16,7 @@ from .models import (
     Quotation,
     QuotationStatus,
     Reservation,
+    ReservationStatus,
     Sale,
     SaleStatus,
 )
@@ -150,20 +152,47 @@ def reservation_create(request):
     company = _company_or_deny(request)
     form = ReservationForm(request.POST or None)
     if request.method == "POST" and form.is_valid():
-        with transaction.atomic():
-            reservation = form.save(commit=False)
-            reservation.company = company
-            reservation.created_by = request.user
-            reservation.save()
-            # Reserving flips the vehicle so it cannot be double-sold.
-            vehicle = reservation.vehicle
-            if vehicle.status == VehicleStatus.IN_STOCK:
-                vehicle.status = VehicleStatus.RESERVED
-                vehicle.save(update_fields=["status", "updated_at"])
+        try:
+            with transaction.atomic():
+                # Lock the stock row and require AVAILABLE first (§11): two
+                # racing reservations serialize here, the loser fails.
+                reserve_stock(
+                    form.cleaned_data["vehicle"],
+                    user=request.user,
+                    notes=_("Reservation created"),
+                )
+                reservation = form.save(commit=False)
+                reservation.company = company
+                reservation.created_by = request.user
+                reservation.save()
+        except ValidationError as exc:
+            messages.error(request, _("Vehicle cannot be reserved: %(reason)s") % {"reason": exc})
+            return render(request, "sales/form.html", {"form": form, "title": _("New reservation"),
+                                                       "back_url_name": "sales:reservation_list"})
         messages.success(request, _("Reservation created."))
         return redirect("sales:reservation_list")
     return render(request, "sales/form.html", {"form": form, "title": _("New reservation"),
                                                "back_url_name": "sales:reservation_list"})
+
+
+@require_permission("sales.change")
+@require_POST
+def reservation_cancel(request, pk):
+    """Cancel an active reservation and release the vehicle (§11)."""
+    reservation = get_object_or_404(Reservation, pk=pk)
+    if reservation.status != ReservationStatus.ACTIVE:
+        messages.error(request, _("Reservation is not active."))
+        return redirect("sales:reservation_list")
+    with transaction.atomic():
+        reservation.status = ReservationStatus.CANCELLED
+        reservation.save(update_fields=["status", "updated_at"])
+        release_stock(
+            reservation.vehicle,
+            user=request.user,
+            notes=f"Reservation #{reservation.pk} cancelled",
+        )
+    messages.success(request, _("Reservation cancelled — vehicle released."))
+    return redirect("sales:reservation_list")
 
 
 # --------------------------------------------------------------------------
@@ -197,14 +226,19 @@ def sale_create(request):
 @require_permission("sales.view")
 def sale_detail(request, pk):
     sale = get_object_or_404(Sale, pk=pk)
+    stock = getattr(sale.vehicle, "stock", None)
     return render(
         request,
         "sales/sale_detail.html",
         {
             "sale": sale,
             "invoice": sale.invoices.first(),
+            "stock": stock,
             "can_complete": sale.status == SaleStatus.DRAFT,
             "can_invoice": sale.status == SaleStatus.COMPLETED and not sale.invoices.exists(),
+            "can_deliver": sale.status == SaleStatus.COMPLETED
+            and stock is not None
+            and stock.status == StockStatus.SOLD,
         },
     )
 
@@ -213,10 +247,32 @@ def sale_detail(request, pk):
 @require_POST
 def sale_complete(request, pk):
     sale = get_object_or_404(Sale, pk=pk)
-    if complete_sale(sale, user=request.user):
+    try:
+        completed = complete_sale(sale, user=request.user)
+    except ValidationError as exc:
+        messages.error(request, _("Sale could not be completed: %(reason)s") % {"reason": exc})
+        return redirect(sale)
+    if completed:
         messages.success(request, _("Sale completed — vehicle marked sold."))
     else:
         messages.error(request, _("Sale could not be completed (already closed?)."))
+    return redirect(sale)
+
+
+@require_permission("sales.change")
+@require_POST
+def sale_deliver(request, pk):
+    """Deliver a completed sale: SOLD -> DELIVERED on the stock row (§21)."""
+    sale = get_object_or_404(Sale, pk=pk)
+    if sale.status != SaleStatus.COMPLETED:
+        messages.error(request, _("Complete the sale before delivery."))
+        return redirect(sale)
+    try:
+        deliver_stock(sale.vehicle, user=request.user, notes=f"Sale #{sale.pk} delivered")
+    except ValidationError as exc:
+        messages.error(request, _("Vehicle could not be delivered: %(reason)s") % {"reason": exc})
+        return redirect(sale)
+    messages.success(request, _("Vehicle delivered."))
     return redirect(sale)
 
 

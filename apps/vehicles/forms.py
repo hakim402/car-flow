@@ -10,7 +10,9 @@ from .models import Vehicle
 class VehicleForm(StyledFormMixin, forms.ModelForm):
     class Meta:
         model = Vehicle
-        fields = ["vin", "make", "model", "year", "color", "mileage", "status", "branch", "notes"]
+        # `status` is deliberately absent: inventory state is authoritative on
+        # VehicleStock (§8) and mutated only through the inventory services.
+        fields = ["vin", "make", "model", "year", "color", "mileage", "branch", "notes"]
         widgets = {"notes": forms.Textarea(attrs={"rows": 3})}
 
     def __init__(self, *args, **kwargs):

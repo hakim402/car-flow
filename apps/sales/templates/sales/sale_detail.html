@@ -25,6 +25,15 @@
                 </button>
             </form>
         {% endif %}
+        {% if can_deliver %}
+            <form method="post" action="{% url 'sales:sale_deliver' sale.pk %}">
+                {% csrf_token %}
+                <button type="submit"
+                        class="rounded bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 text-sm">
+                    {% translate "Deliver vehicle" %}
+                </button>
+            </form>
+        {% endif %}
     </div>
 </div>
 <div class="bg-white rounded-lg shadow p-6 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 text-sm mb-6">
@@ -39,6 +48,9 @@
     </div>
     <div><span class="text-slate-500">{% translate "Sale date" %}:</span> {{ sale.sale_date|date:"SHORT_DATE_FORMAT" }}</div>
     <div><span class="text-slate-500">{% translate "Status" %}:</span> {{ sale.get_status_display }}</div>
+    <div><span class="text-slate-500">{% translate "Inventory" %}:</span>
+        {% if stock %}{{ stock.get_status_display }}{% else %}—{% endif %}
+    </div>
     <div><span class="text-slate-500">{% translate "Reservation" %}:</span>
         {% if sale.reservation %}#{{ sale.reservation.pk }}{% else %}—{% endif %}
     </div>

@@ -16,7 +16,7 @@ class AuditConfig(AppConfig):
         from simple_history import register
 
         from apps.customers.models import Customer
-        from apps.inventory.models import VehicleStock
+        from apps.inventory.models import InventoryLocation, VehicleStock
         from apps.purchases.models import PurchaseOrder
         from apps.sales.models import Lead, Quotation, Reservation, Sale
         from apps.suppliers.models import Supplier
@@ -25,6 +25,7 @@ class AuditConfig(AppConfig):
         for model in (
             Vehicle,
             VehicleStock,
+            InventoryLocation,
             Supplier,
             PurchaseOrder,
             Customer,

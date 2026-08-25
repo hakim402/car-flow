@@ -10,7 +10,7 @@ from django.utils import timezone
 
 from apps.communications import notification_engine
 from apps.core.validation import validate_same_company
-from apps.vehicles.models import VehicleStatus
+from apps.inventory.services import sell_stock
 
 from .models import Invoice, ReservationStatus, Sale, SaleStatus
 
@@ -35,9 +35,10 @@ def complete_sale(sale: Sale, user=None) -> bool:
     )
     sale.status = SaleStatus.COMPLETED
     sale.save(update_fields=["status", "updated_at"])
-    vehicle = sale.vehicle
-    vehicle.status = VehicleStatus.SOLD
-    vehicle.save(update_fields=["status", "updated_at"])
+    # Inventory state lives on VehicleStock (§8): the stock service flips
+    # AVAILABLE/RESERVED -> SOLD, stamps sold_at and appends a SALE
+    # movement. `Vehicle.status` is deprecated legacy state.
+    sell_stock(sale.vehicle, user=user, notes=f"Sale #{sale.pk}")
     if sale.reservation and sale.reservation.status == ReservationStatus.ACTIVE:
         sale.reservation.status = ReservationStatus.COMPLETED
         sale.reservation.save(update_fields=["status", "updated_at"])

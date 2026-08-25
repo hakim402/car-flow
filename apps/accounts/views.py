@@ -51,29 +51,30 @@ def dashboard(request):
     # Imports stay local: this view lives in the auth app and must not drag
     # the business models into its module-import graph at startup.
     from apps.customers.models import Customer
+    from apps.inventory.models import StockStatus, VehicleStock
     from apps.sales.models import Lead, LeadStatus, Sale, SaleStatus
-    from apps.vehicles.models import Vehicle, VehicleStatus
 
     if request.user.company_id is None:
         # Super Admin runs without tenant context: unrestricted access must
         # be an explicit all_objects choice, never the tenant manager (§25.1).
-        vehicle_qs, lead_qs, sale_qs, customer_qs = (
-            Vehicle.all_objects,
+        lead_qs, sale_qs, customer_qs, stock_qs = (
             Lead.all_objects,
             Sale.all_objects,
             Customer.all_objects,
+            VehicleStock.all_objects,
         )
     else:
-        vehicle_qs, lead_qs, sale_qs, customer_qs = (
-            Vehicle.objects,
+        lead_qs, sale_qs, customer_qs, stock_qs = (
             Lead.objects,
             Sale.objects,
             Customer.objects,
+            VehicleStock.objects,
         )
 
     stats = {
-        "vehicles_in_stock": vehicle_qs.filter(
-            status=VehicleStatus.IN_STOCK
+        # Inventory state lives on VehicleStock (§8); Vehicle.status is deprecated.
+        "vehicles_in_stock": stock_qs.filter(
+            status=StockStatus.AVAILABLE
         ).count(),
         "open_leads": lead_qs.filter(
             status__in=[LeadStatus.NEW, LeadStatus.CONTACTED, LeadStatus.QUALIFIED]

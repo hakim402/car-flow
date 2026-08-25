@@ -1,10 +1,9 @@
 """Receiving a purchase order: appends immutable cost rows and creates
-branch stock — all side effects are idempotent per line."""
+the authoritative stock row — all side effects are idempotent per line."""
 from django.db import transaction
 
 from apps.core.validation import validate_same_company
-from apps.inventory.models import VehicleStock
-from apps.vehicles.models import VehicleStatus
+from apps.inventory.services import receive_vehicle
 
 from .models import CostType, PurchaseOrder, PurchaseStatus, VehicleCostLine
 
@@ -12,8 +11,9 @@ from .models import CostType, PurchaseOrder, PurchaseStatus, VehicleCostLine
 @transaction.atomic
 def receive_order(order: PurchaseOrder, user=None) -> int:
     """Mark an order received: for every line with a vehicle, append a
-    purchase-price VehicleCostLine (if not already recorded), place the
-    vehicle into branch stock, and flip its status. Returns vehicles received.
+    purchase-price VehicleCostLine (if not already recorded) and initialize
+    the vehicle's inventory stock with a RECEIVE movement (README §6.4).
+    Returns vehicles received.
 
     Concurrency (README §26): the order row is locked with
     `select_for_update()` so two racing receivers serialize — the loser sees
@@ -51,15 +51,11 @@ def receive_order(order: PurchaseOrder, user=None) -> int:
                 created_by=user if user and user.is_authenticated else None,
             )
         branch = order.branch or vehicle.branch
+        # Inventory state now lives exclusively on VehicleStock (§8): the
+        # stock service creates the authoritative row and records RECEIVE.
+        # `Vehicle.status` is deprecated legacy state and is no longer written.
         if branch:
-            vehicle.branch = branch
-        vehicle.status = VehicleStatus.IN_STOCK
-        vehicle.save()
-        if branch:
-            VehicleStock.objects.get_or_create(
-                vehicle=vehicle,
-                defaults={"company": order.company, "branch": branch},
-            )
+            receive_vehicle(vehicle, branch, user=user, notes=f"PO {order}")
         received += 1
     order.status = PurchaseStatus.RECEIVED
     order.save(update_fields=["status", "updated_at"])

@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{{ stock.vehicle }} — {% translate "Inventory" %} — AUTOMEX CarFlow{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-4">
+    <h1 class="text-2xl font-semibold">{{ stock.vehicle }}</h1>
+    <a href="{% url 'vehicles:detail' stock.vehicle.pk %}"
+       class="rounded bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 text-sm">
+        {% translate "Vehicle record" %}
+    </a>
+</div>
+
+<div class="bg-white rounded-lg shadow p-6 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 text-sm mb-6">
+    <div><span class="text-slate-500">{% translate "Status" %}:</span> {{ stock.get_status_display }}</div>
+    <div><span class="text-slate-500">{% translate "Condition" %}:</span> {{ stock.get_condition_display }}</div>
+    <div><span class="text-slate-500">{% translate "Branch" %}:</span> {{ stock.branch }}</div>
+    <div><span class="text-slate-500">{% translate "Location" %}:</span> {{ stock.location|default:"—" }}</div>
+    <div><span class="text-slate-500">{% translate "Lot / parking code" %}:</span> {{ stock.lot_code|default:"—" }}</div>
+    <div><span class="text-slate-500">{% translate "Received" %}:</span> {{ stock.received_at|date:"SHORT_DATETIME_FORMAT" }}</div>
+    <div><span class="text-slate-500">{% translate "Age" %}:</span>
+        {{ stock.days_in_inventory }} {% translate "days" %}
+        {% if age_bucket_label %}({{ age_bucket_label }}){% endif %}
+    </div>
+    <div><span class="text-slate-500">{% translate "Available" %}:</span> {{ stock.available_at|date:"SHORT_DATETIME_FORMAT"|default:"—" }}</div>
+    <div><span class="text-slate-500">{% translate "Reserved" %}:</span> {{ stock.reserved_at|date:"SHORT_DATETIME_FORMAT"|default:"—" }}</div>
+    <div><span class="text-slate-500">{% translate "Sold" %}:</span> {{ stock.sold_at|date:"SHORT_DATETIME_FORMAT"|default:"—" }}</div>
+    <div><span class="text-slate-500">{% translate "Delivered" %}:</span> {{ stock.delivered_at|date:"SHORT_DATETIME_FORMAT"|default:"—" }}</div>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+    <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="text-lg font-semibold mb-3">{% translate "Move within branch" %}</h2>
+        <form method="post" action="{% url 'inventory:move' stock.pk %}" class="space-y-3">
+            {% csrf_token %}
+            <select name="location" class="w-full rounded border border-slate-300 px-3 py-2 text-sm" required>
+                <option value="">{% translate "Choose a location…" %}</option>
+                {% for location in locations %}
+                    {% if location.branch_id == stock.branch_id %}
+                        <option value="{{ location.pk }}" {% if location.pk == stock.location_id %}selected{% endif %}>
+                            {{ location }}
+                        </option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+            <input type="text" name="notes" placeholder="{% translate 'Notes (optional)' %}"
+                   class="w-full rounded border border-slate-300 px-3 py-2 text-sm">
+            <button type="submit" class="rounded bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 text-sm">
+                {% translate "Move" %}
+            </button>
+        </form>
+    </div>
+
+    <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="text-lg font-semibold mb-3">{% translate "Transfer to another branch" %}</h2>
+        <form method="post" action="{% url 'inventory:transfer' stock.pk %}" class="space-y-3">
+            {% csrf_token %}
+            <select name="branch" class="w-full rounded border border-slate-300 px-3 py-2 text-sm" required>
+                <option value="">{% translate "Choose a branch…" %}</option>
+                {% for branch in branches %}
+                    <option value="{{ branch.pk }}" {% if branch.pk == stock.branch_id %}selected{% endif %}>
+                        {{ branch }}
+                    </option>
+                {% endfor %}
+            </select>
+            <select name="location" class="w-full rounded border border-slate-300 px-3 py-2 text-sm">
+                <option value="">{% translate "No specific location" %}</option>
+                {% for location in locations %}
+                    <option value="{{ location.pk }}">{{ location }}</option>
+                {% endfor %}
+            </select>
+            <input type="text" name="notes" placeholder="{% translate 'Notes (optional)' %}"
+                   class="w-full rounded border border-slate-300 px-3 py-2 text-sm">
+            <button type="submit" class="rounded bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 text-sm">
+                {% translate "Transfer" %}
+            </button>
+        </form>
+    </div>
+</div>
+
+<div class="bg-white rounded-lg shadow p-6">
+    <h2 class="text-lg font-semibold mb-3">{% translate "Movement history" %}</h2>
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th class="px-4 py-3 text-start font-medium">{% translate "When" %}</th>
+                <th class="px-4 py-3 text-start font-medium">{% translate "Type" %}</th>
+                <th class="px-4 py-3 text-start font-medium">{% translate "From" %}</th>
+                <th class="px-4 py-3 text-start font-medium">{% translate "To" %}</th>
+                <th class="px-4 py-3 text-start font-medium">{% translate "By" %}</th>
+                <th class="px-4 py-3 text-start font-medium">{% translate "Notes" %}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for movement in movements %}
+                <tr>
+                    <td class="px-4 py-3">{{ movement.moved_at|date:"SHORT_DATETIME_FORMAT" }}</td>
+                    <td class="px-4 py-3">{{ movement.get_movement_type_display }}</td>
+                    <td class="px-4 py-3">
+                        {% if movement.from_branch %}{{ movement.from_branch }}{% if movement.from_location %} · {{ movement.from_location }}{% endif %}{% else %}—{% endif %}
+                    </td>
+                    <td class="px-4 py-3">
+                        {% if movement.to_branch %}{{ movement.to_branch }}{% if movement.to_location %} · {{ movement.to_location }}{% endif %}{% else %}—{% endif %}
+                    </td>
+                    <td class="px-4 py-3">{{ movement.performed_by|default:"—" }}</td>
+                    <td class="px-4 py-3">{{ movement.notes }}</td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="6" class="px-4 py-8 text-center text-slate-500">
+                    {% translate "No movements recorded yet." %}
+                </td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

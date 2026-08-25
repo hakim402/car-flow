@@ -53,16 +53,18 @@
                         <p class="text-xs text-slate-500">{{ vehicle.year }}{% if vehicle.color %} · {{ vehicle.color }}{% endif %} · {{ vehicle.mileage }} {% translate "km" %}</p>
                     </div>
                     <span class="whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-medium
-                        {% if vehicle.status == 'sold' or vehicle.status == 'delivered' %}bg-green-100 text-green-700
-                        {% elif vehicle.status == 'reserved' %}bg-sky-100 text-sky-700
-                        {% elif vehicle.status == 'in_stock' %}bg-amber-100 text-amber-700
+                        {% if vehicle.stock %}
+                            {% if vehicle.stock.status == 'sold' or vehicle.stock.status == 'delivered' %}bg-green-100 text-green-700
+                            {% elif vehicle.stock.status == 'reserved' %}bg-sky-100 text-sky-700
+                            {% elif vehicle.stock.status == 'available' %}bg-amber-100 text-amber-700
+                            {% else %}bg-slate-100 text-slate-600{% endif %}
                         {% else %}bg-slate-100 text-slate-600{% endif %}">
-                        {{ vehicle.get_status_display }}
+                        {% if vehicle.stock %}{{ vehicle.stock.get_status_display }}{% else %}—{% endif %}
                     </span>
                 </div>
                 <p class="mt-2 font-mono text-xs text-slate-400">{{ vehicle.vin }}</p>
-                {% if vehicle.branch %}
-                    <p class="mt-1 text-xs text-slate-400">{{ vehicle.branch }}</p>
+                {% if vehicle.stock and vehicle.stock.branch %}
+                    <p class="mt-1 text-xs text-slate-400">{{ vehicle.stock.branch }}</p>
                 {% endif %}
                 {% if vehicle.source_supplier %}
                     <p class="mt-1 text-xs text-slate-500">

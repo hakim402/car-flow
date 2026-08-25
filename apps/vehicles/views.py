@@ -6,9 +6,10 @@ from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_POST
 
 from apps.core.decorators import require_permission
+from apps.inventory.models import StockStatus
 
 from .forms import VehicleForm
-from .models import Vehicle, VehicleStatus
+from .models import Vehicle
 
 
 def _current_company_or_deny(request):
@@ -26,16 +27,20 @@ def vehicle_list(request):
 
     queryset = Vehicle.objects.all()  # TenantManager filters by company.
     if request.user.branch_id:
-        # Branch users see their own branch's fleet by default.
-        queryset = queryset.filter(branch_id=request.user.branch_id)
+        # Branch users see their own branch's fleet by default; the branch
+        # now lives on the stock row (§8), not on the deprecated
+        # Vehicle.branch mirror.
+        queryset = queryset.filter(stock__branch_id=request.user.branch_id)
     search = request.GET.get("q", "").strip()
     status = request.GET.get("status", "")
     if search:
         queryset = queryset.filter(vin__icontains=search) | queryset.filter(
             make__icontains=search
         ) | queryset.filter(model__icontains=search)
-    if status in VehicleStatus.values:
-        queryset = queryset.filter(status=status)
+    if status in StockStatus.values:
+        # Inventory state lives on VehicleStock (§8): filter through the
+        # stock row, not the deprecated Vehicle.status mirror.
+        queryset = queryset.filter(stock__status=status)
     # Card thumbnail = oldest photo; one prefetch query for the whole grid.
     photos = Prefetch(
         "documents",
@@ -56,8 +61,10 @@ def vehicle_list(request):
         request,
         "vehicles/list.html",
         {
-            "vehicles": queryset.select_related("branch").prefetch_related(photos, purchases),
-            "statuses": VehicleStatus.choices,
+            "vehicles": queryset.select_related("branch", "stock__branch", "stock__location").prefetch_related(
+                photos, purchases
+            ),
+            "statuses": StockStatus.choices,
             "q": search,
             "status": status,
         },
@@ -70,6 +77,9 @@ def vehicle_detail(request, pk):
     from apps.purchases.services import vehicle_landed_cost
 
     vehicle = get_object_or_404(Vehicle, pk=pk)
+    # Inventory state lives on the stock row (§8); Vehicle.status is
+    # deprecated and only kept for migration history.
+    stock = getattr(vehicle, "stock", None)
     attachments = vehicle.documents.all().select_related("uploaded_by")
     # Which supplier was this car bought from — via its purchase-order lines.
     purchase_lines = vehicle.purchase_lines.select_related(
@@ -80,6 +90,7 @@ def vehicle_detail(request, pk):
         "vehicles/detail.html",
         {
             "vehicle": vehicle,
+            "stock": stock,
             "cost_lines": vehicle.cost_lines.all(),
             "landed_cost": vehicle_landed_cost(vehicle),
             "cost_form": VehicleCostLineForm(),
