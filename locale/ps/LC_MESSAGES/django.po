@@ -5,40 +5,40 @@ msgstr ""
 "Project-Id-Version: automex-carflow 1.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-08-20 10:33+0000\n"
-"PO-Revision-Date: 2026-08-18 13:40+0000\n"
-"Language: ps\n"
+"PO-Revision-Date: 2026-08-25 14:18+0430\n"
+"Language: prs\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
 #: apps/accounting/templates/accounting/summary.html:4 templates/base.html:93
 msgid "Accounting"
-msgstr "حساب کتاب"
+msgstr "حسابداری"
 
 #: apps/accounting/templates/accounting/summary.html:7
 msgid "Accounting overview"
-msgstr ""
+msgstr "نمای کلی حسابداری"
 
 #: apps/accounting/templates/accounting/summary.html:11
 msgid "Balance"
-msgstr ""
+msgstr "مانده حساب"
 
 #: apps/accounting/templates/accounting/summary.html:19
 msgid "Money in"
-msgstr ""
+msgstr "وجوه دریافتی"
 
 #: apps/accounting/templates/accounting/summary.html:27
 msgid "Money out"
-msgstr ""
+msgstr "وجوه پرداختی"
 
 #: apps/accounting/templates/accounting/summary.html:37
 msgid "Outstanding on completed sales"
-msgstr ""
+msgstr "مبالغ باقی‌مانده فروش‌های تکمیل‌شده"
 
 #: apps/accounting/templates/accounting/summary.html:41
 #: apps/sales/models.py:260
 msgid "Sale"
-msgstr ""
+msgstr "فروش"
 
 #: apps/accounting/templates/accounting/summary.html:42
 #: apps/communications/templates/communications/conversation_list.html:18
@@ -51,119 +51,119 @@ msgstr ""
 #: apps/sales/templates/sales/sale_list.html:19
 #: templates/accounts/dashboard.html:116
 msgid "Customer"
-msgstr ""
+msgstr "مشتری"
 
 #: apps/accounting/templates/accounting/summary.html:43
 msgid "Outstanding"
-msgstr ""
+msgstr "باقی‌مانده"
 
 #: apps/accounting/templates/accounting/summary.html:63
 msgid "No completed sales yet."
-msgstr ""
+msgstr "هنوز هیچ فروش تکمیل‌شده‌ای وجود ندارد."
 
 #: apps/accounts/models.py:16
 msgid "Super Admin"
-msgstr ""
+msgstr "مدیر ارشد سیستم"
 
 #: apps/accounts/models.py:17
 msgid "Organization Admin"
-msgstr ""
+msgstr "مدیر سازمان"
 
 #: apps/accounts/models.py:18
 msgid "Branch Manager"
-msgstr ""
+msgstr "مدیر شعبه"
 
 #: apps/accounts/models.py:19 apps/customers/templates/customers/detail.html:37
 #: apps/sales/templates/sales/sale_list.html:4
 #: apps/sales/templates/sales/sale_list.html:8 templates/base.html:63
 #: templates/base.html:71
 msgid "Sales"
-msgstr "خرڅلاو"
+msgstr "فروشات"
 
 #: apps/accounts/models.py:20 apps/inventory/templates/inventory/list.html:4
 #: apps/inventory/templates/inventory/list.html:7 templates/base.html:49
 msgid "Inventory"
-msgstr "زیرمه"
+msgstr "موجودی"
 
 #: apps/accounts/models.py:21
 msgid "Accountant"
-msgstr ""
+msgstr "حسابدار"
 
 #: apps/accounts/models.py:29
 msgid "codename"
-msgstr ""
+msgstr "نام رمزی"
 
 #: apps/accounts/models.py:30 apps/expenses/forms.py:11
 #: apps/payments/forms.py:13 apps/payments/models.py:43
 #: apps/purchases/models.py:88 apps/purchases/models.py:121
 msgid "description"
-msgstr ""
+msgstr "توضیحات"
 
 #: apps/accounts/models.py:33
 msgid "permission"
-msgstr ""
+msgstr "مجوز"
 
 #: apps/accounts/models.py:34 apps/accounts/models.py:49
 msgid "permissions"
-msgstr ""
+msgstr "مجوزها"
 
 #: apps/accounts/models.py:45
 msgid "key"
-msgstr ""
+msgstr "کلید"
 
 #: apps/accounts/models.py:46 apps/branches/models.py:15
 #: apps/organizations/models.py:9 apps/sales/models.py:36
 #: apps/suppliers/models.py:9
 msgid "name"
-msgstr ""
+msgstr "نام"
 
 #: apps/accounts/models.py:47
 msgid "system role"
-msgstr ""
+msgstr "نقش سیستمی"
 
 #: apps/accounts/models.py:53
 msgid "role"
-msgstr ""
+msgstr "نقش"
 
 #: apps/accounts/models.py:54 apps/accounts/models.py:93
 msgid "roles"
-msgstr ""
+msgstr "نقش‌ها"
 
 #: apps/accounts/models.py:69
 msgid "username"
-msgstr ""
+msgstr "نام کاربری"
 
 #: apps/accounts/models.py:71 apps/customers/models.py:17
 #: apps/suppliers/models.py:12
 msgid "email"
-msgstr ""
+msgstr "ایمیل"
 
 #: apps/accounts/models.py:80 apps/branches/models.py:13
 msgid "company"
-msgstr ""
+msgstr "شرکت"
 
 #: apps/accounts/models.py:83
 msgid "Blank only for Super Admin users."
-msgstr ""
+msgstr "فقط برای کاربران مدیر ارشد سیستم خالی بماند."
 
 #: apps/accounts/models.py:89 apps/branches/models.py:19
 #: apps/customers/models.py:23 apps/inventory/models.py:29
 #: apps/purchases/models.py:37 apps/sales/models.py:64
 #: apps/vehicles/models.py:35
 msgid "branch"
-msgstr ""
+msgstr "شعبه"
 
 #: apps/accounts/models.py:96
 msgid "preferred language"
-msgstr ""
+msgstr "زبان ترجیحی"
 
 #: apps/accounts/models.py:103
 msgid "user"
-msgstr ""
+msgstr "کاربر"
 
 #: apps/accounts/models.py:104
 msgid "users"
-msgstr ""
+msgstr "کاربران"
 
 #: apps/branches/models.py:16 apps/communications/models.py:119
 #: apps/communications/models.py:155 apps/customers/models.py:36
@@ -174,57 +174,57 @@ msgstr ""
 #: apps/sales/models.py:287 apps/suppliers/models.py:15
 #: apps/vehicles/models.py:40
 msgid "created at"
-msgstr ""
+msgstr "تاریخ ایجاد"
 
 #: apps/branches/models.py:20
 msgid "branches"
-msgstr ""
+msgstr "شعبه‌ها"
 
 #: apps/communications/forms.py:13 apps/communications/models.py:122
 msgid "message"
-msgstr ""
+msgstr "پیام"
 
 #: apps/communications/forms.py:14
 msgid "Type a message…"
-msgstr ""
+msgstr "پیامی بنویسید…"
 
 #: apps/communications/forms.py:19 apps/communications/models.py:28
 #: apps/documents/models.py:39 apps/payments/models.py:40
 msgid "type"
-msgstr ""
+msgstr "نوع"
 
 #: apps/communications/forms.py:20 apps/communications/models.py:30
 #: apps/communications/templates/communications/channel_list.html:29
 msgid "active"
-msgstr ""
+msgstr "فعال"
 
 #: apps/communications/forms.py:22
 msgid "credentials (JSON)"
-msgstr ""
+msgstr "اطلاعات دسترسی (JSON)"
 
 #: apps/communications/forms.py:34
 msgid "Credentials must be valid JSON."
-msgstr ""
+msgstr "اطلاعات دسترسی باید JSON معتبر باشد."
 
 #: apps/communications/forms.py:36
 msgid "Credentials must be a JSON object."
-msgstr ""
+msgstr "اطلاعات دسترسی باید یک شیء JSON باشد."
 
 #: apps/communications/models.py:15 apps/sales/models.py:22
 msgid "WhatsApp"
-msgstr ""
+msgstr "واتساپ"
 
 #: apps/communications/models.py:16
 msgid "Messenger"
-msgstr ""
+msgstr "مسنجر"
 
 #: apps/communications/models.py:17
 msgid "Instagram"
-msgstr ""
+msgstr "اینستاگرام"
 
 #: apps/communications/models.py:18
 msgid "Telegram"
-msgstr ""
+msgstr "تلگرام"
 
 #: apps/communications/models.py:19
 #: apps/customers/templates/customers/detail.html:14
@@ -232,134 +232,134 @@ msgstr ""
 #: apps/suppliers/templates/suppliers/list.html:28
 #: templates/accounts/login.html:19
 msgid "Email"
-msgstr "برېښنالیک"
+msgstr "ایمیل"
 
 #: apps/communications/models.py:20
 msgid "SMS"
-msgstr ""
+msgstr "پیامک"
 
 #: apps/communications/models.py:29
 msgid "credentials"
-msgstr ""
+msgstr "اطلاعات دسترسی"
 
 #: apps/communications/models.py:33 apps/communications/models.py:57
 #: apps/communications/models.py:152
 msgid "channel"
-msgstr ""
+msgstr "کانال"
 
 #: apps/communications/models.py:34
 msgid "channels"
-msgstr ""
+msgstr "کانال‌ها"
 
 #: apps/communications/models.py:42
 msgid "Open"
-msgstr ""
+msgstr "باز"
 
 #: apps/communications/models.py:43
 msgid "Closed"
-msgstr ""
+msgstr "بسته"
 
 #: apps/communications/models.py:51 apps/communications/models.py:146
 #: apps/customers/models.py:40 apps/documents/models.py:34
 #: apps/sales/models.py:42 apps/sales/models.py:105 apps/sales/models.py:164
 #: apps/sales/models.py:220
 msgid "customer"
-msgstr ""
+msgstr "مشتری"
 
 #: apps/communications/models.py:59
 msgid "external thread id"
-msgstr ""
+msgstr "شناسه رشته خارجی"
 
 #: apps/communications/models.py:64
 msgid "assigned to"
-msgstr ""
+msgstr "واگذار شده به"
 
 #: apps/communications/models.py:69 apps/communications/models.py:114
 #: apps/inventory/models.py:32 apps/purchases/models.py:42
 #: apps/sales/models.py:58 apps/sales/models.py:127 apps/sales/models.py:183
 #: apps/sales/models.py:240 apps/vehicles/models.py:29
 msgid "status"
-msgstr "حالت"
+msgstr "وضعیت"
 
 #: apps/communications/models.py:71
 msgid "last message at"
-msgstr ""
+msgstr "زمان آخرین پیام"
 
 #: apps/communications/models.py:74 apps/communications/models.py:107
 msgid "conversation"
-msgstr ""
+msgstr "گفتگو"
 
 #: apps/communications/models.py:75
 msgid "conversations"
-msgstr ""
+msgstr "گفتگوها"
 
 #: apps/communications/models.py:88
 msgid "Inbound"
-msgstr ""
+msgstr "ورودی"
 
 #: apps/communications/models.py:89
 msgid "Outbound"
-msgstr ""
+msgstr "خروجی"
 
 #: apps/communications/models.py:93
 msgid "Queued"
-msgstr ""
+msgstr "در صف"
 
 #: apps/communications/models.py:94 apps/sales/models.py:94
 msgid "Sent"
-msgstr ""
+msgstr "ارسال‌شده"
 
 #: apps/communications/models.py:95 apps/vehicles/models.py:18
 msgid "Delivered"
-msgstr ""
+msgstr "تحویل‌شده"
 
 #: apps/communications/models.py:96
 msgid "Read"
-msgstr ""
+msgstr "خوانده‌شده"
 
 #: apps/communications/models.py:97
 msgid "Failed"
-msgstr ""
+msgstr "ناموفق"
 
 #: apps/communications/models.py:99
 msgid "Skipped (integration disabled)"
-msgstr ""
+msgstr "رد شد (یکپارچه‌سازی غیرفعال است)"
 
 #: apps/communications/models.py:109
 msgid "direction"
-msgstr ""
+msgstr "جهت"
 
 #: apps/communications/models.py:110
 msgid "body"
-msgstr ""
+msgstr "متن پیام"
 
 #: apps/communications/models.py:111
 msgid "media"
-msgstr ""
+msgstr "رسانه"
 
 #: apps/communications/models.py:112
 msgid "external message id"
-msgstr ""
+msgstr "شناسه پیام خارجی"
 
 #: apps/communications/models.py:118
 msgid "raw payload"
-msgstr ""
+msgstr "داده خام"
 
 #: apps/communications/models.py:123
 msgid "messages"
-msgstr ""
+msgstr "پیام‌ها"
 
 #: apps/communications/models.py:154
 msgid "external id"
-msgstr ""
+msgstr "شناسه خارجی"
 
 #: apps/communications/models.py:158
 msgid "customer channel identity"
-msgstr ""
+msgstr "شناسه کانال مشتری"
 
 #: apps/communications/models.py:159
 msgid "customer channel identities"
-msgstr ""
+msgstr "شناسه‌های کانال مشتری"
 
 #: apps/communications/templates/communications/channel_form.html:14
 #: apps/customers/templates/customers/form.html:14
@@ -370,7 +370,7 @@ msgstr ""
 #: apps/suppliers/templates/suppliers/form.html:13
 #: apps/vehicles/templates/vehicles/form.html:13
 msgid "Save"
-msgstr "خوندي کول"
+msgstr "ذخیره"
 
 #: apps/communications/templates/communications/channel_form.html:17
 #: apps/customers/templates/customers/form.html:17
@@ -382,25 +382,25 @@ msgstr "خوندي کول"
 #: apps/suppliers/templates/suppliers/form.html:16
 #: apps/vehicles/templates/vehicles/form.html:16
 msgid "Cancel"
-msgstr "لغوه"
+msgstr "لغو"
 
 #: apps/communications/templates/communications/channel_list.html:4
 #: apps/communications/templates/communications/channel_list.html:8
 #: apps/communications/templates/communications/conversation_list.html:11
 msgid "Channels"
-msgstr ""
+msgstr "کانال‌ها"
 
 #: apps/communications/templates/communications/channel_list.html:11
 #: apps/communications/views.py:69
 msgid "Add channel"
-msgstr ""
+msgstr "افزودن کانال"
 
 #: apps/communications/templates/communications/channel_list.html:18
 #: apps/documents/templates/documents/list.html:19
 #: apps/payments/templates/payments/list.html:25
 #: apps/vehicles/templates/vehicles/detail.html:39
 msgid "Type"
-msgstr ""
+msgstr "نوع"
 
 #: apps/communications/templates/communications/channel_list.html:19
 #: apps/communications/templates/communications/conversation_list.html:21
@@ -418,11 +418,11 @@ msgstr ""
 #: apps/vehicles/templates/vehicles/list.html:37
 #: templates/accounts/dashboard.html:119
 msgid "Status"
-msgstr "حالت"
+msgstr "وضعیت"
 
 #: apps/communications/templates/communications/channel_list.html:31
 msgid "inactive"
-msgstr ""
+msgstr "غیرفعال"
 
 #: apps/communications/templates/communications/channel_list.html:36
 #: apps/customers/templates/customers/detail.html:10
@@ -431,106 +431,106 @@ msgstr ""
 #: apps/vehicles/templates/vehicles/detail.html:10
 #: apps/vehicles/templates/vehicles/list.html:55
 msgid "Edit"
-msgstr "سمول"
+msgstr "ویرایش"
 
 #: apps/communications/templates/communications/channel_list.html:42
 msgid "No channels configured yet."
-msgstr ""
+msgstr "هنوز هیچ کانالی تنظیم نشده است."
 
 #: apps/communications/templates/communications/conversation_detail.html:12
 msgid "Customer profile"
-msgstr ""
+msgstr "پروفایل مشتری"
 
 #: apps/communications/templates/communications/conversation_detail.html:30
 msgid "No messages yet."
-msgstr ""
+msgstr "هنوز پیامی وجود ندارد."
 
 #: apps/communications/templates/communications/conversation_detail.html:41
 msgid "Send reply"
-msgstr ""
+msgstr "ارسال پاسخ"
 
 #: apps/communications/templates/communications/conversation_list.html:4
 #: apps/communications/templates/communications/conversation_list.html:8
 #: templates/base.html:103
 msgid "Conversations"
-msgstr "خبرې اترې"
+msgstr "گفتگوها"
 
 #: apps/communications/templates/communications/conversation_list.html:19
 msgid "Channel"
-msgstr ""
+msgstr "کانال"
 
 #: apps/communications/templates/communications/conversation_list.html:20
 msgid "Assigned to"
-msgstr ""
+msgstr "واگذار شده به"
 
 #: apps/communications/templates/communications/conversation_list.html:22
 msgid "Last message"
-msgstr ""
+msgstr "آخرین پیام"
 
 #: apps/communications/templates/communications/conversation_list.html:38
 msgid "unassigned"
-msgstr ""
+msgstr "واگذار نشده"
 
 #: apps/communications/templates/communications/conversation_list.html:47
 msgid "No conversations yet — inbound webhook messages will appear here."
-msgstr ""
+msgstr "هنوز گفتگویی وجود ندارد — پیام‌های ورودی وب‌هوک در اینجا نمایش داده می‌شوند."
 
 #: apps/communications/views.py:43
 msgid "Reply sent through the channel adapter."
-msgstr ""
+msgstr "پاسخ از طریق رابط کانال ارسال شد."
 
 #: apps/communications/views.py:45
 msgid "Could not send the reply."
-msgstr ""
+msgstr "ارسال پاسخ ممکن نشد."
 
 #: apps/communications/views.py:67
 msgid "Channel created."
-msgstr ""
+msgstr "کانال ایجاد شد."
 
 #: apps/communications/views.py:81
 msgid "Channel updated."
-msgstr ""
+msgstr "کانال به‌روزرسانی شد."
 
 #: apps/communications/views.py:86
 msgid "Edit channel"
-msgstr ""
+msgstr "ویرایش کانال"
 
 #: apps/customers/models.py:15
 msgid "full name"
-msgstr ""
+msgstr "نام کامل"
 
 #: apps/customers/models.py:16 apps/sales/models.py:37
 #: apps/suppliers/models.py:11
 msgid "phone"
-msgstr ""
+msgstr "شماره تماس"
 
 #: apps/customers/models.py:18
 msgid "national ID"
-msgstr ""
+msgstr "شماره تذکره"
 
 #: apps/customers/models.py:27 apps/purchases/models.py:45
 #: apps/sales/models.py:68 apps/sales/models.py:129 apps/sales/models.py:185
 #: apps/sales/models.py:242 apps/suppliers/models.py:14
 #: apps/vehicles/models.py:39
 msgid "notes"
-msgstr ""
+msgstr "یادداشت‌ها"
 
 #: apps/customers/models.py:32 apps/payments/models.py:66
 #: apps/purchases/models.py:50 apps/purchases/models.py:126
 #: apps/sales/models.py:73 apps/sales/models.py:134 apps/sales/models.py:190
 #: apps/sales/models.py:247 apps/sales/models.py:283
 msgid "created by"
-msgstr ""
+msgstr "ایجادشده توسط"
 
 #: apps/customers/models.py:37 apps/purchases/models.py:55
 #: apps/sales/models.py:78 apps/sales/models.py:139 apps/sales/models.py:195
 #: apps/sales/models.py:252 apps/vehicles/models.py:41
 msgid "updated at"
-msgstr ""
+msgstr "تاریخ به‌روزرسانی"
 
 #: apps/customers/models.py:41
 msgid "customers"
-msgstr ""
+msgstr "مشتریان"
 
 #: apps/customers/templates/customers/detail.html:13
 #: apps/customers/templates/customers/list.html:26
@@ -538,11 +538,11 @@ msgstr ""
 #: apps/sales/templates/sales/lead_list.html:27
 #: apps/suppliers/templates/suppliers/list.html:27
 msgid "Phone"
-msgstr ""
+msgstr "شماره تماس"
 
 #: apps/customers/templates/customers/detail.html:15
 msgid "National ID"
-msgstr ""
+msgstr "شماره تذکره"
 
 #: apps/customers/templates/customers/detail.html:16
 #: apps/customers/templates/customers/list.html:28
@@ -553,7 +553,7 @@ msgstr ""
 #: apps/vehicles/templates/vehicles/detail.html:17
 #: apps/vehicles/templates/vehicles/list.html:36
 msgid "Branch"
-msgstr "څانګه"
+msgstr "شعبه"
 
 #: apps/customers/templates/customers/detail.html:18
 #: apps/purchases/templates/purchases/detail.html:27
@@ -562,116 +562,116 @@ msgstr "څانګه"
 #: apps/sales/templates/sales/sale_detail.html:46
 #: apps/vehicles/templates/vehicles/detail.html:20
 msgid "Notes"
-msgstr "یادښتونه"
+msgstr "یادداشت‌ها"
 
 #: apps/customers/templates/customers/detail.html:24
 #: apps/sales/templates/sales/lead_list.html:4
 #: apps/sales/templates/sales/lead_list.html:8 templates/base.html:75
 msgid "Leads"
-msgstr "لېډونه"
+msgstr "سرنخ‌ها"
 
 #: apps/customers/templates/customers/detail.html:32
 msgid "No leads."
-msgstr ""
+msgstr "هیچ سرنخی وجود ندارد."
 
 #: apps/customers/templates/customers/detail.html:46
 #: apps/sales/templates/sales/sale_list.html:42
 msgid "No sales yet."
-msgstr ""
+msgstr "هنوز فروشی وجود ندارد."
 
 #: apps/customers/templates/customers/list.html:4
 #: apps/customers/templates/customers/list.html:8
 #: templates/accounts/dashboard.html:68 templates/base.html:67
 msgid "Customers"
-msgstr "پیرودونکي"
+msgstr "مشتریان"
 
 #: apps/customers/templates/customers/list.html:11 apps/customers/views.py:35
 #: templates/accounts/dashboard.html:88
 msgid "Add customer"
-msgstr "پیرودونکی ورزیات کړئ"
+msgstr "افزودن مشتری"
 
 #: apps/customers/templates/customers/list.html:15
 msgid "Search customers…"
-msgstr ""
+msgstr "جستجوی مشتریان…"
 
 #: apps/customers/templates/customers/list.html:18
 #: apps/suppliers/templates/suppliers/list.html:18
 msgid "Search"
-msgstr "لټون"
+msgstr "جستجو"
 
 #: apps/customers/templates/customers/list.html:25
 #: apps/sales/templates/sales/lead_list.html:26
 #: apps/suppliers/templates/suppliers/list.html:25
 msgid "Name"
-msgstr ""
+msgstr "نام"
 
 #: apps/customers/templates/customers/list.html:51
 msgid "No customers yet."
-msgstr ""
+msgstr "هنوز مشتری‌ای وجود ندارد."
 
 #: apps/customers/views.py:33
 msgid "Customer created."
-msgstr ""
+msgstr "مشتری ایجاد شد."
 
 #: apps/customers/views.py:58
 msgid "Customer updated."
-msgstr ""
+msgstr "مشتری به‌روزرسانی شد."
 
 #: apps/customers/views.py:63
 msgid "Edit customer"
-msgstr ""
+msgstr "ویرایش مشتری"
 
 #: apps/documents/forms.py:24
 msgid "Attach the document to a vehicle or a customer."
-msgstr ""
+msgstr "سند را به یک وسیله نقلیه یا مشتری پیوست کنید."
 
 #: apps/documents/models.py:15
 msgid "Vehicle photo"
-msgstr ""
+msgstr "عکس وسیله نقلیه"
 
 #: apps/documents/models.py:16
 msgid "Vehicle document"
-msgstr ""
+msgstr "سند وسیله نقلیه"
 
 #: apps/documents/models.py:17
 msgid "Customer document"
-msgstr ""
+msgstr "سند مشتری"
 
 #: apps/documents/models.py:18 apps/payments/models.py:24
 #: apps/purchases/models.py:106 apps/sales/models.py:24
 msgid "Other"
-msgstr ""
+msgstr "سایر"
 
 #: apps/documents/models.py:26 apps/inventory/models.py:23
 #: apps/purchases/models.py:84 apps/purchases/models.py:116
 #: apps/sales/models.py:111 apps/sales/models.py:170 apps/sales/models.py:226
 #: apps/vehicles/models.py:44
 msgid "vehicle"
-msgstr ""
+msgstr "وسیله نقلیه"
 
 #: apps/documents/models.py:41
 msgid "title"
-msgstr ""
+msgstr "عنوان"
 
 #: apps/documents/models.py:42
 msgid "file"
-msgstr ""
+msgstr "فایل"
 
 #: apps/documents/models.py:47
 msgid "uploaded by"
-msgstr ""
+msgstr "آپلودشده توسط"
 
 #: apps/documents/models.py:54
 msgid "document"
-msgstr ""
+msgstr "سند"
 
 #: apps/documents/models.py:55
 msgid "documents"
-msgstr ""
+msgstr "اسناد"
 
 #: apps/documents/templates/documents/form.html:14
 msgid "Upload"
-msgstr ""
+msgstr "آپلود"
 
 #: apps/documents/templates/documents/list.html:4
 #: apps/documents/templates/documents/list.html:8 templates/base.html:107
@@ -680,11 +680,11 @@ msgstr "اسناد"
 
 #: apps/documents/templates/documents/list.html:11 apps/documents/views.py:32
 msgid "Upload document"
-msgstr ""
+msgstr "آپلود سند"
 
 #: apps/documents/templates/documents/list.html:18
 msgid "Title"
-msgstr ""
+msgstr "عنوان"
 
 #: apps/documents/templates/documents/list.html:20
 #: apps/inventory/templates/inventory/list.html:25
@@ -697,61 +697,61 @@ msgstr ""
 #: apps/vehicles/templates/vehicles/list.html:34
 #: templates/accounts/dashboard.html:117
 msgid "Vehicle"
-msgstr ""
+msgstr "وسیله نقلیه"
 
 #: apps/documents/templates/documents/list.html:22
 msgid "Uploaded"
-msgstr ""
+msgstr "آپلودشده"
 
 #: apps/documents/templates/documents/list.html:53
 msgid "No documents yet."
-msgstr ""
+msgstr "هنوز سندی وجود ندارد."
 
 #: apps/documents/views.py:30
 msgid "Document uploaded."
-msgstr ""
+msgstr "سند آپلود شد."
 
 #: apps/expenses/forms.py:9 apps/payments/forms.py:11
 #: apps/payments/models.py:41 apps/purchases/models.py:89
 #: apps/purchases/models.py:119 apps/sales/models.py:123
 #: apps/sales/models.py:277
 msgid "amount"
-msgstr ""
+msgstr "مبلغ"
 
 #: apps/expenses/forms.py:10 apps/payments/forms.py:12
 #: apps/payments/models.py:42 apps/purchases/models.py:90
 #: apps/purchases/models.py:120 apps/sales/models.py:124
 #: apps/sales/models.py:181 apps/sales/models.py:237 apps/sales/models.py:278
 msgid "currency"
-msgstr ""
+msgstr "ارز"
 
 #: apps/expenses/templates/expenses/list.html:4
 #: apps/expenses/templates/expenses/list.html:8 templates/base.html:89
 msgid "Expenses"
-msgstr "لګښتونه"
+msgstr "مصارف"
 
 #: apps/expenses/templates/expenses/list.html:11 apps/expenses/views.py:34
 #: apps/payments/templates/payments/list.html:12
 msgid "Record expense"
-msgstr ""
+msgstr "ثبت مصرف"
 
 #: apps/expenses/templates/expenses/list.html:18
 #: apps/payments/templates/payments/list.html:24
 #: apps/vehicles/templates/vehicles/detail.html:38
 #: templates/accounts/dashboard.html:120
 msgid "Date"
-msgstr "نېټه"
+msgstr "تاریخ"
 
 #: apps/expenses/templates/expenses/list.html:19
 #: apps/payments/templates/payments/list.html:26
 #: apps/purchases/templates/purchases/detail.html:38
 #: apps/vehicles/templates/vehicles/detail.html:40
 msgid "Description"
-msgstr ""
+msgstr "توضیحات"
 
 #: apps/expenses/templates/expenses/list.html:20
 msgid "Recorded by"
-msgstr ""
+msgstr "ثبت‌شده توسط"
 
 #: apps/expenses/templates/expenses/list.html:21
 #: apps/payments/templates/payments/list.html:28
@@ -767,893 +767,879 @@ msgstr "مبلغ"
 #: apps/expenses/templates/expenses/list.html:32
 #: apps/payments/templates/payments/list.html:40
 msgid "reversal"
-msgstr ""
+msgstr "برگشت"
 
 #: apps/expenses/templates/expenses/list.html:41
 msgid "No expenses yet."
-msgstr ""
+msgstr "هنوز مصرفی ثبت نشده است."
 
 #: apps/expenses/views.py:32
 msgid "Expense recorded."
-msgstr ""
+msgstr "مصرف ثبت شد."
 
 #: apps/inventory/models.py:13
 msgid "Available"
-msgstr ""
+msgstr "موجود"
 
 #: apps/inventory/models.py:14 apps/vehicles/models.py:16
 msgid "Reserved"
-msgstr ""
+msgstr "رزرو‌شده"
 
 #: apps/inventory/models.py:15
 msgid "In preparation"
-msgstr ""
+msgstr "در حال آماده‌سازی"
 
 #: apps/inventory/models.py:34
 msgid "lot / parking code"
-msgstr ""
+msgstr "کد محوطه / پارکینگ"
 
 #: apps/inventory/models.py:35
 msgid "received at"
-msgstr ""
+msgstr "تاریخ دریافت"
 
 #: apps/inventory/models.py:38 apps/inventory/models.py:39
 msgid "vehicle stock"
-msgstr ""
+msgstr "موجودی وسایط"
 
 #: apps/inventory/templates/inventory/list.html:11
 #: apps/sales/templates/sales/lead_list.html:16
 #: apps/vehicles/templates/vehicles/list.html:19
 msgid "All statuses"
-msgstr ""
+msgstr "همه وضعیت‌ها"
 
 #: apps/inventory/templates/inventory/list.html:17
 #: apps/vehicles/templates/vehicles/list.html:25
 msgid "Filter"
-msgstr ""
+msgstr "فیلتر"
 
 #: apps/inventory/templates/inventory/list.html:27
 msgid "Lot"
-msgstr ""
+msgstr "محوطه"
 
 #: apps/inventory/templates/inventory/list.html:28 apps/purchases/models.py:21
 msgid "Received"
-msgstr ""
+msgstr "دریافت‌شده"
 
 #: apps/inventory/templates/inventory/list.html:57
 msgid "No stock records yet."
-msgstr ""
+msgstr "هنوز رکوردی برای موجودی ثبت نشده است."
 
 #: apps/organizations/models.py:13
 msgid "organization"
-msgstr ""
+msgstr "سازمان"
 
 #: apps/organizations/models.py:14
 msgid "organizations"
-msgstr ""
+msgstr "سازمان‌ها"
 
 #: apps/payments/forms.py:10 apps/sales/models.py:255 apps/sales/models.py:273
 msgid "sale"
-msgstr ""
+msgstr "فروش"
 
 #: apps/payments/models.py:21
 msgid "Customer payment"
-msgstr ""
+msgstr "پرداخت مشتری"
 
 #: apps/payments/models.py:22
 msgid "Supplier payment"
-msgstr ""
+msgstr "پرداخت به تأمین‌کننده"
 
 #: apps/payments/models.py:23
 msgid "Expense"
-msgstr ""
+msgstr "مصرف"
 
 #: apps/payments/models.py:48
 msgid "related object type"
-msgstr ""
+msgstr "نوع مورد مرتبط"
 
 #: apps/payments/models.py:52
 msgid "related object id"
-msgstr ""
+msgstr "شناسه مورد مرتبط"
 
 #: apps/payments/models.py:58
 msgid "reversal of"
-msgstr ""
+msgstr "برگشتِ"
 
 #: apps/payments/models.py:73
 msgid "ledger entry"
-msgstr ""
+msgstr "ثبت دفتر کل"
 
 #: apps/payments/models.py:74
 msgid "ledger entries"
-msgstr ""
+msgstr "ثبت‌های دفتر کل"
 
 #: apps/payments/templates/payments/list.html:4
 #: apps/payments/templates/payments/list.html:8
 msgid "Ledger"
-msgstr ""
+msgstr "دفتر کل"
 
 #: apps/payments/templates/payments/list.html:16 apps/payments/views.py:33
 #: templates/accounts/dashboard.html:100
 msgid "Record payment"
-msgstr "پرداخت ثبت کړئ"
+msgstr "ثبت پرداخت"
 
 #: apps/payments/templates/payments/list.html:27
 msgid "Related to"
-msgstr ""
+msgstr "مرتبط با"
 
 #: apps/payments/templates/payments/list.html:54
 msgid "Reverse"
-msgstr ""
+msgstr "برگشت"
 
 #: apps/payments/templates/payments/list.html:62
 msgid "No ledger entries yet."
-msgstr ""
+msgstr "هنوز ثبتی در دفتر کل وجود ندارد."
 
 #: apps/payments/views.py:31
 msgid "Payment recorded."
-msgstr ""
+msgstr "پرداخت ثبت شد."
 
 #: apps/payments/views.py:41
 msgid "Entry reversed with a new row."
-msgstr ""
+msgstr "ثبت با ایجاد یک ردیف جدید برگشت داده شد."
 
 #: apps/purchases/models.py:19 apps/sales/models.py:93 apps/sales/models.py:210
 msgid "Draft"
-msgstr ""
+msgstr "پیش‌نویس"
 
 #: apps/purchases/models.py:20
 msgid "Ordered"
-msgstr ""
+msgstr "سفارش‌شده"
 
 #: apps/purchases/models.py:22 apps/sales/models.py:156
 #: apps/sales/models.py:212
 msgid "Cancelled"
-msgstr ""
+msgstr "لغوشده"
 
 #: apps/purchases/models.py:26
 msgid "reference"
-msgstr ""
+msgstr "مرجع"
 
 #: apps/purchases/models.py:31 apps/suppliers/models.py:18
 msgid "supplier"
-msgstr ""
+msgstr "تأمین‌کننده"
 
 #: apps/purchases/models.py:44
 msgid "order date"
-msgstr ""
+msgstr "تاریخ سفارش"
 
 #: apps/purchases/models.py:58
 msgid "purchase order"
-msgstr ""
+msgstr "سفارش خرید"
 
 #: apps/purchases/models.py:59
 msgid "purchase orders"
-msgstr ""
+msgstr "سفارش‌های خرید"
 
 #: apps/purchases/models.py:78
 msgid "order"
-msgstr ""
+msgstr "سفارش"
 
 #: apps/purchases/models.py:93
 msgid "purchase order line"
-msgstr ""
+msgstr "ردیف سفارش خرید"
 
 #: apps/purchases/models.py:94
 msgid "purchase order lines"
-msgstr ""
+msgstr "ردیف‌های سفارش خرید"
 
 #: apps/purchases/models.py:101
 msgid "Purchase price"
-msgstr ""
+msgstr "قیمت خرید"
 
 #: apps/purchases/models.py:102
 msgid "Transport"
-msgstr ""
+msgstr "حمل‌ونقل"
 
 #: apps/purchases/models.py:103
 msgid "Customs & duties"
-msgstr ""
+msgstr "گمرک و عوارض"
 
 #: apps/purchases/models.py:104
 msgid "Storage"
-msgstr ""
+msgstr "انبارداری"
 
 #: apps/purchases/models.py:105
 msgid "Repair & preparation"
-msgstr ""
+msgstr "ترمیم و آماده‌سازی"
 
 #: apps/purchases/models.py:118
 msgid "cost type"
-msgstr ""
+msgstr "نوع هزینه"
 
 #: apps/purchases/models.py:133
 msgid "vehicle cost line"
-msgstr ""
+msgstr "ردیف هزینه وسیله نقلیه"
 
 #: apps/purchases/models.py:134
 msgid "vehicle cost lines"
-msgstr ""
+msgstr "ردیف‌های هزینه وسیله نقلیه"
 
 #: apps/purchases/templates/purchases/detail.html:14
 msgid "Receive order"
-msgstr ""
+msgstr "دریافت سفارش"
 
 #: apps/purchases/templates/purchases/detail.html:21
 #: apps/purchases/templates/purchases/list.html:19
 msgid "Supplier"
-msgstr ""
+msgstr "تأمین‌کننده"
 
 #: apps/purchases/templates/purchases/detail.html:24
 #: apps/purchases/templates/purchases/list.html:22
 msgid "Order date"
-msgstr ""
+msgstr "تاریخ سفارش"
 
 #: apps/purchases/templates/purchases/detail.html:34
 msgid "Lines"
-msgstr ""
+msgstr "ردیف‌ها"
 
 #: apps/purchases/templates/purchases/detail.html:58
 msgid "No lines yet — add the first line below."
-msgstr ""
+msgstr "هنوز ردیفی وجود ندارد — اولین ردیف را در پایین اضافه کنید."
 
 #: apps/purchases/templates/purchases/detail.html:64
 #: apps/purchases/templates/purchases/list.html:23
 msgid "Total"
-msgstr ""
+msgstr "مجموع"
 
 #: apps/purchases/templates/purchases/detail.html:77
 #: apps/purchases/templates/purchases/detail.html:83
 msgid "Add line"
-msgstr ""
+msgstr "افزودن ردیف"
 
 #: apps/purchases/templates/purchases/list.html:4
 #: apps/purchases/templates/purchases/list.html:8
 msgid "Purchase orders"
-msgstr ""
+msgstr "سفارش‌های خرید"
 
 #: apps/purchases/templates/purchases/list.html:11 apps/purchases/views.py:36
 msgid "New purchase order"
-msgstr ""
+msgstr "سفارش خرید جدید"
 
 #: apps/purchases/templates/purchases/list.html:18
 msgid "Reference"
-msgstr ""
+msgstr "مرجع"
 
 #: apps/purchases/templates/purchases/list.html:46
 msgid "No purchase orders yet."
-msgstr ""
+msgstr "هنوز سفارش خریدی وجود ندارد."
 
 #: apps/purchases/views.py:34
 msgid "Purchase order created — add lines next."
-msgstr ""
+msgstr "سفارش خرید ایجاد شد — اکنون ردیف‌ها را اضافه کنید."
 
 #: apps/purchases/views.py:65
 msgid "Line added."
-msgstr ""
+msgstr "ردیف اضافه شد."
 
 #: apps/purchases/views.py:67
 msgid "Could not add line — check the form values."
-msgstr ""
+msgstr "افزودن ردیف ممکن نشد — مقادیر فورم را بررسی کنید."
 
 #: apps/purchases/views.py:76
 #, python-format
 msgid "Order received (%(count)d vehicles into stock)."
-msgstr ""
+msgstr "سفارش دریافت شد (%(count)d وسیله نقلیه به موجودی اضافه شد)."
 
 #: apps/sales/models.py:20
 msgid "Walk-in"
-msgstr ""
+msgstr "مراجعه حضوری"
 
 #: apps/sales/models.py:21
 msgid "Phone call"
-msgstr ""
+msgstr "تماس تلفنی"
 
 #: apps/sales/models.py:23
 msgid "Referral"
-msgstr ""
+msgstr "معرفی"
 
 #: apps/sales/models.py:28
 msgid "New"
-msgstr ""
+msgstr "جدید"
 
 #: apps/sales/models.py:29
 msgid "Contacted"
-msgstr ""
+msgstr "تماس گرفته‌شده"
 
 #: apps/sales/models.py:30
 msgid "Qualified"
-msgstr ""
+msgstr "واجد شرایط"
 
 #: apps/sales/models.py:31
 msgid "Converted"
-msgstr ""
+msgstr "تبدیل‌شده"
 
 #: apps/sales/models.py:32
 msgid "Lost"
-msgstr ""
+msgstr "از دست‌رفته"
 
 #: apps/sales/models.py:50
 msgid "vehicle of interest"
-msgstr ""
+msgstr "وسیله نقلیه مورد علاقه"
 
 #: apps/sales/models.py:55
 msgid "source"
-msgstr ""
+msgstr "منبع"
 
 #: apps/sales/models.py:81 apps/sales/models.py:119
 msgid "lead"
-msgstr ""
+msgstr "سرنخ"
 
 #: apps/sales/models.py:82
 msgid "leads"
-msgstr ""
+msgstr "سرنخ‌ها"
 
 #: apps/sales/models.py:95
 msgid "Accepted"
-msgstr ""
+msgstr "پذیرفته‌شده"
 
 #: apps/sales/models.py:96
 msgid "Declined"
-msgstr ""
+msgstr "ردشده"
 
 #: apps/sales/models.py:97
 msgid "Expired"
-msgstr ""
+msgstr "منقضی‌شده"
 
 #: apps/sales/models.py:125
 msgid "valid until"
-msgstr ""
+msgstr "معتبر تا"
 
 #: apps/sales/models.py:142 apps/sales/models.py:176
 msgid "quotation"
-msgstr ""
+msgstr "پیشنهاد قیمت"
 
 #: apps/sales/models.py:143
 msgid "quotations"
-msgstr ""
+msgstr "پیشنهادهای قیمت"
 
 #: apps/sales/models.py:147
 msgid "Quotation"
-msgstr ""
+msgstr "پیشنهاد قیمت"
 
 #: apps/sales/models.py:154
 msgid "Active"
-msgstr ""
+msgstr "فعال"
 
 #: apps/sales/models.py:155 apps/sales/models.py:211
 msgid "Completed"
-msgstr ""
+msgstr "تکمیل‌شده"
 
 #: apps/sales/models.py:180
 msgid "deposit amount"
-msgstr ""
+msgstr "مبلغ پیش‌پرداخت"
 
 #: apps/sales/models.py:198 apps/sales/models.py:232
 msgid "reservation"
-msgstr ""
+msgstr "رزرو"
 
 #: apps/sales/models.py:199
 msgid "reservations"
-msgstr ""
+msgstr "رزروها"
 
 #: apps/sales/models.py:203 apps/sales/templates/sales/sale_detail.html:42
 msgid "Reservation"
-msgstr ""
+msgstr "رزرو"
 
 #: apps/sales/models.py:236
 msgid "agreed amount"
-msgstr ""
+msgstr "مبلغ توافق‌شده"
 
 #: apps/sales/models.py:238
 msgid "sale date"
-msgstr ""
+msgstr "تاریخ فروش"
 
 #: apps/sales/models.py:256
 msgid "sales"
-msgstr ""
+msgstr "فروشات"
 
 #: apps/sales/models.py:275
 msgid "invoice number"
-msgstr ""
+msgstr "شماره فاکتور"
 
 #: apps/sales/models.py:276
 msgid "issued on"
-msgstr ""
+msgstr "تاریخ صدور"
 
 #: apps/sales/models.py:290
 msgid "invoice"
-msgstr ""
+msgstr "فاکتور"
 
 #: apps/sales/models.py:291
 msgid "invoices"
-msgstr ""
+msgstr "فاکتورها"
 
 #: apps/sales/templates/sales/lead_detail.html:18
 #: apps/sales/templates/sales/quotation_detail.html:18
 msgid "Update"
-msgstr ""
+msgstr "به‌روزرسانی"
 
 #: apps/sales/templates/sales/lead_detail.html:24
 #: apps/sales/templates/sales/lead_list.html:29
 msgid "Source"
-msgstr ""
+msgstr "منبع"
 
 #: apps/sales/templates/sales/lead_detail.html:30
 #: apps/sales/templates/sales/lead_list.html:28
 msgid "Vehicle of interest"
-msgstr ""
+msgstr "وسیله نقلیه مورد علاقه"
 
 #: apps/sales/templates/sales/lead_detail.html:38
 #: apps/sales/templates/sales/quotation_detail.html:44
 #: apps/sales/templates/sales/reservation_list.html:23
 #: apps/vehicles/templates/vehicles/detail.html:18
 msgid "Created"
-msgstr ""
+msgstr "ایجادشده"
 
 #: apps/sales/templates/sales/lead_list.html:11 apps/sales/views.py:61
 msgid "New lead"
-msgstr ""
+msgstr "سرنخ جدید"
 
 #: apps/sales/templates/sales/lead_list.html:48
 msgid "No leads yet."
-msgstr ""
+msgstr "هنوز سرنخی وجود ندارد."
 
 #: apps/sales/templates/sales/quotation_detail.html:38
 #: apps/sales/templates/sales/quotation_list.html:22
 msgid "Valid until"
-msgstr ""
+msgstr "معتبر تا"
 
 #: apps/sales/templates/sales/quotation_detail.html:39
 msgid "Lead"
-msgstr ""
+msgstr "سرنخ"
 
 #: apps/sales/templates/sales/quotation_list.html:4
 #: apps/sales/templates/sales/quotation_list.html:8
 msgid "Quotations"
-msgstr ""
+msgstr "پیشنهادهای قیمت"
 
 #: apps/sales/templates/sales/quotation_list.html:11 apps/sales/views.py:110
 msgid "New quotation"
-msgstr ""
+msgstr "پیشنهاد قیمت جدید"
 
 #: apps/sales/templates/sales/quotation_list.html:42
 msgid "No quotations yet."
-msgstr ""
+msgstr "هنوز پیشنهاد قیمتی وجود ندارد."
 
 #: apps/sales/templates/sales/reservation_list.html:4
 #: apps/sales/templates/sales/reservation_list.html:8
 msgid "Reservations"
-msgstr ""
+msgstr "رزروها"
 
 #: apps/sales/templates/sales/reservation_list.html:11 apps/sales/views.py:165
 msgid "New reservation"
-msgstr ""
+msgstr "رزرو جدید"
 
 #: apps/sales/templates/sales/reservation_list.html:21
 msgid "Deposit"
-msgstr ""
+msgstr "پیش‌پرداخت"
 
 #: apps/sales/templates/sales/reservation_list.html:38
 msgid "No reservations yet."
-msgstr ""
+msgstr "هنوز رزروی وجود ندارد."
 
 #: apps/sales/templates/sales/sale_detail.html:15
 msgid "Complete sale"
-msgstr ""
+msgstr "تکمیل فروش"
 
 #: apps/sales/templates/sales/sale_detail.html:24
 msgid "Issue invoice"
-msgstr ""
+msgstr "صدور فاکتور"
 
 #: apps/sales/templates/sales/sale_detail.html:37
 #: apps/sales/templates/sales/sale_list.html:21
 msgid "Agreed amount"
-msgstr ""
+msgstr "مبلغ توافق‌شده"
 
 #: apps/sales/templates/sales/sale_detail.html:40
 #: apps/sales/templates/sales/sale_list.html:22
 msgid "Sale date"
-msgstr ""
+msgstr "تاریخ فروش"
 
 #: apps/sales/templates/sales/sale_detail.html:51
 msgid "Invoice"
-msgstr ""
+msgstr "فاکتور"
 
 #: apps/sales/templates/sales/sale_detail.html:54
 msgid "Number"
-msgstr ""
+msgstr "شماره"
 
 #: apps/sales/templates/sales/sale_detail.html:55
 msgid "Issued on"
-msgstr ""
+msgstr "تاریخ صدور"
 
 #: apps/sales/templates/sales/sale_detail.html:61
 msgid "No invoice issued yet."
-msgstr ""
+msgstr "هنوز فاکتوری صادر نشده است."
 
 #: apps/sales/templates/sales/sale_list.html:11 apps/sales/views.py:193
 #: templates/accounts/dashboard.html:96
 msgid "New sale"
-msgstr "نوی پلور"
+msgstr "فروش جدید"
 
 #: apps/sales/views.py:59
 msgid "Lead created."
-msgstr ""
+msgstr "سرنخ ایجاد شد."
 
 #: apps/sales/views.py:80
 msgid "Lead status updated."
-msgstr ""
+msgstr "وضعیت سرنخ به‌روزرسانی شد."
 
 #: apps/sales/views.py:82 apps/sales/views.py:131
 msgid "Unknown status."
-msgstr ""
+msgstr "وضعیت ناشناخته است."
 
 #: apps/sales/views.py:108
 msgid "Quotation created."
-msgstr ""
+msgstr "پیشنهاد قیمت ایجاد شد."
 
 #: apps/sales/views.py:129
 msgid "Quotation status updated."
-msgstr ""
+msgstr "وضعیت پیشنهاد قیمت به‌روزرسانی شد."
 
 #: apps/sales/views.py:163
 msgid "Reservation created."
-msgstr ""
+msgstr "رزرو ایجاد شد."
 
 #: apps/sales/views.py:191
 msgid "Sale created — complete it to close the deal."
-msgstr ""
+msgstr "فروش ایجاد شد — برای نهایی‌کردن معامله، فروش را تکمیل کنید."
 
 #: apps/sales/views.py:217
 msgid "Sale completed — vehicle marked sold."
-msgstr ""
+msgstr "فروش تکمیل شد — وسیله نقلیه به‌عنوان فروخته‌شده علامت‌گذاری شد."
 
 #: apps/sales/views.py:219
 msgid "Sale could not be completed (already closed?)."
-msgstr ""
+msgstr "تکمیل فروش ممکن نشد (آیا قبلاً بسته شده است؟)."
 
 #: apps/sales/views.py:228
 msgid "Complete the sale before issuing the invoice."
-msgstr ""
+msgstr "پیش از صدور فاکتور، فروش را تکمیل کنید."
 
 #: apps/sales/views.py:231
 #, python-format
 msgid "Invoice %(number)s issued."
-msgstr ""
+msgstr "فاکتور %(number)s صادر شد."
 
 #: apps/suppliers/models.py:10
 msgid "contact person"
-msgstr ""
+msgstr "شخص تماس"
 
 #: apps/suppliers/models.py:13
 msgid "address"
-msgstr ""
+msgstr "آدرس"
 
 #: apps/suppliers/models.py:19
 msgid "suppliers"
-msgstr ""
+msgstr "تأمین‌کنندگان"
 
 #: apps/suppliers/templates/suppliers/list.html:4
 #: apps/suppliers/templates/suppliers/list.html:8 templates/base.html:53
 msgid "Suppliers"
-msgstr "عرضه کوونکي"
+msgstr "تأمین‌کنندگان"
 
 #: apps/suppliers/templates/suppliers/list.html:11 apps/suppliers/views.py:32
 msgid "Add supplier"
-msgstr ""
+msgstr "افزودن تأمین‌کننده"
 
 #: apps/suppliers/templates/suppliers/list.html:15
 msgid "Search suppliers…"
-msgstr ""
+msgstr "جستجوی تأمین‌کنندگان…"
 
 #: apps/suppliers/templates/suppliers/list.html:26
 msgid "Contact"
-msgstr ""
+msgstr "تماس"
 
 #: apps/suppliers/templates/suppliers/list.html:47
 msgid "No suppliers yet."
-msgstr ""
+msgstr "هنوز تأمین‌کننده‌ای وجود ندارد."
 
 #: apps/suppliers/views.py:30
 msgid "Supplier created."
-msgstr ""
+msgstr "تأمین‌کننده ایجاد شد."
 
 #: apps/suppliers/views.py:41
 msgid "Supplier updated."
-msgstr ""
+msgstr "تأمین‌کننده به‌روزرسانی شد."
 
 #: apps/suppliers/views.py:46
 msgid "Edit supplier"
-msgstr ""
+msgstr "ویرایش تأمین‌کننده"
 
 #: apps/vehicles/forms.py:28
 msgid "Branch does not belong to your company."
-msgstr ""
+msgstr "این شعبه متعلق به شرکت شما نیست."
 
 #: apps/vehicles/models.py:14
 msgid "In transit"
-msgstr ""
+msgstr "در حال انتقال"
 
 #: apps/vehicles/models.py:15
 msgid "In stock"
-msgstr ""
+msgstr "در موجودی"
 
 #: apps/vehicles/models.py:17
 msgid "Sold"
-msgstr ""
+msgstr "فروخته‌شده"
 
 #: apps/vehicles/models.py:22 apps/vehicles/templates/vehicles/detail.html:13
 #: apps/vehicles/templates/vehicles/list.html:33
 msgid "VIN"
-msgstr "د شاسي نمبر"
+msgstr "شماره شاسی (VIN)"
 
 #: apps/vehicles/models.py:23
 msgid "make"
-msgstr ""
+msgstr "برند"
 
 #: apps/vehicles/models.py:24
 msgid "model"
-msgstr ""
+msgstr "مدل"
 
 #: apps/vehicles/models.py:25
 msgid "year"
-msgstr ""
+msgstr "سال"
 
 #: apps/vehicles/models.py:26
 msgid "color"
-msgstr ""
+msgstr "رنگ"
 
 #: apps/vehicles/models.py:27
 msgid "mileage (km)"
-msgstr ""
+msgstr "کارکرد (کیلومتر)"
 
 #: apps/vehicles/models.py:45
 msgid "vehicles"
-msgstr ""
+msgstr "وسایط"
 
 #: apps/vehicles/templates/vehicles/detail.html:15
 msgid "Color"
-msgstr ""
+msgstr "رنگ"
 
 #: apps/vehicles/templates/vehicles/detail.html:16
 msgid "Mileage (km)"
-msgstr ""
+msgstr "کارکرد (کیلومتر)"
 
 #: apps/vehicles/templates/vehicles/detail.html:27
 msgid "Cost history"
-msgstr ""
+msgstr "تاریخچه هزینه‌ها"
 
 #: apps/vehicles/templates/vehicles/detail.html:29
 msgid "Landed cost"
-msgstr ""
+msgstr "هزینه تمام‌شده"
 
 #: apps/vehicles/templates/vehicles/detail.html:54
 msgid "No cost lines yet."
-msgstr ""
+msgstr "هنوز ردیف هزینه‌ای وجود ندارد."
 
 #: apps/vehicles/templates/vehicles/detail.html:61
 #: apps/vehicles/templates/vehicles/detail.html:67
 msgid "Add cost line"
-msgstr ""
+msgstr "افزودن ردیف هزینه"
 
 #: apps/vehicles/templates/vehicles/list.html:4
 #: apps/vehicles/templates/vehicles/list.html:8 templates/base.html:45
 msgid "Vehicles"
-msgstr "موټرونه"
+msgstr "وسایط"
 
 #: apps/vehicles/templates/vehicles/list.html:11 apps/vehicles/views.py:95
 #: templates/accounts/dashboard.html:84
 msgid "Add vehicle"
-msgstr "موټر ورزیات کړئ"
+msgstr "افزودن وسیله نقلیه"
 
 #: apps/vehicles/templates/vehicles/list.html:16
 msgid "Search VIN, make, model…"
-msgstr ""
+msgstr "جستجوی شماره شاسی، برند یا مدل…"
 
 #: apps/vehicles/templates/vehicles/list.html:35
 msgid "Year"
-msgstr ""
+msgstr "سال"
 
 #: apps/vehicles/templates/vehicles/list.html:61
 msgid "No vehicles found."
-msgstr ""
+msgstr "هیچ وسیله نقلیه‌ای یافت نشد."
 
 #: apps/vehicles/views.py:79
 msgid "Cost line added."
-msgstr ""
+msgstr "ردیف هزینه اضافه شد."
 
 #: apps/vehicles/views.py:81
 msgid "Could not add cost line — check the form values."
-msgstr ""
+msgstr "افزودن ردیف هزینه ممکن نشد — مقادیر فورم را بررسی کنید."
 
 #: apps/vehicles/views.py:93
 msgid "Vehicle created."
-msgstr ""
+msgstr "وسیله نقلیه ایجاد شد."
 
 #: apps/vehicles/views.py:104
 msgid "Vehicle updated."
-msgstr ""
+msgstr "وسیله نقلیه به‌روزرسانی شد."
 
 #: apps/vehicles/views.py:109
 msgid "Edit vehicle"
-msgstr ""
+msgstr "ویرایش وسیله نقلیه"
 
 #: templates/accounts/dashboard.html:4 templates/accounts/dashboard.html:8
 #: templates/base.html:36
 msgid "Dashboard"
-msgstr "ډشبورډ"
+msgstr "داشبورد"
 
 #: templates/accounts/dashboard.html:10
 #, python-format
 msgid "Welcome back, %(name)s."
-msgstr "بېرته راغلاست، %(name)s."
+msgstr "خوش آمدید، %(name)s."
 
 #: templates/accounts/dashboard.html:19
 msgid "Companies"
-msgstr "شرکتونه"
+msgstr "شرکت‌ها"
 
 #: templates/accounts/dashboard.html:21 templates/accounts/dashboard.html:26
 msgid "Manage"
-msgstr "سمبالول"
+msgstr "مدیریت"
 
 #: templates/accounts/dashboard.html:24
 msgid "Users"
-msgstr "کاروونکي"
+msgstr "کاربران"
 
 #: templates/accounts/dashboard.html:29 templates/base.html:118
 #: templates/base.html:196
 msgid "Admin console"
-msgstr "د ادارې کنسول"
+msgstr "پنل مدیریت"
 
 #: templates/accounts/dashboard.html:30
 msgid ""
 "Day-to-day records live in each company's workspace. Use the admin console "
 "for companies, branches, users and roles."
-msgstr "ورځني ریکارډونه د هر شرکت په کاري چاپیریال کې دي. د شرکتونو، څانګو، کاروونکو او رولونو لپاره د ادارې کنسول وکاروئ."
+msgstr "ثبت‌های روزمره در فضای کاری هر شرکت نگهداری می‌شوند. برای مدیریت شرکت‌ها، شعبه‌ها، کاربران و نقش‌ها از پنل مدیریت استفاده کنید."
 
 #: templates/accounts/dashboard.html:31
 msgid "Open admin console"
-msgstr "د ادارې کنسول پرانیزئ"
+msgstr "باز کردن پنل مدیریت"
 
 #: templates/accounts/dashboard.html:38
-#, fuzzy
-#| msgid "Vehicles"
 msgid "Vehicles in stock"
-msgstr "موټرونه"
+msgstr "وسایط موجود"
 
 #: templates/accounts/dashboard.html:44
-#, fuzzy
-#| msgid "Inventory"
 msgid "View inventory"
-msgstr "زیرمه"
+msgstr "مشاهده موجودی"
 
 #: templates/accounts/dashboard.html:48
 msgid "Open leads"
-msgstr "خلاص سرنخونه"
+msgstr "سرنخ‌های باز"
 
 #: templates/accounts/dashboard.html:54
 msgid "View leads"
-msgstr "سرنخونه وګورئ"
+msgstr "مشاهده سرنخ‌ها"
 
 #: templates/accounts/dashboard.html:58
 msgid "Sales in progress"
-msgstr "روان پلورونه"
+msgstr "فروشات در جریان"
 
 #: templates/accounts/dashboard.html:64
 msgid "View sales"
-msgstr "پلورونه وګورئ"
+msgstr "مشاهده فروشات"
 
 #: templates/accounts/dashboard.html:74
-#, fuzzy
-#| msgid "Customers"
 msgid "View customers"
-msgstr "پیرودونکي"
+msgstr "مشاهده مشتریان"
 
 #: templates/accounts/dashboard.html:80
 msgid "Quick actions"
-msgstr "چټکې کړنې"
+msgstr "اقدامات سریع"
 
 #: templates/accounts/dashboard.html:92
-#, fuzzy
-#| msgid "Add vehicle"
 msgid "Add lead"
-msgstr "موټر ورزیات کړئ"
+msgstr "افزودن سرنخ"
 
 #: templates/accounts/dashboard.html:108
 msgid "Recent sales"
-msgstr "وروستي پلورونه"
+msgstr "فروشات اخیر"
 
 #: templates/accounts/dashboard.html:109
 msgid "View all"
-msgstr "ټول وګورئ"
+msgstr "مشاهده همه"
 
 #: templates/accounts/dashboard.html:147
 msgid "No sales recorded yet."
-msgstr "تر اوسه هیڅ پلور نه دی ثبت شوی."
+msgstr "هنوز فروشی ثبت نشده است."
 
 #: templates/accounts/dashboard.html:148
 msgid "Create the first one"
-msgstr "لومړی پلور جوړ کړئ"
+msgstr "ایجاد اولین فروش"
 
 #: templates/accounts/login.html:4 templates/accounts/login.html:32
 msgid "Log in"
-msgstr ""
+msgstr "ورود"
 
 #: templates/accounts/login.html:8
 msgid "Log in to CarFlow"
-msgstr ""
+msgstr "ورود به CarFlow"
 
 #: templates/accounts/login.html:11
 msgid "Your email and password didn't match. Please try again."
-msgstr "ستاسو برېښنالیک او پټنوم سره سمون نه لري. مهرباني وکړئ بیا هڅه وکړئ."
+msgstr "ایمیل و رمز عبور شما مطابقت ندارند. لطفاً دوباره تلاش کنید."
 
 #: templates/accounts/login.html:25
 msgid "Password"
-msgstr ""
+msgstr "رمز عبور"
 
 #: templates/base.html:6
 msgid "AUTOMEX CarFlow"
-msgstr ""
+msgstr "AUTOMEX CarFlow"
 
 #: templates/base.html:27
 msgid "Close menu"
-msgstr "منو بند کړئ"
+msgstr "بستن منو"
 
 #: templates/base.html:41
-#, fuzzy
-#| msgid "Conversations"
 msgid "Operations"
-msgstr "خبرې اترې"
+msgstr "عملیات"
 
 #: templates/base.html:57
 msgid "Purchases"
-msgstr "پیرودونه"
+msgstr "خریدها"
 
 #: templates/base.html:81
-#, fuzzy
-#| msgid "Cancel"
 msgid "Finance"
-msgstr "لغوه"
+msgstr "مالی"
 
 #: templates/base.html:85
 msgid "Payments"
-msgstr "تادیات"
+msgstr "پرداخت‌ها"
 
 #: templates/base.html:99
-#, fuzzy
-#| msgid "Conversations"
 msgid "Communication"
-msgstr "خبرې اترې"
+msgstr "ارتباطات"
 
 #: templates/base.html:115
 msgid "Administration"
-msgstr "اداره"
+msgstr "مدیریت سیستم"
 
 #: templates/base.html:139
 msgid "Open menu"
-msgstr "منو پرانیزئ"
+msgstr "باز کردن منو"
 
 #: templates/base.html:149 templates/base.html:155
 msgid "Notifications"
-msgstr "خبرتیاوې"
+msgstr "اعلان‌ها"
 
 #: templates/base.html:157
 msgid "No notifications yet."
-msgstr "تر اوسه هیڅ خبرتیا نشته."
+msgstr "هنوز اعلانی وجود ندارد."
 
 #: templates/base.html:158
 msgid "Alerts for overdue payments and document expiry will appear here."
-msgstr "د ناوخته پرداختونو او د اسنادو د ختمېدو نېټې خبرتیاوې به دلته ښکاره شي."
+msgstr "هشدارهای مربوط به پرداخت‌های معوق و انقضای اسناد در اینجا نمایش داده می‌شوند."
 
 #: templates/base.html:166
 msgid "Language"
-msgstr "ژبه"
+msgstr "زبان"
 
 #: templates/base.html:201
 msgid "Log out"
-msgstr "وتل"
+msgstr "خروج"
 
 #: templates/base.html:228
 msgid "Internal system"
-msgstr "داخلي سیسټم"
+msgstr "سیستم داخلی"
