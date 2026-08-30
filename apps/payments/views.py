@@ -1,12 +1,14 @@
 from django.contrib import messages
+from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_POST
 
 from apps.core.decorators import require_permission
 
-from .forms import PaymentForm, SupplierPaymentForm
-from .models import LedgerEntry
+from .forms import FinancialAccountForm, PaymentForm, SupplierPaymentForm
+from .models import FinancialAccount, LedgerEntry
 from .services import record_payment, record_supplier_payment, reverse_entry
 
 
@@ -14,6 +16,30 @@ from .services import record_payment, record_supplier_payment, reverse_entry
 def entry_list(request):
     entries = LedgerEntry.objects.all()  # TenantManager filters by company.
     return render(request, "payments/list.html", {"entries": entries})
+
+
+@require_permission("payments.view")
+def account_list(request):
+    accounts = FinancialAccount.objects.all().select_related("branch")
+    return render(request, "payments/account_list.html", {"accounts": accounts})
+
+
+@require_permission("payments.add")
+def account_create(request):
+    if request.user.company is None:
+        raise PermissionDenied
+    form = FinancialAccountForm(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        account = form.save(commit=False)
+        account.company = request.user.company
+        account.save()
+        messages.success(request, _("Financial account created."))
+        return redirect("payments:account_list")
+    return render(
+        request,
+        "payments/form.html",
+        {"form": form, "title": _("Add financial account"), "cancel_url": reverse("payments:account_list")},
+    )
 
 
 @require_permission("payments.add")

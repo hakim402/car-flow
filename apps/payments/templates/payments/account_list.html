@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% translate "Financial accounts" %} — AUTOMEX CarFlow{% endblock %}
+
+{% block content %}
+<div class="mb-6 flex items-center justify-between gap-3">
+    <div>
+        <p class="text-xs font-medium uppercase tracking-[0.2em] text-amber-600">{% translate "Finance setup" %}</p>
+        <h1 class="mt-1 text-2xl font-semibold text-slate-900">{% translate "Financial accounts" %}</h1>
+    </div>
+    <a href="{% url 'payments:account_create' %}" class="rounded-xl bg-amber-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-amber-600">
+        {% translate "Add account" %}
+    </a>
+</div>
+
+<div class="card overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th class="px-4 py-3 text-start font-medium">{% translate "Name" %}</th>
+                    <th class="px-4 py-3 text-start font-medium">{% translate "Type" %}</th>
+                    <th class="px-4 py-3 text-start font-medium">{% translate "Currency" %}</th>
+                    <th class="px-4 py-3 text-start font-medium">{% translate "Branch" %}</th>
+                    <th class="px-4 py-3 text-start font-medium">{% translate "Status" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for account in accounts %}
+                    <tr>
+                        <td class="px-4 py-3 font-medium text-slate-800">{{ account.name }}</td>
+                        <td class="px-4 py-3">{{ account.get_account_type_display }}</td>
+                        <td class="px-4 py-3">{{ account.currency }}</td>
+                        <td class="px-4 py-3">{{ account.branch|default:"—" }}</td>
+                        <td class="px-4 py-3">
+                            {% if account.active %}
+                                <span class="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">{% translate "Active" %}</span>
+                            {% else %}
+                                <span class="rounded-full bg-slate-200 px-2 py-0.5 text-xs font-medium text-slate-600">{% translate "Inactive" %}</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="5" class="px-4 py-8 text-center text-slate-500">{% translate "No financial accounts configured yet." %}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

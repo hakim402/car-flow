@@ -32,11 +32,26 @@ class LeadStatus(models.TextChoices):
     LOST = "lost", _("Lost")
 
 
-class Lead(TenantModel, CompanyConsistencyMixin):
-    company_relations = ("customer", "vehicle_of_interest", "branch")
+class LeadLostReason(models.TextChoices):
+    PRICE_TOO_HIGH = "price_too_high", _("Price too high")
+    BOUGHT_ELSEWHERE = "bought_elsewhere", _("Bought elsewhere")
+    NO_RESPONSE = "no_response", _("No response")
+    FINANCING = "financing", _("Financing")
+    VEHICLE_UNAVAILABLE = "vehicle_unavailable", _("Vehicle unavailable")
+    CHANGED_MIND = "changed_mind", _("Changed mind")
+    OTHER = "other", _("Other")
 
-    name = models.CharField(_("name"), max_length=200)
-    phone = models.CharField(_("phone"), max_length=50, blank=True)
+
+class Lead(TenantModel, CompanyConsistencyMixin):
+    company_relations = ("customer", "vehicle_of_interest", "branch", "assigned_to")
+
+    name = models.CharField(_("name"), max_length=200, help_text=_("Lead or prospect name."))
+    phone = models.CharField(
+        _("phone"),
+        max_length=50,
+        blank=True,
+        help_text=_("Best phone number or WhatsApp contact for this lead."),
+    )
     customer = models.ForeignKey(
         "customers.Customer",
         on_delete=models.PROTECT,
@@ -66,8 +81,29 @@ class Lead(TenantModel, CompanyConsistencyMixin):
         verbose_name=_("branch"),
         null=True,
         blank=True,
+        help_text=_("Branch where this lead was captured or is being managed."),
     )
-    notes = models.TextField(_("notes"), blank=True)
+    assigned_to = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        related_name="assigned_leads",
+        verbose_name=_("assigned to"),
+        null=True,
+        blank=True,
+        help_text=_("Salesperson or team member handling follow-up."),
+    )
+    lost_reason = models.CharField(
+        _("lost reason"),
+        max_length=30,
+        choices=LeadLostReason.choices,
+        blank=True,
+        help_text=_("Reason the opportunity was closed as lost."),
+    )
+    notes = models.TextField(
+        _("notes"),
+        blank=True,
+        help_text=_("Lead notes, follow-up summary, and key buying intent details."),
+    )
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.PROTECT,
@@ -102,6 +138,12 @@ class QuotationStatus(models.TextChoices):
 class Quotation(TenantModel, CompanyConsistencyMixin):
     company_relations = ("customer", "vehicle", "lead")
 
+    number = models.CharField(
+        _("quotation number"),
+        max_length=50,
+        blank=True,
+        help_text=_("Unique quotation reference, for example QT-2026-000123."),
+    )
     customer = models.ForeignKey(
         "customers.Customer",
         on_delete=models.PROTECT,
@@ -124,13 +166,32 @@ class Quotation(TenantModel, CompanyConsistencyMixin):
         null=True,
         blank=True,
     )
-    amount = models.DecimalField(_("amount"), max_digits=14, decimal_places=2)
-    currency = models.CharField(_("currency"), max_length=3, choices=CURRENCIES, default=DEFAULT_CURRENCY)
-    valid_until = models.DateField(_("valid until"))
-    status = models.CharField(
-        _("status"), max_length=20, choices=QuotationStatus.choices, default=QuotationStatus.DRAFT
+    amount = models.DecimalField(
+        _("amount"),
+        max_digits=14,
+        decimal_places=2,
+        help_text=_("Quoted selling price in the selected currency."),
     )
-    notes = models.TextField(_("notes"), blank=True)
+    currency = models.CharField(
+        _("currency"),
+        max_length=3,
+        choices=CURRENCIES,
+        default=DEFAULT_CURRENCY,
+        help_text=_("Currency used for the quotation and any linked reservation."),
+    )
+    valid_until = models.DateField(_("valid until"), help_text=_("Deadline for acceptance of this quote."))
+    status = models.CharField(
+        _("status"),
+        max_length=20,
+        choices=QuotationStatus.choices,
+        default=QuotationStatus.DRAFT,
+        help_text=_("Commercial status of this quotation."),
+    )
+    notes = models.TextField(
+        _("notes"),
+        blank=True,
+        help_text=_("Terms, customer preferences, or negotiation details for this quote."),
+    )
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.PROTECT,
@@ -183,12 +244,37 @@ class Reservation(TenantModel, CompanyConsistencyMixin):
         null=True,
         blank=True,
     )
-    deposit_amount = models.DecimalField(_("deposit amount"), max_digits=14, decimal_places=2)
-    currency = models.CharField(_("currency"), max_length=3, choices=CURRENCIES, default=DEFAULT_CURRENCY)
-    status = models.CharField(
-        _("status"), max_length=20, choices=ReservationStatus.choices, default=ReservationStatus.ACTIVE
+    deposit_amount = models.DecimalField(
+        _("deposit amount"),
+        max_digits=14,
+        decimal_places=2,
+        help_text=_("Temporary hold amount requested from the customer."),
     )
-    notes = models.TextField(_("notes"), blank=True)
+    currency = models.CharField(
+        _("currency"),
+        max_length=3,
+        choices=CURRENCIES,
+        default=DEFAULT_CURRENCY,
+        help_text=_("Currency of the reservation deposit and vehicle value."),
+    )
+    expires_at = models.DateTimeField(
+        _("expires at"),
+        null=True,
+        blank=True,
+        help_text=_("When this reservation expires and the stock is released automatically."),
+    )
+    status = models.CharField(
+        _("status"),
+        max_length=20,
+        choices=ReservationStatus.choices,
+        default=ReservationStatus.ACTIVE,
+        help_text=_("Current state of the reservation."),
+    )
+    notes = models.TextField(
+        _("notes"),
+        blank=True,
+        help_text=_("Reservation terms, conditions, or internal notes."),
+    )
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.PROTECT,
@@ -213,6 +299,14 @@ class Reservation(TenantModel, CompanyConsistencyMixin):
                 name="one_active_reservation_per_vehicle",
             ),
         ]
+
+    @property
+    def required_deposit_amount(self):
+        return self.deposit_amount
+
+    @required_deposit_amount.setter
+    def required_deposit_amount(self, value):
+        self.deposit_amount = value
 
     def __str__(self):
         return f"{_('Reservation')} #{self.pk} — {self.vehicle}"

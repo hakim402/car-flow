@@ -15,10 +15,28 @@ from apps.core.tenancy import TenantModel
 class Customer(TenantModel, CompanyConsistencyMixin):
     company_relations = ("branch",)
 
-    full_name = models.CharField(_("full name"), max_length=200)
-    phone = models.CharField(_("phone"), max_length=50, blank=True)
-    email = models.EmailField(_("email"), blank=True)
-    national_id = models.CharField(_("national ID"), max_length=50, blank=True)
+    full_name = models.CharField(
+        _("full name"),
+        max_length=200,
+        help_text=_("Primary customer name as shown on documents and sales records."),
+    )
+    phone = models.CharField(
+        _("phone"),
+        max_length=50,
+        blank=True,
+        help_text=_("Best contact number for calls, WhatsApp, and follow-up."),
+    )
+    email = models.EmailField(
+        _("email"),
+        blank=True,
+        help_text=_("Official email address for communication and invoices."),
+    )
+    national_id = models.CharField(
+        _("national ID"),
+        max_length=50,
+        blank=True,
+        help_text=_("National ID, passport number, or Tazkera reference."),
+    )
     branch = models.ForeignKey(
         "branches.Branch",
         on_delete=models.PROTECT,
@@ -26,8 +44,13 @@ class Customer(TenantModel, CompanyConsistencyMixin):
         verbose_name=_("branch"),
         null=True,
         blank=True,
+        help_text=_("Branch or showroom assigned to this customer record."),
     )
-    notes = models.TextField(_("notes"), blank=True)
+    notes = models.TextField(
+        _("notes"),
+        blank=True,
+        help_text=_("Internal notes, preferences, or anything useful for sales follow-up."),
+    )
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.PROTECT,

@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% translate "Expense categories" %} — AUTOMEX CarFlow{% endblock %}
+
+{% block content %}
+<div class="mb-6 flex items-center justify-between gap-3">
+    <div>
+        <p class="text-xs font-medium uppercase tracking-[0.2em] text-amber-600">{% translate "Finance setup" %}</p>
+        <h1 class="mt-1 text-2xl font-semibold text-slate-900">{% translate "Expense categories" %}</h1>
+    </div>
+    <a href="{% url 'expenses:category_create' %}" class="rounded-xl bg-amber-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-amber-600">
+        {% translate "Add category" %}
+    </a>
+</div>
+
+<div class="card overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th class="px-4 py-3 text-start font-medium">{% translate "Name" %}</th>
+                    <th class="px-4 py-3 text-start font-medium">{% translate "Code" %}</th>
+                    <th class="px-4 py-3 text-start font-medium">{% translate "Status" %}</th>
+                    <th class="px-4 py-3 text-start font-medium">{% translate "Created" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for category in categories %}
+                    <tr>
+                        <td class="px-4 py-3 font-medium text-slate-800">{{ category.name }}</td>
+                        <td class="px-4 py-3">{{ category.code|default:"—" }}</td>
+                        <td class="px-4 py-3">
+                            {% if category.active %}
+                                <span class="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">{% translate "Active" %}</span>
+                            {% else %}
+                                <span class="rounded-full bg-slate-200 px-2 py-0.5 text-xs font-medium text-slate-600">{% translate "Inactive" %}</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-4 py-3 text-slate-500">{{ category.created_at|date:"Y-m-d" }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="4" class="px-4 py-8 text-center text-slate-500">{% translate "No expense categories configured yet." %}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

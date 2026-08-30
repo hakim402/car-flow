@@ -35,9 +35,11 @@ class PurchaseOrderForm(StyledFormMixin, forms.ModelForm):
             "notes",
         ]
         widgets = {
+            "reference": forms.TextInput(attrs={"placeholder": "PO-2025-001"}),
             "order_date": forms.DateInput(attrs={"type": "date"}),
             "shipped_date": forms.DateInput(attrs={"type": "date"}),
             "eta": forms.DateInput(attrs={"type": "date"}),
+            "notes": forms.Textarea(attrs={"rows": 4, "placeholder": "Any internal notes, shipping conditions, or delivery remarks..."}),
         }
 
     def __init__(self, *args, **kwargs):

@@ -50,40 +50,55 @@ def dashboard(request):
     totals through the explicit `all_objects` escape hatch (§25.1)."""
     # Imports stay local: this view lives in the auth app and must not drag
     # the business models into its module-import graph at startup.
+    from apps.accounting.services import ledger_balance, money_in, money_out
     from apps.customers.models import Customer
     from apps.inventory.models import StockStatus, VehicleStock
-    from apps.sales.models import Lead, LeadStatus, Sale, SaleStatus
+    from apps.sales.models import Lead, LeadStatus, Reservation, ReservationStatus, Sale, SaleStatus
 
     if request.user.company_id is None:
         # Super Admin runs without tenant context: unrestricted access must
         # be an explicit all_objects choice, never the tenant manager (§25.1).
-        lead_qs, sale_qs, customer_qs, stock_qs = (
+        lead_qs, sale_qs, customer_qs, stock_qs, reservation_qs = (
             Lead.all_objects,
             Sale.all_objects,
             Customer.all_objects,
             VehicleStock.all_objects,
+            Reservation.all_objects,
         )
     else:
-        lead_qs, sale_qs, customer_qs, stock_qs = (
+        lead_qs, sale_qs, customer_qs, stock_qs, reservation_qs = (
             Lead.objects,
             Sale.objects,
             Customer.objects,
             VehicleStock.objects,
+            Reservation.objects,
         )
 
     stats = {
         # Inventory state lives on VehicleStock (§8); Vehicle.status is deprecated.
-        "vehicles_in_stock": stock_qs.filter(
-            status=StockStatus.AVAILABLE
-        ).count(),
+        "vehicles_in_stock": stock_qs.filter(status=StockStatus.AVAILABLE).count(),
+        "reserved_vehicles": stock_qs.filter(status=StockStatus.RESERVED).count(),
+        "sold_pending_delivery": stock_qs.filter(status=StockStatus.SOLD).count(),
         "open_leads": lead_qs.filter(
             status__in=[LeadStatus.NEW, LeadStatus.CONTACTED, LeadStatus.QUALIFIED]
         ).count(),
+        "qualified_leads": lead_qs.filter(status=LeadStatus.QUALIFIED).count(),
+        "active_reservations": reservation_qs.filter(status=ReservationStatus.ACTIVE).count(),
         "active_sales": sale_qs.filter(status=SaleStatus.DRAFT).count(),
+        "completed_sales": sale_qs.filter(status=SaleStatus.COMPLETED).count(),
         "customers": customer_qs.count(),
     }
     context = {
         "stats": stats,
+        "inventory_statuses": {
+            "available": stats["vehicles_in_stock"],
+            "reserved": stats["reserved_vehicles"],
+            "sold_pending_delivery": stats["sold_pending_delivery"],
+        },
+        "cash_position": ledger_balance(),
+        "money_in": money_in(),
+        "money_out": money_out(),
+        "recent_leads": lead_qs.select_related("assigned_to", "customer").order_by("-created_at")[:5],
         "recent_sales": sale_qs.select_related("customer", "vehicle")
         .order_by("-created_at")[:5],
         # Super Admin only: platform-wide tenant and user totals (§8.1).

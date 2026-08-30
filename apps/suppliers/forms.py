@@ -21,6 +21,11 @@ class SupplierForm(StyledFormMixin, forms.ModelForm):
             "notes",
         ]
         widgets = {
-            "address": forms.Textarea(attrs={"rows": 2}),
-            "notes": forms.Textarea(attrs={"rows": 3}),
+            "name": forms.TextInput(attrs={"placeholder": "e.g. Kabul Auto Exchange"}),
+            "national_id": forms.TextInput(attrs={"placeholder": "Tazkera / passport / registration number"}),
+            "contact_person": forms.TextInput(attrs={"placeholder": "Full name of main contact"}),
+            "phone": forms.TextInput(attrs={"placeholder": "+93 700 000 000"}),
+            "email": forms.EmailInput(attrs={"placeholder": "accounts@supplier.com"}),
+            "address": forms.Textarea(attrs={"rows": 3, "placeholder": "Street address, city, and office location"}),
+            "notes": forms.Textarea(attrs={"rows": 4, "placeholder": "Any preferred payment terms, pricing notes, or business notes..."}),
         }

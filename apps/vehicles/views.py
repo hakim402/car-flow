@@ -7,6 +7,7 @@ from django.views.decorators.http import require_POST
 
 from apps.core.decorators import require_permission
 from apps.inventory.models import StockStatus
+from apps.inventory.services import receive_vehicle
 
 from .forms import VehicleForm
 from .models import Vehicle
@@ -128,10 +129,18 @@ def vehicle_add_cost(request, pk):
 def vehicle_create(request):
     company = _current_company_or_deny(request)
     form = VehicleForm(request.POST or None)
+    form.current_user = request.user
     if request.method == "POST" and form.is_valid():
         vehicle = form.save(commit=False)
         vehicle.company = company
+        if vehicle.branch_id is None and request.user.branch_id is not None:
+            vehicle.branch_id = request.user.branch_id
         vehicle.save()
+
+        branch = vehicle.branch
+        if branch is not None and branch.company_id == company.pk:
+            receive_vehicle(vehicle, branch, user=request.user, notes="Vehicle created")
+
         messages.success(request, _("Vehicle created."))
         return redirect(vehicle)
     return render(request, "vehicles/form.html", {"form": form, "title": _("Add vehicle")})

@@ -16,3 +16,5 @@ class CustomerForm(StyledFormMixin, forms.ModelForm):
         company = get_current_company()
         if company is not None:
             self.fields["branch"].queryset = company.branches.all()
+        else:
+            self.fields["branch"].queryset = Customer.all_objects.none()

@@ -515,6 +515,111 @@ msgstr ""
 msgid "notes"
 msgstr ""
 
+msgid "Full supplier name as shown on invoices, purchase paperwork, and official records."
+msgstr "Full supplier name as shown on invoices, purchase paperwork, and official records."
+
+msgid "Choose whether this supplier is a business or a private individual."
+msgstr "Choose whether this supplier is a business or a private individual."
+
+msgid "Select the supplier category used in your sourcing workflow."
+msgstr "Select the supplier category used in your sourcing workflow."
+
+msgid "National ID, passport number, or Tazkera for individual sellers."
+msgstr "National ID, passport number, or Tazkera for individual sellers."
+
+msgid "Primary country associated with the supplier or office."
+msgstr "Primary country associated with the supplier or office."
+
+msgid "Main person to contact for pricing, follow-up, and documents."
+msgstr "Main person to contact for pricing, follow-up, and documents."
+
+msgid "Best direct contact number for supplier communication."
+msgstr "Best direct contact number for supplier communication."
+
+msgid "Official email address for invoices, confirmations, and documents."
+msgstr "Official email address for invoices, confirmations, and documents."
+
+msgid "Supplier address, office, or showroom location."
+msgstr "Supplier address, office, or showroom location."
+
+msgid "Internal notes, special terms, or business relationship details."
+msgstr "Internal notes, special terms, or business relationship details."
+
+msgid "Internal purchase reference or supplier order number."
+msgstr "Internal purchase reference or supplier order number."
+
+msgid "Supplier that is selling the vehicles in this order."
+msgstr "Supplier that is selling the vehicles in this order."
+
+msgid "Branch that will receive and manage these vehicles."
+msgstr "Branch that will receive and manage these vehicles."
+
+msgid "Current state of the purchase workflow."
+msgstr "Current state of the purchase workflow."
+
+msgid "Choose whether this order is domestic or imported from abroad."
+msgstr "Choose whether this order is domestic or imported from abroad."
+
+msgid "Date the order was placed."
+msgstr "Date the order was placed."
+
+msgid "Country of origin for imported vehicles."
+msgstr "Country of origin for imported vehicles."
+
+msgid "Shipping term agreed with the supplier for the shipment."
+msgstr "Shipping term agreed with the supplier for the shipment."
+
+msgid "Mode of transportation used for the order."
+msgstr "Mode of transportation used for the order."
+
+msgid "Bill of lading or shipment document reference."
+msgstr "Bill of lading or shipment document reference."
+
+msgid "Container identification number if the shipment uses containers."
+msgstr "Container identification number if the shipment uses containers."
+
+msgid "Date the cargo was dispatched from the supplier."
+msgstr "Date the cargo was dispatched from the supplier."
+
+msgid "Expected arrival date for the shipment at your branch."
+msgstr "Expected arrival date for the shipment at your branch."
+
+msgid "Additional import, shipping, or ordering notes for the team."
+msgstr "Additional import, shipping, or ordering notes for the team."
+
+msgid "Purchase order this line belongs to."
+msgstr "Purchase order this line belongs to."
+
+msgid "Vehicle linked to this line, if the order includes a specific unit."
+msgstr "Vehicle linked to this line, if the order includes a specific unit."
+
+msgid "Short description of the item, lot, or service being purchased."
+msgstr "Short description of the item, lot, or service being purchased."
+
+msgid "Net value of this line in the selected currency."
+msgstr "Net value of this line in the selected currency."
+
+msgid "Currency used to price this line."
+msgstr "Currency used to price this line."
+
+msgid "Supplier profile"
+msgstr "Supplier profile"
+
+msgid "Address and notes"
+msgstr "Address and notes"
+
+msgid "Save supplier"
+msgstr "Save supplier"
+
+msgid "Order details"
+msgstr "Order details"
+
+msgid "Notes and remarks"
+msgstr "Notes and remarks"
+
+msgid "Save purchase order"
+msgstr "Save purchase order"
+
 #: apps/customers/models.py:32 apps/payments/models.py:66
 #: apps/purchases/models.py:50 apps/purchases/models.py:126
 #: apps/sales/models.py:73 apps/sales/models.py:134 apps/sales/models.py:190
@@ -1386,27 +1491,135 @@ msgstr ""
 #: apps/vehicles/models.py:22 apps/vehicles/templates/vehicles/detail.html:13
 #: apps/vehicles/templates/vehicles/list.html:33
 msgid "VIN"
-msgstr ""
+msgstr "VIN"
 
 #: apps/vehicles/models.py:23
 msgid "make"
-msgstr ""
+msgstr "Make"
 
 #: apps/vehicles/models.py:24
 msgid "model"
-msgstr ""
+msgstr "Model"
 
 #: apps/vehicles/models.py:25
 msgid "year"
-msgstr ""
+msgstr "Year"
 
 #: apps/vehicles/models.py:26
 msgid "color"
-msgstr ""
+msgstr "Color"
 
 #: apps/vehicles/models.py:27
 msgid "mileage (km)"
-msgstr ""
+msgstr "Mileage (km)"
+
+#: apps/vehicles/models.py:44
+msgid "plate number"
+msgstr "Plate number"
+
+#: apps/vehicles/models.py:45
+msgid "Current registration plate or number plate."
+msgstr "Current registration plate or number plate."
+
+#: apps/vehicles/models.py:46
+msgid "registration number"
+msgstr "Registration number"
+
+#: apps/vehicles/models.py:47
+msgid "Official registration or document reference."
+msgstr "Official registration or document reference."
+
+#: apps/vehicles/models.py:48
+msgid "engine number"
+msgstr "Engine number"
+
+#: apps/vehicles/models.py:49
+msgid "Engine serial or identification number."
+msgstr "Engine serial or identification number."
+
+#: apps/vehicles/models.py:50
+msgid "chassis number"
+msgstr "Chassis number"
+
+#: apps/vehicles/models.py:51
+msgid "Chassis or frame number."
+msgstr "Chassis or frame number."
+
+#: apps/vehicles/models.py:52
+msgid "model variant"
+msgstr "Model variant"
+
+#: apps/vehicles/models.py:53
+msgid "Trim, variant, or package name."
+msgstr "Trim, variant, or package name."
+
+#: apps/vehicles/models.py:58
+msgid "body type"
+msgstr "Body type"
+
+#: apps/vehicles/models.py:59
+msgid "Vehicle body style."
+msgstr "Vehicle body style."
+
+#: apps/vehicles/models.py:60
+msgid "fuel type"
+msgstr "Fuel type"
+
+#: apps/vehicles/models.py:61
+msgid "Primary fuel or energy type."
+msgstr "Primary fuel or energy type."
+
+#: apps/vehicles/models.py:62
+msgid "transmission"
+msgstr "Transmission"
+
+#: apps/vehicles/models.py:63
+msgid "Transmission type."
+msgstr "Transmission type."
+
+#: apps/vehicles/models.py:64
+msgid "drive type"
+msgstr "Drive type"
+
+#: apps/vehicles/models.py:65
+msgid "Drive configuration."
+msgstr "Drive configuration."
+
+#: apps/vehicles/models.py:66
+msgid "door count"
+msgstr "Door count"
+
+#: apps/vehicles/models.py:67
+msgid "Number of doors."
+msgstr "Number of doors."
+
+#: apps/vehicles/models.py:68
+msgid "seating capacity"
+msgstr "Seating capacity"
+
+#: apps/vehicles/models.py:69
+msgid "Passenger seating capacity."
+msgstr "Passenger seating capacity."
+
+#: apps/vehicles/models.py:70
+msgid "country of origin"
+msgstr "Country of origin"
+
+#: apps/vehicles/models.py:71
+msgid "Country where the vehicle was built or imported from."
+msgstr "Country where the vehicle was built or imported from."
+
+#: apps/vehicles/models.py:72
+msgid "first registration date"
+msgstr "First registration date"
+
+#: apps/vehicles/models.py:73
+msgid "Date of first registration, if known."
+msgstr "Date of first registration, if known."
+
+#: apps/vehicles/models.py:74
+msgid "17-character vehicle identification number."
+msgstr "17-character vehicle identification number."
 
 #: apps/vehicles/models.py:45
 msgid "vehicles"

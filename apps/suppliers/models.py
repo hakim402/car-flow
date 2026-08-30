@@ -25,30 +25,65 @@ class SupplierKind(models.TextChoices):
 
 
 class Supplier(TenantModel):
-    name = models.CharField(_("name"), max_length=200)
+    name = models.CharField(
+        _("name"),
+        max_length=200,
+        help_text=_("Full supplier name as shown on invoices, purchase paperwork, and official records."),
+    )
     kind = models.CharField(
         _("kind"),
         max_length=20,
         choices=SupplierKind.choices,
         default=SupplierKind.BUSINESS,
+        help_text=_("Choose whether this supplier is a business or a private individual."),
     )
     supplier_type = models.CharField(
         _("supplier type"),
         max_length=20,
         choices=SupplierType.choices,
         default=SupplierType.LOCAL_DEALER,
+        help_text=_("Select the supplier category used in your sourcing workflow."),
     )
     national_id = models.CharField(
-        _("tazkera / national ID no."), max_length=50, blank=True
+        _("tazkera / national ID no."),
+        max_length=50,
+        blank=True,
+        help_text=_("National ID, passport number, or Tazkera for individual sellers."),
     )
     country = models.CharField(
-        _("country"), max_length=5, choices=COUNTRIES, blank=True
+        _("country"),
+        max_length=5,
+        choices=COUNTRIES,
+        blank=True,
+        help_text=_("Primary country associated with the supplier or office."),
     )
-    contact_person = models.CharField(_("contact person"), max_length=200, blank=True)
-    phone = models.CharField(_("phone"), max_length=50, blank=True)
-    email = models.EmailField(_("email"), blank=True)
-    address = models.TextField(_("address"), blank=True)
-    notes = models.TextField(_("notes"), blank=True)
+    contact_person = models.CharField(
+        _("contact person"),
+        max_length=200,
+        blank=True,
+        help_text=_("Main person to contact for pricing, follow-up, and documents."),
+    )
+    phone = models.CharField(
+        _("phone"),
+        max_length=50,
+        blank=True,
+        help_text=_("Best direct contact number for supplier communication."),
+    )
+    email = models.EmailField(
+        _("email"),
+        blank=True,
+        help_text=_("Official email address for invoices, confirmations, and documents."),
+    )
+    address = models.TextField(
+        _("address"),
+        blank=True,
+        help_text=_("Supplier address, office, or showroom location."),
+    )
+    notes = models.TextField(
+        _("notes"),
+        blank=True,
+        help_text=_("Internal notes, special terms, or business relationship details."),
+    )
     created_at = models.DateTimeField(_("created at"), auto_now_add=True)
 
     class Meta:

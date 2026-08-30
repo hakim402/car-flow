@@ -19,10 +19,25 @@
 </div>
 <div class="card p-6 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 text-sm">
     <div><span class="text-slate-500">{% translate "VIN" %}:</span> <span class="font-mono">{{ vehicle.vin }}</span></div>
-    <div><span class="text-slate-500">{% translate "Status" %}:</span> {% if stock %}{{ stock.get_status_display }}{% else %}—{% endif %}</div>
-    <div><span class="text-slate-500">{% translate "Condition" %}:</span> {% if stock %}{{ stock.get_condition_display }}{% else %}—{% endif %}</div>
+    <div><span class="text-slate-500">{% translate "Plate number" %}:</span> {{ vehicle.plate_number|default:"—" }}</div>
+    <div><span class="text-slate-500">{% translate "Registration number" %}:</span> {{ vehicle.registration_number|default:"—" }}</div>
+    <div><span class="text-slate-500">{% translate "Engine number" %}:</span> {{ vehicle.engine_number|default:"—" }}</div>
+    <div><span class="text-slate-500">{% translate "Chassis number" %}:</span> {{ vehicle.chassis_number|default:"—" }}</div>
+    <div><span class="text-slate-500">{% translate "Make" %}:</span> {{ vehicle.make }}</div>
+    <div><span class="text-slate-500">{% translate "Model" %}:</span> {{ vehicle.model }}</div>
+    <div><span class="text-slate-500">{% translate "Variant" %}:</span> {{ vehicle.model_variant|default:"—" }}</div>
+    <div><span class="text-slate-500">{% translate "Body type" %}:</span> {{ vehicle.get_body_type_display|default:"—" }}</div>
+    <div><span class="text-slate-500">{% translate "Fuel type" %}:</span> {{ vehicle.get_fuel_type_display|default:"—" }}</div>
+    <div><span class="text-slate-500">{% translate "Transmission" %}:</span> {{ vehicle.get_transmission_display|default:"—" }}</div>
+    <div><span class="text-slate-500">{% translate "Drive type" %}:</span> {{ vehicle.get_drive_type_display|default:"—" }}</div>
     <div><span class="text-slate-500">{% translate "Color" %}:</span> {{ vehicle.color|default:"—" }}</div>
     <div><span class="text-slate-500">{% translate "Mileage (km)" %}:</span> {{ vehicle.mileage }}</div>
+    <div><span class="text-slate-500">{% translate "Door count" %}:</span> {{ vehicle.door_count }}</div>
+    <div><span class="text-slate-500">{% translate "Seating capacity" %}:</span> {{ vehicle.seating_capacity }}</div>
+    <div><span class="text-slate-500">{% translate "Country of origin" %}:</span> {{ vehicle.get_country_of_origin_display|default:"—" }}</div>
+    <div><span class="text-slate-500">{% translate "First registration date" %}:</span> {{ vehicle.first_registration_date|default:"—" }}</div>
+    <div><span class="text-slate-500">{% translate "Status" %}:</span> {% if stock %}{{ stock.get_status_display }}{% else %}—{% endif %}</div>
+    <div><span class="text-slate-500">{% translate "Condition" %}:</span> {% if stock %}{{ stock.get_condition_display }}{% else %}—{% endif %}</div>
     <div><span class="text-slate-500">{% translate "Branch" %}:</span> {% if stock %}{{ stock.branch|default:"—" }}{% else %}—{% endif %}</div>
     <div><span class="text-slate-500">{% translate "Location" %}:</span> {% if stock %}{{ stock.location|default:"—" }}{% else %}—{% endif %}</div>
     <div><span class="text-slate-500">{% translate "Created" %}:</span> {{ vehicle.created_at|date:"SHORT_DATE_FORMAT" }}</div>

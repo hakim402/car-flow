@@ -58,12 +58,18 @@ NEXT_STATUS = {
 class PurchaseOrder(TenantModel, CompanyConsistencyMixin):
     company_relations = ("supplier", "branch")
 
-    reference = models.CharField(_("reference"), max_length=50, blank=True)
+    reference = models.CharField(
+        _("reference"),
+        max_length=50,
+        blank=True,
+        help_text=_("Internal purchase reference or supplier order number."),
+    )
     supplier = models.ForeignKey(
         "suppliers.Supplier",
         on_delete=models.PROTECT,
         related_name="purchase_orders",
         verbose_name=_("supplier"),
+        help_text=_("Supplier that is selling the vehicles in this order."),
     )
     branch = models.ForeignKey(
         "branches.Branch",
@@ -72,32 +78,74 @@ class PurchaseOrder(TenantModel, CompanyConsistencyMixin):
         verbose_name=_("branch"),
         null=True,
         blank=True,
+        help_text=_("Branch that will receive and manage these vehicles."),
     )
     status = models.CharField(
-        _("status"), max_length=20, choices=PurchaseStatus.choices, default=PurchaseStatus.DRAFT
+        _("status"),
+        max_length=20,
+        choices=PurchaseStatus.choices,
+        default=PurchaseStatus.DRAFT,
+        help_text=_("Current state of the purchase workflow."),
     )
     purchase_type = models.CharField(
         _("purchase type"),
         max_length=20,
         choices=PurchaseType.choices,
         default=PurchaseType.DOMESTIC,
+        help_text=_("Choose whether this order is domestic or imported from abroad."),
     )
-    order_date = models.DateField(_("order date"))
+    order_date = models.DateField(_("order date"), help_text=_("Date the order was placed."))
     # Import/shipment tracking — filled when vehicles arrive from abroad.
     origin_country = models.CharField(
-        _("origin country"), max_length=5, choices=COUNTRIES, blank=True
+        _("origin country"),
+        max_length=5,
+        choices=COUNTRIES,
+        blank=True,
+        help_text=_("Country of origin for imported vehicles."),
     )
     incoterms = models.CharField(
-        _("incoterms"), max_length=10, choices=Incoterms.choices, blank=True
+        _("incoterms"),
+        max_length=10,
+        choices=Incoterms.choices,
+        blank=True,
+        help_text=_("Shipping term agreed with the supplier for the shipment."),
     )
     shipping_method = models.CharField(
-        _("shipping method"), max_length=20, choices=ShippingMethod.choices, blank=True
+        _("shipping method"),
+        max_length=20,
+        choices=ShippingMethod.choices,
+        blank=True,
+        help_text=_("Mode of transportation used for the order."),
     )
-    bill_of_lading_no = models.CharField(_("bill of lading no."), max_length=100, blank=True)
-    container_no = models.CharField(_("container no."), max_length=100, blank=True)
-    shipped_date = models.DateField(_("shipped date"), null=True, blank=True)
-    eta = models.DateField(_("expected arrival"), null=True, blank=True)
-    notes = models.TextField(_("notes"), blank=True)
+    bill_of_lading_no = models.CharField(
+        _("bill of lading no."),
+        max_length=100,
+        blank=True,
+        help_text=_("Bill of lading or shipment document reference."),
+    )
+    container_no = models.CharField(
+        _("container no."),
+        max_length=100,
+        blank=True,
+        help_text=_("Container identification number if the shipment uses containers."),
+    )
+    shipped_date = models.DateField(
+        _("shipped date"),
+        null=True,
+        blank=True,
+        help_text=_("Date the cargo was dispatched from the supplier."),
+    )
+    eta = models.DateField(
+        _("expected arrival"),
+        null=True,
+        blank=True,
+        help_text=_("Expected arrival date for the shipment at your branch."),
+    )
+    notes = models.TextField(
+        _("notes"),
+        blank=True,
+        help_text=_("Additional import, shipping, or ordering notes for the team."),
+    )
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.PROTECT,
@@ -145,7 +193,11 @@ class PurchaseOrder(TenantModel, CompanyConsistencyMixin):
 
 class PurchaseOrderLine(models.Model):
     order = models.ForeignKey(
-        PurchaseOrder, on_delete=models.CASCADE, related_name="lines", verbose_name=_("order")
+        PurchaseOrder,
+        on_delete=models.CASCADE,
+        related_name="lines",
+        verbose_name=_("order"),
+        help_text=_("Purchase order this line belongs to."),
     )
     vehicle = models.ForeignKey(
         "vehicles.Vehicle",
@@ -154,10 +206,26 @@ class PurchaseOrderLine(models.Model):
         verbose_name=_("vehicle"),
         null=True,
         blank=True,
+        help_text=_("Vehicle linked to this line, if the order includes a specific unit."),
     )
-    description = models.CharField(_("description"), max_length=255)
-    amount = models.DecimalField(_("amount"), max_digits=14, decimal_places=2)
-    currency = models.CharField(_("currency"), max_length=3, choices=CURRENCIES, default=DEFAULT_CURRENCY)
+    description = models.CharField(
+        _("description"),
+        max_length=255,
+        help_text=_("Short description of the item, lot, or service being purchased."),
+    )
+    amount = models.DecimalField(
+        _("amount"),
+        max_digits=14,
+        decimal_places=2,
+        help_text=_("Net value of this line in the selected currency."),
+    )
+    currency = models.CharField(
+        _("currency"),
+        max_length=3,
+        choices=CURRENCIES,
+        default=DEFAULT_CURRENCY,
+        help_text=_("Currency used to price this line."),
+    )
 
     class Meta:
         verbose_name = _("purchase order line")

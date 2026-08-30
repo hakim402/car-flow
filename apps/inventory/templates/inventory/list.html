@@ -4,25 +4,33 @@
 {% block title %}{% translate "Inventory" %} — AUTOMEX CarFlow{% endblock %}
 
 {% block content %}
-<div class="flex items-center justify-between mb-4">
-    <h1 class="text-2xl font-semibold">{% translate "Inventory" %}</h1>
+<div class="mb-6 flex flex-wrap items-center justify-between gap-3">
+    <div>
+        <p class="text-xs font-medium uppercase tracking-[0.2em] text-amber-600">{% translate "Operations" %}</p>
+        <h1 class="mt-1 text-2xl font-semibold text-slate-900">{% translate "Inventory" %}</h1>
+    </div>
     <a href="{% url 'inventory:location_list' %}"
-       class="rounded bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 text-sm">
+       class="rounded-xl bg-slate-700 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-slate-600">
         {% translate "Locations" %}
     </a>
 </div>
 
-<form method="get" class="flex items-center gap-3 mb-4">
-    <select name="status" class="rounded border border-slate-300 px-3 py-2 text-sm">
-        <option value="">{% translate "All statuses" %}</option>
-        {% for value, label in statuses %}
-            <option value="{{ value }}" {% if value == status %}selected{% endif %}>{{ label }}</option>
-        {% endfor %}
-    </select>
-    <button type="submit" class="rounded bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 text-sm">
-        {% translate "Filter" %}
-    </button>
-</form>
+<div class="mb-5 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+    <form method="get" class="flex flex-col gap-3 md:flex-row md:items-end">
+        <div class="space-y-1">
+            <label class="block text-xs font-medium uppercase tracking-wide text-slate-500">{% translate "Status" %}</label>
+            <select name="status" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2.5 text-sm text-slate-800 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-100 md:w-64">
+                <option value="">{% translate "All statuses" %}</option>
+                {% for value, label in statuses %}
+                    <option value="{{ value }}" {% if value == status %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="rounded-xl bg-amber-500 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-amber-600">
+            {% translate "Filter" %}
+        </button>
+    </form>
+</div>
 
 <div class="card overflow-x-auto">
     <table class="data-table">
@@ -41,7 +49,7 @@
             {% for item in stock_items %}
                 <tr>
                     <td class="px-4 py-3">
-                        <a href="{% url 'inventory:stock_detail' item.pk %}" class="text-amber-600 hover:underline">
+                        <a href="{% url 'inventory:stock_detail' item.pk %}" class="font-medium text-amber-600 hover:text-amber-700">
                             {{ item.vehicle }}
                         </a>
                     </td>
@@ -53,7 +61,7 @@
                     <td class="px-4 py-3">
                         <form method="post" action="{% url 'inventory:update_status' item.pk %}" class="flex items-center gap-2">
                             {% csrf_token %}
-                            <select name="status" class="rounded border border-slate-300 px-2 py-1 text-sm"
+                            <select name="status" class="rounded border border-slate-300 px-2 py-1.5 text-sm text-slate-700"
                                     onchange="this.form.submit()">
                                 <option value="{{ item.status }}" selected>{{ item.get_status_display }}</option>
                                 {% for value, label in item.allowed_next %}

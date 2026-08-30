@@ -1,5 +1,6 @@
 from django import forms
 
+from apps.accounts.models import User
 from apps.core.forms import StyledFormMixin
 from apps.core.tenancy import get_current_company
 from apps.customers.models import Customer
@@ -24,16 +25,31 @@ class LeadForm(StyledFormMixin, forms.ModelForm):
 
     class Meta:
         model = Lead
-        fields = ["name", "phone", "customer", "vehicle_of_interest", "source", "branch", "notes"]
+        fields = [
+            "name",
+            "phone",
+            "customer",
+            "vehicle_of_interest",
+            "source",
+            "branch",
+            "assigned_to",
+            "lost_reason",
+            "notes",
+        ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         company = get_current_company()
-        # Tenant managers already scope these to the current company.
-        self.fields["customer"].queryset = Customer.objects.all()
-        self.fields["vehicle_of_interest"].queryset = Vehicle.objects.all()
         if company is not None:
+            self.fields["customer"].queryset = Customer.objects.filter(company=company)
+            self.fields["vehicle_of_interest"].queryset = Vehicle.objects.filter(company=company)
             self.fields["branch"].queryset = company.branches.all()
+            self.fields["assigned_to"].queryset = User.objects.filter(company=company)
+        else:
+            self.fields["customer"].queryset = Customer.all_objects.all()
+            self.fields["vehicle_of_interest"].queryset = Vehicle.all_objects.all()
+            self.fields["branch"].queryset = Vehicle.all_objects.none()
+            self.fields["assigned_to"].queryset = User.objects.none()
 
 
 class QuotationForm(StyledFormMixin, forms.ModelForm):
@@ -54,14 +70,20 @@ class QuotationForm(StyledFormMixin, forms.ModelForm):
 
     class Meta:
         model = Quotation
-        fields = ["customer", "vehicle", "lead", "amount", "currency", "valid_until", "notes"]
+        fields = ["number", "customer", "vehicle", "lead", "amount", "currency", "valid_until", "notes"]
         widgets = {"valid_until": forms.DateInput(attrs={"type": "date"})}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["customer"].queryset = Customer.objects.all()
-        self.fields["vehicle"].queryset = Vehicle.objects.all()
-        self.fields["lead"].queryset = Lead.objects.all()
+        company = get_current_company()
+        if company is not None:
+            self.fields["customer"].queryset = Customer.objects.filter(company=company)
+            self.fields["vehicle"].queryset = Vehicle.objects.filter(company=company)
+            self.fields["lead"].queryset = Lead.objects.filter(company=company)
+        else:
+            self.fields["customer"].queryset = Customer.all_objects.all()
+            self.fields["vehicle"].queryset = Vehicle.all_objects.all()
+            self.fields["lead"].queryset = Lead.all_objects.all()
 
 
 class ReservationForm(StyledFormMixin, forms.ModelForm):
@@ -81,13 +103,20 @@ class ReservationForm(StyledFormMixin, forms.ModelForm):
 
     class Meta:
         model = Reservation
-        fields = ["customer", "vehicle", "quotation", "deposit_amount", "currency", "notes"]
+        fields = ["customer", "vehicle", "quotation", "deposit_amount", "currency", "expires_at", "notes"]
+        widgets = {"expires_at": forms.DateTimeInput(attrs={"type": "datetime-local"})}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["customer"].queryset = Customer.objects.all()
-        self.fields["vehicle"].queryset = Vehicle.objects.all()
-        self.fields["quotation"].queryset = Quotation.objects.all()
+        company = get_current_company()
+        if company is not None:
+            self.fields["customer"].queryset = Customer.objects.filter(company=company)
+            self.fields["vehicle"].queryset = Vehicle.objects.filter(company=company)
+            self.fields["quotation"].queryset = Quotation.objects.filter(company=company)
+        else:
+            self.fields["customer"].queryset = Customer.all_objects.all()
+            self.fields["vehicle"].queryset = Vehicle.all_objects.all()
+            self.fields["quotation"].queryset = Quotation.all_objects.all()
 
 
 class SaleForm(StyledFormMixin, forms.ModelForm):
@@ -112,6 +141,12 @@ class SaleForm(StyledFormMixin, forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["customer"].queryset = Customer.objects.all()
-        self.fields["vehicle"].queryset = Vehicle.objects.all()
-        self.fields["reservation"].queryset = Reservation.objects.all()
+        company = get_current_company()
+        if company is not None:
+            self.fields["customer"].queryset = Customer.objects.filter(company=company)
+            self.fields["vehicle"].queryset = Vehicle.objects.filter(company=company)
+            self.fields["reservation"].queryset = Reservation.objects.filter(company=company)
+        else:
+            self.fields["customer"].queryset = Customer.all_objects.all()
+            self.fields["vehicle"].queryset = Vehicle.all_objects.all()
+            self.fields["reservation"].queryset = Reservation.all_objects.all()

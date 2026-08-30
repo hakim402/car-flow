@@ -1,6 +1,7 @@
 """Ledger write paths for payments (agent.md §6: everything writes through
 the ledger; there is no other way to move money)."""
 import logging
+from datetime import date
 
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError, transaction
@@ -9,23 +10,41 @@ from django.utils.translation import gettext_lazy as _
 from apps.communications import notification_engine
 from apps.core.validation import validate_same_company
 
-from .models import EntryType, LedgerEntry
+from .models import EntryType, LedgerEntry, PaymentMethod
 
 logger = logging.getLogger(__name__)
 
 
 @transaction.atomic
-def record_payment(sale, amount, currency, user=None, description="") -> LedgerEntry:
+def record_payment(
+    sale,
+    amount,
+    currency,
+    user=None,
+    description="",
+    account=None,
+    payment_method=None,
+    transaction_date=None,
+    reference="",
+    receipt_number="",
+) -> LedgerEntry:
     """Record a customer payment against a sale as one ledger row."""
     # Cross-tenant references must be impossible through the write path
     # (README §25.2): a payment belongs to the sale's customer and company.
-    validate_same_company(sale.company, {"sale customer": sale.customer})
+    validate_same_company(sale.company, {"sale customer": sale.customer, "account": account})
     entry = LedgerEntry.objects.create(
         company=sale.company,
         type=EntryType.CUSTOMER_PAYMENT,
         amount=amount,
         currency=currency,
+        account=account,
+        payment_method=payment_method or PaymentMethod.OTHER,
+        transaction_date=transaction_date or date.today(),
         description=description or f"{sale}",
+        reference=reference,
+        receipt_number=receipt_number,
+        customer=sale.customer,
+        sale=sale,
         content_type_id=_content_type_id(sale),
         object_id=sale.pk,
         created_by=user if user and user.is_authenticated else None,
@@ -44,15 +63,35 @@ def record_payment(sale, amount, currency, user=None, description="") -> LedgerE
 
 
 @transaction.atomic
-def record_supplier_payment(supplier, amount, currency, user=None, description="") -> LedgerEntry:
+def record_supplier_payment(
+    supplier,
+    amount,
+    currency,
+    user=None,
+    description="",
+    purchase_order=None,
+    account=None,
+    payment_method=None,
+    transaction_date=None,
+    reference="",
+    receipt_number="",
+) -> LedgerEntry:
     """Record money paid OUT to a supplier (import invoices, deposits) as
     one ledger row pointing at the supplier."""
+    validate_same_company(supplier.company, {"purchase_order": purchase_order, "account": account})
     return LedgerEntry.objects.create(
         company=supplier.company,
         type=EntryType.SUPPLIER_PAYMENT,
         amount=amount,
         currency=currency,
+        account=account,
+        payment_method=payment_method or PaymentMethod.OTHER,
+        transaction_date=transaction_date or date.today(),
         description=description or f"{supplier}",
+        reference=reference,
+        receipt_number=receipt_number,
+        supplier=supplier,
+        purchase_order=purchase_order,
         content_type_id=_content_type_id(supplier),
         object_id=supplier.pk,
         created_by=user if user and user.is_authenticated else None,

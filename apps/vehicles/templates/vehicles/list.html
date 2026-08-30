@@ -63,6 +63,12 @@
                     </span>
                 </div>
                 <p class="mt-2 font-mono text-xs text-slate-400">{{ vehicle.vin }}</p>
+                {% if vehicle.plate_number %}
+                    <p class="mt-1 text-xs text-slate-500">{% translate "Plate" %}: <span class="font-medium">{{ vehicle.plate_number }}</span></p>
+                {% endif %}
+                {% if vehicle.model_variant %}
+                    <p class="mt-1 text-xs text-slate-500">{% translate "Variant" %}: <span class="font-medium">{{ vehicle.model_variant }}</span></p>
+                {% endif %}
                 {% if vehicle.stock and vehicle.stock.branch %}
                     <p class="mt-1 text-xs text-slate-400">{{ vehicle.stock.branch }}</p>
                 {% endif %}

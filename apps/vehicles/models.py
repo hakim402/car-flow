@@ -29,15 +29,64 @@ class VehicleStatus(models.TextChoices):
     DELIVERED = "delivered", _("Delivered")
 
 
+class FuelType(models.TextChoices):
+    PETROL = "petrol", _("Petrol")
+    DIESEL = "diesel", _("Diesel")
+    HYBRID = "hybrid", _("Hybrid")
+    ELECTRIC = "electric", _("Electric")
+    LPG = "lpg", _("LPG")
+    OTHER = "other", _("Other")
+
+
+class TransmissionType(models.TextChoices):
+    MANUAL = "manual", _("Manual")
+    AUTOMATIC = "automatic", _("Automatic")
+    CVT = "cvt", _("CVT")
+    DUAL_CLUTCH = "dual_clutch", _("Dual clutch")
+    OTHER = "other", _("Other")
+
+
+class DriveType(models.TextChoices):
+    FWD = "fwd", _("Front-wheel drive")
+    RWD = "rwd", _("Rear-wheel drive")
+    AWD = "awd", _("All-wheel drive")
+    FOUR_BY_FOUR = "4x4", _("4x4")
+    OTHER = "other", _("Other")
+
+
+class BodyType(models.TextChoices):
+    SEDAN = "sedan", _("Sedan")
+    HATCHBACK = "hatchback", _("Hatchback")
+    SUV = "suv", _("SUV")
+    PICKUP = "pickup", _("Pickup")
+    VAN = "van", _("Van")
+    COUPE = "coupe", _("Coupe")
+    TRUCK = "truck", _("Truck")
+    OTHER = "other", _("Other")
+
+
 class Vehicle(TenantModel, CompanyConsistencyMixin):
     company_relations = ("branch",)
 
-    vin = models.CharField(_("VIN"), max_length=17)
-    make = models.CharField(_("make"), max_length=100)
-    model = models.CharField(_("model"), max_length=100)
-    year = models.PositiveSmallIntegerField(_("year"))
-    color = models.CharField(_("color"), max_length=50, blank=True)
-    mileage = models.PositiveIntegerField(_("mileage (km)"), default=0)
+    vin = models.CharField(_("VIN"), max_length=17, help_text=_("17-character vehicle identification number."))
+    plate_number = models.CharField(_("plate number"), max_length=50, blank=True, help_text=_("Current registration plate or number plate."))
+    registration_number = models.CharField(_("registration number"), max_length=100, blank=True, help_text=_("Official registration or document reference."))
+    engine_number = models.CharField(_("engine number"), max_length=100, blank=True, help_text=_("Engine serial or identification number."))
+    chassis_number = models.CharField(_("chassis number"), max_length=100, blank=True, help_text=_("Chassis or frame number."))
+    make = models.CharField(_("make"), max_length=100, help_text=_("Manufacturer or brand of the vehicle."))
+    model = models.CharField(_("model"), max_length=100, help_text=_("Vehicle model name or series."))
+    model_variant = models.CharField(_("model variant"), max_length=100, blank=True, help_text=_("Trim, variant, or package name."))
+    year = models.PositiveSmallIntegerField(_("year"), help_text=_("Model year as shown on the vehicle registration."))
+    color = models.CharField(_("color"), max_length=50, blank=True, help_text=_("Vehicle paint or body color."))
+    mileage = models.PositiveIntegerField(_("mileage (km)"), default=0, help_text=_("Current odometer reading in kilometers."))
+    body_type = models.CharField(_("body type"), max_length=20, choices=BodyType.choices, default=BodyType.OTHER, blank=True, help_text=_("Vehicle body style."))
+    fuel_type = models.CharField(_("fuel type"), max_length=20, choices=FuelType.choices, default=FuelType.PETROL, blank=True, help_text=_("Primary fuel or energy type."))
+    transmission = models.CharField(_("transmission"), max_length=20, choices=TransmissionType.choices, default=TransmissionType.AUTOMATIC, blank=True, help_text=_("Transmission type."))
+    drive_type = models.CharField(_("drive type"), max_length=20, choices=DriveType.choices, default=DriveType.FWD, blank=True, help_text=_("Drive configuration."))
+    door_count = models.PositiveSmallIntegerField(_("door count"), default=4, blank=True, help_text=_("Number of doors."))
+    seating_capacity = models.PositiveSmallIntegerField(_("seating capacity"), default=5, blank=True, help_text=_("Passenger seating capacity."))
+    country_of_origin = models.CharField(_("country of origin"), max_length=5, blank=True, help_text=_("Country where the vehicle was built or imported from."))
+    first_registration_date = models.DateField(_("first registration date"), null=True, blank=True, help_text=_("Date of first registration, if known."))
     status = models.CharField(
         _("status"),
         max_length=20,
@@ -55,8 +104,9 @@ class Vehicle(TenantModel, CompanyConsistencyMixin):
         verbose_name=_("branch"),
         null=True,
         blank=True,
+        help_text=_("Branch where this vehicle is assigned or stored."),
     )
-    notes = models.TextField(_("notes"), blank=True)
+    notes = models.TextField(_("notes"), blank=True, help_text=_("Internal notes, condition comments, or handling details."))
     created_at = models.DateTimeField(_("created at"), auto_now_add=True)
     updated_at = models.DateTimeField(_("updated at"), auto_now=True)
 
