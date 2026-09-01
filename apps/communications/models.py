@@ -138,6 +138,121 @@ class Message(TenantModel):
         return f"{self.get_direction_display()} — {self.body[:40]}"
 
 
+class NotificationChannel(models.TextChoices):
+    EMAIL = "email", _("Email")
+    SMS = "sms", _("SMS")
+    WHATSAPP = "whatsapp", _("WhatsApp")
+    IN_APP = "in_app", _("In-App")
+
+
+class NotificationStatus(models.TextChoices):
+    QUEUED = "queued", _("Queued")
+    SENT = "sent", _("Sent")
+    FAILED = "failed", _("Failed")
+    SKIPPED_DISABLED = "skipped_disabled", _("Skipped (integration disabled)")
+    READ = "read", _("Read")
+
+
+class NotificationEvent(models.Model):
+    key = models.CharField(max_length=80, unique=True)
+    label = models.CharField(max_length=120)
+    description = models.TextField(blank=True)
+    default_template = models.TextField(blank=True)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ["key"]
+
+    def __str__(self):
+        return self.key
+
+
+class Notification(TenantModel, CompanyConsistencyMixin):
+    company_relations = ("recipient",)
+
+    recipient = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="notifications",
+        verbose_name=_("recipient"),
+    )
+    event = models.ForeignKey(
+        NotificationEvent,
+        on_delete=models.PROTECT,
+        related_name="notifications",
+        verbose_name=_("event"),
+    )
+    title = models.CharField(max_length=200)
+    message = models.TextField()
+    channel = models.CharField(
+        max_length=20,
+        choices=NotificationChannel.choices,
+        default=NotificationChannel.IN_APP,
+    )
+    status = models.CharField(
+        max_length=30,
+        choices=NotificationStatus.choices,
+        default=NotificationStatus.QUEUED,
+    )
+    sent_at = models.DateTimeField(null=True, blank=True)
+    read_at = models.DateTimeField(null=True, blank=True)
+    metadata = models.JSONField(default=dict, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.recipient} :: {self.title}"
+
+
+class NotificationPreference(TenantModel, CompanyConsistencyMixin):
+    company_relations = ("user",)
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="notification_preferences",
+        verbose_name=_("user"),
+    )
+    event = models.ForeignKey(
+        NotificationEvent,
+        on_delete=models.CASCADE,
+        related_name="preferences",
+        verbose_name=_("event"),
+    )
+    enabled = models.BooleanField(default=True)
+    email = models.BooleanField(default=True)
+    sms = models.BooleanField(default=False)
+    whatsapp = models.BooleanField(default=False)
+    in_app = models.BooleanField(default=True)
+
+    class Meta:
+        unique_together = [("company", "user", "event")]
+
+    def __str__(self):
+        return f"{self.user} / {self.event}"
+
+
+class NotificationDeliveryLog(models.Model):
+    notification = models.ForeignKey(
+        Notification,
+        on_delete=models.CASCADE,
+        related_name="delivery_logs",
+        verbose_name=_("notification"),
+    )
+    channel = models.CharField(max_length=20, choices=NotificationChannel.choices)
+    status = models.CharField(max_length=30, choices=NotificationStatus.choices)
+    provider_response = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.notification} -> {self.channel} ({self.status})"
+
+
 class CustomerChannelIdentity(TenantModel, CompanyConsistencyMixin):
     """Maps one external provider id to exactly one customer (§7.4).
     Never merge distinct external ids silently."""

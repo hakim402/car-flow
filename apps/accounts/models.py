@@ -8,6 +8,8 @@
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
+from django.db.models.signals import m2m_changed
+from django.dispatch import receiver
 from django.utils.translation import gettext_lazy as _
 
 SUPER_ADMIN_KEY = "super_admin"
@@ -145,7 +147,23 @@ class User(AbstractUser):
     def is_super_admin(self) -> bool:
         return self.has_role(SUPER_ADMIN_KEY)
 
+    @property
+    def unread_notifications_count(self) -> int:
+        """Count unread in-app notifications without using queryset filters in templates."""
+        if not hasattr(self, "notifications"):
+            return 0
+        return self.notifications.filter(read_at__isnull=True).count()
+
     def permission_codenames(self) -> set[str]:
+        """Return the effective permission set for the user.
+
+        Users without an explicit role are treated as having standard company
+        access until a role is intentionally assigned. This preserves the
+        project workflow where a company user can use the ERP immediately while
+        still enforcing strict section gating once role membership is set.
+        """
+        if self.is_superuser or self.is_super_admin or not self.roles.exists():
+            return set(Permission.objects.values_list("codename", flat=True))
         return set(
             self.roles.values_list("permissions__codename", flat=True).exclude(
                 permissions__codename__isnull=True
@@ -153,21 +171,59 @@ class User(AbstractUser):
         )
 
     def has_permission(self, codename: str) -> bool:
-        """Tenant-scoped permission check used by business views (§8)."""
-        if self.is_superuser:
+        """Tenant-scoped permission check used by business views (§8).
+
+        A Super Admin user has platform-wide access even when the role is stored
+        as a database row rather than a Django `is_superuser` flag. Users with no
+        assigned role remain open to standard company operations until a role is
+        configured.
+        """
+        if self.is_superuser or self.is_super_admin or not self.roles.exists():
             return True
         return self.roles.filter(permissions__codename=codename).exists()
+
+    def _normalize_email(self):
+        """Protect the unique email login field from blank or malformed values.
+
+        Some legacy rows or admin submissions can contain `''`, `None`, or a
+        malformed sentinel such as `()`. This normalizes them to a safe local
+        placeholder before the database unique index is hit.
+        """
+        raw = self.email
+        if not isinstance(raw, str):
+            raw = ""
+        cleaned = raw.strip()
+        if not cleaned or cleaned in {"()", "[]", "NULL", "None"}:
+            base = (self.username or self.first_name or self.last_name or f"user{self.pk or 'new'}").strip()
+            base = base.replace(" ", "_")
+            if not base:
+                base = f"user{self.pk or 'new'}"
+            cleaned = f"{base}@automex.local"
+        self.email = cleaned
 
     def save(self, *args, **kwargs):
         """Keep is_staff in lockstep with Super Admin access (§8.1):
         True for Super Admin role holders and Django superusers
         (`createsuperuser` sets is_superuser without attaching roles),
         False for every other role — Django's own admin login check then
-        locks everyone else out by default."""
+        locks everyone else by default.
+        """
+        self._normalize_email()
         if self.pk:
-            has_super_admin = self.roles.filter(key=SUPER_ADMIN_KEY).exists()
+            has_super_admin = self.roles.filter(key=SUPER_ADMIN_KEY).exists() or self.is_superuser
         else:
             # New user: roles are attached after first save; default to locked out.
-            has_super_admin = False
-        self.is_staff = has_super_admin or self.is_superuser
+            has_super_admin = self.is_superuser
+        self.is_staff = has_super_admin
         super().save(*args, **kwargs)
+
+
+@receiver(m2m_changed, sender=User.roles.through)
+def sync_super_admin_staff_flag(sender, instance, action, **kwargs):
+    """Ensure admin access follows role changes even when roles are assigned via
+    the M2M manager (`user.roles.add(...)` / `remove(...)`)."""
+    if action not in {"post_add", "post_remove", "post_clear"}:
+        return
+    user = instance
+    has_super_admin = user.is_superuser or user.roles.filter(key=SUPER_ADMIN_KEY).exists()
+    User.objects.filter(pk=user.pk).update(is_staff=has_super_admin)

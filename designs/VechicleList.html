@@ -1,0 +1,859 @@
+<!doctype html>
+<html lang="en" dir="ltr" class="h-full">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>CarFlow — Vehicles</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Arabic:wght@400;500;600;700;800&family=Vazirmatn:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#fff9ed', 100: '#fff0cf', 200: '#ffdd88', 300: '#ffc44a', 400: '#f7a91a',
+                            500: '#ea8d0b', 600: '#c86a06', 700: '#9f4a09', 800: '#823a0f', 900: '#6b3111'
+                        }
+                    },
+                    boxShadow: {
+                        soft: '0 1px 2px rgba(16,24,40,.04), 0 8px 24px rgba(16,24,40,.05)',
+                        lift: '0 18px 50px rgba(16,24,40,.12)'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: Inter, system-ui, sans-serif
+        }
+
+        html[lang="fa"] body {
+            font-family: Vazirmatn, Tahoma, sans-serif
+        }
+
+        html[lang="ps"] body {
+            font-family: "Noto Sans Arabic", Tahoma, sans-serif
+        }
+
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: #cbd5e1 transparent
+        }
+
+        .status-dot::after {
+            content: "";
+            position: absolute;
+            inset: -4px;
+            border: 2px solid currentColor;
+            border-radius: 999px;
+            opacity: .14
+        }
+
+        .rtl-flip {
+            transition: transform .15s ease
+        }
+
+        html[dir="rtl"] .rtl-flip {
+            transform: scaleX(-1)
+        }
+
+        .vehicle-card {
+            transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease
+        }
+
+        .vehicle-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 14px 36px rgba(15, 23, 42, .10)
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, .92);
+            backdrop-filter: blur(14px)
+        }
+
+        .dark .glass {
+            background: rgba(2, 6, 23, .90)
+        }
+
+        .truncate-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden
+        }
+
+        .pill-scroll::-webkit-scrollbar {
+            display: none
+        }
+
+        .pill-scroll {
+            scrollbar-width: none
+        }
+    </style>
+</head>
+
+<body class="min-h-full bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
+    <div class="min-h-screen">
+
+        <!-- Header -->
+        <header class="glass sticky top-0 z-40 border-b border-slate-200 dark:border-slate-800">
+            <div class="mx-auto flex h-[72px] max-w-[1700px] items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+                <div class="flex min-w-0 items-center gap-3">
+                    <button
+                        class="grid h-10 w-10 place-items-center rounded-xl border border-slate-200 bg-white text-slate-600 shadow-sm hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 lg:hidden">
+                        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-width="1.8" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+
+                    <div
+                        class="hidden h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-brand-400 to-brand-600 text-white shadow-lg shadow-brand-500/20 sm:grid">
+                        <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                                d="m5 17-2-1v-4l2-5h14l2 5v4l-2 1M7 15h.01M17 15h.01M5 12h14M6 17v2M18 17v2" />
+                        </svg>
+                    </div>
+
+                    <div class="min-w-0">
+                        <div class="flex items-center gap-2 text-xs font-semibold text-slate-500 dark:text-slate-400">
+                            <span data-i18n="inventory">Inventory</span>
+                            <svg class="rtl-flip h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-width="2" d="m9 18 6-6-6-6" />
+                            </svg>
+                            <span class="text-brand-600 dark:text-brand-400" data-i18n="vehicles">Vehicles</span>
+                        </div>
+                        <h1 class="mt-0.5 truncate text-lg font-extrabold tracking-tight sm:text-xl"
+                            data-i18n="vehicleInventory">Vehicle inventory</h1>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <select id="langSelect"
+                        class="h-10 rounded-xl border border-slate-200 bg-white px-3 text-xs font-bold outline-none dark:border-slate-800 dark:bg-slate-900">
+                        <option value="en">EN</option>
+                        <option value="fa">دری</option>
+                        <option value="ps">پښتو</option>
+                    </select>
+
+                    <button id="themeBtn"
+                        class="grid h-10 w-10 place-items-center rounded-xl border border-slate-200 bg-white text-slate-600 shadow-sm hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300">
+                        <svg id="themeIcon" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-width="1.8"
+                                d="M12 3v2m0 14v2M3 12h2m14 0h2M5.64 5.64l1.42 1.42m9.88 9.88 1.42 1.42m0-12.72-1.42 1.42M7.06 16.94l-1.42 1.42" />
+                            <circle cx="12" cy="12" r="4" />
+                        </svg>
+                    </button>
+
+                    <button
+                        class="hidden h-10 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-xs font-bold text-slate-700 shadow-sm hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200 sm:flex">
+                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-width="1.8" d="M12 3v12m0 0 4-4m-4 4-4-4M5 21h14" />
+                        </svg>
+                        <span data-i18n="export">Export</span>
+                    </button>
+
+                    <button id="addVehicleBtn"
+                        class="flex h-10 items-center gap-2 rounded-xl bg-slate-900 px-3.5 text-xs font-extrabold text-white shadow-lg shadow-slate-900/10 hover:bg-slate-800 dark:bg-brand-500 dark:text-slate-950">
+                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-width="2" d="M12 5v14M5 12h14" />
+                        </svg>
+                        <span class="hidden sm:inline" data-i18n="addVehicle">Add vehicle</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <main class="mx-auto max-w-[1700px] px-4 py-5 sm:px-6 lg:px-8 lg:py-7">
+
+            <!-- Summary -->
+            <section class="grid grid-cols-2 gap-3 lg:grid-cols-4">
+                <article
+                    class="rounded-2xl border border-slate-200 bg-white p-4 shadow-soft dark:border-slate-800 dark:bg-slate-900">
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <p class="text-xs font-semibold text-slate-500 dark:text-slate-400"
+                                data-i18n="totalVehicles">Total vehicles</p>
+                            <p class="mt-1.5 text-2xl font-extrabold tracking-tight" id="metricTotal">126</p>
+                        </div>
+                        <span
+                            class="grid h-9 w-9 place-items-center rounded-xl bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                            <svg class="h-4.5 w-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-width="1.8"
+                                    d="m5 17-2-1v-4l2-5h14l2 5v4l-2 1M5 12h14M7 15h.01M17 15h.01" />
+                            </svg>
+                        </span>
+                    </div>
+                    <div
+                        class="mt-3 flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+                        <span>+8</span><span data-i18n="thisMonth">this month</span>
+                    </div>
+                </article>
+
+                <article
+                    class="rounded-2xl border border-slate-200 bg-white p-4 shadow-soft dark:border-slate-800 dark:bg-slate-900">
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <p class="text-xs font-semibold text-slate-500 dark:text-slate-400" data-i18n="available">
+                                Available</p>
+                            <p class="mt-1.5 text-2xl font-extrabold tracking-tight">84</p>
+                        </div>
+                        <span
+                            class="grid h-9 w-9 place-items-center rounded-xl bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400">
+                            <span class="status-dot relative h-2.5 w-2.5 rounded-full bg-current"></span>
+                        </span>
+                    </div>
+                    <p class="mt-3 text-[11px] font-semibold text-slate-500 dark:text-slate-400"><span
+                            data-i18n="readyForSale">Ready for sale</span> · 66.7%</p>
+                </article>
+
+                <article
+                    class="rounded-2xl border border-slate-200 bg-white p-4 shadow-soft dark:border-slate-800 dark:bg-slate-900">
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <p class="text-xs font-semibold text-slate-500 dark:text-slate-400"
+                                data-i18n="inventoryValue">Inventory value</p>
+                            <p class="mt-1.5 text-2xl font-extrabold tracking-tight" dir="ltr">$2.41M</p>
+                        </div>
+                        <span
+                            class="grid h-9 w-9 place-items-center rounded-xl bg-brand-50 text-brand-700 dark:bg-brand-500/10 dark:text-brand-400">
+                            <svg class="h-4.5 w-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-width="1.8"
+                                    d="M4 6h16v12H4zM8 10h.01M16 14h.01M12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z" />
+                            </svg>
+                        </span>
+                    </div>
+                    <p class="mt-3 text-[11px] font-semibold text-slate-500 dark:text-slate-400"><span
+                            data-i18n="multipleCurrencies">Grouped by currency</span></p>
+                </article>
+
+                <article
+                    class="rounded-2xl border border-slate-200 bg-white p-4 shadow-soft dark:border-slate-800 dark:bg-slate-900">
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <p class="text-xs font-semibold text-slate-500 dark:text-slate-400"
+                                data-i18n="agingAttention">Aging attention</p>
+                            <p class="mt-1.5 text-2xl font-extrabold tracking-tight">7</p>
+                        </div>
+                        <span
+                            class="grid h-9 w-9 place-items-center rounded-xl bg-rose-50 text-rose-600 dark:bg-rose-500/10 dark:text-rose-400">
+                            <svg class="h-4.5 w-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-width="1.8"
+                                    d="M12 8v4l3 2M21 12a9 9 0 1 1-9-9 9 9 0 0 1 9 9Z" />
+                            </svg>
+                        </span>
+                    </div>
+                    <p class="mt-3 text-[11px] font-semibold text-rose-600 dark:text-rose-400"><span
+                            data-i18n="over90Days">Over 90 days in inventory</span></p>
+                </article>
+            </section>
+
+            <!-- Search + filters -->
+            <section
+                class="mt-5 rounded-2xl border border-slate-200 bg-white p-3 shadow-soft dark:border-slate-800 dark:bg-slate-900">
+                <div class="flex flex-col gap-3 xl:flex-row xl:items-center">
+                    <div class="relative min-w-0 flex-1">
+                        <svg class="absolute start-3.5 top-1/2 h-4.5 w-4.5 -translate-y-1/2 text-slate-400"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-width="1.8"
+                                d="m21 21-4.3-4.3M19 11a8 8 0 1 1-16 0 8 8 0 0 1 16 0Z" />
+                        </svg>
+                        <input id="searchInput"
+                            class="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 ps-10 pe-4 text-sm font-medium outline-none transition focus:border-brand-400 focus:bg-white focus:ring-4 focus:ring-brand-100 dark:border-slate-700 dark:bg-slate-950 dark:focus:border-brand-500 dark:focus:bg-slate-950 dark:focus:ring-brand-500/10"
+                            data-i18n-placeholder="searchPlaceholder" placeholder="Search VIN, make or model..." />
+                        <kbd
+                            class="absolute end-3 top-1/2 hidden -translate-y-1/2 rounded-md border border-slate-200 bg-white px-1.5 py-0.5 text-[10px] font-bold text-slate-400 dark:border-slate-700 dark:bg-slate-900 sm:block">⌘
+                            K</kbd>
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-2">
+                        <button id="filterBtn"
+                            class="flex h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 text-xs font-bold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200 dark:hover:bg-slate-800">
+                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-width="1.8" d="M4 6h16M7 12h10M10 18h4" />
+                            </svg>
+                            <span data-i18n="filters">Filters</span>
+                            <span id="filterCount"
+                                class="grid h-5 min-w-5 place-items-center rounded-full bg-slate-900 px-1.5 text-[10px] text-white dark:bg-brand-500 dark:text-slate-950">2</span>
+                        </button>
+
+                        <label
+                            class="flex h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-xs dark:border-slate-700 dark:bg-slate-950">
+                            <span class="hidden font-semibold text-slate-500 sm:inline" data-i18n="sortBy">Sort</span>
+                            <select id="sortSelect" class="bg-transparent font-bold outline-none">
+                                <option value="newest" data-i18n-option="newest">Newest received</option>
+                                <option value="aging" data-i18n-option="aging">Oldest inventory</option>
+                                <option value="year" data-i18n-option="yearNewest">Year: newest</option>
+                                <option value="mileage" data-i18n-option="mileageLow">Mileage: low first</option>
+                            </select>
+                        </label>
+
+                        <div
+                            class="flex h-11 rounded-xl border border-slate-200 bg-slate-50 p-1 dark:border-slate-700 dark:bg-slate-950">
+                            <button id="gridBtn"
+                                class="grid h-8.5 w-9 place-items-center rounded-lg bg-white text-slate-900 shadow-sm dark:bg-slate-800 dark:text-white"
+                                title="Grid">
+                                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <path stroke-width="1.8" d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z" />
+                                </svg>
+                            </button>
+                            <button id="tableBtn"
+                                class="grid h-8.5 w-9 place-items-center rounded-lg text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+                                title="Table">
+                                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-width="1.8" d="M4 6h16M4 12h16M4 18h16" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Status tabs -->
+                <div class="pill-scroll mt-3 flex gap-2 overflow-x-auto pb-0.5" id="statusPills"></div>
+            </section>
+
+            <!-- Active filters / result bar -->
+            <section class="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div class="flex min-w-0 flex-wrap items-center gap-2">
+                    <p class="me-1 text-xs font-semibold text-slate-500 dark:text-slate-400"><span
+                            id="resultCount">8</span> <span data-i18n="results">results</span></p>
+                    <button
+                        class="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-[11px] font-bold text-slate-600 shadow-sm dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300">
+                        <span data-i18n="branch">Branch</span>: Kabul Main
+                        <svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-width="2" d="m6 6 12 12M18 6 6 18" />
+                        </svg>
+                    </button>
+                    <button
+                        class="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-[11px] font-bold text-slate-600 shadow-sm dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300">
+                        <span data-i18n="condition">Condition</span>: Excellent+
+                        <svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-width="2" d="m6 6 12 12M18 6 6 18" />
+                        </svg>
+                    </button>
+                </div>
+
+                <button id="savedViewBtn"
+                    class="inline-flex items-center gap-2 text-xs font-bold text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white">
+                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-width="1.8"
+                            d="M5 5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16l-7-4-7 4V5Z" />
+                    </svg>
+                    <span data-i18n="saveView">Save current view</span>
+                </button>
+            </section>
+
+            <!-- Bulk bar -->
+            <section id="bulkBar"
+                class="mt-4 hidden items-center justify-between gap-3 rounded-xl border border-slate-900 bg-slate-900 px-4 py-3 text-white shadow-lift dark:border-brand-500 dark:bg-brand-500 dark:text-slate-950">
+                <div class="flex items-center gap-3">
+                    <span
+                        class="grid h-7 min-w-7 place-items-center rounded-lg bg-white/10 px-2 text-xs font-extrabold dark:bg-slate-950/10"
+                        id="selectedCount">0</span>
+                    <span class="text-xs font-bold" data-i18n="selected">vehicles selected</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button
+                        class="rounded-lg bg-white/10 px-3 py-2 text-[11px] font-bold hover:bg-white/20 dark:bg-slate-950/10"
+                        data-i18n="transfer">Transfer</button>
+                    <button
+                        class="rounded-lg bg-white/10 px-3 py-2 text-[11px] font-bold hover:bg-white/20 dark:bg-slate-950/10"
+                        data-i18n="export">Export</button>
+                    <button id="clearSelection"
+                        class="grid h-8 w-8 place-items-center rounded-lg bg-white/10 hover:bg-white/20 dark:bg-slate-950/10">
+                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-width="2" d="m6 6 12 12M18 6 6 18" />
+                        </svg>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Grid -->
+            <section id="gridView" class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+            </section>
+
+            <!-- Table -->
+            <section id="tableView"
+                class="mt-4 hidden overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-soft dark:border-slate-800 dark:bg-slate-900">
+                <div class="overflow-x-auto">
+                    <table class="w-full min-w-[1180px] text-left rtl:text-right">
+                        <thead
+                            class="border-b border-slate-200 bg-slate-50/80 text-[10px] font-extrabold uppercase tracking-wider text-slate-500 dark:border-slate-800 dark:bg-slate-950/60 dark:text-slate-400">
+                            <tr>
+                                <th class="w-12 px-4 py-3"><input id="selectAll" type="checkbox"
+                                        class="h-4 w-4 rounded border-slate-300 text-brand-500 focus:ring-brand-400" />
+                                </th>
+                                <th class="px-3 py-3" data-i18n="vehicle">Vehicle</th>
+                                <th class="px-3 py-3" data-i18n="status">Status</th>
+                                <th class="px-3 py-3" data-i18n="location">Location</th>
+                                <th class="px-3 py-3" data-i18n="source">Bought from</th>
+                                <th class="px-3 py-3" data-i18n="landedCost">Landed cost</th>
+                                <th class="px-3 py-3" data-i18n="age">Age</th>
+                                <th class="px-3 py-3" data-i18n="mileage">Mileage</th>
+                                <th class="w-16 px-4 py-3"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody" class="divide-y divide-slate-100 dark:divide-slate-800"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Pagination -->
+            <footer
+                class="mt-6 flex flex-col gap-3 border-t border-slate-200 pt-5 dark:border-slate-800 sm:flex-row sm:items-center sm:justify-between">
+                <p class="text-xs font-medium text-slate-500 dark:text-slate-400">
+                    <span data-i18n="showing">Showing</span> <strong
+                        class="text-slate-800 dark:text-slate-200">1–8</strong>
+                    <span data-i18n="of">of</span> <strong class="text-slate-800 dark:text-slate-200">126</strong>
+                </p>
+                <div class="flex items-center gap-1.5">
+                    <button
+                        class="grid h-9 w-9 place-items-center rounded-lg border border-slate-200 bg-white text-slate-500 disabled:opacity-40 dark:border-slate-800 dark:bg-slate-900"
+                        disabled>
+                        <svg class="rtl-flip h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-width="2" d="m15 18-6-6 6-6" />
+                        </svg>
+                    </button>
+                    <button
+                        class="grid h-9 min-w-9 place-items-center rounded-lg bg-slate-900 px-2 text-xs font-extrabold text-white dark:bg-brand-500 dark:text-slate-950">1</button>
+                    <button
+                        class="grid h-9 min-w-9 place-items-center rounded-lg border border-slate-200 bg-white px-2 text-xs font-bold text-slate-600 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300">2</button>
+                    <button
+                        class="grid h-9 min-w-9 place-items-center rounded-lg border border-slate-200 bg-white px-2 text-xs font-bold text-slate-600 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300">3</button>
+                    <span class="px-1 text-slate-400">…</span>
+                    <button
+                        class="grid h-9 min-w-9 place-items-center rounded-lg border border-slate-200 bg-white px-2 text-xs font-bold text-slate-600 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300">16</button>
+                    <button
+                        class="grid h-9 w-9 place-items-center rounded-lg border border-slate-200 bg-white text-slate-600 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300">
+                        <svg class="rtl-flip h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-width="2" d="m9 18 6-6-6-6" />
+                        </svg>
+                    </button>
+                </div>
+            </footer>
+        </main>
+    </div>
+
+    <!-- Filter drawer -->
+    <div id="drawerBackdrop" class="fixed inset-0 z-50 hidden bg-slate-950/30 backdrop-blur-[2px]"></div>
+    <aside id="filterDrawer"
+        class="fixed inset-y-0 end-0 z-[60] w-full max-w-[400px] translate-x-full border-s border-slate-200 bg-white shadow-2xl transition-transform duration-200 dark:border-slate-800 dark:bg-slate-950 rtl:-translate-x-full">
+        <div class="flex h-full flex-col">
+            <div
+                class="flex h-[72px] items-center justify-between border-b border-slate-200 px-5 dark:border-slate-800">
+                <div>
+                    <h2 class="text-base font-extrabold" data-i18n="filterVehicles">Filter vehicles</h2>
+                    <p class="mt-0.5 text-[11px] font-medium text-slate-500" data-i18n="filterHelp">Narrow inventory by
+                        operational details</p>
+                </div>
+                <button id="closeDrawer"
+                    class="grid h-9 w-9 place-items-center rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-900">
+                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-width="2" d="m6 6 12 12M18 6 6 18" />
+                    </svg>
+                </button>
+            </div>
+
+            <div class="flex-1 space-y-6 overflow-y-auto p-5">
+                <div>
+                    <label class="mb-2 block text-xs font-extrabold" data-i18n="branch">Branch</label>
+                    <select
+                        class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-semibold outline-none focus:border-brand-400 focus:ring-4 focus:ring-brand-100 dark:border-slate-700 dark:bg-slate-900">
+                        <option>Kabul Main</option>
+                        <option>Herat</option>
+                        <option>Mazar</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="mb-2 block text-xs font-extrabold" data-i18n="location">Location</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button
+                            class="rounded-xl border-2 border-brand-400 bg-brand-50 px-3 py-2.5 text-xs font-extrabold text-brand-700 dark:bg-brand-500/10 dark:text-brand-300">Showroom</button>
+                        <button
+                            class="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-xs font-bold text-slate-600 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300">Warehouse</button>
+                        <button
+                            class="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-xs font-bold text-slate-600 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300">Yard</button>
+                        <button
+                            class="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-xs font-bold text-slate-600 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300">Workshop</button>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="mb-2 block text-xs font-extrabold" data-i18n="condition">Condition</label>
+                    <div class="space-y-2">
+                        <label
+                            class="flex items-center justify-between rounded-xl border border-slate-200 px-3 py-2.5 dark:border-slate-800"><span
+                                class="flex items-center gap-2"><input checked type="checkbox"
+                                    class="rounded text-brand-500 focus:ring-brand-400"><span
+                                    class="text-xs font-semibold">Excellent</span></span><span
+                                class="text-[10px] text-slate-400">41</span></label>
+                        <label
+                            class="flex items-center justify-between rounded-xl border border-slate-200 px-3 py-2.5 dark:border-slate-800"><span
+                                class="flex items-center gap-2"><input checked type="checkbox"
+                                    class="rounded text-brand-500 focus:ring-brand-400"><span
+                                    class="text-xs font-semibold">New</span></span><span
+                                class="text-[10px] text-slate-400">18</span></label>
+                        <label
+                            class="flex items-center justify-between rounded-xl border border-slate-200 px-3 py-2.5 dark:border-slate-800"><span
+                                class="flex items-center gap-2"><input type="checkbox"
+                                    class="rounded text-brand-500 focus:ring-brand-400"><span
+                                    class="text-xs font-semibold">Good</span></span><span
+                                class="text-[10px] text-slate-400">53</span></label>
+                        <label
+                            class="flex items-center justify-between rounded-xl border border-slate-200 px-3 py-2.5 dark:border-slate-800"><span
+                                class="flex items-center gap-2"><input type="checkbox"
+                                    class="rounded text-brand-500 focus:ring-brand-400"><span
+                                    class="text-xs font-semibold">Needs repair</span></span><span
+                                class="text-[10px] text-slate-400">6</span></label>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="mb-2 flex items-center justify-between">
+                        <label class="text-xs font-extrabold" data-i18n="inventoryAge">Inventory age</label>
+                        <span class="text-[10px] font-bold text-slate-400">0–120+ days</span>
+                    </div>
+                    <input type="range" min="0" max="120" value="90" class="w-full accent-brand-500">
+                    <div class="mt-2 grid grid-cols-4 gap-1.5 text-center text-[9px] font-semibold text-slate-400">
+                        <span>0–30</span><span>31–60</span><span>61–90</span><span>90+</span>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="mb-2 block text-xs font-extrabold" data-i18n="bodyType">Body type</label>
+                    <div class="flex flex-wrap gap-2">
+                        <button
+                            class="rounded-lg bg-slate-900 px-3 py-2 text-[11px] font-bold text-white dark:bg-brand-500 dark:text-slate-950">SUV</button>
+                        <button
+                            class="rounded-lg border border-slate-200 px-3 py-2 text-[11px] font-bold dark:border-slate-800">Sedan</button>
+                        <button
+                            class="rounded-lg border border-slate-200 px-3 py-2 text-[11px] font-bold dark:border-slate-800">Pickup</button>
+                        <button
+                            class="rounded-lg border border-slate-200 px-3 py-2 text-[11px] font-bold dark:border-slate-800">Van</button>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="mb-2 block text-xs font-extrabold" data-i18n="supplierType">Supplier source</label>
+                    <select
+                        class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-semibold outline-none dark:border-slate-700 dark:bg-slate-900">
+                        <option>All suppliers</option>
+                        <option>Local dealer</option>
+                        <option>Overseas dealer</option>
+                        <option>Private seller</option>
+                        <option>Auction</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="border-t border-slate-200 p-4 dark:border-slate-800">
+                <div class="grid grid-cols-2 gap-2">
+                    <button class="rounded-xl border border-slate-200 py-3 text-xs font-extrabold dark:border-slate-800"
+                        data-i18n="clearAll">Clear all</button>
+                    <button id="applyFilters"
+                        class="rounded-xl bg-slate-900 py-3 text-xs font-extrabold text-white dark:bg-brand-500 dark:text-slate-950"
+                        data-i18n="applyFilters">Apply filters</button>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <script>
+        const T = {
+            en: {
+                inventory: "Inventory", vehicles: "Vehicles", vehicleInventory: "Vehicle inventory", export: "Export", addVehicle: "Add vehicle",
+                totalVehicles: "Total vehicles", thisMonth: "this month", available: "Available", readyForSale: "Ready for sale", inventoryValue: "Inventory value",
+                multipleCurrencies: "Grouped by currency", agingAttention: "Aging attention", over90Days: "Over 90 days in inventory",
+                searchPlaceholder: "Search VIN, make or model...", filters: "Filters", sortBy: "Sort", newest: "Newest received", aging: "Oldest inventory",
+                yearNewest: "Year: newest", mileageLow: "Mileage: low first", results: "results", branch: "Branch", condition: "Condition", saveView: "Save current view",
+                selected: "vehicles selected", transfer: "Transfer", vehicle: "Vehicle", status: "Status", location: "Location", source: "Bought from",
+                landedCost: "Landed cost", age: "Age", mileage: "Mileage", showing: "Showing", of: "of", filterVehicles: "Filter vehicles",
+                filterHelp: "Narrow inventory by operational details", inventoryAge: "Inventory age", bodyType: "Body type", supplierType: "Supplier source",
+                clearAll: "Clear all", applyFilters: "Apply filters", viewDetails: "View details", edit: "Edit", more: "More",
+                all: "All", inTransit: "In transit", received: "Received", inspection: "Inspection", preparation: "Preparation", reserved: "Reserved", sold: "Sold", delivered: "Delivered",
+                days: "days", km: "km", noPhoto: "No vehicle photo", lot: "Lot", po: "PO", excellent: "Excellent", good: "Good", new: "New", needsRepair: "Needs repair",
+                localDealer: "Local dealer", overseasDealer: "Overseas dealer", privateSeller: "Private seller", auction: "Auction"
+            },
+            fa: {
+                inventory: "موجودی", vehicles: "موترها", vehicleInventory: "موجودی موترها", export: "خروجی", addVehicle: "افزودن موتر",
+                totalVehicles: "مجموع موترها", thisMonth: "در این ماه", available: "موجود", readyForSale: "آماده فروش", inventoryValue: "ارزش موجودی",
+                multipleCurrencies: "تفکیک‌شده بر اساس ارز", agingAttention: "نیاز به توجه", over90Days: "بیشتر از ۹۰ روز در موجودی",
+                searchPlaceholder: "جستجو بر اساس VIN، برند یا مدل...", filters: "فیلترها", sortBy: "مرتب‌سازی", newest: "جدیدترین دریافت",
+                aging: "قدیمی‌ترین موجودی", yearNewest: "سال: جدیدترین", mileageLow: "کارکرد: کمترین", results: "نتیجه", branch: "شعبه", condition: "وضعیت فزیکی",
+                saveView: "ذخیره نمای فعلی", selected: "موتر انتخاب شده", transfer: "انتقال", vehicle: "موتر", status: "وضعیت", location: "موقعیت",
+                source: "خریداری شده از", landedCost: "هزینه نهایی", age: "عمر موجودی", mileage: "کارکرد", showing: "نمایش", of: "از",
+                filterVehicles: "فیلتر موترها", filterHelp: "موجودی را بر اساس جزئیات عملیاتی محدود کنید", inventoryAge: "عمر موجودی", bodyType: "نوع بدنه",
+                supplierType: "منبع فروشنده", clearAll: "پاک کردن", applyFilters: "اعمال فیلتر", viewDetails: "مشاهده جزئیات", edit: "ویرایش", more: "بیشتر",
+                all: "همه", inTransit: "در راه", received: "دریافت شده", inspection: "بازرسی", preparation: "آماده‌سازی", reserved: "رزرو شده", sold: "فروخته شده", delivered: "تحویل شده",
+                days: "روز", km: "کیلومتر", noPhoto: "عکس موجود نیست", lot: "جایگاه", po: "سفارش خرید", excellent: "عالی", good: "خوب", new: "نو", needsRepair: "نیاز به ترمیم",
+                localDealer: "فروشنده محلی", overseasDealer: "فروشنده خارجی", privateSeller: "فروشنده شخصی", auction: "مزایده"
+            },
+            ps: {
+                inventory: "موجودي", vehicles: "موټرونه", vehicleInventory: "د موټرو موجودي", export: "اېکسپورټ", addVehicle: "موټر اضافه کړئ",
+                totalVehicles: "ټول موټرونه", thisMonth: "په دې میاشت کې", available: "موجود", readyForSale: "د خرڅلاو لپاره چمتو", inventoryValue: "د موجودي ارزښت",
+                multipleCurrencies: "د اسعارو له مخې جلا", agingAttention: "پاملرنې ته اړتیا", over90Days: "له ۹۰ ورځو ډېر په موجودي کې",
+                searchPlaceholder: "د VIN، جوړونکي یا ماډل له مخې ولټوئ...", filters: "فلټرونه", sortBy: "ترتیب", newest: "وروستي ترلاسه شوي",
+                aging: "تر ټولو زاړه موجودي", yearNewest: "کال: نوی لومړی", mileageLow: "مایلیج: کم لومړی", results: "پایلې", branch: "څانګه", condition: "فزیکي حالت",
+                saveView: "اوسنی لید خوندي کړئ", selected: "موټرونه ټاکل شوي", transfer: "لېږد", vehicle: "موټر", status: "حالت", location: "ځای",
+                source: "له چا اخیستل شوی", landedCost: "ټول لګښت", age: "د موجودي عمر", mileage: "مایلیج", showing: "ښودل", of: "له",
+                filterVehicles: "موټرونه فلټر کړئ", filterHelp: "موجودي د عملیاتي معلوماتو له مخې محدوده کړئ", inventoryAge: "د موجودي عمر", bodyType: "د بدن ډول",
+                supplierType: "د عرضه کوونکي سرچینه", clearAll: "ټول پاک کړئ", applyFilters: "فلټرونه تطبیق کړئ", viewDetails: "جزیات وګورئ", edit: "سمون", more: "نور",
+                all: "ټول", inTransit: "په لاره کې", received: "ترلاسه شوی", inspection: "تفتیش", preparation: "چمتووالی", reserved: "ریزرف", sold: "پلورل شوی", delivered: "سپارل شوی",
+                days: "ورځې", km: "کیلومتر", noPhoto: "د موټر عکس نشته", lot: "ځای", po: "پېرود امر", excellent: "عالي", good: "ښه", new: "نوی", needsRepair: "ترمیم ته اړتیا",
+                localDealer: "محلي ډیلر", overseasDealer: "بهرنی ډیلر", privateSeller: "شخصي پلورونکی", auction: "لیلام"
+            }
+        };
+
+        const vehicles = [
+            { id: 1, year: 2021, make: "Toyota", model: "Land Cruiser", variant: "GXR", vin: "JTMCY7AJ5M4128471", mileage: 28450, status: "available", condition: "excellent", branch: "Kabul Main", location: "Main Showroom", lot: "S-014", supplier: "Tokyo Auto Export", supplierType: "overseasDealer", cost: "$42,850", age: 23, po: "PO-2026-00142", body: "SUV", img: "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=1000&q=80" },
+            { id: 2, year: 2022, make: "Nissan", model: "Patrol", variant: "Platinum", vin: "JN8AY2NE5N9781234", mileage: 17300, status: "reserved", condition: "excellent", branch: "Kabul Main", location: "Main Showroom", lot: "S-022", supplier: "Al Futtaim Motors", supplierType: "overseasDealer", cost: "$51,200", age: 41, po: "PO-2026-00133", body: "SUV", img: "https://images.unsplash.com/photo-1542362567-b07e54358753?auto=format&fit=crop&w=1000&q=80" },
+            { id: 3, year: 2020, make: "Honda", model: "Vezel", variant: "Hybrid Z", vin: "RU312345678901234", mileage: 49200, status: "preparation", condition: "good", branch: "Kabul Main", location: "Workshop 1", lot: "W-008", supplier: "Kobe Auto Trade", supplierType: "overseasDealer", cost: "$18,740", age: 67, po: "PO-2026-00116", body: "SUV", img: "https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&w=1000&q=80" },
+            { id: 4, year: 2019, make: "Toyota", model: "Corolla", variant: "XLi", vin: "JTDBR32E492145870", mileage: 88200, status: "available", condition: "good", branch: "Kabul Main", location: "Warehouse A", lot: "A-031", supplier: "Ahmad Rahimi", supplierType: "privateSeller", cost: "$11,900", age: 94, po: "PO-2026-00097", body: "Sedan", img: "https://images.unsplash.com/photo-1590362891991-f776e747a588?auto=format&fit=crop&w=1000&q=80" },
+            { id: 5, year: 2023, make: "Hyundai", model: "Tucson", variant: "Premium", vin: "KM8J3CA45PU112233", mileage: 7600, status: "inspection", condition: "new", branch: "Kabul Main", location: "Inspection Bay", lot: "I-004", supplier: "Seoul Motors Co.", supplierType: "overseasDealer", cost: "$29,680", age: 8, po: "PO-2026-00151", body: "SUV", img: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1000&q=80" },
+            { id: 6, year: 2018, make: "Ford", model: "Ranger", variant: "Wildtrak", vin: "MNBUMFF50JW845632", mileage: 105300, status: "sold", condition: "good", branch: "Kabul Main", location: "Delivery Zone", lot: "D-003", supplier: "Kabul Auto Market", supplierType: "localDealer", cost: "$20,150", age: 76, po: "PO-2026-00102", body: "Pickup", img: "https://images.unsplash.com/photo-1551830820-330a71b99659?auto=format&fit=crop&w=1000&q=80" },
+            { id: 7, year: 2024, make: "Kia", model: "Sportage", variant: "GT-Line", vin: "KNAPU81BFR7123445", mileage: 1250, status: "in_transit", condition: "new", branch: "Kabul Main", location: "—", lot: "—", supplier: "Busan Car Export", supplierType: "overseasDealer", cost: "$33,400", age: 0, po: "PO-2026-00162", body: "SUV", img: "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=1000&q=80" },
+            { id: 8, year: 2021, make: "Mercedes-Benz", model: "C200", variant: "AMG Line", vin: "WDDWF8DB5MR603214", mileage: 31600, status: "received", condition: "excellent", branch: "Kabul Main", location: "Receiving Yard", lot: "R-011", supplier: "Emirates Auto Hub", supplierType: "auction", cost: "$36,950", age: 3, po: "PO-2026-00159", body: "Sedan", img: "https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?auto=format&fit=crop&w=1000&q=80" }
+        ];
+
+        const statusMeta = {
+            in_transit: { key: "inTransit", cls: "bg-sky-50 text-sky-700 border-sky-200 dark:bg-sky-500/10 dark:text-sky-300 dark:border-sky-500/20", dot: "bg-sky-500" },
+            received: { key: "received", cls: "bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-500/10 dark:text-indigo-300 dark:border-indigo-500/20", dot: "bg-indigo-500" },
+            inspection: { key: "inspection", cls: "bg-violet-50 text-violet-700 border-violet-200 dark:bg-violet-500/10 dark:text-violet-300 dark:border-violet-500/20", dot: "bg-violet-500" },
+            preparation: { key: "preparation", cls: "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-500/10 dark:text-amber-300 dark:border-amber-500/20", dot: "bg-amber-500" },
+            available: { key: "available", cls: "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-300 dark:border-emerald-500/20", dot: "bg-emerald-500" },
+            reserved: { key: "reserved", cls: "bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-500/10 dark:text-orange-300 dark:border-orange-500/20", dot: "bg-orange-500" },
+            sold: { key: "sold", cls: "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-500/10 dark:text-blue-300 dark:border-blue-500/20", dot: "bg-blue-500" },
+            delivered: { key: "delivered", cls: "bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700", dot: "bg-slate-400" }
+        };
+
+        const statusOrder = [
+            ["all", "all"], ["available", "available"], ["reserved", "reserved"], ["preparation", "preparation"], ["inspection", "inspection"], ["received", "received"], ["in_transit", "inTransit"], ["sold", "sold"], ["delivered", "delivered"]
+        ];
+
+        let lang = localStorage.getItem("carflow-list-lang") || "en";
+        let activeStatus = "all";
+        let view = "grid";
+        let selected = new Set();
+
+        function tr(k) { return T[lang][k] || T.en[k] || k; }
+
+        function applyLang(newLang) {
+            lang = newLang;
+            localStorage.setItem("carflow-list-lang", lang);
+            document.documentElement.lang = lang;
+            document.documentElement.dir = (lang === "fa" || lang === "ps") ? "rtl" : "ltr";
+            document.getElementById("langSelect").value = lang;
+            document.querySelectorAll("[data-i18n]").forEach(el => el.textContent = tr(el.dataset.i18n));
+            document.querySelectorAll("[data-i18n-placeholder]").forEach(el => el.placeholder = tr(el.dataset.i18nPlaceholder));
+            document.querySelectorAll("[data-i18n-option]").forEach(el => el.textContent = tr(el.dataset.i18nOption));
+            renderStatusPills(); renderVehicles();
+        }
+
+        function renderStatusPills() {
+            const el = document.getElementById("statusPills");
+            const counts = { all: 126, available: 84, reserved: 18, preparation: 14, inspection: 4, received: 3, in_transit: 5, sold: 10, delivered: 24 };
+            el.innerHTML = statusOrder.map(([value, key]) => `
+  <button data-status="${value}" class="status-pill flex shrink-0 items-center gap-2 rounded-xl border px-3 py-2 text-[11px] font-extrabold transition ${activeStatus === value ? 'border-slate-900 bg-slate-900 text-white shadow-sm dark:border-brand-500 dark:bg-brand-500 dark:text-slate-950' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-300 dark:hover:bg-slate-800'}">
+   ${value !== "all" ? `<span class="h-1.5 w-1.5 rounded-full ${statusMeta[value]?.dot || 'bg-slate-400'}"></span>` : ''}
+   <span>${tr(key)}</span>
+   <span class="${activeStatus === value ? 'bg-white/15 dark:bg-slate-950/10' : 'bg-slate-100 dark:bg-slate-800'} rounded-md px-1.5 py-0.5 text-[9px]">${counts[value] || 0}</span>
+  </button>`).join("");
+            el.querySelectorAll(".status-pill").forEach(b => b.addEventListener("click", () => { activeStatus = b.dataset.status; renderStatusPills(); renderVehicles(); }));
+        }
+
+        function statusBadge(v) {
+            const m = statusMeta[v.status];
+            return `<span class="inline-flex items-center gap-1.5 rounded-lg border px-2 py-1 text-[10px] font-extrabold ${m.cls}">
+  <span class="h-1.5 w-1.5 rounded-full ${m.dot}"></span>${tr(m.key)}
+ </span>`;
+        }
+        function conditionBadge(c) {
+            const map = { new: "bg-sky-50 text-sky-700 dark:bg-sky-500/10 dark:text-sky-300", excellent: "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300", good: "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300", needsRepair: "bg-rose-50 text-rose-700 dark:bg-rose-500/10 dark:text-rose-300" };
+            const key = c === "needs_repair" ? "needsRepair" : c;
+            return `<span class="rounded-md px-1.5 py-0.5 text-[9px] font-bold ${map[key] || map.good}">${tr(key)}</span>`;
+        }
+
+        function filteredVehicles() {
+            const q = document.getElementById("searchInput").value.trim().toLowerCase();
+            let rows = vehicles.filter(v => {
+                const statusOk = activeStatus === "all" || v.status === activeStatus;
+                const searchOk = !q || v.vin.toLowerCase().includes(q) || v.make.toLowerCase().includes(q) || v.model.toLowerCase().includes(q);
+                return statusOk && searchOk;
+            });
+            const sort = document.getElementById("sortSelect").value;
+            if (sort === "aging") rows.sort((a, b) => b.age - a.age);
+            if (sort === "year") rows.sort((a, b) => b.year - a.year);
+            if (sort === "mileage") rows.sort((a, b) => a.mileage - b.mileage);
+            if (sort === "newest") rows.sort((a, b) => a.age - b.age);
+            return rows;
+        }
+
+        function renderVehicles() {
+            const rows = filteredVehicles();
+            document.getElementById("resultCount").textContent = rows.length;
+            const grid = document.getElementById("gridView");
+            const tbody = document.getElementById("tableBody");
+
+            grid.innerHTML = rows.map(v => `
+  <article class="vehicle-card group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-soft dark:border-slate-800 dark:bg-slate-900">
+   <div class="relative aspect-[16/9] overflow-hidden bg-slate-100 dark:bg-slate-800">
+    <img src="${v.img}" alt="${v.make} ${v.model}" class="h-full w-full object-cover transition duration-300 group-hover:scale-[1.025]" onerror="this.style.display='none';this.nextElementSibling.style.display='grid'">
+    <div class="hidden h-full w-full place-items-center text-slate-400">
+      <div class="text-center"><svg class="mx-auto h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-width="1.5" d="m5 17-2-1v-4l2-5h14l2 5v4l-2 1M5 12h14"/></svg><span class="mt-2 block text-[10px] font-bold">${tr("noPhoto")}</span></div>
+    </div>
+
+    <div class="absolute start-3 top-3">${statusBadge(v)}</div>
+    <label class="absolute end-3 top-3 grid h-8 w-8 place-items-center rounded-lg bg-white/90 shadow-sm backdrop-blur dark:bg-slate-950/80">
+      <input type="checkbox" data-select="${v.id}" ${selected.has(v.id) ? 'checked' : ''} class="vehicle-select h-4 w-4 rounded border-slate-300 text-brand-500 focus:ring-brand-400">
+    </label>
+
+    <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-950/70 to-transparent px-4 pb-3 pt-10 text-white">
+      <div class="flex items-end justify-between gap-3">
+        <div class="min-w-0">
+          <p class="truncate text-[10px] font-semibold text-white/70">${v.body} · ${v.variant}</p>
+          <h3 class="truncate text-base font-extrabold">${v.year} ${v.make} ${v.model}</h3>
+        </div>
+        ${conditionBadge(v.condition)}
+      </div>
+    </div>
+   </div>
+
+   <div class="p-4">
+    <div class="grid grid-cols-2 gap-2">
+      <div class="rounded-xl bg-slate-50 p-2.5 dark:bg-slate-950/60">
+       <p class="text-[9px] font-bold uppercase tracking-wide text-slate-400">VIN</p>
+       <p class="mt-1 truncate font-mono text-[10px] font-bold text-slate-700 dark:text-slate-300" dir="ltr">${v.vin}</p>
+      </div>
+      <div class="rounded-xl bg-slate-50 p-2.5 dark:bg-slate-950/60">
+       <p class="text-[9px] font-bold uppercase tracking-wide text-slate-400">${tr("mileage")}</p>
+       <p class="mt-1 text-xs font-extrabold" dir="ltr">${v.mileage.toLocaleString()} ${tr("km")}</p>
+      </div>
+    </div>
+
+    <div class="mt-3 space-y-2.5">
+      <div class="flex items-center justify-between gap-3">
+        <span class="flex min-w-0 items-center gap-2 text-[10px] font-semibold text-slate-500 dark:text-slate-400">
+          <svg class="h-3.5 w-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-width="1.8" d="M3 21h18M6 21V7l6-4 6 4v14"/></svg>
+          <span class="truncate">${v.branch} · ${v.location}</span>
+        </span>
+        <span class="shrink-0 text-[9px] font-extrabold text-slate-400">${tr("lot")} ${v.lot}</span>
+      </div>
+
+      <div class="flex items-center justify-between gap-3">
+        <span class="flex min-w-0 items-center gap-2 text-[10px] font-semibold text-slate-500 dark:text-slate-400">
+          <svg class="h-3.5 w-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-width="1.8" d="M4 19h16M7 19V9l5-4 5 4v10"/></svg>
+          <span class="truncate">${v.supplier}</span>
+        </span>
+        <span class="shrink-0 rounded-md bg-slate-100 px-1.5 py-0.5 text-[8px] font-bold text-slate-500 dark:bg-slate-800 dark:text-slate-400">${tr(v.supplierType)}</span>
+      </div>
+    </div>
+
+    <div class="mt-3 grid grid-cols-3 overflow-hidden rounded-xl border border-slate-200 dark:border-slate-800">
+      <div class="p-2.5">
+       <p class="text-[8px] font-bold uppercase tracking-wide text-slate-400">${tr("landedCost")}</p>
+       <p class="mt-1 text-[11px] font-extrabold" dir="ltr">${v.cost}</p>
+      </div>
+      <div class="border-s border-slate-200 p-2.5 dark:border-slate-800">
+       <p class="text-[8px] font-bold uppercase tracking-wide text-slate-400">${tr("age")}</p>
+       <p class="mt-1 text-[11px] font-extrabold ${v.age >= 90 ? 'text-rose-600 dark:text-rose-400' : ''}">${v.age} ${tr("days")}</p>
+      </div>
+      <div class="border-s border-slate-200 p-2.5 dark:border-slate-800">
+       <p class="text-[8px] font-bold uppercase tracking-wide text-slate-400">${tr("po")}</p>
+       <p class="mt-1 truncate text-[10px] font-extrabold text-brand-700 dark:text-brand-400" dir="ltr">${v.po}</p>
+      </div>
+    </div>
+
+    <div class="mt-3 flex gap-2 border-t border-slate-100 pt-3 dark:border-slate-800">
+      <button class="flex h-9 flex-1 items-center justify-center gap-1.5 rounded-xl bg-slate-900 text-[10px] font-extrabold text-white hover:bg-slate-800 dark:bg-brand-500 dark:text-slate-950">
+        ${tr("viewDetails")}<svg class="rtl-flip h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-width="2" d="m9 18 6-6-6-6"/></svg>
+      </button>
+      <button class="grid h-9 w-9 place-items-center rounded-xl border border-slate-200 text-slate-500 hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800">
+       <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-width="1.8" d="M12 6.5h.01M12 12h.01M12 17.5h.01"/></svg>
+      </button>
+    </div>
+   </div>
+  </article>`).join("");
+
+            tbody.innerHTML = rows.map(v => `
+  <tr class="hover:bg-slate-50/70 dark:hover:bg-slate-800/40">
+   <td class="px-4 py-3"><input type="checkbox" data-select="${v.id}" ${selected.has(v.id) ? 'checked' : ''} class="vehicle-select h-4 w-4 rounded border-slate-300 text-brand-500 focus:ring-brand-400"></td>
+   <td class="px-3 py-3">
+    <div class="flex items-center gap-3">
+     <img src="${v.img}" class="h-11 w-16 rounded-lg object-cover bg-slate-100" alt="">
+     <div class="min-w-0">
+      <p class="truncate text-xs font-extrabold">${v.year} ${v.make} ${v.model} <span class="font-semibold text-slate-400">${v.variant}</span></p>
+      <p class="mt-1 font-mono text-[9px] font-semibold text-slate-400" dir="ltr">${v.vin}</p>
+     </div>
+    </div>
+   </td>
+   <td class="px-3 py-3">${statusBadge(v)}</td>
+   <td class="px-3 py-3"><p class="text-[11px] font-bold">${v.branch}</p><p class="mt-1 text-[9px] font-medium text-slate-400">${v.location} · ${v.lot}</p></td>
+   <td class="px-3 py-3"><p class="max-w-[170px] truncate text-[11px] font-bold">${v.supplier}</p><p class="mt-1 text-[9px] text-slate-400">${tr(v.supplierType)}</p></td>
+   <td class="px-3 py-3 text-[11px] font-extrabold" dir="ltr">${v.cost}</td>
+   <td class="px-3 py-3"><span class="text-[11px] font-extrabold ${v.age >= 90 ? 'text-rose-600 dark:text-rose-400' : ''}">${v.age} ${tr("days")}</span></td>
+   <td class="px-3 py-3 text-[11px] font-bold" dir="ltr">${v.mileage.toLocaleString()} ${tr("km")}</td>
+   <td class="px-4 py-3"><button class="grid h-8 w-8 place-items-center rounded-lg border border-slate-200 text-slate-500 dark:border-slate-700"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-width="1.8" d="M12 6.5h.01M12 12h.01M12 17.5h.01"/></svg></button></td>
+  </tr>`).join("");
+
+            document.querySelectorAll(".vehicle-select").forEach(cb => cb.addEventListener("change", () => {
+                const id = Number(cb.dataset.select);
+                if (cb.checked) selected.add(id); else selected.delete(id);
+                renderVehicles(); updateBulk();
+            }));
+            updateBulk();
+        }
+
+        function updateBulk() {
+            const bar = document.getElementById("bulkBar");
+            document.getElementById("selectedCount").textContent = selected.size;
+            if (selected.size) { bar.classList.remove("hidden"); bar.classList.add("flex") } else { bar.classList.add("hidden"); bar.classList.remove("flex") }
+        }
+
+        document.getElementById("searchInput").addEventListener("input", renderVehicles);
+        document.getElementById("sortSelect").addEventListener("change", renderVehicles);
+        document.addEventListener("keydown", e => { if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") { e.preventDefault(); document.getElementById("searchInput").focus(); } });
+        document.getElementById("langSelect").addEventListener("change", e => applyLang(e.target.value));
+
+        document.getElementById("gridBtn").addEventListener("click", () => {
+            view = "grid"; document.getElementById("gridView").classList.remove("hidden"); document.getElementById("tableView").classList.add("hidden");
+            document.getElementById("gridBtn").className = "grid h-8.5 w-9 place-items-center rounded-lg bg-white text-slate-900 shadow-sm dark:bg-slate-800 dark:text-white";
+            document.getElementById("tableBtn").className = "grid h-8.5 w-9 place-items-center rounded-lg text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white";
+        });
+        document.getElementById("tableBtn").addEventListener("click", () => {
+            view = "table"; document.getElementById("gridView").classList.add("hidden"); document.getElementById("tableView").classList.remove("hidden");
+            document.getElementById("tableBtn").className = "grid h-8.5 w-9 place-items-center rounded-lg bg-white text-slate-900 shadow-sm dark:bg-slate-800 dark:text-white";
+            document.getElementById("gridBtn").className = "grid h-8.5 w-9 place-items-center rounded-lg text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white";
+        });
+        document.getElementById("clearSelection").addEventListener("click", () => { selected.clear(); renderVehicles(); });
+
+        const theme = localStorage.getItem("carflow-list-theme") || "light";
+        if (theme === "dark") document.documentElement.classList.add("dark");
+        document.getElementById("themeBtn").addEventListener("click", () => {
+            document.documentElement.classList.toggle("dark");
+            localStorage.setItem("carflow-list-theme", document.documentElement.classList.contains("dark") ? "dark" : "light");
+        });
+
+        const drawer = document.getElementById("filterDrawer"), backdrop = document.getElementById("drawerBackdrop");
+        function openDrawer() { backdrop.classList.remove("hidden"); drawer.classList.remove("translate-x-full", "rtl:-translate-x-full"); }
+        function closeDrawer() { backdrop.classList.add("hidden"); if (document.documentElement.dir === "rtl") drawer.classList.add("rtl:-translate-x-full"); else drawer.classList.add("translate-x-full"); }
+        document.getElementById("filterBtn").addEventListener("click", openDrawer);
+        document.getElementById("closeDrawer").addEventListener("click", closeDrawer);
+        document.getElementById("applyFilters").addEventListener("click", closeDrawer);
+        backdrop.addEventListener("click", closeDrawer);
+
+        applyLang(lang);
+    </script>
+</body>
+
+</html>

@@ -1,7 +1,13 @@
 """Conversation Hub services: inbound processing (§7.3/§7.4) and outbound
 replies. Everything persists raw payloads and dedupes on external ids."""
 import logging
+from datetime import datetime
 
+from django.conf import settings
+from django.db import transaction
+from django.utils import timezone
+
+from apps.accounts.models import Role
 from apps.customers.models import Customer
 
 from .adapters import NullChannelAdapter, OutboundContent, get_channel_adapter
@@ -11,9 +17,120 @@ from .models import (
     Message,
     MessageDirection,
     MessageStatus,
+    Notification,
+    NotificationEvent,
+    NotificationPreference,
+    NotificationStatus,
 )
 
 logger = logging.getLogger(__name__)
+
+INTERNAL_EVENT_TEMPLATES = {
+    "new_vehicle_added": "New vehicle added: {vehicle}.",
+    "vehicle_sold": "Vehicle sold: {vehicle}.",
+    "payment_received": "Payment received: {amount} {currency}.",
+    "reservation_expiring": "Reservation expiring for: {vehicle}.",
+    "lead_converted": "Lead converted: {customer}.",
+    "purchase_order_received": "Purchase order received for {supplier}.",
+    "supplier_payment_due": "Supplier payment due for {supplier}.",
+}
+
+
+def _event_template(event_key: str, context: dict | None = None) -> str:
+    template = INTERNAL_EVENT_TEMPLATES.get(event_key, "New business event: {event}.")
+    context = context or {}
+    try:
+        return template.format(**context, event=event_key)
+    except KeyError:
+        return template
+
+
+def get_internal_recipients(company, roles=None, users=None):
+    """Return user records targeted by a role-based internal alert."""
+    if users is not None:
+        return list(users)
+    if not roles:
+        return []
+    role_qs = Role.objects.filter(key__in=roles)
+    return list(company.users.filter(roles__in=role_qs).distinct())
+
+
+def _channel_available(channel: str) -> bool:
+    toggles = {
+        "email": getattr(settings, "EMAIL_ENABLED", False),
+        "sms": getattr(settings, "SMS_ENABLED", False),
+        "whatsapp": getattr(settings, "META_ENABLED", False),
+        "in_app": True,
+    }
+    return toggles.get(channel, False)
+
+
+@transaction.atomic
+def notify_internal_users(
+    *,
+    company,
+    event_key: str,
+    context: dict | None = None,
+    roles=None,
+    users=None,
+    channel: str = "in_app",
+):
+    """Create internal notifications for users in the same company.
+
+    The function is intentionally provider-agnostic: providers are configured in
+    .env and validated by Django system checks. If a channel is disabled, the
+    notification is still recorded in the database with a skipped status.
+    """
+    if users is None:
+        recipients = get_internal_recipients(company, roles=roles or [], users=None)
+    else:
+        recipients = list(users)
+
+    event, _ = NotificationEvent.objects.get_or_create(
+        key=event_key,
+        defaults={
+            "label": event_key.replace("_", " ").title(),
+            "default_template": INTERNAL_EVENT_TEMPLATES.get(event_key, "Business update."),
+        },
+    )
+
+    created = []
+    for user in recipients:
+        if user.company_id != company.pk:
+            continue
+        title = event.label or event_key.replace("_", " ").title()
+        message = _event_template(event_key, context)
+
+        pref, _ = NotificationPreference.objects.get_or_create(
+            company=company,
+            user=user,
+            event=event,
+            defaults={"enabled": True, "email": True, "sms": False, "whatsapp": False, "in_app": True},
+        )
+        if not pref.enabled:
+            continue
+
+        status = NotificationStatus.SENT if channel == "in_app" else NotificationStatus.QUEUED
+        if not _channel_available(channel):
+            status = NotificationStatus.SKIPPED_DISABLED
+
+        notification = Notification.objects.create(
+            company=company,
+            recipient=user,
+            event=event,
+            title=title,
+            message=message,
+            channel=channel,
+            status=status,
+            metadata={"event_key": event_key, "context": context or {}},
+        )
+
+        if not _channel_available(channel):
+            notification.sent_at = timezone.now()
+            notification.save(update_fields=["status", "sent_at"])
+        created.append(notification)
+
+    return created
 
 
 def resolve_customer(channel, external_sender_id: str):

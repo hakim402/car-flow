@@ -1856,3 +1856,27 @@ msgstr ""
 #: templates/base.html:228
 msgid "Internal system"
 msgstr ""
+
+msgid "Automotive ERP"
+msgstr "Automotive ERP"
+
+msgid "Search CarFlow"
+msgstr "Search CarFlow"
+
+msgid "System healthy"
+msgstr "System healthy"
+
+msgid "Live view"
+msgstr "Live view"
+
+msgid "Operational command center across sales, inventory and finance"
+msgstr "Operational command center across sales, inventory and finance"
+
+msgid "All companies"
+msgstr "All companies"
+
+msgid "Theme"
+msgstr "Theme"
+
+msgid "Super Admin"
+msgstr "Super Admin"

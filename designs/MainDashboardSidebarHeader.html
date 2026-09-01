@@ -1,0 +1,529 @@
+<!doctype html>
+<html lang="en" dir="ltr" class="h-full bg-[#F4F7FB]">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light dark" />
+  <title>AUTOMEX CarFlow — Premium Dashboard Concept</title>
+
+  <!-- UI prototype dependencies only: no backend / no Django / no Python templates -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Arabic:wght@400;500;600;700;800&family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'ui-sans-serif', 'system-ui'],
+            dari: ['Vazirmatn', 'Noto Sans Arabic', 'sans-serif'],
+            pashto: ['Noto Sans Arabic', 'Vazirmatn', 'sans-serif']
+          },
+          colors: {
+            ink: '#172033',
+            brand: {
+              50: '#EFF6FF', 100: '#DBEAFE', 200: '#BFDBFE', 500: '#2F6FED',
+              600: '#245ED2', 700: '#1F4EAE', 950: '#0C1F4A'
+            }
+          },
+          boxShadow: {
+            panel: '0 1px 2px rgba(16,24,40,.04), 0 12px 30px rgba(16,24,40,.055)',
+            floating: '0 22px 55px rgba(15,23,42,.14)'
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    html[lang="fa"] body { font-family: Vazirmatn, "Noto Sans Arabic", sans-serif; }
+    html[lang="ps"] body { font-family: "Noto Sans Arabic", Vazirmatn, sans-serif; }
+    html[dir="rtl"] body { letter-spacing: 0 !important; }
+    .thin-scroll { scrollbar-width: thin; scrollbar-color: #CBD5E1 transparent; }
+    .thin-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+    .thin-scroll::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 999px; }
+    .glass { background: rgba(255,255,255,.86); backdrop-filter: blur(18px); }
+    .dark .glass { background: rgba(15,23,42,.86); }
+    .metric-spark path.area { opacity: .12; }
+    .metric-spark path.line { stroke-linecap: round; stroke-linejoin: round; }
+    .chart-box .apexcharts-tooltip, .chart-box .apexcharts-xaxistooltip { border: 0 !important; box-shadow: 0 14px 34px rgba(15,23,42,.16) !important; }
+    .chart-box .apexcharts-menu { border: 1px solid #E2E8F0 !important; border-radius: 12px !important; overflow: hidden; box-shadow: 0 14px 34px rgba(15,23,42,.12) !important; }
+    .dark .chart-box .apexcharts-menu { background: #0F172A !important; border-color: #334155 !important; }
+    .dark .chart-box .apexcharts-menu-item:hover { background: #1E293B !important; }
+    .status-ring { box-shadow: inset 0 0 0 1px rgba(255,255,255,.7); }
+    html[dir="rtl"] .rtl-flip { transform: scaleX(-1); }
+    html[dir="rtl"] .ltr-only { direction: ltr; unicode-bidi: isolate; }
+    @media (max-width: 1023px) {
+      #sidebar { transform: translateX(-105%); }
+      html[dir="rtl"] #sidebar { transform: translateX(105%); }
+      #sidebar.open { transform: translateX(0); }
+    }
+  </style>
+</head>
+<body class="min-h-full bg-[#F4F7FB] text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100">
+
+  <div class="min-h-screen lg:grid lg:grid-cols-[280px_minmax(0,1fr)]">
+    <!-- Sidebar -->
+    <aside id="sidebar" class="fixed inset-y-0 start-0 z-50 flex w-[280px] flex-col border-e border-slate-200/80 bg-white transition-transform duration-300 dark:border-slate-800 dark:bg-slate-900 lg:sticky lg:top-0 lg:h-screen">
+      <div class="flex h-[84px] shrink-0 items-center gap-3 border-b border-slate-200/80 px-5 dark:border-slate-800">
+        <div class="grid h-11 w-11 shrink-0 place-items-center rounded-[14px] bg-gradient-to-br from-brand-500 to-brand-700 text-white shadow-lg shadow-blue-600/20">
+          <i data-lucide="car-front" class="h-[22px] w-[22px]"></i>
+        </div>
+        <div class="min-w-0 flex-1">
+          <div class="text-[15px] font-extrabold tracking-[.16em] text-slate-950 dark:text-white">AUTOMEX</div>
+          <div class="mt-1 text-[10px] font-medium text-slate-400">CarFlow · Automotive ERP</div>
+        </div>
+        <span class="rounded-full bg-emerald-50 px-2 py-1 text-[9px] font-extrabold text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300">LIVE</span>
+      </div>
+
+      <div class="px-3 pt-4">
+        <button class="flex h-10 w-full items-center gap-2.5 rounded-xl border border-slate-200 bg-slate-50 px-3 text-start text-[11px] font-medium text-slate-400 transition hover:border-slate-300 dark:border-slate-700 dark:bg-slate-950/70 dark:hover:border-slate-600">
+          <i data-lucide="search" class="h-4 w-4"></i>
+          <span class="flex-1" data-i18n="search">Search CarFlow</span>
+          <kbd class="rounded-md border border-slate-200 bg-white px-1.5 py-0.5 font-sans text-[9px] text-slate-400 dark:border-slate-700 dark:bg-slate-900">⌘ K</kbd>
+        </button>
+      </div>
+
+      <nav id="nav" class="thin-scroll flex-1 overflow-y-auto px-3 pb-5 pt-3"></nav>
+
+      <div class="shrink-0 border-t border-slate-200/80 p-3 dark:border-slate-800">
+        <div class="mb-2 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-800 p-3.5 text-white shadow-sm dark:from-slate-800 dark:to-slate-800">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="h-2 w-2 rounded-full bg-emerald-400 ring-4 ring-emerald-400/10"></span>
+              <span class="text-[10px] font-bold" data-i18n="systemHealthy">System healthy</span>
+            </div>
+            <i data-lucide="activity" class="h-4 w-4 text-slate-400"></i>
+          </div>
+          <div class="mt-3 grid grid-cols-3 gap-2 text-center">
+            <div><b class="block text-[11px]">18ms</b><span class="text-[8px] text-slate-400">DB</span></div>
+            <div><b class="block text-[11px]">42</b><span class="text-[8px] text-slate-400">Jobs</span></div>
+            <div><b class="block text-[11px]">100%</b><span class="text-[8px] text-slate-400">API</span></div>
+          </div>
+        </div>
+        <button class="flex w-full items-center gap-3 rounded-xl p-2.5 text-start hover:bg-slate-100 dark:hover:bg-slate-800">
+          <div class="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-blue-100 text-xs font-black text-blue-700 dark:bg-blue-500/15 dark:text-blue-300">HR</div>
+          <div class="min-w-0 flex-1">
+            <div class="truncate text-xs font-bold">Hakim Rahimi</div>
+            <div class="mt-0.5 truncate text-[9px] text-slate-500" data-i18n="orgAdmin">Organization admin</div>
+          </div>
+          <i data-lucide="chevrons-up-down" class="h-4 w-4 text-slate-400"></i>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="min-w-0">
+      <header class="glass sticky top-0 z-40 flex h-[84px] items-center justify-between gap-4 border-b border-slate-200/80 px-4 dark:border-slate-800 sm:px-6 xl:px-8">
+        <div class="flex min-w-0 items-center gap-3">
+          <button id="menuBtn" class="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-slate-200 bg-white text-slate-600 shadow-sm lg:hidden dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">
+            <i data-lucide="menu" class="h-5 w-5"></i>
+          </button>
+          <div class="min-w-0">
+            <div class="flex items-center gap-2">
+              <h1 class="truncate text-lg font-extrabold tracking-[-.02em]" data-i18n="dashboard">Dashboard</h1>
+              <span class="hidden rounded-full bg-blue-50 px-2 py-0.5 text-[9px] font-bold text-brand-600 sm:inline dark:bg-blue-500/10 dark:text-blue-300" data-i18n="liveView">Live view</span>
+            </div>
+            <p class="mt-1 hidden truncate text-[10px] text-slate-500 md:block" data-i18n="subtitle">Operational command center across sales, inventory and finance</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button class="hidden h-10 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 shadow-sm md:flex dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
+            <i data-lucide="building-2" class="h-4 w-4 text-slate-400"></i>
+            <span data-i18n="allBranches">All branches</span>
+            <i data-lucide="chevron-down" class="h-3.5 w-3.5 text-slate-400"></i>
+          </button>
+
+          <select id="lang" class="h-10 rounded-xl border border-slate-200 bg-white px-3 text-xs font-bold outline-none shadow-sm dark:border-slate-700 dark:bg-slate-900">
+            <option value="en">EN</option>
+            <option value="fa">دری</option>
+            <option value="ps">پښتو</option>
+          </select>
+
+          <button id="themeBtn" title="Theme" class="grid h-10 w-10 place-items-center rounded-xl border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800">
+            <i data-lucide="moon" class="h-[18px] w-[18px]"></i>
+          </button>
+          <button title="Notifications" class="relative grid h-10 w-10 place-items-center rounded-xl border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800">
+            <i data-lucide="bell" class="h-[18px] w-[18px]"></i>
+            <span class="absolute -end-1 -top-1 grid h-[19px] min-w-[19px] place-items-center rounded-full border-2 border-white bg-rose-500 px-1 font-sans text-[8px] font-extrabold text-white dark:border-slate-900">6</span>
+          </button>
+          <button id="quickBtn" class="hidden h-10 items-center gap-2 rounded-xl bg-brand-600 px-4 text-[11px] font-bold text-white shadow-md shadow-blue-600/20 transition hover:bg-brand-700 sm:flex">
+            <i data-lucide="plus" class="h-4 w-4"></i>
+            <span data-i18n="quick">Quick action</span>
+          </button>
+        </div>
+      </header>
+
+      <div class="mx-auto max-w-[1680px] px-4 py-5 sm:px-6 xl:px-8 xl:py-7">
+        <!-- Welcome / filters -->
+        <section class="mb-5 flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
+          <div>
+            <div class="mb-1 flex items-center gap-2 text-[9px] font-extrabold uppercase tracking-[.14em] text-brand-600">
+              <span class="h-1.5 w-1.5 rounded-full bg-brand-500"></span>
+              <span data-i18n="todayOverview">Today's overview</span>
+            </div>
+            <h2 class="text-[26px] font-extrabold tracking-[-.035em] sm:text-[28px]"><span data-i18n="goodEvening">Good evening</span>, Hakim</h2>
+            <p class="mt-1 text-[11px] text-slate-500" data-i18n="attention">Your operations are healthy, but 3 areas need attention.</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <div class="flex rounded-xl border border-slate-200 bg-white p-1 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+              <button class="date-btn rounded-lg bg-brand-50 px-3.5 py-2 text-[10px] font-bold text-brand-600 dark:bg-blue-500/10 dark:text-blue-300" data-range="today" data-i18n="today">Today</button>
+              <button class="date-btn rounded-lg px-3.5 py-2 text-[10px] font-semibold text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800" data-range="week" data-i18n="week">This week</button>
+              <button class="date-btn rounded-lg px-3.5 py-2 text-[10px] font-semibold text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800" data-range="month" data-i18n="month">This month</button>
+            </div>
+            <button class="grid h-10 w-10 place-items-center rounded-xl border border-slate-200 bg-white text-slate-500 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+              <i data-lucide="calendar-days" class="h-4 w-4"></i>
+            </button>
+          </div>
+        </section>
+
+        <!-- Action center -->
+        <section class="mb-4 grid gap-3 lg:grid-cols-3">
+          <article class="group relative overflow-hidden rounded-2xl border border-rose-100 bg-gradient-to-br from-white to-rose-50/50 p-4 shadow-panel dark:border-rose-500/10 dark:from-slate-900 dark:to-rose-950/10">
+            <div class="absolute inset-y-0 start-0 w-1 bg-rose-500"></div>
+            <div class="flex items-center gap-3">
+              <div class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-rose-50 text-rose-600 dark:bg-rose-500/10 dark:text-rose-300"><i data-lucide="circle-alert" class="h-5 w-5"></i></div>
+              <div class="min-w-0 flex-1"><div class="text-[11px] font-extrabold"><span class="font-sans">4</span> <span data-i18n="overdueReceivables">overdue receivables</span></div><div class="mt-1 font-sans text-[9px] text-slate-400">$18,600 · 2 more than 30 days</div></div>
+              <button class="rounded-lg bg-white px-2.5 py-1.5 text-[9px] font-bold text-rose-600 shadow-sm ring-1 ring-rose-100 dark:bg-slate-900 dark:ring-rose-500/20" data-i18n="review">Review</button>
+            </div>
+          </article>
+          <article class="group relative overflow-hidden rounded-2xl border border-amber-100 bg-gradient-to-br from-white to-amber-50/60 p-4 shadow-panel dark:border-amber-500/10 dark:from-slate-900 dark:to-amber-950/10">
+            <div class="absolute inset-y-0 start-0 w-1 bg-amber-500"></div>
+            <div class="flex items-center gap-3">
+              <div class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-300"><i data-lucide="clock-3" class="h-5 w-5"></i></div>
+              <div class="min-w-0 flex-1"><div class="text-[11px] font-extrabold"><span class="font-sans">7</span> <span data-i18n="agingVehicles">vehicles over 90 days</span></div><div class="mt-1 text-[9px] text-slate-400" data-i18n="agingRisk">$142K capital tied in aging stock</div></div>
+              <button class="rounded-lg bg-white px-2.5 py-1.5 text-[9px] font-bold text-amber-700 shadow-sm ring-1 ring-amber-100 dark:bg-slate-900 dark:ring-amber-500/20" data-i18n="inspect">Inspect</button>
+            </div>
+          </article>
+          <article class="group relative overflow-hidden rounded-2xl border border-blue-100 bg-gradient-to-br from-white to-blue-50/60 p-4 shadow-panel dark:border-blue-500/10 dark:from-slate-900 dark:to-blue-950/10">
+            <div class="absolute inset-y-0 start-0 w-1 bg-blue-500"></div>
+            <div class="flex items-center gap-3">
+              <div class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-300"><i data-lucide="messages-square" class="h-5 w-5"></i></div>
+              <div class="min-w-0 flex-1"><div class="text-[11px] font-extrabold"><span class="font-sans">12</span> <span data-i18n="unread">unread conversations</span></div><div class="mt-1 text-[9px] text-slate-400" data-i18n="responseTime">Median response time 8 minutes</div></div>
+              <button class="rounded-lg bg-white px-2.5 py-1.5 text-[9px] font-bold text-blue-600 shadow-sm ring-1 ring-blue-100 dark:bg-slate-900 dark:ring-blue-500/20" data-i18n="inbox">Inbox</button>
+            </div>
+          </article>
+        </section>
+
+        <!-- KPI cards -->
+        <section class="mb-4 grid gap-3 sm:grid-cols-2 2xl:grid-cols-4">
+          <article class="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-panel dark:border-slate-800 dark:bg-slate-900">
+            <div class="flex items-start justify-between gap-3">
+              <div class="grid h-10 w-10 place-items-center rounded-xl bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-300"><i data-lucide="arrow-down-to-line" class="h-5 w-5"></i></div>
+              <span class="rounded-full bg-emerald-50 px-2 py-1 font-sans text-[9px] font-extrabold text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300">+8.4%</span>
+            </div>
+            <div class="mt-4 text-[10px] font-medium text-slate-500" data-i18n="moneyIn">Money in</div>
+            <div class="mt-1 font-sans text-[26px] font-extrabold tracking-[-.04em] ltr-only">$128,450</div>
+            <div class="mt-4 flex items-end justify-between gap-3">
+              <span class="text-[9px] text-slate-400" data-i18n="vsPrevious">vs previous period</span>
+              <svg class="metric-spark h-8 w-24 text-emerald-500" viewBox="0 0 96 32" fill="none"><path class="area" fill="currentColor" d="M0 28L0 22L13 20L26 23L40 12L53 16L67 8L81 10L96 3L96 32H0Z"/><path class="line" stroke="currentColor" stroke-width="2" d="M0 22L13 20L26 23L40 12L53 16L67 8L81 10L96 3"/></svg>
+            </div>
+          </article>
+
+          <article class="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-panel dark:border-slate-800 dark:bg-slate-900">
+            <div class="flex items-start justify-between gap-3">
+              <div class="grid h-10 w-10 place-items-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-300"><i data-lucide="car" class="h-5 w-5"></i></div>
+              <span class="rounded-full bg-blue-50 px-2 py-1 font-sans text-[9px] font-extrabold text-blue-700 dark:bg-blue-500/10 dark:text-blue-300">+5</span>
+            </div>
+            <div class="mt-4 text-[10px] font-medium text-slate-500" data-i18n="availableVehicles">Available vehicles</div>
+            <div class="mt-1 font-sans text-[26px] font-extrabold tracking-[-.04em]">84</div>
+            <div class="mt-4 flex items-end justify-between gap-3">
+              <span class="text-[9px] text-slate-400"><span data-i18n="inventoryValue">Inventory value</span> · <b class="font-sans text-slate-600 dark:text-slate-300">$2.41M</b></span>
+              <svg class="metric-spark h-8 w-24 text-blue-500" viewBox="0 0 96 32" fill="none"><path class="area" fill="currentColor" d="M0 32L0 25L13 23L26 16L40 19L53 13L67 16L81 8L96 10L96 32Z"/><path class="line" stroke="currentColor" stroke-width="2" d="M0 25L13 23L26 16L40 19L53 13L67 16L81 8L96 10"/></svg>
+            </div>
+          </article>
+
+          <article class="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-panel dark:border-slate-800 dark:bg-slate-900">
+            <div class="flex items-start justify-between gap-3">
+              <div class="grid h-10 w-10 place-items-center rounded-xl bg-violet-50 text-violet-600 dark:bg-violet-500/10 dark:text-violet-300"><i data-lucide="badge-dollar-sign" class="h-5 w-5"></i></div>
+              <span class="rounded-full bg-emerald-50 px-2 py-1 font-sans text-[9px] font-extrabold text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300">+12.6%</span>
+            </div>
+            <div class="mt-4 text-[10px] font-medium text-slate-500" data-i18n="confirmedSales">Confirmed sales</div>
+            <div class="mt-1 font-sans text-[26px] font-extrabold tracking-[-.04em]">26</div>
+            <div class="mt-4 flex items-end justify-between gap-3">
+              <span class="text-[9px] text-slate-400"><span data-i18n="grossProfit">Gross profit</span> · <b class="font-sans text-slate-600 dark:text-slate-300">$64,820</b></span>
+              <svg class="metric-spark h-8 w-24 text-violet-500" viewBox="0 0 96 32" fill="none"><path class="area" fill="currentColor" d="M0 32L0 26L13 28L26 21L40 22L53 15L67 18L81 9L96 5L96 32Z"/><path class="line" stroke="currentColor" stroke-width="2" d="M0 26L13 28L26 21L40 22L53 15L67 18L81 9L96 5"/></svg>
+            </div>
+          </article>
+
+          <article class="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-panel dark:border-slate-800 dark:bg-slate-900">
+            <div class="flex items-start justify-between gap-3">
+              <div class="grid h-10 w-10 place-items-center rounded-xl bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-300"><i data-lucide="receipt-text" class="h-5 w-5"></i></div>
+              <span class="rounded-full bg-rose-50 px-2 py-1 font-sans text-[9px] font-extrabold text-rose-700 dark:bg-rose-500/10 dark:text-rose-300">+6.1%</span>
+            </div>
+            <div class="mt-4 text-[10px] font-medium text-slate-500" data-i18n="receivable">Accounts receivable</div>
+            <div class="mt-1 font-sans text-[26px] font-extrabold tracking-[-.04em] ltr-only">$91,300</div>
+            <div class="mt-4 flex items-end justify-between gap-3">
+              <span class="text-[9px] text-slate-400"><b class="font-sans text-rose-600">$18,600</b> <span data-i18n="overdue">overdue</span></span>
+              <svg class="metric-spark h-8 w-24 text-amber-500" viewBox="0 0 96 32" fill="none"><path class="area" fill="currentColor" d="M0 32L0 20L13 16L26 18L40 14L53 16L67 11L81 13L96 8L96 32Z"/><path class="line" stroke="currentColor" stroke-width="2" d="M0 20L13 16L26 18L40 14L53 16L67 11L81 13L96 8"/></svg>
+            </div>
+          </article>
+        </section>
+
+        <!-- Main analytics -->
+        <section class="mb-4 grid gap-4 2xl:grid-cols-[minmax(0,1.7fr)_minmax(360px,.8fr)]">
+          <article class="rounded-2xl border border-slate-200/80 bg-white shadow-panel dark:border-slate-800 dark:bg-slate-900">
+            <div class="flex flex-col gap-4 border-b border-slate-100 px-5 py-4 dark:border-slate-800 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <div class="flex items-center gap-2"><h3 class="text-[13px] font-extrabold" data-i18n="salesPerformance">Sales & profitability</h3><span class="rounded-md bg-emerald-50 px-1.5 py-1 font-sans text-[8px] font-extrabold text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300">+11.2%</span></div>
+                <p class="mt-1 text-[9px] text-slate-500" data-i18n="salesSub">Confirmed sales, gross profit and margin trend</p>
+              </div>
+              <div class="flex items-center gap-2">
+                <div class="hidden items-center gap-4 text-[9px] text-slate-500 md:flex"><span class="flex items-center gap-1.5"><i class="h-2 w-2 rounded-full bg-blue-500"></i><span data-i18n="sales">Sales</span></span><span class="flex items-center gap-1.5"><i class="h-2 w-2 rounded-full bg-violet-500"></i><span data-i18n="grossProfit">Gross profit</span></span></div>
+                <select class="h-9 rounded-xl border border-slate-200 bg-white px-3 text-[9px] font-bold outline-none dark:border-slate-700 dark:bg-slate-900"><option data-i18n="last6">Last 6 months</option></select>
+              </div>
+            </div>
+            <div class="grid gap-1 px-5 pt-4 sm:grid-cols-3">
+              <div class="rounded-xl bg-slate-50 p-3 dark:bg-slate-950/50"><span class="text-[9px] text-slate-500" data-i18n="salesValue">Sales value</span><b class="mt-1 block font-sans text-lg ltr-only">$486,200</b></div>
+              <div class="rounded-xl bg-slate-50 p-3 dark:bg-slate-950/50"><span class="text-[9px] text-slate-500" data-i18n="grossProfit">Gross profit</span><b class="mt-1 block font-sans text-lg ltr-only">$106,080</b></div>
+              <div class="rounded-xl bg-slate-50 p-3 dark:bg-slate-950/50"><span class="text-[9px] text-slate-500" data-i18n="margin">Gross margin</span><b class="mt-1 block font-sans text-lg">21.8%</b></div>
+            </div>
+            <div id="salesChart" class="chart-box min-h-[300px] px-1 pb-2 pt-1"></div>
+          </article>
+
+          <article class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-panel dark:border-slate-800 dark:bg-slate-900">
+            <div class="flex items-start justify-between gap-3">
+              <div><h3 class="text-[13px] font-extrabold" data-i18n="inventoryHealth">Inventory health</h3><p class="mt-1 text-[9px] text-slate-500" data-i18n="inventorySub">Live status of current vehicle stock</p></div>
+              <button class="grid h-8 w-8 place-items-center rounded-lg border border-slate-200 text-slate-400 dark:border-slate-700"><i data-lucide="more-horizontal" class="h-4 w-4"></i></button>
+            </div>
+            <div class="mt-3 grid items-center gap-2 sm:grid-cols-[170px_1fr] 2xl:grid-cols-1 3xl:grid-cols-[170px_1fr]">
+              <div id="inventoryRadial" class="chart-box mx-auto min-h-[170px] w-[170px]"></div>
+              <div class="grid gap-2">
+                <div class="flex items-center justify-between rounded-xl bg-slate-50 p-2.5 dark:bg-slate-950/50"><span class="flex items-center gap-2 text-[9px] text-slate-500"><i class="status-ring h-2.5 w-2.5 rounded-full bg-blue-500"></i><span data-i18n="available">Available</span></span><b class="font-sans text-[11px]">84</b></div>
+                <div class="flex items-center justify-between rounded-xl bg-slate-50 p-2.5 dark:bg-slate-950/50"><span class="flex items-center gap-2 text-[9px] text-slate-500"><i class="status-ring h-2.5 w-2.5 rounded-full bg-emerald-500"></i><span data-i18n="reserved">Reserved</span></span><b class="font-sans text-[11px]">18</b></div>
+                <div class="flex items-center justify-between rounded-xl bg-slate-50 p-2.5 dark:bg-slate-950/50"><span class="flex items-center gap-2 text-[9px] text-slate-500"><i class="status-ring h-2.5 w-2.5 rounded-full bg-amber-500"></i><span data-i18n="preparation">Preparation</span></span><b class="font-sans text-[11px]">14</b></div>
+                <div class="flex items-center justify-between rounded-xl bg-slate-50 p-2.5 dark:bg-slate-950/50"><span class="flex items-center gap-2 text-[9px] text-slate-500"><i class="status-ring h-2.5 w-2.5 rounded-full bg-violet-500"></i><span data-i18n="soldPending">Sold / pending</span></span><b class="font-sans text-[11px]">10</b></div>
+              </div>
+            </div>
+            <div class="mt-3 rounded-xl border border-slate-100 p-3 dark:border-slate-800">
+              <div class="flex items-center justify-between"><span class="text-[9px] text-slate-500" data-i18n="inventoryValue">Inventory value</span><b class="font-sans text-xs ltr-only">$2.41M</b></div>
+              <div class="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800"><div class="h-full w-[72%] rounded-full bg-gradient-to-r from-blue-500 to-indigo-500"></div></div>
+              <div class="mt-2 flex justify-between text-[8px] text-slate-400"><span data-i18n="turnover">Turnover 41 days</span><span class="font-sans">72%</span></div>
+            </div>
+          </article>
+        </section>
+
+        <!-- Pipeline + Aging + cash -->
+        <section class="mb-4 grid gap-4 2xl:grid-cols-[minmax(0,1.2fr)_minmax(320px,.8fr)_minmax(320px,.8fr)]">
+          <article class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-panel dark:border-slate-800 dark:bg-slate-900">
+            <div class="flex items-start justify-between"><div><h3 class="text-[13px] font-extrabold" data-i18n="pipeline">Sales pipeline</h3><p class="mt-1 text-[9px] text-slate-500" data-i18n="pipelineSub">Live CRM funnel with conversion</p></div><button class="text-[9px] font-bold text-brand-600" data-i18n="viewCrm">View CRM</button></div>
+            <div class="mt-5 grid grid-cols-5 gap-2">
+              <div class="rounded-xl bg-blue-50/70 p-3 dark:bg-blue-500/10"><span class="block h-1.5 w-8 rounded-full bg-blue-400"></span><b class="mt-3 block font-sans text-xl">38</b><span class="mt-1 block text-[8px] text-slate-500" data-i18n="newLeads">New leads</span></div>
+              <div class="rounded-xl bg-indigo-50/70 p-3 dark:bg-indigo-500/10"><span class="block h-1.5 w-8 rounded-full bg-indigo-500"></span><b class="mt-3 block font-sans text-xl">22</b><span class="mt-1 block text-[8px] text-slate-500" data-i18n="qualified">Qualified</span></div>
+              <div class="rounded-xl bg-violet-50/70 p-3 dark:bg-violet-500/10"><span class="block h-1.5 w-8 rounded-full bg-violet-500"></span><b class="mt-3 block font-sans text-xl">15</b><span class="mt-1 block text-[8px] text-slate-500" data-i18n="quotations">Quotations</span></div>
+              <div class="rounded-xl bg-amber-50/70 p-3 dark:bg-amber-500/10"><span class="block h-1.5 w-8 rounded-full bg-amber-500"></span><b class="mt-3 block font-sans text-xl">9</b><span class="mt-1 block text-[8px] text-slate-500" data-i18n="reservations">Reservations</span></div>
+              <div class="rounded-xl bg-emerald-50/70 p-3 dark:bg-emerald-500/10"><span class="block h-1.5 w-8 rounded-full bg-emerald-500"></span><b class="mt-3 block font-sans text-xl">6</b><span class="mt-1 block text-[8px] text-slate-500" data-i18n="sales">Sales</span></div>
+            </div>
+            <div class="mt-4 flex items-center gap-3 rounded-xl border border-slate-100 px-3 py-2.5 dark:border-slate-800"><span class="flex-1 text-[9px] text-slate-500" data-i18n="conversion">Lead conversion rate</span><b class="font-sans text-sm">15.8%</b><span class="rounded-full bg-emerald-50 px-2 py-1 font-sans text-[8px] font-bold text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300">+2.1%</span></div>
+          </article>
+
+          <article class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-panel dark:border-slate-800 dark:bg-slate-900">
+            <div class="flex items-start justify-between"><div><h3 class="text-[13px] font-extrabold" data-i18n="aging">Inventory aging</h3><p class="mt-1 text-[9px] text-slate-500" data-i18n="agingSub">Vehicles by days in inventory</p></div><span class="rounded-full bg-rose-50 px-2 py-1 font-sans text-[8px] font-bold text-rose-600 dark:bg-rose-500/10">7 risk</span></div>
+            <div id="agingChart" class="chart-box mt-2 min-h-[210px]"></div>
+          </article>
+
+          <article class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-panel dark:border-slate-800 dark:bg-slate-900">
+            <div class="flex items-start justify-between"><div><h3 class="text-[13px] font-extrabold" data-i18n="cashPosition">Cash & bank position</h3><p class="mt-1 text-[9px] text-slate-500" data-i18n="cashSub">Balances by account native currency</p></div><button class="text-[9px] font-bold text-brand-600" data-i18n="accounts">Accounts</button></div>
+            <div class="mt-4 space-y-2">
+              <div class="flex items-center gap-3 rounded-xl border border-slate-100 p-3 dark:border-slate-800"><span class="grid h-9 w-9 place-items-center rounded-lg bg-emerald-50 font-sans text-[10px] font-extrabold text-emerald-700 dark:bg-emerald-500/10">$</span><div class="min-w-0 flex-1"><b class="block truncate text-[9px]">Kabul USD Cashbox</b><span class="mt-0.5 block text-[8px] text-slate-400" data-i18n="cash">Cash</span></div><b class="font-sans text-[10px] ltr-only">$41,850</b></div>
+              <div class="flex items-center gap-3 rounded-xl border border-slate-100 p-3 dark:border-slate-800"><span class="grid h-9 w-9 place-items-center rounded-lg bg-blue-50 font-sans text-[10px] font-extrabold text-blue-700 dark:bg-blue-500/10">B</span><div class="min-w-0 flex-1"><b class="block truncate text-[9px]">Azizi Bank USD</b><span class="mt-0.5 block text-[8px] text-slate-400" data-i18n="bank">Bank</span></div><b class="font-sans text-[10px] ltr-only">$173,240</b></div>
+              <div class="flex items-center gap-3 rounded-xl border border-slate-100 p-3 dark:border-slate-800"><span class="grid h-9 w-9 place-items-center rounded-lg bg-amber-50 font-sans text-[10px] font-extrabold text-amber-700 dark:bg-amber-500/10">؋</span><div class="min-w-0 flex-1"><b class="block truncate text-[9px]">Kabul AFN Cashbox</b><span class="mt-0.5 block text-[8px] text-slate-400" data-i18n="cash">Cash</span></div><b class="font-sans text-[10px] ltr-only">؋2,840,000</b></div>
+            </div>
+            <div class="mt-3 grid grid-cols-2 gap-2"><div class="rounded-xl bg-slate-50 p-3 dark:bg-slate-950/50"><span class="text-[8px] text-slate-500" data-i18n="payable">Payable</span><b class="mt-1 block font-sans text-[11px] ltr-only">$72,400</b></div><div class="rounded-xl bg-slate-50 p-3 dark:bg-slate-950/50"><span class="text-[8px] text-slate-500" data-i18n="expenses">Expenses</span><b class="mt-1 block font-sans text-[11px] ltr-only">$18,950</b></div></div>
+          </article>
+        </section>
+
+        <!-- Bottom operational views -->
+        <section class="grid gap-4 xl:grid-cols-2 2xl:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
+          <article class="rounded-2xl border border-slate-200/80 bg-white shadow-panel dark:border-slate-800 dark:bg-slate-900">
+            <div class="flex items-start justify-between border-b border-slate-100 px-5 py-4 dark:border-slate-800"><div><h3 class="text-[13px] font-extrabold" data-i18n="branchPerformance">Branch performance</h3><p class="mt-1 text-[9px] text-slate-500" data-i18n="branchSub">Sales, margin and current inventory</p></div><button class="text-[9px] font-bold text-brand-600" data-i18n="viewReport">View report</button></div>
+            <div class="thin-scroll overflow-x-auto">
+              <table class="w-full min-w-[620px] text-start">
+                <thead class="bg-slate-50/70 text-[8px] uppercase tracking-[.06em] text-slate-400 dark:bg-slate-950/40"><tr><th class="px-5 py-3 text-start font-bold" data-i18n="branch">Branch</th><th class="px-3 py-3 text-start font-bold" data-i18n="sales">Sales</th><th class="px-3 py-3 text-start font-bold" data-i18n="revenue">Revenue</th><th class="px-3 py-3 text-start font-bold" data-i18n="margin">Margin</th><th class="px-3 py-3 text-start font-bold" data-i18n="inventory">Inventory</th><th class="px-5 py-3 text-end font-bold" data-i18n="trend">Trend</th></tr></thead>
+                <tbody class="divide-y divide-slate-100 text-[9px] dark:divide-slate-800">
+                  <tr><td class="px-5 py-3.5"><div class="flex items-center gap-2"><span class="grid h-7 w-7 place-items-center rounded-lg bg-blue-50 text-blue-600 dark:bg-blue-500/10"><i data-lucide="building-2" class="h-3.5 w-3.5"></i></span><b>Kabul Main</b></div></td><td class="px-3 py-3.5 font-sans font-bold">16</td><td class="px-3 py-3.5 font-sans ltr-only">$298,400</td><td class="px-3 py-3.5 font-sans">23.1%</td><td class="px-3 py-3.5 font-sans">61</td><td class="px-5 py-3.5 text-end"><span class="rounded-full bg-emerald-50 px-2 py-1 font-sans text-[8px] font-bold text-emerald-700 dark:bg-emerald-500/10">+14%</span></td></tr>
+                  <tr><td class="px-5 py-3.5"><div class="flex items-center gap-2"><span class="grid h-7 w-7 place-items-center rounded-lg bg-violet-50 text-violet-600 dark:bg-violet-500/10"><i data-lucide="building-2" class="h-3.5 w-3.5"></i></span><b>Herat</b></div></td><td class="px-3 py-3.5 font-sans font-bold">7</td><td class="px-3 py-3.5 font-sans ltr-only">$121,700</td><td class="px-3 py-3.5 font-sans">19.4%</td><td class="px-3 py-3.5 font-sans">39</td><td class="px-5 py-3.5 text-end"><span class="rounded-full bg-emerald-50 px-2 py-1 font-sans text-[8px] font-bold text-emerald-700 dark:bg-emerald-500/10">+6%</span></td></tr>
+                  <tr><td class="px-5 py-3.5"><div class="flex items-center gap-2"><span class="grid h-7 w-7 place-items-center rounded-lg bg-amber-50 text-amber-600 dark:bg-amber-500/10"><i data-lucide="building-2" class="h-3.5 w-3.5"></i></span><b>Mazar</b></div></td><td class="px-3 py-3.5 font-sans font-bold">3</td><td class="px-3 py-3.5 font-sans ltr-only">$66,100</td><td class="px-3 py-3.5 font-sans">18.7%</td><td class="px-3 py-3.5 font-sans">26</td><td class="px-5 py-3.5 text-end"><span class="rounded-full bg-rose-50 px-2 py-1 font-sans text-[8px] font-bold text-rose-700 dark:bg-rose-500/10">−3%</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </article>
+
+          <article class="rounded-2xl border border-slate-200/80 bg-white shadow-panel dark:border-slate-800 dark:bg-slate-900">
+            <div class="flex items-start justify-between border-b border-slate-100 px-5 py-4 dark:border-slate-800"><div><h3 class="text-[13px] font-extrabold" data-i18n="recentActivity">Recent operations</h3><p class="mt-1 text-[9px] text-slate-500" data-i18n="activitySub">Latest business events and audit signals</p></div><button class="text-[9px] font-bold text-brand-600" data-i18n="auditLog">Audit log</button></div>
+            <div class="divide-y divide-slate-100 px-5 dark:divide-slate-800">
+              <div class="grid grid-cols-[34px_minmax(0,1fr)_auto] items-center gap-3 py-3"><span class="grid h-8 w-8 place-items-center rounded-lg bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10"><i data-lucide="badge-check" class="h-4 w-4"></i></span><div class="min-w-0"><b class="block text-[9px]" data-i18n="saleConfirmed">Sale confirmed</b><span class="mt-1 block truncate font-sans text-[8px] text-slate-400">Toyota Land Cruiser 2021 · INV-2026-000500</span></div><time class="font-sans text-[8px] text-slate-400">8m</time></div>
+              <div class="grid grid-cols-[34px_minmax(0,1fr)_auto] items-center gap-3 py-3"><span class="grid h-8 w-8 place-items-center rounded-lg bg-blue-50 text-blue-600 dark:bg-blue-500/10"><i data-lucide="circle-dollar-sign" class="h-4 w-4"></i></span><div class="min-w-0"><b class="block text-[9px]" data-i18n="paymentRecorded">Customer payment recorded</b><span class="mt-1 block truncate font-sans text-[8px] text-slate-400">$8,500 · RCT-2026-000182</span></div><time class="font-sans text-[8px] text-slate-400">20m</time></div>
+              <div class="grid grid-cols-[34px_minmax(0,1fr)_auto] items-center gap-3 py-3"><span class="grid h-8 w-8 place-items-center rounded-lg bg-amber-50 text-amber-600 dark:bg-amber-500/10"><i data-lucide="package-check" class="h-4 w-4"></i></span><div class="min-w-0"><b class="block text-[9px]" data-i18n="vehicleReceived">Vehicle received</b><span class="mt-1 block truncate text-[8px] text-slate-400">Honda Vezel 2020 · Kabul Main</span></div><time class="font-sans text-[8px] text-slate-400">1h</time></div>
+              <div class="grid grid-cols-[34px_minmax(0,1fr)_auto] items-center gap-3 py-3"><span class="grid h-8 w-8 place-items-center rounded-lg bg-violet-50 text-violet-600 dark:bg-violet-500/10"><i data-lucide="calendar-check-2" class="h-4 w-4"></i></span><div class="min-w-0"><b class="block text-[9px]" data-i18n="reservationCreated">Reservation created</b><span class="mt-1 block truncate text-[8px] text-slate-400">Nissan Patrol 2022 · Ahmad Rahimi</span></div><time class="font-sans text-[8px] text-slate-400">2h</time></div>
+            </div>
+          </article>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <div id="overlay" class="fixed inset-0 z-40 hidden bg-slate-950/40 backdrop-blur-[1px] lg:hidden"></div>
+  <div id="quickMenu" class="fixed end-5 top-[74px] z-[70] hidden w-52 overflow-hidden rounded-2xl border border-slate-200 bg-white p-2 shadow-floating dark:border-slate-700 dark:bg-slate-900">
+    <button class="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-start text-[10px] font-semibold hover:bg-slate-50 dark:hover:bg-slate-800"><span class="grid h-7 w-7 place-items-center rounded-lg bg-blue-50 text-blue-600 dark:bg-blue-500/10"><i data-lucide="user-plus" class="h-3.5 w-3.5"></i></span><span data-i18n="newLead">New lead</span></button>
+    <button class="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-start text-[10px] font-semibold hover:bg-slate-50 dark:hover:bg-slate-800"><span class="grid h-7 w-7 place-items-center rounded-lg bg-violet-50 text-violet-600 dark:bg-violet-500/10"><i data-lucide="car-front" class="h-3.5 w-3.5"></i></span><span data-i18n="addVehicle">Add vehicle</span></button>
+    <button class="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-start text-[10px] font-semibold hover:bg-slate-50 dark:hover:bg-slate-800"><span class="grid h-7 w-7 place-items-center rounded-lg bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10"><i data-lucide="circle-dollar-sign" class="h-3.5 w-3.5"></i></span><span data-i18n="recordPayment">Record payment</span></button>
+    <button class="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-start text-[10px] font-semibold hover:bg-slate-50 dark:hover:bg-slate-800"><span class="grid h-7 w-7 place-items-center rounded-lg bg-amber-50 text-amber-600 dark:bg-amber-500/10"><i data-lucide="receipt" class="h-3.5 w-3.5"></i></span><span data-i18n="newExpense">New expense</span></button>
+  </div>
+
+  <script>
+    const T = {
+      en: {
+        search:'Search CarFlow',systemHealthy:'System healthy',orgAdmin:'Organization admin',dashboard:'Dashboard',liveView:'Live view',subtitle:'Operational command center across sales, inventory and finance',allBranches:'All branches',quick:'Quick action',todayOverview:"Today's overview",goodEvening:'Good evening',attention:'Your operations are healthy, but 3 areas need attention.',today:'Today',week:'This week',month:'This month',overdueReceivables:'overdue receivables',review:'Review',agingVehicles:'vehicles over 90 days',agingRisk:'$142K capital tied in aging stock',inspect:'Inspect',unread:'unread conversations',responseTime:'Median response time 8 minutes',inbox:'Inbox',moneyIn:'Money in',vsPrevious:'vs previous period',availableVehicles:'Available vehicles',inventoryValue:'Inventory value',confirmedSales:'Confirmed sales',grossProfit:'Gross profit',receivable:'Accounts receivable',overdue:'overdue',salesPerformance:'Sales & profitability',salesSub:'Confirmed sales, gross profit and margin trend',sales:'Sales',last6:'Last 6 months',salesValue:'Sales value',margin:'Gross margin',inventoryHealth:'Inventory health',inventorySub:'Live status of current vehicle stock',available:'Available',reserved:'Reserved',preparation:'Preparation',soldPending:'Sold / pending',turnover:'Turnover 41 days',pipeline:'Sales pipeline',pipelineSub:'Live CRM funnel with conversion',viewCrm:'View CRM',newLeads:'New leads',qualified:'Qualified',quotations:'Quotations',reservations:'Reservations',conversion:'Lead conversion rate',aging:'Inventory aging',agingSub:'Vehicles by days in inventory',cashPosition:'Cash & bank position',cashSub:'Balances by account native currency',accounts:'Accounts',cash:'Cash',bank:'Bank',payable:'Payable',expenses:'Expenses',branchPerformance:'Branch performance',branchSub:'Sales, margin and current inventory',viewReport:'View report',branch:'Branch',revenue:'Revenue',inventory:'Inventory',trend:'Trend',recentActivity:'Recent operations',activitySub:'Latest business events and audit signals',auditLog:'Audit log',saleConfirmed:'Sale confirmed',paymentRecorded:'Customer payment recorded',vehicleReceived:'Vehicle received',reservationCreated:'Reservation created',newLead:'New lead',addVehicle:'Add vehicle',recordPayment:'Record payment',newExpense:'New expense',main:'MAIN',operations:'OPERATIONS',finance:'FINANCE & REPORTS',admin:'ADMINISTRATION',leads:'Leads & CRM',vehiclesNav:'Vehicles',purchases:'Purchases',suppliers:'Suppliers',customers:'Customers',payments:'Payments',accounting:'Accounting',conversations:'Conversations',documents:'Documents',branches:'Branches',users:'Users & roles',settings:'Settings'
+      },
+      fa: {
+        search:'جستجو در CarFlow',systemHealthy:'سیستم فعال است',orgAdmin:'مدیر سازمان',dashboard:'داشبورد',liveView:'نمای زنده',subtitle:'مرکز عملیاتی فروش، موجودی و امور مالی',allBranches:'همه شعبه‌ها',quick:'اقدام سریع',todayOverview:'نمای کلی امروز',goodEvening:'عصر بخیر',attention:'عملیات شما سالم است، اما ۳ بخش نیاز به توجه دارد.',today:'امروز',week:'این هفته',month:'این ماه',overdueReceivables:'مطالبات سررسید گذشته',review:'بررسی',agingVehicles:'موتر بیشتر از ۹۰ روز',agingRisk:'۱۴۲ هزار دالر سرمایه در موجودی قدیمی',inspect:'بررسی',unread:'گفتگوی خوانده‌نشده',responseTime:'میانگین زمان پاسخ ۸ دقیقه',inbox:'پیام‌ها',moneyIn:'ورودی پول',vsPrevious:'نسبت به دوره قبلی',availableVehicles:'موترهای موجود',inventoryValue:'ارزش موجودی',confirmedSales:'فروش‌های تأییدشده',grossProfit:'سود ناخالص',receivable:'حساب‌های دریافتنی',overdue:'سررسید گذشته',salesPerformance:'فروش و سودآوری',salesSub:'روند فروش تأییدشده، سود ناخالص و حاشیه سود',sales:'فروش',last6:'۶ ماه اخیر',salesValue:'ارزش فروش',margin:'حاشیه سود',inventoryHealth:'سلامت موجودی',inventorySub:'وضعیت زنده موجودی فعلی موترها',available:'موجود',reserved:'رزرو شده',preparation:'آماده‌سازی',soldPending:'فروخته / در انتظار',turnover:'گردش موجودی ۴۱ روز',pipeline:'روند فروش',pipelineSub:'قیف زنده CRM و نرخ تبدیل',viewCrm:'مشاهده CRM',newLeads:'سرنخ جدید',qualified:'واجد شرایط',quotations:'پیشنهاد قیمت',reservations:'رزروها',conversion:'نرخ تبدیل سرنخ',aging:'عمر موجودی',agingSub:'موترها بر اساس روزهای موجودی',cashPosition:'وضعیت نقد و بانک',cashSub:'موجودی حساب‌ها بر اساس ارز اصلی',accounts:'حساب‌ها',cash:'نقد',bank:'بانک',payable:'پرداختنی',expenses:'مصارف',branchPerformance:'عملکرد شعبه‌ها',branchSub:'فروش، حاشیه سود و موجودی فعلی',viewReport:'مشاهده گزارش',branch:'شعبه',revenue:'درآمد فروش',inventory:'موجودی',trend:'روند',recentActivity:'عملیات اخیر',activitySub:'آخرین رویدادهای کاری و حسابرسی',auditLog:'گزارش حسابرسی',saleConfirmed:'فروش تأیید شد',paymentRecorded:'پرداخت مشتری ثبت شد',vehicleReceived:'موتر دریافت شد',reservationCreated:'رزرو ایجاد شد',newLead:'سرنخ جدید',addVehicle:'افزودن موتر',recordPayment:'ثبت پرداخت',newExpense:'ثبت مصرف',main:'اصلی',operations:'عملیات',finance:'مالی و گزارش‌ها',admin:'مدیریت',leads:'سرنخ‌ها و CRM',vehiclesNav:'موترها',purchases:'خریدها',suppliers:'فروشندگان',customers:'مشتریان',payments:'پرداخت‌ها',accounting:'حسابداری',conversations:'گفتگوها',documents:'اسناد',branches:'شعبه‌ها',users:'کاربران و نقش‌ها',settings:'تنظیمات'
+      },
+      ps: {
+        search:'په CarFlow کې لټون',systemHealthy:'سیسټم فعال دی',orgAdmin:'د ادارې مدیر',dashboard:'ډشبورډ',liveView:'ژوندی لید',subtitle:'د خرڅلاو، موجودي او مالي چارو عملیاتي مرکز',allBranches:'ټولې څانګې',quick:'چټک اقدام',todayOverview:'د نن ورځې لنډیز',goodEvening:'ماښام مو پخیر',attention:'عمليات سم روان دي، خو ۳ برخې پاملرنې ته اړتیا لري.',today:'نن',week:'دا اونۍ',month:'دا میاشت',overdueReceivables:'ځنډېدلې ترلاسه کېدونکې پیسې',review:'کتنه',agingVehicles:'له ۹۰ ورځو زاړه موټرونه',agingRisk:'۱۴۲ زره ډالر په زاړه سټاک کې بند دي',inspect:'وګورئ',unread:'نا لوستل شوې خبرې',responseTime:'منځنی د ځواب وخت ۸ دقیقې',inbox:'پیغامونه',moneyIn:'راواردې پیسې',vsPrevious:'د تېرې مودې په پرتله',availableVehicles:'موجود موټرونه',inventoryValue:'د موجودي ارزښت',confirmedSales:'تایید شوي خرڅلاو',grossProfit:'ناخالصه ګټه',receivable:'ترلاسه کېدونکي حسابونه',overdue:'ځنډېدلي',salesPerformance:'خرڅلاو او ګټورتیا',salesSub:'د تایید شوي خرڅلاو، ناخالصې ګټې او مارجن بهیر',sales:'خرڅلاو',last6:'وروستۍ ۶ میاشتې',salesValue:'د خرڅلاو ارزښت',margin:'د ګټې کچه',inventoryHealth:'د موجودي روغتیا',inventorySub:'د اوسني موټر سټاک ژوندی وضعیت',available:'موجود',reserved:'ریزرف',preparation:'چمتووالی',soldPending:'پلورل شوی / انتظار',turnover:'د موجودي گردش ۴۱ ورځې',pipeline:'د خرڅلاو بهیر',pipelineSub:'ژوندی CRM فنل او بدلون',viewCrm:'CRM وګورئ',newLeads:'نوي لیډونه',qualified:'وړ',quotations:'نرخ پاڼې',reservations:'ریزرفونه',conversion:'د لیډ د بدلېدو کچه',aging:'د موجودي عمر',agingSub:'موټرونه د موجودي د ورځو له مخې',cashPosition:'د نغدو او بانک وضعیت',cashSub:'بیلانسونه د حساب په اصلي اسعارو',accounts:'حسابونه',cash:'نغدي',bank:'بانک',payable:'ورکړې',expenses:'لګښتونه',branchPerformance:'د څانګو فعالیت',branchSub:'خرڅلاو، مارجن او اوسنی سټاک',viewReport:'راپور وګورئ',branch:'څانګه',revenue:'عواید',inventory:'موجودي',trend:'بهیر',recentActivity:'وروستي عملیات',activitySub:'وروستي سوداګریز او د پلټنې بدلونونه',auditLog:'د پلټنې ریکارډ',saleConfirmed:'خرڅلاو تایید شو',paymentRecorded:'د پیرودونکي تادیه ثبت شوه',vehicleReceived:'موټر ترلاسه شو',reservationCreated:'ریزرف جوړ شو',newLead:'نوی لیډ',addVehicle:'موټر اضافه کړئ',recordPayment:'تادیه ثبت کړئ',newExpense:'نوی لګښت',main:'اصلي',operations:'عملیات',finance:'مالي او راپورونه',admin:'اداره',leads:'لیډونه او CRM',vehiclesNav:'موټرونه',purchases:'پېرودونه',suppliers:'عرضه کوونکي',customers:'پیرودونکي',payments:'تادیات',accounting:'حسابداري',conversations:'خبرې',documents:'اسناد',branches:'څانګې',users:'کارنان او رولونه',settings:'تنظیمات'
+      }
+    };
+
+    const navGroups = [
+      ['main', [ ['dashboard','layout-dashboard'], ['leads','users-round'], ['sales','badge-dollar-sign'] ]],
+      ['operations', [ ['inventory','boxes'], ['vehiclesNav','car-front'], ['purchases','shopping-cart'], ['suppliers','warehouse'], ['customers','contact'] ]],
+      ['finance', [ ['payments','circle-dollar-sign'], ['expenses','receipt'], ['accounting','chart-no-axes-combined'], ['conversations','messages-square'], ['documents','files'] ]],
+      ['admin', [ ['branches','building-2'], ['users','shield-user'], ['settings','settings-2'] ]]
+    ];
+
+    let currentLang = localStorage.getItem('carflow-lang') || 'en';
+    let salesChart, inventoryRadial, agingChart;
+
+    function renderNav() {
+      const nav = document.querySelector('#nav');
+      nav.innerHTML = '';
+      navGroups.forEach(([title, items]) => {
+        const label = document.createElement('div');
+        label.className = 'px-3 pb-2 pt-4 text-[9px] font-extrabold uppercase tracking-[.12em] text-slate-400';
+        label.textContent = T[currentLang][title];
+        nav.appendChild(label);
+        items.forEach(([key, icon]) => {
+          const active = key === 'dashboard';
+          const b = document.createElement('button');
+          b.className = `group mb-1 flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-start text-[11px] font-semibold transition ${active ? 'bg-brand-50 text-brand-600 dark:bg-blue-500/10 dark:text-blue-300' : 'text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'}`;
+          b.innerHTML = `<span class="grid h-7 w-7 shrink-0 place-items-center rounded-lg ${active ? 'bg-white text-brand-600 shadow-sm dark:bg-slate-900' : 'text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200'}"><i data-lucide="${icon}" class="h-4 w-4"></i></span><span class="flex-1">${T[currentLang][key]}</span>${key === 'conversations' ? '<span class="rounded-full bg-rose-50 px-2 py-0.5 font-sans text-[8px] font-black text-rose-600 dark:bg-rose-500/10">12</span>' : ''}`;
+          nav.appendChild(b);
+        });
+      });
+      lucide.createIcons();
+    }
+
+    function applyLang(lang) {
+      currentLang = lang;
+      localStorage.setItem('carflow-lang', lang);
+      document.documentElement.lang = lang;
+      document.documentElement.dir = lang === 'en' ? 'ltr' : 'rtl';
+      document.querySelector('#lang').value = lang;
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.dataset.i18n;
+        if (T[lang][key]) el.textContent = T[lang][key];
+      });
+      renderNav();
+      renderCharts();
+    }
+
+    function chartPalette() {
+      const dark = document.documentElement.classList.contains('dark');
+      return { dark, text: dark ? '#94A3B8' : '#667085', grid: dark ? '#1E293B' : '#EEF2F6', bg: dark ? '#0F172A' : '#FFFFFF' };
+    }
+
+    function destroyCharts() {
+      [salesChart, inventoryRadial, agingChart].forEach(ch => { if (ch) { try { ch.destroy(); } catch(e) {} } });
+    }
+
+    function renderCharts() {
+      if (!window.ApexCharts) return;
+      destroyCharts();
+      const c = chartPalette();
+      const months = currentLang === 'en' ? ['Mar','Apr','May','Jun','Jul','Aug'] : currentLang === 'fa' ? ['مار','اپر','می','جون','جولای','اگست'] : ['مارچ','اپرېل','مې','جون','جولای','اګست'];
+      const salesLabel = T[currentLang].sales;
+      const profitLabel = T[currentLang].grossProfit;
+      const marginLabel = T[currentLang].margin;
+
+      salesChart = new ApexCharts(document.querySelector('#salesChart'), {
+        chart: { height: 300, type: 'line', stacked: false, toolbar: { show: true, tools: { download: true, selection: false, zoom: false, zoomin: false, zoomout: false, pan: false, reset: false } }, fontFamily: getComputedStyle(document.body).fontFamily, foreColor: c.text },
+        series: [
+          { name: salesLabel, type: 'column', data: [62,78,70,96,88,110] },
+          { name: profitLabel, type: 'area', data: [14,18,17,24,21,28] },
+          { name: marginLabel, type: 'line', data: [19,21,20,23,21,25] }
+        ],
+        colors: ['#2F6FED','#7C5CFC','#12B76A'],
+        stroke: { width: [0, 2.3, 2.4], curve: 'smooth' },
+        fill: { type: ['solid','gradient','solid'], gradient: { shadeIntensity: .2, opacityFrom: .34, opacityTo: .02, stops: [0,95,100] } },
+        plotOptions: { bar: { columnWidth: '38%', borderRadius: 5 } },
+        dataLabels: { enabled: false },
+        markers: { size: [0,0,3], strokeWidth: 2, hover: { size: 5 } },
+        grid: { borderColor: c.grid, strokeDashArray: 4, padding: { left: 4, right: 6 } },
+        legend: { show: false },
+        xaxis: { categories: months, axisBorder: { show: false }, axisTicks: { show: false }, labels: { style: { fontSize: '9px' } } },
+        yaxis: [
+          { min: 0, max: 120, tickAmount: 4, labels: { formatter: v => '$' + Math.round(v) + 'k', style: { fontSize: '9px' } } },
+          { opposite: true, min: 0, max: 30, tickAmount: 3, labels: { formatter: v => Math.round(v) + '%', style: { fontSize: '9px' } } }
+        ],
+        tooltip: { shared: true, intersect: false, theme: c.dark ? 'dark' : 'light', y: { formatter: (v,{seriesIndex}) => seriesIndex === 2 ? v.toFixed(1)+'%' : '$'+v+'k' } }
+      });
+      salesChart.render();
+
+      inventoryRadial = new ApexCharts(document.querySelector('#inventoryRadial'), {
+        chart: { type: 'radialBar', height: 170, sparkline: { enabled: true }, fontFamily: getComputedStyle(document.body).fontFamily },
+        series: [67],
+        colors: ['#2F6FED'],
+        plotOptions: { radialBar: { startAngle: -135, endAngle: 135, hollow: { size: '63%' }, track: { background: c.dark ? '#1E293B' : '#EEF2F6', strokeWidth: '100%' }, dataLabels: { name: { show: true, offsetY: 19, color: c.text, fontSize: '9px' }, value: { offsetY: -11, fontSize: '24px', fontWeight: 800, color: c.dark ? '#F8FAFC' : '#172033', formatter: () => '126' } } } },
+        stroke: { lineCap: 'round' },
+        labels: [T[currentLang].inventory]
+      });
+      inventoryRadial.render();
+
+      agingChart = new ApexCharts(document.querySelector('#agingChart'), {
+        chart: { type: 'bar', height: 210, toolbar: { show: false }, fontFamily: getComputedStyle(document.body).fontFamily, foreColor: c.text },
+        series: [{ name: T[currentLang].inventory, data: [58,32,19,7] }],
+        colors: ['#2F6FED','#5B8DEF','#F59E0B','#F04438'],
+        plotOptions: { bar: { distributed: true, horizontal: true, borderRadius: 5, barHeight: '48%' } },
+        dataLabels: { enabled: true, offsetX: 6, style: { fontSize: '9px', fontWeight: 700, colors: [c.dark ? '#CBD5E1' : '#475467'] } },
+        xaxis: { categories: ['0–30','31–60','61–90','90+'], labels: { show: false }, axisBorder: { show: false }, axisTicks: { show: false } },
+        yaxis: { labels: { style: { fontSize: '9px' } } },
+        grid: { show: false }, legend: { show: false }, tooltip: { theme: c.dark ? 'dark':'light' }
+      });
+      agingChart.render();
+    }
+
+    document.querySelector('#lang').addEventListener('change', e => applyLang(e.target.value));
+    document.querySelector('#themeBtn').addEventListener('click', () => {
+      document.documentElement.classList.toggle('dark');
+      localStorage.setItem('carflow-theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+      renderCharts();
+      lucide.createIcons();
+    });
+
+    const sidebar = document.querySelector('#sidebar');
+    const overlay = document.querySelector('#overlay');
+    document.querySelector('#menuBtn').addEventListener('click', () => { sidebar.classList.add('open'); overlay.classList.remove('hidden'); });
+    overlay.addEventListener('click', () => { sidebar.classList.remove('open'); overlay.classList.add('hidden'); });
+
+    document.querySelector('#quickBtn').addEventListener('click', e => { e.stopPropagation(); document.querySelector('#quickMenu').classList.toggle('hidden'); });
+    document.addEventListener('click', e => { const q = document.querySelector('#quickMenu'); if (!q.contains(e.target) && e.target !== document.querySelector('#quickBtn')) q.classList.add('hidden'); });
+
+    document.querySelectorAll('.date-btn').forEach(btn => btn.addEventListener('click', () => {
+      document.querySelectorAll('.date-btn').forEach(x => x.className = 'date-btn rounded-lg px-3.5 py-2 text-[10px] font-semibold text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800');
+      btn.className = 'date-btn rounded-lg bg-brand-50 px-3.5 py-2 text-[10px] font-bold text-brand-600 dark:bg-blue-500/10 dark:text-blue-300';
+    }));
+
+    if (localStorage.getItem('carflow-theme') === 'dark') document.documentElement.classList.add('dark');
+    applyLang(currentLang);
+    lucide.createIcons();
+  </script>
+</body>
+</html>

@@ -12,7 +12,7 @@ from apps.communications.webhooks import meta_webhook
 
 urlpatterns = [
     path("", dashboard, name="home"),
-    path("accounts/", include("apps.accounts.urls")),
+    path("accounts/", include("apps.accounts.urls", namespace="accounts")),
     path("vehicles/", include("apps.vehicles.urls")),
     path("inventory/", include("apps.inventory.urls")),
     path("suppliers/", include("apps.suppliers.urls")),

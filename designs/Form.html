@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="en" dir="ltr" class="h-full bg-slate-50">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CarFlow — Add Vehicle</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Arabic:wght@400;500;600;700;800&family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50:'#fff8eb',100:'#fdefc8',200:'#fbdc88',300:'#f7c34b',400:'#f3aa20',500:'#e8920b',600:'#c56e06',700:'#9e5008',800:'#813f0d',900:'#6b3510'
+            }
+          },
+          boxShadow: {
+            soft:'0 1px 2px rgba(16,24,40,.03),0 10px 30px rgba(16,24,40,.05)',
+            lift:'0 20px 45px rgba(16,24,40,.10)'
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body{font-family:Inter,system-ui,sans-serif}
+    html[lang="fa"] body{font-family:Vazirmat,Tahoma,sans-serif}
+    html[lang="ps"] body{font-family:"Noto Sans Arabic",Tahoma,sans-serif}
+    .field{width:100%;border:1px solid #cbd5e1;background:#f8fafc;border-radius:.85rem;padding:.78rem .9rem;color:#1e293b;font-size:.875rem;outline:none;transition:.18s}
+    .field:focus{border-color:#e8920b;background:#fff;box-shadow:0 0 0 4px rgba(232,146,11,.12)}
+    .dark .field{background:#0f172a;border-color:#334155;color:#e2e8f0}
+    .dark .field:focus{background:#111827;border-color:#f59e0b}
+    .label{display:flex;align-items:center;gap:.35rem;margin-bottom:.42rem;font-size:.76rem;font-weight:700;color:#334155}
+    .dark .label{color:#cbd5e1}
+    .help{margin-top:.36rem;font-size:.68rem;line-height:1.45;color:#64748b}
+    .dark .help{color:#94a3b8}
+    .section-card{border:1px solid #e2e8f0;background:#fff;border-radius:1rem;box-shadow:0 1px 2px rgba(16,24,40,.03);overflow:hidden}
+    .dark .section-card{background:#0f172a;border-color:#1e293b}
+    .section-head{display:flex;gap:.75rem;align-items:flex-start;padding:1rem 1.1rem;border-bottom:1px solid #f1f5f9}
+    .dark .section-head{border-color:#1e293b}
+    select.field{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%2364758b' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3E%3C/svg%3E");background-repeat:no-repeat;background-size:1rem;background-position:right .8rem center;padding-right:2.4rem}
+    html[dir="rtl"] select.field{background-position:left .8rem center;padding-right:.9rem;padding-left:2.4rem}
+    .required{color:#dc2626}
+    .option-pill{border:1px solid #e2e8f0;background:#fff;border-radius:.75rem;padding:.7rem .8rem;font-size:.78rem;font-weight:700;color:#475569;transition:.15s}
+    .option-pill:hover{border-color:#f0b429;background:#fffaf0}
+    .option-pill.active{border-color:#e8920b;background:#fff8eb;color:#9e5008;box-shadow:0 0 0 3px rgba(232,146,11,.08)}
+    .dark .option-pill{border-color:#334155;background:#111827;color:#cbd5e1}
+    .dark .option-pill.active{border-color:#f59e0b;background:#3a2607;color:#fde68a}
+    .fade{animation:fade .18s ease}
+    @keyframes fade{from{opacity:.3;transform:translateY(3px)}to{opacity:1;transform:none}}
+  </style>
+</head>
+<body class="min-h-full bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
+  <header class="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur dark:border-slate-800 dark:bg-slate-950/90">
+    <div class="mx-auto flex h-16 max-w-[1600px] items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+      <div class="flex min-w-0 items-center gap-3">
+        <a href="#" class="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-slate-200 bg-white text-slate-600 shadow-sm hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300" aria-label="Back">
+          <svg class="h-5 w-5 rtl:rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m15 18-6-6 6-6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <div class="min-w-0">
+          <div class="flex items-center gap-2 text-[11px] font-semibold text-slate-400">
+            <span data-t="vehicles">Vehicles</span><span>/</span><span data-t="addVehicle">Add vehicle</span>
+          </div>
+          <h1 class="truncate text-[17px] font-extrabold tracking-tight text-slate-900 dark:text-white" data-t="pageTitle">Register new vehicle</h1>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <select id="lang" class="h-10 rounded-xl border border-slate-200 bg-white px-3 text-xs font-bold text-slate-700 outline-none dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200">
+          <option value="en">English</option><option value="fa">دری</option><option value="ps">پښتو</option>
+        </select>
+        <button id="theme" class="grid h-10 w-10 place-items-center rounded-xl border border-slate-200 bg-white text-slate-600 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300" aria-label="Theme">
+          <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 3v2m0 14v2M3 12h2m14 0h2M5.6 5.6 7 7m10 10 1.4 1.4M18.4 5.6 17 7M7 17l-1.4 1.4" stroke-width="1.7" stroke-linecap="round"/><circle cx="12" cy="12" r="4" stroke-width="1.7"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="mx-auto max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8">
+    <div class="mb-5 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+      <div>
+        <p class="text-xs font-semibold uppercase tracking-[.15em] text-brand-600" data-t="eyebrow">VEHICLE REGISTRY</p>
+        <h2 class="mt-1 text-2xl font-extrabold tracking-tight text-slate-950 dark:text-white" data-t="heading">Vehicle details</h2>
+        <p class="mt-1 max-w-2xl text-sm text-slate-500 dark:text-slate-400" data-t="subheading">Capture identity, registration, specifications and branch assignment. Inventory status is managed separately.</p>
+      </div>
+      <div class="flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-semibold text-emerald-700 dark:border-emerald-900/50 dark:bg-emerald-950/30 dark:text-emerald-300">
+        <span class="relative flex h-2 w-2"><span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-50"></span><span class="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span></span>
+        <span data-t="tenantSecure">Branch list restricted to your company</span>
+      </div>
+    </div>
+
+    <div class="grid gap-5 xl:grid-cols-[minmax(0,1fr)_340px]">
+      <form id="vehicleForm" class="space-y-5" novalidate>
+        <!-- Identity -->
+        <section class="section-card">
+          <div class="section-head">
+            <div class="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-brand-50 text-brand-700 dark:bg-brand-500/10 dark:text-brand-300">
+              <svg class="h-[18px] w-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 7h16v10H4zM7 10h2m6 0h2M7 14h10" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div>
+              <h3 class="text-sm font-extrabold" data-t="identityTitle">Vehicle identity</h3>
+              <p class="mt-1 text-xs text-slate-500 dark:text-slate-400" data-t="identitySub">Core identifiers used to uniquely recognize the vehicle.</p>
+            </div>
+          </div>
+          <div class="grid gap-4 p-4 sm:grid-cols-2 xl:grid-cols-3">
+            <div class="sm:col-span-2 xl:col-span-2">
+              <label class="label" for="vin"><span data-t="vin">VIN</span><span class="required">*</span><span class="ms-auto text-[10px] font-semibold text-slate-400"><span id="vinCount">0</span>/17</span></label>
+              <div class="relative">
+                <input id="vin" maxlength="17" autocomplete="off" spellcheck="false" class="field pe-11 font-mono uppercase tracking-[.13em]" placeholder="JTDBR32E720123456" />
+                <span id="vinState" class="absolute inset-y-0 end-3 grid place-items-center text-slate-300">
+                  <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9" stroke-width="1.7"/><path d="M12 8v4m0 4h.01" stroke-width="1.7" stroke-linecap="round"/></svg>
+                </span>
+              </div>
+              <p class="help" data-t="vinHelp">17-character vehicle identification number. VIN is unique within your company.</p>
+            </div>
+            <div>
+              <label class="label" for="chassis" data-t="chassis">Chassis number</label>
+              <input id="chassis" class="field" placeholder="CHS-00093843" />
+              <p class="help" data-t="chassisHelp">Chassis or frame number.</p>
+            </div>
+            <div>
+              <label class="label" for="engine" data-t="engine">Engine number</label>
+              <input id="engine" class="field" placeholder="ENG-42A781992" />
+              <p class="help" data-t="engineHelp">Engine serial or identification number.</p>
+            </div>
+            <div>
+              <label class="label" for="plate" data-t="plate">Plate number</label>
+              <input id="plate" class="field" placeholder="KBL-45871" />
+              <p class="help" data-t="plateHelp">Current registration plate or number plate.</p>
+            </div>
+            <div>
+              <label class="label" for="registration" data-t="registration">Registration number</label>
+              <input id="registration" class="field" placeholder="REG-2026-00184" />
+              <p class="help" data-t="registrationHelp">Official registration or document reference.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Make model -->
+        <section class="section-card">
+          <div class="section-head">
+            <div class="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-300">
+              <svg class="h-[19px] w-[19px]" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m5 17-2-1v-4l2-5h14l2 5v4l-2 1M7 15h.01M17 15h.01M5 12h14M6 17v2M18 17v2" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div>
+              <h3 class="text-sm font-extrabold" data-t="basicTitle">Make & model</h3>
+              <p class="mt-1 text-xs text-slate-500 dark:text-slate-400" data-t="basicSub">Describe the vehicle as it appears in inventory and sales records.</p>
+            </div>
+          </div>
+          <div class="grid gap-4 p-4 sm:grid-cols-2 xl:grid-cols-4">
+            <div>
+              <label class="label" for="make"><span data-t="make">Make</span><span class="required">*</span></label>
+              <input id="make" class="field" placeholder="Toyota" />
+              <p class="help" data-t="makeHelp">Manufacturer or brand.</p>
+            </div>
+            <div>
+              <label class="label" for="model"><span data-t="model">Model</span><span class="required">*</span></label>
+              <input id="model" class="field" placeholder="Land Cruiser" />
+              <p class="help" data-t="modelHelp">Vehicle model name or series.</p>
+            </div>
+            <div>
+              <label class="label" for="variant" data-t="variant">Model variant</label>
+              <input id="variant" class="field" placeholder="VX-R" />
+              <p class="help" data-t="variantHelp">Trim, variant or package name.</p>
+            </div>
+            <div>
+              <label class="label" for="year"><span data-t="year">Year</span><span class="required">*</span></label>
+              <input id="year" type="number" min="1900" max="2100" class="field" placeholder="2022" />
+              <p class="help" data-t="yearHelp">Model year from vehicle registration.</p>
+            </div>
+            <div>
+              <label class="label" for="color" data-t="color">Color</label>
+              <input id="color" class="field" placeholder="Pearl White" />
+              <p class="help" data-t="colorHelp">Paint or body color.</p>
+            </div>
+            <div>
+              <label class="label" for="mileage" data-t="mileage">Mileage (km)</label>
+              <div class="relative"><input id="mileage" type="number" min="0" value="0" class="field pe-12" /><span class="pointer-events-none absolute inset-y-0 end-3 flex items-center text-xs font-bold text-slate-400">km</span></div>
+              <p class="help" data-t="mileageHelp">Current odometer reading.</p>
+            </div>
+            <div>
+              <label class="label" for="country" data-t="country">Country of origin</label>
+              <select id="country" class="field">
+                <option value="">Select country</option><option>Japan</option><option>Germany</option><option>United States</option><option>South Korea</option><option>China</option><option>United Arab Emirates</option><option>Afghanistan</option>
+              </select>
+              <p class="help" data-t="countryHelp">Country where vehicle was built or imported from.</p>
+            </div>
+            <div>
+              <label class="label" for="firstReg" data-t="firstReg">First registration date</label>
+              <input id="firstReg" type="date" class="field" />
+              <p class="help" data-t="firstRegHelp">Date of first registration, if known.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Specs -->
+        <section class="section-card">
+          <div class="section-head">
+            <div class="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-violet-50 text-violet-600 dark:bg-violet-500/10 dark:text-violet-300">
+              <svg class="h-[18px] w-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3" stroke-width="1.7"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5v.1h-4v-.1a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1-2.8-2.8.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3v-4h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1L7 4.2l.1.1a1.7 1.7 0 0 0 1.9.3 1.7 1.7 0 0 0 1-1.5V3h4v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.5 1h.1v4h-.1a1.7 1.7 0 0 0-1.5 1Z" stroke-width="1.5" stroke-linejoin="round"/></svg>
+            </div>
+            <div>
+              <h3 class="text-sm font-extrabold" data-t="specTitle">Vehicle specifications</h3>
+              <p class="mt-1 text-xs text-slate-500 dark:text-slate-400" data-t="specSub">Configure body, powertrain, drivetrain and capacity.</p>
+            </div>
+          </div>
+          <div class="space-y-5 p-4">
+            <div>
+              <div class="mb-2 flex items-center justify-between"><label class="label mb-0" data-t="bodyType">Body type</label><span class="text-[10px] font-semibold text-slate-400" data-t="quickSelect">Quick select</span></div>
+              <div id="bodyPills" class="grid grid-cols-2 gap-2 sm:grid-cols-4 xl:grid-cols-8">
+                <button type="button" class="option-pill" data-value="Sedan">Sedan</button><button type="button" class="option-pill" data-value="Hatchback">Hatchback</button><button type="button" class="option-pill active" data-value="SUV">SUV</button><button type="button" class="option-pill" data-value="Pickup">Pickup</button><button type="button" class="option-pill" data-value="Van">Van</button><button type="button" class="option-pill" data-value="Coupe">Coupe</button><button type="button" class="option-pill" data-value="Truck">Truck</button><button type="button" class="option-pill" data-value="Other">Other</button>
+              </div>
+              <input type="hidden" id="bodyType" value="SUV" />
+            </div>
+            <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+              <div><label class="label" for="fuel" data-t="fuel">Fuel type</label><select id="fuel" class="field"><option>Petrol</option><option>Diesel</option><option>Hybrid</option><option>Electric</option><option>LPG</option><option>Other</option></select></div>
+              <div><label class="label" for="transmission" data-t="transmission">Transmission</label><select id="transmission" class="field"><option>Automatic</option><option>Manual</option><option>CVT</option><option>Dual clutch</option><option>Other</option></select></div>
+              <div><label class="label" for="drive" data-t="drive">Drive type</label><select id="drive" class="field"><option>Front-wheel drive</option><option>Rear-wheel drive</option><option>All-wheel drive</option><option>4x4</option><option>Other</option></select></div>
+              <div class="grid grid-cols-2 gap-3"><div><label class="label" for="doors" data-t="doors">Doors</label><input id="doors" type="number" min="0" value="4" class="field" /></div><div><label class="label" for="seats" data-t="seats">Seats</label><input id="seats" type="number" min="0" value="5" class="field" /></div></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Assignment -->
+        <section class="section-card">
+          <div class="section-head">
+            <div class="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-300">
+              <svg class="h-[18px] w-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 21h18M6 21V7l6-4 6 4v14M9 10h.01M15 10h.01M9 14h.01M15 14h.01" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div>
+              <h3 class="text-sm font-extrabold" data-t="assignmentTitle">Branch assignment</h3>
+              <p class="mt-1 text-xs text-slate-500 dark:text-slate-400" data-t="assignmentSub">Assign this vehicle to the correct company branch.</p>
+            </div>
+          </div>
+          <div class="grid gap-4 p-4 sm:grid-cols-2">
+            <div class="max-w-md">
+              <label class="label" for="branch" data-t="branch">Branch</label>
+              <select id="branch" class="field"><option>Kabul Main Branch</option><option>Herat Branch</option><option>Mazar Branch</option></select>
+              <p class="help" data-t="branchHelp">Only branches belonging to the current company are shown.</p>
+            </div>
+            <div class="rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-900/70">
+              <div class="flex items-start gap-3">
+                <div class="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300">
+                  <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m5 12 4 4L19 6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div><p class="text-xs font-bold" data-t="secureAssignment">Secure assignment</p><p class="mt-1 text-[11px] leading-5 text-slate-500 dark:text-slate-400" data-t="secureAssignmentSub">The final system validates that the selected branch belongs to your company before saving.</p></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Notes -->
+        <section class="section-card">
+          <div class="section-head">
+            <div class="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+              <svg class="h-[18px] w-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 3h9l3 3v15H6zM9 11h6M9 15h6M15 3v4h4" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div><h3 class="text-sm font-extrabold" data-t="notesTitle">Internal notes</h3><p class="mt-1 text-xs text-slate-500 dark:text-slate-400" data-t="notesSub">Add condition remarks, damage notes or operational observations.</p></div>
+          </div>
+          <div class="p-4">
+            <label class="label" for="notes" data-t="notes">Notes</label>
+            <textarea id="notes" rows="5" class="field min-h-[130px] resize-y" data-placeholder="notesPlaceholder" placeholder="Any special remarks, damage notes, or internal observations..."></textarea>
+            <div class="mt-2 flex items-center justify-between text-[10px] font-medium text-slate-400"><span data-t="internalOnly">Internal use only</span><span><span id="notesCount">0</span>/1000</span></div>
+          </div>
+        </section>
+
+        <!-- Bottom actions -->
+        <div class="sticky bottom-3 z-20 flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white/95 p-3 shadow-lift backdrop-blur sm:flex-row sm:items-center sm:justify-between dark:border-slate-800 dark:bg-slate-900/95">
+          <div class="flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400"><span class="inline-block h-2 w-2 rounded-full bg-slate-300"></span><span data-t="notSaved">Changes are not saved yet</span></div>
+          <div class="flex gap-2">
+            <button type="button" class="flex-1 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50 sm:flex-none dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200" data-t="cancel">Cancel</button>
+            <button type="submit" class="flex flex-1 items-center justify-center gap-2 rounded-xl bg-brand-500 px-5 py-2.5 text-sm font-extrabold text-white shadow-sm transition hover:bg-brand-600 sm:flex-none">
+              <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12h14M12 5l7 7-7 7" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span data-t="save">Save vehicle</span>
+            </button>
+          </div>
+        </div>
+      </form>
+
+      <!-- Preview -->
+      <aside class="space-y-4 xl:sticky xl:top-[88px] xl:self-start">
+        <section class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-soft dark:border-slate-800 dark:bg-slate-900">
+          <div class="relative h-44 overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-slate-700">
+            <div class="absolute inset-0 opacity-30" style="background-image:radial-gradient(circle at 20% 15%,rgba(255,255,255,.45),transparent 22%),linear-gradient(115deg,transparent 40%,rgba(255,255,255,.08) 40%,transparent 55%)"></div>
+            <div class="absolute inset-x-0 bottom-0 flex h-28 items-end justify-center">
+              <svg class="h-24 w-56 text-white/90" viewBox="0 0 300 130" fill="none" stroke="currentColor"><path d="M55 88 79 48h124l40 40M44 89h209c13 0 23 10 23 23v3H25v-3c0-13 8-23 19-23Z" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="78" cy="113" r="14" stroke-width="5"/><circle cx="224" cy="113" r="14" stroke-width="5"/><path d="M92 51 116 86M191 51l17 35" stroke-width="4"/></svg>
+            </div>
+            <div class="absolute left-4 top-4 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[10px] font-extrabold uppercase tracking-wider text-white backdrop-blur" data-t="livePreview">Live preview</div>
+          </div>
+          <div class="p-4">
+            <div class="flex items-start justify-between gap-3">
+              <div class="min-w-0"><p id="previewTitle" class="truncate text-lg font-extrabold tracking-tight text-slate-950 dark:text-white">2022 Toyota Land Cruiser</p><p id="previewVariant" class="mt-1 text-xs font-semibold text-slate-500 dark:text-slate-400">VX-R · SUV</p></div>
+              <span class="rounded-full bg-blue-50 px-2.5 py-1 text-[10px] font-bold text-blue-700 dark:bg-blue-500/10 dark:text-blue-300" data-t="registry">Registry</span>
+            </div>
+            <div class="mt-4 grid grid-cols-3 gap-2">
+              <div class="rounded-xl bg-slate-50 p-2.5 text-center dark:bg-slate-800/60"><p id="previewMileage" class="text-xs font-extrabold">0 km</p><p class="mt-1 text-[9px] font-semibold uppercase tracking-wider text-slate-400" data-t="mileageShort">Mileage</p></div>
+              <div class="rounded-xl bg-slate-50 p-2.5 text-center dark:bg-slate-800/60"><p id="previewFuel" class="text-xs font-extrabold">Petrol</p><p class="mt-1 text-[9px] font-semibold uppercase tracking-wider text-slate-400" data-t="fuelShort">Fuel</p></div>
+              <div class="rounded-xl bg-slate-50 p-2.5 text-center dark:bg-slate-800/60"><p id="previewDrive" class="text-xs font-extrabold">FWD</p><p class="mt-1 text-[9px] font-semibold uppercase tracking-wider text-slate-400" data-t="driveShort">Drive</p></div>
+            </div>
+            <div class="mt-4 space-y-2 border-t border-slate-100 pt-4 text-xs dark:border-slate-800">
+              <div class="flex justify-between gap-3"><span class="text-slate-500" data-t="vin">VIN</span><strong id="previewVin" class="max-w-[190px] truncate font-mono text-slate-700 dark:text-slate-200">Not entered</strong></div>
+              <div class="flex justify-between gap-3"><span class="text-slate-500" data-t="branch">Branch</span><strong id="previewBranch" class="text-end text-slate-700 dark:text-slate-200">Kabul Main Branch</strong></div>
+              <div class="flex justify-between gap-3"><span class="text-slate-500" data-t="country">Country of origin</span><strong id="previewCountry" class="text-slate-700 dark:text-slate-200">—</strong></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="rounded-2xl border border-slate-200 bg-white p-4 shadow-soft dark:border-slate-800 dark:bg-slate-900">
+          <h3 class="text-sm font-extrabold" data-t="completion">Form completion</h3>
+          <div class="mt-3 h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800"><div id="progress" class="h-full w-[25%] rounded-full bg-gradient-to-r from-brand-400 to-brand-500 transition-all"></div></div>
+          <div class="mt-2 flex items-center justify-between text-[11px]"><span class="text-slate-500" data-t="requiredFields">Required fields</span><strong id="progressText">1 / 4</strong></div>
+          <div class="mt-4 space-y-2">
+            <div class="flex items-center gap-2 text-[11px]"><span id="checkVin" class="grid h-5 w-5 place-items-center rounded-full bg-slate-100 text-slate-400 dark:bg-slate-800">✓</span><span data-t="vinComplete">Valid VIN entered</span></div>
+            <div class="flex items-center gap-2 text-[11px]"><span id="checkMake" class="grid h-5 w-5 place-items-center rounded-full bg-slate-100 text-slate-400 dark:bg-slate-800">✓</span><span data-t="makeComplete">Make entered</span></div>
+            <div class="flex items-center gap-2 text-[11px]"><span id="checkModel" class="grid h-5 w-5 place-items-center rounded-full bg-slate-100 text-slate-400 dark:bg-slate-800">✓</span><span data-t="modelComplete">Model entered</span></div>
+            <div class="flex items-center gap-2 text-[11px]"><span id="checkYear" class="grid h-5 w-5 place-items-center rounded-full bg-slate-100 text-slate-400 dark:bg-slate-800">✓</span><span data-t="yearComplete">Year entered</span></div>
+          </div>
+        </section>
+
+        <section class="rounded-2xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-900/50 dark:bg-amber-950/20">
+          <div class="flex gap-3"><div class="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-300"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 9v4m0 4h.01M10.3 3.6 2.7 17a2 2 0 0 0 1.7 3h15.2a2 2 0 0 0 1.7-3L13.7 3.6a2 2 0 0 0-3.4 0Z" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div><h3 class="text-xs font-extrabold text-amber-900 dark:text-amber-200" data-t="statusNotice">Inventory status is intentionally absent</h3><p class="mt-1 text-[11px] leading-5 text-amber-800/80 dark:text-amber-300/80" data-t="statusNoticeSub">Vehicle status should be managed by inventory workflows, not while registering the vehicle identity.</p></div></div>
+        </section>
+      </aside>
+    </div>
+  </main>
+
+  <div id="toast" class="pointer-events-none fixed bottom-5 left-1/2 z-50 -translate-x-1/2 translate-y-8 rounded-xl bg-slate-950 px-4 py-3 text-sm font-bold text-white opacity-0 shadow-lift transition-all dark:bg-white dark:text-slate-950">Design prototype — no data was saved.</div>
+
+<script>
+const t={
+ en:{vehicles:'Vehicles',addVehicle:'Add vehicle',pageTitle:'Register new vehicle',eyebrow:'VEHICLE REGISTRY',heading:'Vehicle details',subheading:'Capture identity, registration, specifications and branch assignment. Inventory status is managed separately.',tenantSecure:'Branch list restricted to your company',identityTitle:'Vehicle identity',identitySub:'Core identifiers used to uniquely recognize the vehicle.',vin:'VIN',vinHelp:'17-character vehicle identification number. VIN is unique within your company.',chassis:'Chassis number',chassisHelp:'Chassis or frame number.',engine:'Engine number',engineHelp:'Engine serial or identification number.',plate:'Plate number',plateHelp:'Current registration plate or number plate.',registration:'Registration number',registrationHelp:'Official registration or document reference.',basicTitle:'Make & model',basicSub:'Describe the vehicle as it appears in inventory and sales records.',make:'Make',makeHelp:'Manufacturer or brand.',model:'Model',modelHelp:'Vehicle model name or series.',variant:'Model variant',variantHelp:'Trim, variant or package name.',year:'Year',yearHelp:'Model year from vehicle registration.',color:'Color',colorHelp:'Paint or body color.',mileage:'Mileage (km)',mileageHelp:'Current odometer reading.',country:'Country of origin',countryHelp:'Country where vehicle was built or imported from.',firstReg:'First registration date',firstRegHelp:'Date of first registration, if known.',specTitle:'Vehicle specifications',specSub:'Configure body, powertrain, drivetrain and capacity.',bodyType:'Body type',quickSelect:'Quick select',fuel:'Fuel type',transmission:'Transmission',drive:'Drive type',doors:'Doors',seats:'Seats',assignmentTitle:'Branch assignment',assignmentSub:'Assign this vehicle to the correct company branch.',branch:'Branch',branchHelp:'Only branches belonging to the current company are shown.',secureAssignment:'Secure assignment',secureAssignmentSub:'The final system validates that the selected branch belongs to your company before saving.',notesTitle:'Internal notes',notesSub:'Add condition remarks, damage notes or operational observations.',notes:'Notes',notesPlaceholder:'Any special remarks, damage notes, or internal observations...',internalOnly:'Internal use only',notSaved:'Changes are not saved yet',cancel:'Cancel',save:'Save vehicle',livePreview:'Live preview',registry:'Registry',mileageShort:'Mileage',fuelShort:'Fuel',driveShort:'Drive',completion:'Form completion',requiredFields:'Required fields',vinComplete:'Valid VIN entered',makeComplete:'Make entered',modelComplete:'Model entered',yearComplete:'Year entered',statusNotice:'Inventory status is intentionally absent',statusNoticeSub:'Vehicle status should be managed by inventory workflows, not while registering the vehicle identity.'},
+ fa:{vehicles:'موترها',addVehicle:'افزودن موتر',pageTitle:'ثبت موتر جدید',eyebrow:'ثبت موتر',heading:'مشخصات موتر',subheading:'هویت، ثبت، مشخصات فنی و شعبه مربوط به موتر را وارد کنید. وضعیت موجودی جداگانه مدیریت می‌شود.',tenantSecure:'فهرست شعبه‌ها فقط مربوط به شرکت شما است',identityTitle:'هویت موتر',identitySub:'شناسه‌های اصلی برای تشخیص دقیق و یکتای موتر.',vin:'شماره VIN',vinHelp:'شماره شناسایی ۱۷ حرفی موتر. VIN در داخل شرکت شما باید یکتا باشد.',chassis:'شماره شاسی',chassisHelp:'شماره شاسی یا فریم موتر.',engine:'شماره انجین',engineHelp:'شماره سریال یا شناسه انجین.',plate:'نمبر پلیت',plateHelp:'نمبر پلیت یا شماره فعلی ثبت موتر.',registration:'شماره ثبت',registrationHelp:'شماره رسمی ثبت یا مرجع اسناد.',basicTitle:'برند و مدل',basicSub:'موتر را همان‌گونه که در موجودی و فروش نمایش داده می‌شود تعریف کنید.',make:'برند',makeHelp:'شرکت سازنده یا برند موتر.',model:'مدل',modelHelp:'نام مدل یا سری موتر.',variant:'نوع مدل',variantHelp:'تریم، نوع یا بسته تجهیزات.',year:'سال',yearHelp:'سال مدل مطابق اسناد موتر.',color:'رنگ',colorHelp:'رنگ بدنه موتر.',mileage:'کارکرد (کیلومتر)',mileageHelp:'عدد فعلی کیلومترشمار.',country:'کشور مبدأ',countryHelp:'کشوری که موتر در آن ساخته یا از آن وارد شده است.',firstReg:'تاریخ اولین ثبت',firstRegHelp:'تاریخ اولین ثبت موتر، در صورت موجود بودن.',specTitle:'مشخصات فنی موتر',specSub:'نوع بدنه، سوخت، گیربکس، سیستم انتقال و ظرفیت را تنظیم کنید.',bodyType:'نوع بدنه',quickSelect:'انتخاب سریع',fuel:'نوع سوخت',transmission:'گیربکس',drive:'سیستم انتقال',doors:'دروازه',seats:'چوکی',assignmentTitle:'تعیین شعبه',assignmentSub:'موتر را به شعبه درست شرکت اختصاص دهید.',branch:'شعبه',branchHelp:'فقط شعبه‌های متعلق به شرکت فعلی نمایش داده می‌شوند.',secureAssignment:'تخصیص امن',secureAssignmentSub:'سیستم نهایی قبل از ذخیره بررسی می‌کند که شعبه انتخاب‌شده متعلق به شرکت شما باشد.',notesTitle:'یادداشت‌های داخلی',notesSub:'ملاحظات وضعیت، آسیب یا نکات عملیاتی را اضافه کنید.',notes:'یادداشت',notesPlaceholder:'هرگونه ملاحظه، آسیب، یا یادداشت داخلی...',internalOnly:'فقط استفاده داخلی',notSaved:'تغییرات هنوز ذخیره نشده‌اند',cancel:'لغو',save:'ذخیره موتر',livePreview:'پیش‌نمایش زنده',registry:'ثبت',mileageShort:'کارکرد',fuelShort:'سوخت',driveShort:'انتقال',completion:'تکمیل فورم',requiredFields:'فیلدهای ضروری',vinComplete:'VIN معتبر وارد شده',makeComplete:'برند وارد شده',modelComplete:'مدل وارد شده',yearComplete:'سال وارد شده',statusNotice:'وضعیت موجودی عمداً در این فورم نیست',statusNoticeSub:'وضعیت موتر باید از طریق جریان کاری موجودی مدیریت شود، نه هنگام ثبت هویت موتر.'},
+ ps:{vehicles:'موټرونه',addVehicle:'موټر اضافه کړئ',pageTitle:'نوی موټر ثبت کړئ',eyebrow:'د موټر ثبت',heading:'د موټر معلومات',subheading:'د موټر پېژندنه، ثبت، تخنیکي ځانګړتیاوې او څانګه ثبت کړئ. د موجودۍ حالت جلا اداره کېږي.',tenantSecure:'د څانګو لست یوازې ستاسو شرکت پورې محدود دی',identityTitle:'د موټر پېژندنه',identitySub:'هغه اصلي پېژندپاڼې چې موټر پرې په یکتا ډول پېژندل کېږي.',vin:'VIN شمېره',vinHelp:'د موټر ۱۷ تورو پېژندنې شمېره. VIN باید ستاسو په شرکت کې یکتا وي.',chassis:'د چیسس شمېره',chassisHelp:'د چیسس یا فریم شمېره.',engine:'د انجن شمېره',engineHelp:'د انجن سریال یا پېژندنې شمېره.',plate:'د پلیټ شمېره',plateHelp:'اوسنی راجستر شوی نمبر پلیټ.',registration:'د ثبت شمېره',registrationHelp:'رسمي د ثبت یا سند مرجع.',basicTitle:'برانډ او ماډل',basicSub:'موټر هغه ډول تعریف کړئ چې په موجودۍ او خرڅلاو کې ښکاري.',make:'برانډ',makeHelp:'جوړوونکی یا د موټر برانډ.',model:'ماډل',modelHelp:'د موټر ماډل یا لړۍ.',variant:'د ماډل ډول',variantHelp:'ټریم، ډول یا پکېج.',year:'کال',yearHelp:'د ثبت سند مطابق د ماډل کال.',color:'رنګ',colorHelp:'د موټر د بدن رنګ.',mileage:'مزل (کیلومتر)',mileageHelp:'اوسنی اوډومیټر.',country:'د اصل هېواد',countryHelp:'هغه هېواد چې موټر پکې جوړ یا ترې وارد شوی.',firstReg:'د لومړي ثبت نېټه',firstRegHelp:'د لومړي ثبت نېټه، که معلومه وي.',specTitle:'تخنیکي ځانګړتیاوې',specSub:'د بدن ډول، سون توکي، ګیربکس، ډرایو او ظرفیت وټاکئ.',bodyType:'د بدن ډول',quickSelect:'چټک انتخاب',fuel:'د سون ډول',transmission:'ګیربکس',drive:'ډرایو ډول',doors:'دروازې',seats:'څوکۍ',assignmentTitle:'د څانګې ټاکنه',assignmentSub:'موټر د شرکت سمې څانګې ته وټاکئ.',branch:'څانګه',branchHelp:'یوازې د اوسني شرکت څانګې ښودل کېږي.',secureAssignment:'خوندي ټاکنه',secureAssignmentSub:'وروستی سیستم د خوندي کولو مخکې تاییدوي چې ټاکل شوې څانګه ستاسو شرکت پورې اړه لري.',notesTitle:'داخلي یادښتونه',notesSub:'د حالت، زیان یا عملیاتي معلوماتو یادښتونه ولیکئ.',notes:'یادښتونه',notesPlaceholder:'ځانګړي معلومات، زیان یا داخلي یادښتونه...',internalOnly:'یوازې داخلي استعمال',notSaved:'بدلونونه لا نه دي خوندي شوي',cancel:'لغوه',save:'موټر خوندي کړئ',livePreview:'ژوندۍ مخکتنه',registry:'ثبت',mileageShort:'مزل',fuelShort:'سون',driveShort:'ډرایو',completion:'د فورم بشپړتیا',requiredFields:'اړین فیلډونه',vinComplete:'سم VIN داخل شوی',makeComplete:'برانډ داخل شوی',modelComplete:'ماډل داخل شوی',yearComplete:'کال داخل شوی',statusNotice:'د موجودۍ حالت قصداً دلته نشته',statusNoticeSub:'د موټر حالت باید د موجودۍ د کاري بهیر له لارې اداره شي، نه د موټر د پېژندنې د ثبت پر مهال.'}
+};
+
+const $=s=>document.querySelector(s); const $$=s=>document.querySelectorAll(s);
+const lang=$('#lang');
+function applyLang(l){
+  const rtl=l==='fa'||l==='ps'; document.documentElement.lang=l; document.documentElement.dir=rtl?'rtl':'ltr';
+  $$('[data-t]').forEach(el=>{const k=el.dataset.t;if(t[l][k]) el.textContent=t[l][k]});
+  $$('[data-placeholder]').forEach(el=>{const k=el.dataset.placeholder;if(t[l][k]) el.placeholder=t[l][k]});
+}
+lang.addEventListener('change',e=>applyLang(e.target.value)); applyLang('en');
+
+$('#theme').addEventListener('click',()=>document.documentElement.classList.toggle('dark'));
+
+const vin=$('#vin'), make=$('#make'), model=$('#model'), year=$('#year'), mileage=$('#mileage'), fuel=$('#fuel'), drive=$('#drive'), branch=$('#branch'), country=$('#country'), variant=$('#variant');
+function updatePreview(){
+  const y=year.value||'2022', mk=make.value||'Toyota', md=model.value||'Land Cruiser';
+  $('#previewTitle').textContent=`${y} ${mk} ${md}`;
+  $('#previewVariant').textContent=`${variant.value||'VX-R'} · ${$('#bodyType').value}`;
+  $('#previewMileage').textContent=`${Number(mileage.value||0).toLocaleString()} km`;
+  $('#previewFuel').textContent=fuel.value;
+  const map={'Front-wheel drive':'FWD','Rear-wheel drive':'RWD','All-wheel drive':'AWD','4x4':'4x4','Other':'Other'}; $('#previewDrive').textContent=map[drive.value]||drive.value;
+  $('#previewVin').textContent=vin.value||'Not entered'; $('#previewBranch').textContent=branch.value; $('#previewCountry').textContent=country.value||'—';
+  updateProgress();
+}
+[vin,make,model,year,mileage,fuel,drive,branch,country,variant].forEach(x=>x.addEventListener('input',updatePreview));
+
+vin.addEventListener('input',()=>{
+  vin.value=vin.value.toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g,''); $('#vinCount').textContent=vin.value.length;
+  const ok=vin.value.length===17; $('#vinState').innerHTML=ok?'<svg class="h-5 w-5 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9" stroke-width="1.8"/><path d="m8 12 2.5 2.5L16 9" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>':'<svg class="h-5 w-5 text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9" stroke-width="1.7"/><path d="M12 8v4m0 4h.01" stroke-width="1.7" stroke-linecap="round"/></svg>';
+});
+
+$$('#bodyPills .option-pill').forEach(btn=>btn.addEventListener('click',()=>{ $$('#bodyPills .option-pill').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); $('#bodyType').value=btn.dataset.value; updatePreview(); }));
+
+$('#notes').addEventListener('input',e=>{if(e.target.value.length>1000)e.target.value=e.target.value.slice(0,1000);$('#notesCount').textContent=e.target.value.length});
+
+function updateProgress(){
+  const states=[vin.value.length===17,!!make.value.trim(),!!model.value.trim(),!!year.value];
+  const done=states.filter(Boolean).length; $('#progress').style.width=`${done/4*100}%`; $('#progressText').textContent=`${done} / 4`;
+  ['Vin','Make','Model','Year'].forEach((k,i)=>{const el=$('#check'+k);el.className='grid h-5 w-5 place-items-center rounded-full '+(states[i]?'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300':'bg-slate-100 text-slate-400 dark:bg-slate-800')});
+}
+
+$('#vehicleForm').addEventListener('submit',e=>{e.preventDefault(); const toast=$('#toast'); toast.classList.remove('opacity-0','translate-y-8'); setTimeout(()=>toast.classList.add('opacity-0','translate-y-8'),2200)});
+updatePreview();
+</script>
+</body>
+</html>

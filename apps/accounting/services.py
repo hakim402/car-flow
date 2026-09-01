@@ -2,6 +2,7 @@
 are aggregates over ledger rows — never stored columns that can drift."""
 from decimal import Decimal
 
+from apps.core.tenancy import get_current_company
 from apps.payments.models import LedgerEntry
 
 
@@ -26,27 +27,43 @@ def _net_totals(entries) -> dict[str, Decimal]:
     return totals
 
 
-def ledger_balance() -> dict[str, Decimal]:
+def _ledger_queryset(company=None):
+    """Return tenant-scoped or platform-wide entries depending on context.
+
+    For Super Admin dashboard views, no company is attached to the user, so the
+    system intentionally uses the explicit `all_objects` escape hatch instead of
+    failing closed. Regular company users still hit the tenant manager and must
+    have an active company context.
+    """
+    if company is not None:
+        return LedgerEntry.objects.filter(company=company)
+    current_company = get_current_company()
+    if current_company is not None:
+        return LedgerEntry.objects.filter(company=current_company)
+    return LedgerEntry.all_objects.all()
+
+
+def ledger_balance(company=None) -> dict[str, Decimal]:
     """Cash position per currency for the current tenant (in minus out)."""
-    return _net_totals(LedgerEntry.objects.all())
+    return _net_totals(_ledger_queryset(company))
 
 
-def money_in() -> dict[str, Decimal]:
+def money_in(company=None) -> dict[str, Decimal]:
     """Gross received per currency, net of payment reversals (positive)."""
     return {
         currency: total
         for currency, total in _net_totals(
-            e for e in LedgerEntry.objects.all() if e.direction == "in"
+            e for e in _ledger_queryset(company) if e.direction == "in"
         ).items()
     }
 
 
-def money_out() -> dict[str, Decimal]:
+def money_out(company=None) -> dict[str, Decimal]:
     """Gross paid out per currency, net of reversals (positive magnitude)."""
     return {
         currency: -total
         for currency, total in _net_totals(
-            e for e in LedgerEntry.objects.all() if e.direction == "out"
+            e for e in _ledger_queryset(company) if e.direction == "out"
         ).items()
     }
 

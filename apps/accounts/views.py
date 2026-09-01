@@ -65,6 +65,9 @@ def dashboard(request):
             VehicleStock.all_objects,
             Reservation.all_objects,
         )
+        cash_position = ledger_balance(company=None)
+        money_in_total = money_in(company=None)
+        money_out_total = money_out(company=None)
     else:
         lead_qs, sale_qs, customer_qs, stock_qs, reservation_qs = (
             Lead.objects,
@@ -73,6 +76,9 @@ def dashboard(request):
             VehicleStock.objects,
             Reservation.objects,
         )
+        cash_position = ledger_balance(company=request.user.company)
+        money_in_total = money_in(company=request.user.company)
+        money_out_total = money_out(company=request.user.company)
 
     stats = {
         # Inventory state lives on VehicleStock (§8); Vehicle.status is deprecated.
@@ -95,9 +101,9 @@ def dashboard(request):
             "reserved": stats["reserved_vehicles"],
             "sold_pending_delivery": stats["sold_pending_delivery"],
         },
-        "cash_position": ledger_balance(),
-        "money_in": money_in(),
-        "money_out": money_out(),
+        "cash_position": cash_position,
+        "money_in": money_in_total,
+        "money_out": money_out_total,
         "recent_leads": lead_qs.select_related("assigned_to", "customer").order_by("-created_at")[:5],
         "recent_sales": sale_qs.select_related("customer", "vehicle")
         .order_by("-created_at")[:5],
