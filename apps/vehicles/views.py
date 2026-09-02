@@ -96,7 +96,7 @@ def vehicle_detail(request, pk):
             "landed_cost": vehicle_landed_cost(vehicle),
             "cost_form": VehicleCostLineForm(),
             # Gallery + paperwork split on the photo doc type.
-            "photos": [d for d in attachments if d.is_photo],
+            "photos": [d for d in attachments if d.is_photo and d.file_exists],
             "documents": [d for d in attachments if not d.is_photo],
             "can_upload_documents": request.user.has_permission("documents.add"),
             "purchase_lines": purchase_lines,

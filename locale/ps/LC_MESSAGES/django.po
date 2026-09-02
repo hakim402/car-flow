@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: automex-carflow 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-01 19:15+0000\n"
+"POT-Creation-Date: 2026-09-02 10:23+0000\n"
 "PO-Revision-Date: 2026-08-25 14:18+0430\n"
 "Last-Translator: AUTOMEX CarFlow localization team\n"
 "Language-Team: AUTOMEX CarFlow\n"
@@ -78,11 +78,11 @@ msgid "Branch Manager"
 msgstr "د څانګې مدیر"
 
 #: apps/accounts/models.py:21
-#: apps/customers/templates/customers/detail.html:107
+#: apps/customers/templates/customers/detail.html:112
 #: apps/sales/templates/sales/form.html:10
 #: apps/sales/templates/sales/sale_list.html:4
-#: apps/sales/templates/sales/sale_list.html:8 templates/base.html:97
-#: templates/base.html:108
+#: apps/sales/templates/sales/sale_list.html:8 templates/base.html:108
+#: templates/base.html:119
 msgid "Sales"
 msgstr "پلورونه"
 
@@ -91,7 +91,7 @@ msgstr "پلورونه"
 #: apps/inventory/templates/inventory/list.html:10
 #: apps/inventory/templates/inventory/location_list.html:9
 #: apps/sales/templates/sales/sale_detail.html:51
-#: apps/vehicles/templates/vehicles/list.html:10 templates/base.html:75
+#: apps/vehicles/templates/vehicles/list.html:10 templates/base.html:86
 msgid "Inventory"
 msgstr "زېرمه"
 
@@ -181,7 +181,7 @@ msgstr "کاروونکي"
 
 #: apps/branches/models.py:16 apps/communications/models.py:122
 #: apps/communications/models.py:275 apps/customers/models.py:62
-#: apps/documents/models.py:113 apps/expenses/models.py:13
+#: apps/documents/models.py:119 apps/expenses/models.py:13
 #: apps/inventory/models.py:46 apps/inventory/models.py:132
 #: apps/inventory/models.py:244 apps/organizations/models.py:10
 #: apps/payments/models.py:55 apps/payments/models.py:220
@@ -205,7 +205,7 @@ msgid "Type a message…"
 msgstr "یو پیغام ټایپ کړئ…"
 
 #: apps/communications/forms.py:19 apps/communications/models.py:29
-#: apps/documents/models.py:101 apps/inventory/models.py:42
+#: apps/documents/models.py:107 apps/inventory/models.py:42
 #: apps/payments/models.py:116
 msgid "type"
 msgstr "ډول"
@@ -249,7 +249,7 @@ msgstr "Telegram"
 #: apps/communications/models.py:20 apps/communications/models.py:142
 #: apps/customers/templates/customers/detail.html:22
 #: apps/suppliers/templates/suppliers/detail.html:41
-#: templates/accounts/login.html:73
+#: templates/accounts/login.html:99
 msgid "Email"
 msgstr "Email"
 
@@ -279,7 +279,7 @@ msgid "Closed"
 msgstr "تړل شوی"
 
 #: apps/communications/models.py:54 apps/communications/models.py:266
-#: apps/customers/models.py:66 apps/documents/models.py:88
+#: apps/customers/models.py:66 apps/documents/models.py:94
 #: apps/payments/models.py:149 apps/sales/models.py:59 apps/sales/models.py:151
 #: apps/sales/models.py:231 apps/sales/models.py:331
 msgid "customer"
@@ -443,7 +443,7 @@ msgstr "چینل اضافه کړئ"
 #: apps/suppliers/templates/suppliers/detail.html:156
 #: apps/vehicles/templates/vehicles/detail.html:112
 #: apps/vehicles/templates/vehicles/detail.html:188
-#: apps/vehicles/templates/vehicles/detail.html:235
+#: apps/vehicles/templates/vehicles/detail.html:240
 msgid "Type"
 msgstr "ډول"
 
@@ -629,7 +629,7 @@ msgstr "بیلجیم"
 msgid "Australia"
 msgstr "آسټرالیا"
 
-#: apps/core/constants.py:43 apps/documents/models.py:33
+#: apps/core/constants.py:43 apps/documents/models.py:39
 #: apps/inventory/models.py:26 apps/payments/models.py:28
 #: apps/payments/models.py:78 apps/payments/models.py:88
 #: apps/purchases/models.py:46 apps/purchases/models.py:248
@@ -650,7 +650,8 @@ msgstr "بشپړ نوم"
 
 #: apps/customers/models.py:21
 msgid "Primary customer name as shown on documents and sales records."
-msgstr "د لومړني پیرودونکي نوم لکه څنګه چې په اسنادو او د پلور ریکارډونو کې ښودل شوي."
+msgstr ""
+"د لومړني پیرودونکي نوم لکه څنګه چې په اسنادو او د پلور ریکارډونو کې ښودل شوي."
 
 #: apps/customers/models.py:24 apps/sales/models.py:50
 #: apps/suppliers/models.py:67
@@ -754,8 +755,8 @@ msgid "No photos yet."
 msgstr "تراوسه هیڅ عکس نشته."
 
 #: apps/customers/templates/customers/detail.html:47
-#: apps/customers/templates/customers/detail.html:86
-#: apps/vehicles/templates/vehicles/detail.html:214
+#: apps/customers/templates/customers/detail.html:91
+#: apps/vehicles/templates/vehicles/detail.html:219
 msgid "Upload one"
 msgstr "یو پورته کړئ"
 
@@ -788,21 +789,28 @@ msgstr "پورته شوی"
 msgid "By"
 msgstr "لخوا"
 
-#: apps/customers/templates/customers/detail.html:83
+#: apps/customers/templates/customers/detail.html:75
+#: apps/documents/templates/documents/list.html:37
+#: apps/suppliers/templates/suppliers/detail.html:170
+#: apps/vehicles/templates/vehicles/detail.html:204
+msgid "File missing from storage"
+msgstr "فایل په زېرمه کې نشته"
+
+#: apps/customers/templates/customers/detail.html:88
 msgid "No documents yet (tazkera, passport, bills…)."
 msgstr "تراوسه هیڅ اسناد نشته (تذکره، پاسپورټ، بیلونه…)."
 
-#: apps/customers/templates/customers/detail.html:94
+#: apps/customers/templates/customers/detail.html:99
 #: apps/sales/templates/sales/lead_list.html:4
-#: apps/sales/templates/sales/lead_list.html:8 templates/base.html:112
+#: apps/sales/templates/sales/lead_list.html:8 templates/base.html:123
 msgid "Leads"
 msgstr "د پلور فرصتونه"
 
-#: apps/customers/templates/customers/detail.html:102
+#: apps/customers/templates/customers/detail.html:107
 msgid "No leads."
 msgstr "هیڅ لیډ نشته."
 
-#: apps/customers/templates/customers/detail.html:116
+#: apps/customers/templates/customers/detail.html:121
 #: apps/sales/templates/sales/sale_list.html:42
 msgid "No sales yet."
 msgstr "تراوسه هیڅ پلور نشته."
@@ -824,7 +832,7 @@ msgstr "پېرودونکی خوندي کړئ"
 
 #: apps/customers/templates/customers/list.html:4
 #: apps/customers/templates/customers/list.html:8
-#: templates/accounts/dashboard.html:94 templates/base.html:102
+#: templates/accounts/dashboard.html:94 templates/base.html:113
 msgid "Customers"
 msgstr "پېرودونکي"
 
@@ -867,75 +875,75 @@ msgstr "پیرودونکي ترمیم کړئ"
 msgid "Attach the document to a vehicle, a customer or a supplier."
 msgstr "سند د موټر، پیرودونکي یا عرضه کونکي سره ضمیمه کړئ."
 
-#: apps/documents/models.py:16
+#: apps/documents/models.py:22
 msgid "Vehicle photo"
 msgstr "د موټر عکس"
 
-#: apps/documents/models.py:17
+#: apps/documents/models.py:23
 msgid "Vehicle license"
 msgstr "د موټر جواز"
 
-#: apps/documents/models.py:18
+#: apps/documents/models.py:24
 msgid "Sale document"
 msgstr "د خرڅلاو سند"
 
-#: apps/documents/models.py:19
+#: apps/documents/models.py:25
 msgid "Insurance policy"
 msgstr "د بیمې پالیسي"
 
-#: apps/documents/models.py:20
+#: apps/documents/models.py:26
 msgid "Customs / import document"
 msgstr "د ګمرکونو / وارداتو سند"
 
-#: apps/documents/models.py:21
+#: apps/documents/models.py:27
 msgid "Inspection report"
 msgstr "د تفتیش راپور"
 
-#: apps/documents/models.py:22
+#: apps/documents/models.py:28
 msgid "Other vehicle document"
 msgstr "د وسایطو نور اسناد"
 
-#: apps/documents/models.py:23
+#: apps/documents/models.py:29
 msgid "Customer photo"
 msgstr "د پیرودونکي عکس"
 
-#: apps/documents/models.py:24
+#: apps/documents/models.py:30
 msgid "Tazkera (national ID)"
 msgstr "تذکره (ملي تذکره)"
 
-#: apps/documents/models.py:25
+#: apps/documents/models.py:31
 msgid "Passport"
 msgstr "پاسپورټ"
 
-#: apps/documents/models.py:26
+#: apps/documents/models.py:32
 msgid "Electricity bill"
 msgstr "د بریښنا بل"
 
-#: apps/documents/models.py:27
+#: apps/documents/models.py:33
 msgid "Other bill"
 msgstr "بل بل"
 
-#: apps/documents/models.py:28
+#: apps/documents/models.py:34
 msgid "Other customer document"
 msgstr "د پیرودونکي نور سند"
 
-#: apps/documents/models.py:29
+#: apps/documents/models.py:35
 msgid "Supplier logo / photo"
 msgstr "د عرضه کوونکي لوګو / عکس"
 
-#: apps/documents/models.py:30
+#: apps/documents/models.py:36
 msgid "Supplier portrait photo"
 msgstr "د عرضه کونکي پورټریټ عکس"
 
-#: apps/documents/models.py:31
+#: apps/documents/models.py:37
 msgid "Supplier business license"
 msgstr "د عرضه کوونکي سوداګرۍ جواز"
 
-#: apps/documents/models.py:32
+#: apps/documents/models.py:38
 msgid "Other supplier document"
 msgstr "نور عرضه کوونکي سند"
 
-#: apps/documents/models.py:80 apps/inventory/models.py:99
+#: apps/documents/models.py:86 apps/inventory/models.py:99
 #: apps/inventory/models.py:197 apps/purchases/models.py:206
 #: apps/purchases/models.py:260 apps/sales/models.py:157
 #: apps/sales/models.py:237 apps/sales/models.py:337
@@ -943,29 +951,29 @@ msgstr "نور عرضه کوونکي سند"
 msgid "vehicle"
 msgstr "موټر"
 
-#: apps/documents/models.py:96 apps/payments/forms.py:100
+#: apps/documents/models.py:102 apps/payments/forms.py:100
 #: apps/payments/models.py:181 apps/purchases/models.py:71
 #: apps/suppliers/models.py:90
 msgid "supplier"
 msgstr "عرضه کوونکی"
 
-#: apps/documents/models.py:103
+#: apps/documents/models.py:109
 msgid "title"
 msgstr "عنوان"
 
-#: apps/documents/models.py:104
+#: apps/documents/models.py:110
 msgid "file"
 msgstr "دوتنه"
 
-#: apps/documents/models.py:109
+#: apps/documents/models.py:115
 msgid "uploaded by"
 msgstr "لخوا پورته شوی"
 
-#: apps/documents/models.py:116
+#: apps/documents/models.py:122
 msgid "document"
 msgstr "سند"
 
-#: apps/documents/models.py:117
+#: apps/documents/models.py:123
 msgid "documents"
 msgstr "اسناد"
 
@@ -998,8 +1006,8 @@ msgstr "موټر"
 msgid "Supplier"
 msgstr "عرضه کوونکی"
 
-#: apps/documents/templates/documents/list.html:61
-#: apps/suppliers/templates/suppliers/detail.html:178
+#: apps/documents/templates/documents/list.html:66
+#: apps/suppliers/templates/suppliers/detail.html:183
 msgid "No documents yet."
 msgstr "تر اوسه اسناد نشته."
 
@@ -1112,7 +1120,7 @@ msgstr "د لګښتونو کټګورۍ"
 
 #: apps/expenses/templates/expenses/category_list.html:4
 #: apps/expenses/templates/expenses/category_list.html:10
-#: templates/accounts/dashboard.html:185 templates/base.html:144
+#: templates/accounts/dashboard.html:185 templates/base.html:155
 msgid "Expense categories"
 msgstr "د لګښتونو کټګورۍ"
 
@@ -1163,7 +1171,7 @@ msgid "No expense categories configured yet."
 msgstr "تراوسه د لګښتونو کټګورۍ نه دي ترتیب شوي."
 
 #: apps/expenses/templates/expenses/list.html:4
-#: apps/expenses/templates/expenses/list.html:8 templates/base.html:132
+#: apps/expenses/templates/expenses/list.html:8 templates/base.html:143
 msgid "Expenses"
 msgstr "لګښتونه"
 
@@ -1174,8 +1182,8 @@ msgstr "د لګښت ریکارډ"
 
 #: apps/expenses/templates/expenses/list.html:18
 #: apps/payments/templates/payments/list.html:24
-#: apps/suppliers/templates/suppliers/detail.html:211
-#: apps/vehicles/templates/vehicles/detail.html:234
+#: apps/suppliers/templates/suppliers/detail.html:216
+#: apps/vehicles/templates/vehicles/detail.html:239
 #: templates/accounts/dashboard.html:207
 msgid "Date"
 msgstr "نیټه"
@@ -1183,8 +1191,8 @@ msgstr "نیټه"
 #: apps/expenses/templates/expenses/list.html:19
 #: apps/payments/templates/payments/list.html:26
 #: apps/purchases/templates/purchases/detail.html:71
-#: apps/suppliers/templates/suppliers/detail.html:212
-#: apps/vehicles/templates/vehicles/detail.html:236
+#: apps/suppliers/templates/suppliers/detail.html:217
+#: apps/vehicles/templates/vehicles/detail.html:241
 msgid "Description"
 msgstr "تفصیل"
 
@@ -1198,15 +1206,15 @@ msgstr "لخوا ثبت شوی"
 #: apps/sales/templates/sales/quotation_detail.html:35
 #: apps/sales/templates/sales/quotation_list.html:21
 #: apps/sales/templates/sales/sale_detail.html:68
-#: apps/suppliers/templates/suppliers/detail.html:213
-#: apps/vehicles/templates/vehicles/detail.html:237
+#: apps/suppliers/templates/suppliers/detail.html:218
+#: apps/vehicles/templates/vehicles/detail.html:242
 #: templates/accounts/dashboard.html:205
 msgid "Amount"
 msgstr "مقدار"
 
 #: apps/expenses/templates/expenses/list.html:32
 #: apps/payments/templates/payments/list.html:40
-#: apps/suppliers/templates/suppliers/detail.html:225
+#: apps/suppliers/templates/suppliers/detail.html:230
 msgid "reversal"
 msgstr "بیرته راګرځول"
 
@@ -1523,7 +1531,7 @@ msgstr "ته"
 msgid "No movements recorded yet."
 msgstr "تراوسه هیڅ حرکت ندی ثبت شوی."
 
-#: apps/inventory/templates/inventory/list.html:9 templates/base.html:64
+#: apps/inventory/templates/inventory/list.html:9 templates/base.html:75
 msgid "Operations"
 msgstr "عملیات"
 
@@ -1849,7 +1857,7 @@ msgstr "دا ننوتنه لا دمخه بدله شوې ده."
 
 #: apps/payments/templates/payments/account_list.html:4
 #: apps/payments/templates/payments/account_list.html:10
-#: templates/accounts/dashboard.html:182 templates/base.html:138
+#: templates/accounts/dashboard.html:182 templates/base.html:149
 msgid "Financial accounts"
 msgstr "مالي حسابونه"
 
@@ -1871,7 +1879,7 @@ msgid "Ledger"
 msgstr "لیجر"
 
 #: apps/payments/templates/payments/list.html:16 apps/payments/views.py:59
-#: apps/suppliers/templates/suppliers/detail.html:202
+#: apps/suppliers/templates/suppliers/detail.html:207
 #: templates/accounts/dashboard.html:181
 msgid "Record payment"
 msgstr "د پیسو ثبتول"
@@ -1881,7 +1889,7 @@ msgid "Related to"
 msgstr "پورې اړه لري"
 
 #: apps/payments/templates/payments/list.html:54
-#: apps/suppliers/templates/suppliers/detail.html:237
+#: apps/suppliers/templates/suppliers/detail.html:242
 msgid "Reverse"
 msgstr "بیرته"
 
@@ -2201,8 +2209,6 @@ msgstr "کرښه اضافه کړئ"
 #: apps/purchases/templates/purchases/form.html:10
 #: apps/suppliers/templates/suppliers/detail.html:111
 #: apps/vehicles/templates/vehicles/detail.html:111
-#| msgid "Purchase order"
-#| msgid_plural "Purchase orders"
 msgid "Purchase order"
 msgstr "د پېرود امر"
 
@@ -2702,8 +2708,12 @@ msgid "Individual (person)"
 msgstr "فرد (شخص)"
 
 #: apps/suppliers/models.py:31
-msgid "Full supplier name as shown on invoices, purchase paperwork, and official records."
-msgstr "د بشپړ عرضه کوونکي نوم لکه څنګه چې په رسیدونو، د پیرود کاغذ کار، او رسمي ریکارډونو کې ښودل شوي."
+msgid ""
+"Full supplier name as shown on invoices, purchase paperwork, and official "
+"records."
+msgstr ""
+"د بشپړ عرضه کوونکي نوم لکه څنګه چې په رسیدونو، د پیرود کاغذ کار، او رسمي "
+"ریکارډونو کې ښودل شوي."
 
 #: apps/suppliers/models.py:34
 msgid "kind"
@@ -2794,8 +2804,6 @@ msgid "Address"
 msgstr "پته"
 
 #: apps/suppliers/templates/suppliers/detail.html:52
-#| msgid "Purchase order"
-#| msgid_plural "Purchase orders"
 msgctxt "purchase order count"
 msgid "Purchase order"
 msgid_plural "Purchase orders"
@@ -2821,22 +2829,26 @@ msgid "Paid"
 msgstr "ورکړې"
 
 #: apps/suppliers/templates/suppliers/detail.html:139
-msgid "No vehicles linked yet — add this supplier's cars as lines on a purchase order."
-msgstr "تر اوسه پورې هیڅ موټرې ندي تړل شوي - د دې عرضه کونکي موټرې د پیرود امر کې د لیکو په توګه اضافه کړئ."
+msgid ""
+"No vehicles linked yet — add this supplier's cars as lines on a purchase "
+"order."
+msgstr ""
+"تر اوسه پورې هیڅ موټرې ندي تړل شوي - د دې عرضه کونکي موټرې د پیرود امر کې د "
+"لیکو په توګه اضافه کړئ."
 
-#: apps/suppliers/templates/suppliers/detail.html:180
+#: apps/suppliers/templates/suppliers/detail.html:185
 msgid "Upload the first one."
 msgstr "لومړی اپلوډ کړئ."
 
-#: apps/suppliers/templates/suppliers/detail.html:189 templates/base.html:126
+#: apps/suppliers/templates/suppliers/detail.html:194 templates/base.html:137
 msgid "Payments"
 msgstr "تادیې"
 
-#: apps/suppliers/templates/suppliers/detail.html:192
+#: apps/suppliers/templates/suppliers/detail.html:197
 msgid "Total paid:"
 msgstr "ټول تادیه شوي:"
 
-#: apps/suppliers/templates/suppliers/detail.html:248
+#: apps/suppliers/templates/suppliers/detail.html:253
 msgid "No payments to this supplier yet."
 msgstr "تر اوسه دې عرضه کوونکي ته پیسې نه دي ورکړل شوي."
 
@@ -2853,7 +2865,7 @@ msgid "Save supplier"
 msgstr "عرضه کوونکی خوندي کړئ"
 
 #: apps/suppliers/templates/suppliers/list.html:4
-#: apps/suppliers/templates/suppliers/list.html:8 templates/base.html:81
+#: apps/suppliers/templates/suppliers/list.html:8 templates/base.html:92
 msgid "Suppliers"
 msgstr "عرضه کوونکي"
 
@@ -3122,8 +3134,12 @@ msgid "Date of first registration, if known."
 msgstr "د لومړي نوم لیکنې نیټه، که معلومه وي."
 
 #: apps/vehicles/models.py:96
-msgid "Deprecated: the authoritative inventory state lives on inventory.VehicleStock.status (§8). Do not use."
-msgstr "تخریب شوی: د مستند انوینټری ریاست په inventory.VehicleStock.status (§8) کې ژوند کوي. مه کاروئ."
+msgid ""
+"Deprecated: the authoritative inventory state lives on "
+"inventory.VehicleStock.status (§8). Do not use."
+msgstr ""
+"تخریب شوی: د مستند انوینټری ریاست په inventory.VehicleStock.status (§8) کې "
+"ژوند کوي. مه کاروئ."
 
 #: apps/vehicles/models.py:107
 msgid "Branch where this vehicle is assigned or stored."
@@ -3138,7 +3154,7 @@ msgid "vehicles"
 msgstr "موټرې"
 
 #: apps/vehicles/templates/vehicles/detail.html:11
-#: apps/vehicles/templates/vehicles/list.html:4 templates/base.html:69
+#: apps/vehicles/templates/vehicles/list.html:4 templates/base.html:80
 msgid "Vehicles"
 msgstr "موټرونه"
 
@@ -3180,7 +3196,7 @@ msgid "Bought from"
 msgstr "څخه اخیستل شوی"
 
 #: apps/vehicles/templates/vehicles/detail.html:68
-#: apps/vehicles/templates/vehicles/detail.html:225
+#: apps/vehicles/templates/vehicles/detail.html:230
 msgid "Landed cost"
 msgstr "د ځمکې لګښت"
 
@@ -3275,8 +3291,12 @@ msgid "Purchased from"
 msgstr "څخه اخیستل شوی"
 
 #: apps/vehicles/templates/vehicles/detail.html:151
-msgid "Not linked to a purchase order yet — add this car as a line on a purchase order to record who it was bought from."
-msgstr "لا تر اوسه د پیرود امر سره تړاو نلري - دا موټر د پیرود امر کې د کرښې په توګه اضافه کړئ ترڅو ثبت کړي چې دا له چا څخه اخیستل شوی."
+msgid ""
+"Not linked to a purchase order yet — add this car as a line on a purchase "
+"order to record who it was bought from."
+msgstr ""
+"لا تر اوسه د پیرود امر سره تړاو نلري - دا موټر د پیرود امر کې د کرښې په توګه "
+"اضافه کړئ ترڅو ثبت کړي چې دا له چا څخه اخیستل شوی."
 
 #: apps/vehicles/templates/vehicles/detail.html:158
 msgid "Photo gallery"
@@ -3286,20 +3306,20 @@ msgstr "د عکس ګالری"
 msgid "Upload the first one"
 msgstr "لومړی اپلوډ کړئ"
 
-#: apps/vehicles/templates/vehicles/detail.html:212
+#: apps/vehicles/templates/vehicles/detail.html:217
 msgid "No documents yet (license, sale documents, insurance…)."
 msgstr "تراوسه هیڅ اسناد نشته ( جواز، د پلور اسناد، بیمه ...)."
 
-#: apps/vehicles/templates/vehicles/detail.html:223
+#: apps/vehicles/templates/vehicles/detail.html:228
 msgid "Cost history"
 msgstr "د لګښت تاریخ"
 
-#: apps/vehicles/templates/vehicles/detail.html:250
+#: apps/vehicles/templates/vehicles/detail.html:255
 msgid "No cost lines yet."
 msgstr "لا تر اوسه د لګښت کرښې نشته."
 
-#: apps/vehicles/templates/vehicles/detail.html:257
-#: apps/vehicles/templates/vehicles/detail.html:263
+#: apps/vehicles/templates/vehicles/detail.html:262
+#: apps/vehicles/templates/vehicles/detail.html:268
 msgid "Add cost line"
 msgstr "د لګښت کرښه اضافه کړئ"
 
@@ -3308,8 +3328,12 @@ msgid "Vehicle registry"
 msgstr "د موټرو راجستر"
 
 #: apps/vehicles/templates/vehicles/form.html:12
-msgid "Record permanent vehicle identity and specifications. Inventory lifecycle state is managed separately through stock operations."
-msgstr "د موټر دایمي هویت او مشخصات ثبت کړئ. د انوینٹری د ژوند دورې حالت په جلا توګه د سټاک عملیاتو له لارې اداره کیږي."
+msgid ""
+"Record permanent vehicle identity and specifications. Inventory lifecycle "
+"state is managed separately through stock operations."
+msgstr ""
+"د موټر دایمي هویت او مشخصات ثبت کړئ. د انوینٹری د ژوند دورې حالت په جلا توګه "
+"د سټاک عملیاتو له لارې اداره کیږي."
 
 #: apps/vehicles/templates/vehicles/form.html:16
 msgid "Back to vehicles"
@@ -3320,7 +3344,9 @@ msgid "Core vehicle identity"
 msgstr "د موټر اصلي پیژندنه"
 
 #: apps/vehicles/templates/vehicles/form.html:28
-msgid "VIN and manufacturer details uniquely identify this vehicle inside the company."
+msgid ""
+"VIN and manufacturer details uniquely identify this vehicle inside the "
+"company."
 msgstr "VIN او د جوړونکي توضیحات په ځانګړي ډول د شرکت دننه دا موټر پیژني."
 
 #: apps/vehicles/templates/vehicles/form.html:47
@@ -3348,8 +3374,12 @@ msgid "Inventory state is separate"
 msgstr "د موجودیت حالت جلا دی"
 
 #: apps/vehicles/templates/vehicles/form.html:101
-msgid "Availability, location, reservation, sale, and delivery are authoritative on VehicleStock and inventory services."
-msgstr "شتون، موقعیت، ریزرویشن، پلور، او تحویلي د وسایطو سټاک او د موجوداتو خدماتو کې مستند دي."
+msgid ""
+"Availability, location, reservation, sale, and delivery are authoritative on "
+"VehicleStock and inventory services."
+msgstr ""
+"شتون، موقعیت، ریزرویشن، پلور، او تحویلي د وسایطو سټاک او د موجوداتو خدماتو "
+"کې مستند دي."
 
 #: apps/vehicles/templates/vehicles/form.html:104
 msgid "VIN is unique per company."
@@ -3376,8 +3406,11 @@ msgid "Vehicle inventory"
 msgstr "د وسایطو لیست"
 
 #: apps/vehicles/templates/vehicles/list.html:15
-msgid "Search the permanent vehicle registry and review each vehicle's current inventory position."
-msgstr "د وسایطو دایمي راجسټری وپلټئ او د هر موټر اوسني موجود موقعیت بیاکتنه وکړئ."
+msgid ""
+"Search the permanent vehicle registry and review each vehicle's current "
+"inventory position."
+msgstr ""
+"د وسایطو دایمي راجسټری وپلټئ او د هر موټر اوسني موجود موقعیت بیاکتنه وکړئ."
 
 #: apps/vehicles/templates/vehicles/list.html:20 apps/vehicles/views.py:146
 #: templates/accounts/dashboard.html:171
@@ -3433,7 +3466,7 @@ msgid "Vehicle updated."
 msgstr "موټر تازه شوی."
 
 #: templates/accounts/dashboard.html:4 templates/accounts/dashboard.html:8
-#: templates/base.html:58
+#: templates/base.html:69
 msgid "Dashboard"
 msgstr "ډشبورډ"
 
@@ -3459,8 +3492,12 @@ msgid "Admin console"
 msgstr "اډمین کنسول"
 
 #: templates/accounts/dashboard.html:30
-msgid "Day-to-day records live in each company's workspace. Use the admin console for companies, branches, users and roles."
-msgstr "ورځنی ریکارډونه د هر شرکت په کاري ځای کې ژوند کوي. د شرکتونو، څانګو، کاروونکو او رولونو لپاره د اډمین کنسول وکاروئ."
+msgid ""
+"Day-to-day records live in each company's workspace. Use the admin console "
+"for companies, branches, users and roles."
+msgstr ""
+"ورځنی ریکارډونه د هر شرکت په کاري ځای کې ژوند کوي. د شرکتونو، څانګو، "
+"کاروونکو او رولونو لپاره د اډمین کنسول وکاروئ."
 
 #: templates/accounts/dashboard.html:31
 msgid "Open admin console"
@@ -3566,75 +3603,88 @@ msgstr "لومړی جوړ کړئ"
 msgid "Log in"
 msgstr "ننوتل"
 
-#: templates/accounts/login.html:33
+#: templates/accounts/login.html:44
 msgid "Vehicle Management Database"
 msgstr "د وسایطو مدیریت ډیټابیس"
 
-#: templates/accounts/login.html:36
+#: templates/accounts/login.html:47
 msgid "Every vehicle."
 msgstr "هر موټر."
 
-#: templates/accounts/login.html:38
+#: templates/accounts/login.html:49
 msgid "One intelligent system."
 msgstr "یو هوښیار سیسټم."
 
-#: templates/accounts/login.html:41
-msgid "Manage inventory, ownership records, purchases, exports and vehicle documentation from one centralized workspace."
-msgstr "د یو مرکزي کاري ځای څخه د لیست، ملکیت ریکارډونه، پیرود، صادرات او د وسایطو اسناد اداره کړئ."
+#: templates/accounts/login.html:52
+msgid ""
+"Manage inventory, ownership records, purchases, exports and vehicle "
+"documentation from one centralized workspace."
+msgstr ""
+"د یو مرکزي کاري ځای څخه د لیست، ملکیت ریکارډونه، پیرود، صادرات او د وسایطو "
+"اسناد اداره کړئ."
 
-#: templates/accounts/login.html:56
+#: templates/accounts/login.html:67
 msgid "Secure database"
 msgstr "خوندي ډیټابیس"
 
-#: templates/accounts/login.html:57
+#: templates/accounts/login.html:68
 msgid "Vehicle records"
 msgstr "د وسایطو ریکارډونه"
 
-#: templates/accounts/login.html:58
+#: templates/accounts/login.html:69
 msgid "Export management"
 msgstr "د صادراتو مدیریت"
 
-#: templates/accounts/login.html:65
+#: templates/accounts/login.html:77 templates/accounts/login.html:78
+#: templates/base.html:200
+msgid "Language"
+msgstr "ژبه"
+
+#: templates/accounts/login.html:84 templates/base.html:207
+msgid "Toggle theme"
+msgstr "د بڼې بدلول"
+
+#: templates/accounts/login.html:91
 msgid "Log in to CarFlow"
 msgstr "CarFlow ته ننوتل"
 
-#: templates/accounts/login.html:66
+#: templates/accounts/login.html:92
 msgid "Sign in to access your vehicle management dashboard."
 msgstr "د خپل موټر مدیریت ډشبورډ ته د لاسرسي لپاره لاسلیک وکړئ."
 
-#: templates/accounts/login.html:69
+#: templates/accounts/login.html:95
 msgid "Your email and password didn't match. Please try again."
 msgstr "ستاسو بریښنالیک او پټنوم سره سمون نه خوري. مهرباني وکړئ بیا هڅه وکړئ."
 
-#: templates/accounts/login.html:84
+#: templates/accounts/login.html:110
 msgid "Password"
 msgstr "پټنوم"
 
-#: templates/accounts/login.html:90
+#: templates/accounts/login.html:116
 msgid "Enter your password"
 msgstr "خپل پټنوم دننه کړئ"
 
-#: templates/accounts/login.html:91
+#: templates/accounts/login.html:117
 msgid "Show password"
 msgstr "پټنوم ښکاره کړئ"
 
-#: templates/accounts/login.html:91
+#: templates/accounts/login.html:117
 msgid "Hide password"
 msgstr "پټنوم پټ کړئ"
 
-#: templates/accounts/login.html:100
+#: templates/accounts/login.html:126
 msgid "Remember me"
 msgstr "ما په یاد ولره"
 
-#: templates/accounts/login.html:102
+#: templates/accounts/login.html:128
 msgid "Need help? Contact your administrator."
 msgstr "مرستې ته اړتیا لرئ؟ له خپل مدیر سره اړیکه ونیسئ."
 
-#: templates/accounts/login.html:106
+#: templates/accounts/login.html:132
 msgid "Signing in…"
 msgstr "لاسلیک کول…"
 
-#: templates/accounts/login.html:106
+#: templates/accounts/login.html:132
 msgid "Sign in"
 msgstr "ننوتل"
 
@@ -3646,79 +3696,50 @@ msgstr "د جینګو سایټ اډمین"
 msgid "AUTOMEX CarFlow"
 msgstr "AUTOMEX CarFlow"
 
-#: templates/base.html:39
+#: templates/base.html:50
 msgid "Automotive ERP"
 msgstr "اتوماتیک ERP"
 
-#: templates/base.html:41
+#: templates/base.html:52
 msgid "Live"
 msgstr "فعال"
 
-#: templates/base.html:42
+#: templates/base.html:53
 msgid "Close navigation"
 msgstr "لارښود وتړئ"
 
-#: templates/base.html:50
+#: templates/base.html:61
 msgid "Search CarFlow"
 msgstr "CarFlow لټون وکړئ"
 
-#: templates/base.html:87
+#: templates/base.html:98
 msgid "Purchases"
 msgstr "پیرودونه"
 
-#: templates/base.html:121
+#: templates/base.html:132
 msgid "Finance"
 msgstr "مالیه"
 
-#: templates/base.html:150
+#: templates/base.html:161
 msgid "Accounting summary"
 msgstr "د محاسبې لنډیز"
 
-#: templates/base.html:158
+#: templates/base.html:169
 msgid "System"
 msgstr "سیسټم"
 
-#: templates/base.html:164
+#: templates/base.html:175
 msgid "Log out"
 msgstr "وتل"
 
-#: templates/base.html:178
+#: templates/base.html:189
 msgid "Open navigation"
 msgstr "لارښود پرانیزئ"
 
-#: templates/base.html:184
+#: templates/base.html:195
 msgid "CarFlow workspace"
 msgstr "CarFlow کاري ځای"
 
-#: templates/base.html:189
-msgid "Language"
-msgstr "ژبه"
-
-#: templates/base.html:196
-msgid "Toggle theme"
-msgstr "د بڼې بدلول"
-
-#: templates/base.html:203
+#: templates/base.html:215
 msgid "Platform admin"
 msgstr "د پلیټ فارم مدیر"
-
-#~ msgid "Contact"
-#~ msgstr "تماس"
-
-#~ msgid "Year"
-#~ msgstr "سال"
-
-#~ msgid "Sales in progress"
-#~ msgstr "فروشات در جریان"
-
-#~ msgid "Close menu"
-#~ msgstr "بستن منو"
-
-#~ msgid "Open menu"
-#~ msgstr "باز کردن منو"
-
-#~ msgid "No notifications yet."
-#~ msgstr "هنوز اعلانی وجود ندارد."
-
-#~ msgid "Alerts for overdue payments and document expiry will appear here."
-#~ msgstr "هشدارهای مربوط به پرداخت‌های معوق و انقضای اسناد در اینجا نمایش داده می‌شوند."

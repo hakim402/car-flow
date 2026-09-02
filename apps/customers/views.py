@@ -58,7 +58,7 @@ def customer_detail(request, pk):
             "customer": customer,
             "sales": customer.sales.select_related("vehicle"),
             "leads": customer.leads.all(),
-            "photos": [d for d in attachments if d.is_photo],
+            "photos": [d for d in attachments if d.is_photo and d.file_exists],
             "documents": [d for d in attachments if not d.is_photo],
             "can_upload_documents": request.user.has_permission("documents.add"),
         },

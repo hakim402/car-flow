@@ -111,13 +111,13 @@ class Supplier(TenantModel):
         """
         logo_list = getattr(self, "logo_list", None)
         if logo_list is not None:
-            return logo_list[0] if logo_list else None
+            return next((logo for logo in logo_list if logo.file_exists), None)
         from apps.documents.models import Document, DocumentType
 
-        return (
+        logos = (
             self.documents.filter(
                 doc_type__in=(DocumentType.SUPPLIER_LOGO, DocumentType.SUPPLIER_PHOTO)
             )
             .order_by("-created_at", "-pk")
-            .first()
         )
+        return next((logo for logo in logos if logo.file_exists), None)

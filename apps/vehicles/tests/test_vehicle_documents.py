@@ -79,6 +79,38 @@ def test_detail_shows_gallery_and_documents(client, company_user, vehicle_with_f
 
 
 @pytest.mark.django_db
+def test_missing_photo_uses_placeholders_instead_of_broken_media_links(
+    client, company_user, settings, tmp_path
+):
+    settings.MEDIA_ROOT = str(tmp_path)
+    vehicle = VehicleFactory(company=company_user.company)
+    missing_photo = Document.all_objects.create(
+        company=company_user.company,
+        vehicle=vehicle,
+        doc_type=DocumentType.VEHICLE_PHOTO,
+        title="Missing front view",
+        file="documents/2026/09/missing-front.jpg",
+    )
+    client.force_login(company_user)
+
+    assert not missing_photo.file_exists
+
+    list_response = client.get(reverse("vehicles:list"))
+    detail_response = client.get(vehicle.get_absolute_url())
+    document_response = client.get(reverse("documents:list"))
+
+    assert list_response.status_code == 200
+    assert detail_response.status_code == 200
+    assert document_response.status_code == 200
+    assert missing_photo.file.url not in list_response.content.decode()
+    assert missing_photo.file.url not in detail_response.content.decode()
+    assert missing_photo.file.url not in document_response.content.decode()
+    assert "No vehicle photo" in list_response.content.decode()
+    assert "No vehicle photos yet" in detail_response.content.decode()
+    assert "File missing from storage" in document_response.content.decode()
+
+
+@pytest.mark.django_db
 def test_upload_for_vehicle_attaches_document(client, company_user, vehicle_with_files, settings, tmp_path):
     settings.MEDIA_ROOT = str(tmp_path)
     vehicle, _, _ = vehicle_with_files

@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: automex-carflow 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-01 19:15+0000\n"
+"POT-Creation-Date: 2026-09-02 10:23+0000\n"
 "PO-Revision-Date: 2026-08-18 13:40+0000\n"
 "Last-Translator: AUTOMEX CarFlow localization team\n"
 "Language-Team: AUTOMEX CarFlow\n"
@@ -78,11 +78,11 @@ msgid "Branch Manager"
 msgstr "Branch Manager"
 
 #: apps/accounts/models.py:21
-#: apps/customers/templates/customers/detail.html:107
+#: apps/customers/templates/customers/detail.html:112
 #: apps/sales/templates/sales/form.html:10
 #: apps/sales/templates/sales/sale_list.html:4
-#: apps/sales/templates/sales/sale_list.html:8 templates/base.html:97
-#: templates/base.html:108
+#: apps/sales/templates/sales/sale_list.html:8 templates/base.html:108
+#: templates/base.html:119
 msgid "Sales"
 msgstr "Sales"
 
@@ -91,7 +91,7 @@ msgstr "Sales"
 #: apps/inventory/templates/inventory/list.html:10
 #: apps/inventory/templates/inventory/location_list.html:9
 #: apps/sales/templates/sales/sale_detail.html:51
-#: apps/vehicles/templates/vehicles/list.html:10 templates/base.html:75
+#: apps/vehicles/templates/vehicles/list.html:10 templates/base.html:86
 msgid "Inventory"
 msgstr "Inventory"
 
@@ -181,7 +181,7 @@ msgstr "users"
 
 #: apps/branches/models.py:16 apps/communications/models.py:122
 #: apps/communications/models.py:275 apps/customers/models.py:62
-#: apps/documents/models.py:113 apps/expenses/models.py:13
+#: apps/documents/models.py:119 apps/expenses/models.py:13
 #: apps/inventory/models.py:46 apps/inventory/models.py:132
 #: apps/inventory/models.py:244 apps/organizations/models.py:10
 #: apps/payments/models.py:55 apps/payments/models.py:220
@@ -205,7 +205,7 @@ msgid "Type a message…"
 msgstr "Type a message…"
 
 #: apps/communications/forms.py:19 apps/communications/models.py:29
-#: apps/documents/models.py:101 apps/inventory/models.py:42
+#: apps/documents/models.py:107 apps/inventory/models.py:42
 #: apps/payments/models.py:116
 msgid "type"
 msgstr "type"
@@ -249,7 +249,7 @@ msgstr "Telegram"
 #: apps/communications/models.py:20 apps/communications/models.py:142
 #: apps/customers/templates/customers/detail.html:22
 #: apps/suppliers/templates/suppliers/detail.html:41
-#: templates/accounts/login.html:73
+#: templates/accounts/login.html:99
 msgid "Email"
 msgstr "Email"
 
@@ -279,7 +279,7 @@ msgid "Closed"
 msgstr "Closed"
 
 #: apps/communications/models.py:54 apps/communications/models.py:266
-#: apps/customers/models.py:66 apps/documents/models.py:88
+#: apps/customers/models.py:66 apps/documents/models.py:94
 #: apps/payments/models.py:149 apps/sales/models.py:59 apps/sales/models.py:151
 #: apps/sales/models.py:231 apps/sales/models.py:331
 msgid "customer"
@@ -443,7 +443,7 @@ msgstr "Add channel"
 #: apps/suppliers/templates/suppliers/detail.html:156
 #: apps/vehicles/templates/vehicles/detail.html:112
 #: apps/vehicles/templates/vehicles/detail.html:188
-#: apps/vehicles/templates/vehicles/detail.html:235
+#: apps/vehicles/templates/vehicles/detail.html:240
 msgid "Type"
 msgstr "Type"
 
@@ -629,7 +629,7 @@ msgstr "Belgium"
 msgid "Australia"
 msgstr "Australia"
 
-#: apps/core/constants.py:43 apps/documents/models.py:33
+#: apps/core/constants.py:43 apps/documents/models.py:39
 #: apps/inventory/models.py:26 apps/payments/models.py:28
 #: apps/payments/models.py:78 apps/payments/models.py:88
 #: apps/purchases/models.py:46 apps/purchases/models.py:248
@@ -754,8 +754,8 @@ msgid "No photos yet."
 msgstr "No photos yet."
 
 #: apps/customers/templates/customers/detail.html:47
-#: apps/customers/templates/customers/detail.html:86
-#: apps/vehicles/templates/vehicles/detail.html:214
+#: apps/customers/templates/customers/detail.html:91
+#: apps/vehicles/templates/vehicles/detail.html:219
 msgid "Upload one"
 msgstr "Upload one"
 
@@ -788,21 +788,28 @@ msgstr "Uploaded"
 msgid "By"
 msgstr "By"
 
-#: apps/customers/templates/customers/detail.html:83
+#: apps/customers/templates/customers/detail.html:75
+#: apps/documents/templates/documents/list.html:37
+#: apps/suppliers/templates/suppliers/detail.html:170
+#: apps/vehicles/templates/vehicles/detail.html:204
+msgid "File missing from storage"
+msgstr "File missing from storage"
+
+#: apps/customers/templates/customers/detail.html:88
 msgid "No documents yet (tazkera, passport, bills…)."
 msgstr "No documents yet (tazkera, passport, bills…)."
 
-#: apps/customers/templates/customers/detail.html:94
+#: apps/customers/templates/customers/detail.html:99
 #: apps/sales/templates/sales/lead_list.html:4
-#: apps/sales/templates/sales/lead_list.html:8 templates/base.html:112
+#: apps/sales/templates/sales/lead_list.html:8 templates/base.html:123
 msgid "Leads"
 msgstr "Leads"
 
-#: apps/customers/templates/customers/detail.html:102
+#: apps/customers/templates/customers/detail.html:107
 msgid "No leads."
 msgstr "No leads."
 
-#: apps/customers/templates/customers/detail.html:116
+#: apps/customers/templates/customers/detail.html:121
 #: apps/sales/templates/sales/sale_list.html:42
 msgid "No sales yet."
 msgstr "No sales yet."
@@ -824,7 +831,7 @@ msgstr "Save customer"
 
 #: apps/customers/templates/customers/list.html:4
 #: apps/customers/templates/customers/list.html:8
-#: templates/accounts/dashboard.html:94 templates/base.html:102
+#: templates/accounts/dashboard.html:94 templates/base.html:113
 msgid "Customers"
 msgstr "Customers"
 
@@ -867,75 +874,75 @@ msgstr "Edit customer"
 msgid "Attach the document to a vehicle, a customer or a supplier."
 msgstr "Attach the document to a vehicle, a customer or a supplier."
 
-#: apps/documents/models.py:16
+#: apps/documents/models.py:22
 msgid "Vehicle photo"
 msgstr "Vehicle photo"
 
-#: apps/documents/models.py:17
+#: apps/documents/models.py:23
 msgid "Vehicle license"
 msgstr "Vehicle license"
 
-#: apps/documents/models.py:18
+#: apps/documents/models.py:24
 msgid "Sale document"
 msgstr "Sale document"
 
-#: apps/documents/models.py:19
+#: apps/documents/models.py:25
 msgid "Insurance policy"
 msgstr "Insurance policy"
 
-#: apps/documents/models.py:20
+#: apps/documents/models.py:26
 msgid "Customs / import document"
 msgstr "Customs / import document"
 
-#: apps/documents/models.py:21
+#: apps/documents/models.py:27
 msgid "Inspection report"
 msgstr "Inspection report"
 
-#: apps/documents/models.py:22
+#: apps/documents/models.py:28
 msgid "Other vehicle document"
 msgstr "Other vehicle document"
 
-#: apps/documents/models.py:23
+#: apps/documents/models.py:29
 msgid "Customer photo"
 msgstr "Customer photo"
 
-#: apps/documents/models.py:24
+#: apps/documents/models.py:30
 msgid "Tazkera (national ID)"
 msgstr "Tazkera (national ID)"
 
-#: apps/documents/models.py:25
+#: apps/documents/models.py:31
 msgid "Passport"
 msgstr "Passport"
 
-#: apps/documents/models.py:26
+#: apps/documents/models.py:32
 msgid "Electricity bill"
 msgstr "Electricity bill"
 
-#: apps/documents/models.py:27
+#: apps/documents/models.py:33
 msgid "Other bill"
 msgstr "Other bill"
 
-#: apps/documents/models.py:28
+#: apps/documents/models.py:34
 msgid "Other customer document"
 msgstr "Other customer document"
 
-#: apps/documents/models.py:29
+#: apps/documents/models.py:35
 msgid "Supplier logo / photo"
 msgstr "Supplier logo / photo"
 
-#: apps/documents/models.py:30
+#: apps/documents/models.py:36
 msgid "Supplier portrait photo"
 msgstr "Supplier portrait photo"
 
-#: apps/documents/models.py:31
+#: apps/documents/models.py:37
 msgid "Supplier business license"
 msgstr "Supplier business license"
 
-#: apps/documents/models.py:32
+#: apps/documents/models.py:38
 msgid "Other supplier document"
 msgstr "Other supplier document"
 
-#: apps/documents/models.py:80 apps/inventory/models.py:99
+#: apps/documents/models.py:86 apps/inventory/models.py:99
 #: apps/inventory/models.py:197 apps/purchases/models.py:206
 #: apps/purchases/models.py:260 apps/sales/models.py:157
 #: apps/sales/models.py:237 apps/sales/models.py:337
@@ -943,29 +950,29 @@ msgstr "Other supplier document"
 msgid "vehicle"
 msgstr "vehicle"
 
-#: apps/documents/models.py:96 apps/payments/forms.py:100
+#: apps/documents/models.py:102 apps/payments/forms.py:100
 #: apps/payments/models.py:181 apps/purchases/models.py:71
 #: apps/suppliers/models.py:90
 msgid "supplier"
 msgstr "supplier"
 
-#: apps/documents/models.py:103
+#: apps/documents/models.py:109
 msgid "title"
 msgstr "title"
 
-#: apps/documents/models.py:104
+#: apps/documents/models.py:110
 msgid "file"
 msgstr "file"
 
-#: apps/documents/models.py:109
+#: apps/documents/models.py:115
 msgid "uploaded by"
 msgstr "uploaded by"
 
-#: apps/documents/models.py:116
+#: apps/documents/models.py:122
 msgid "document"
 msgstr "document"
 
-#: apps/documents/models.py:117
+#: apps/documents/models.py:123
 msgid "documents"
 msgstr "documents"
 
@@ -998,8 +1005,8 @@ msgstr "Vehicle"
 msgid "Supplier"
 msgstr "Supplier"
 
-#: apps/documents/templates/documents/list.html:61
-#: apps/suppliers/templates/suppliers/detail.html:178
+#: apps/documents/templates/documents/list.html:66
+#: apps/suppliers/templates/suppliers/detail.html:183
 msgid "No documents yet."
 msgstr "No documents yet."
 
@@ -1112,7 +1119,7 @@ msgstr "expense categories"
 
 #: apps/expenses/templates/expenses/category_list.html:4
 #: apps/expenses/templates/expenses/category_list.html:10
-#: templates/accounts/dashboard.html:185 templates/base.html:144
+#: templates/accounts/dashboard.html:185 templates/base.html:155
 msgid "Expense categories"
 msgstr "Expense categories"
 
@@ -1163,7 +1170,7 @@ msgid "No expense categories configured yet."
 msgstr "No expense categories configured yet."
 
 #: apps/expenses/templates/expenses/list.html:4
-#: apps/expenses/templates/expenses/list.html:8 templates/base.html:132
+#: apps/expenses/templates/expenses/list.html:8 templates/base.html:143
 msgid "Expenses"
 msgstr "Expenses"
 
@@ -1174,8 +1181,8 @@ msgstr "Record expense"
 
 #: apps/expenses/templates/expenses/list.html:18
 #: apps/payments/templates/payments/list.html:24
-#: apps/suppliers/templates/suppliers/detail.html:211
-#: apps/vehicles/templates/vehicles/detail.html:234
+#: apps/suppliers/templates/suppliers/detail.html:216
+#: apps/vehicles/templates/vehicles/detail.html:239
 #: templates/accounts/dashboard.html:207
 msgid "Date"
 msgstr "Date"
@@ -1183,8 +1190,8 @@ msgstr "Date"
 #: apps/expenses/templates/expenses/list.html:19
 #: apps/payments/templates/payments/list.html:26
 #: apps/purchases/templates/purchases/detail.html:71
-#: apps/suppliers/templates/suppliers/detail.html:212
-#: apps/vehicles/templates/vehicles/detail.html:236
+#: apps/suppliers/templates/suppliers/detail.html:217
+#: apps/vehicles/templates/vehicles/detail.html:241
 msgid "Description"
 msgstr "Description"
 
@@ -1198,15 +1205,15 @@ msgstr "Recorded by"
 #: apps/sales/templates/sales/quotation_detail.html:35
 #: apps/sales/templates/sales/quotation_list.html:21
 #: apps/sales/templates/sales/sale_detail.html:68
-#: apps/suppliers/templates/suppliers/detail.html:213
-#: apps/vehicles/templates/vehicles/detail.html:237
+#: apps/suppliers/templates/suppliers/detail.html:218
+#: apps/vehicles/templates/vehicles/detail.html:242
 #: templates/accounts/dashboard.html:205
 msgid "Amount"
 msgstr "Amount"
 
 #: apps/expenses/templates/expenses/list.html:32
 #: apps/payments/templates/payments/list.html:40
-#: apps/suppliers/templates/suppliers/detail.html:225
+#: apps/suppliers/templates/suppliers/detail.html:230
 msgid "reversal"
 msgstr "reversal"
 
@@ -1523,7 +1530,7 @@ msgstr "To"
 msgid "No movements recorded yet."
 msgstr "No movements recorded yet."
 
-#: apps/inventory/templates/inventory/list.html:9 templates/base.html:64
+#: apps/inventory/templates/inventory/list.html:9 templates/base.html:75
 msgid "Operations"
 msgstr "Operations"
 
@@ -1849,7 +1856,7 @@ msgstr "This entry has already been reversed."
 
 #: apps/payments/templates/payments/account_list.html:4
 #: apps/payments/templates/payments/account_list.html:10
-#: templates/accounts/dashboard.html:182 templates/base.html:138
+#: templates/accounts/dashboard.html:182 templates/base.html:149
 msgid "Financial accounts"
 msgstr "Financial accounts"
 
@@ -1871,7 +1878,7 @@ msgid "Ledger"
 msgstr "Ledger"
 
 #: apps/payments/templates/payments/list.html:16 apps/payments/views.py:59
-#: apps/suppliers/templates/suppliers/detail.html:202
+#: apps/suppliers/templates/suppliers/detail.html:207
 #: templates/accounts/dashboard.html:181
 msgid "Record payment"
 msgstr "Record payment"
@@ -1881,7 +1888,7 @@ msgid "Related to"
 msgstr "Related to"
 
 #: apps/payments/templates/payments/list.html:54
-#: apps/suppliers/templates/suppliers/detail.html:237
+#: apps/suppliers/templates/suppliers/detail.html:242
 msgid "Reverse"
 msgstr "Reverse"
 
@@ -2201,8 +2208,6 @@ msgstr "Add line"
 #: apps/purchases/templates/purchases/form.html:10
 #: apps/suppliers/templates/suppliers/detail.html:111
 #: apps/vehicles/templates/vehicles/detail.html:111
-#| msgid "Purchase order"
-#| msgid_plural "Purchase orders"
 msgid "Purchase order"
 msgstr "Purchase order"
 
@@ -2702,8 +2707,12 @@ msgid "Individual (person)"
 msgstr "Individual (person)"
 
 #: apps/suppliers/models.py:31
-msgid "Full supplier name as shown on invoices, purchase paperwork, and official records."
-msgstr "Full supplier name as shown on invoices, purchase paperwork, and official records."
+msgid ""
+"Full supplier name as shown on invoices, purchase paperwork, and official "
+"records."
+msgstr ""
+"Full supplier name as shown on invoices, purchase paperwork, and official "
+"records."
 
 #: apps/suppliers/models.py:34
 msgid "kind"
@@ -2794,8 +2803,6 @@ msgid "Address"
 msgstr "Address"
 
 #: apps/suppliers/templates/suppliers/detail.html:52
-#| msgid "Purchase order"
-#| msgid_plural "Purchase orders"
 msgctxt "purchase order count"
 msgid "Purchase order"
 msgid_plural "Purchase orders"
@@ -2821,22 +2828,26 @@ msgid "Paid"
 msgstr "Paid"
 
 #: apps/suppliers/templates/suppliers/detail.html:139
-msgid "No vehicles linked yet — add this supplier's cars as lines on a purchase order."
-msgstr "No vehicles linked yet — add this supplier's cars as lines on a purchase order."
+msgid ""
+"No vehicles linked yet — add this supplier's cars as lines on a purchase "
+"order."
+msgstr ""
+"No vehicles linked yet — add this supplier's cars as lines on a purchase "
+"order."
 
-#: apps/suppliers/templates/suppliers/detail.html:180
+#: apps/suppliers/templates/suppliers/detail.html:185
 msgid "Upload the first one."
 msgstr "Upload the first one."
 
-#: apps/suppliers/templates/suppliers/detail.html:189 templates/base.html:126
+#: apps/suppliers/templates/suppliers/detail.html:194 templates/base.html:137
 msgid "Payments"
 msgstr "Payments"
 
-#: apps/suppliers/templates/suppliers/detail.html:192
+#: apps/suppliers/templates/suppliers/detail.html:197
 msgid "Total paid:"
 msgstr "Total paid:"
 
-#: apps/suppliers/templates/suppliers/detail.html:248
+#: apps/suppliers/templates/suppliers/detail.html:253
 msgid "No payments to this supplier yet."
 msgstr "No payments to this supplier yet."
 
@@ -2853,7 +2864,7 @@ msgid "Save supplier"
 msgstr "Save supplier"
 
 #: apps/suppliers/templates/suppliers/list.html:4
-#: apps/suppliers/templates/suppliers/list.html:8 templates/base.html:81
+#: apps/suppliers/templates/suppliers/list.html:8 templates/base.html:92
 msgid "Suppliers"
 msgstr "Suppliers"
 
@@ -3122,8 +3133,12 @@ msgid "Date of first registration, if known."
 msgstr "Date of first registration, if known."
 
 #: apps/vehicles/models.py:96
-msgid "Deprecated: the authoritative inventory state lives on inventory.VehicleStock.status (§8). Do not use."
-msgstr "Deprecated: the authoritative inventory state lives on inventory.VehicleStock.status (§8). Do not use."
+msgid ""
+"Deprecated: the authoritative inventory state lives on "
+"inventory.VehicleStock.status (§8). Do not use."
+msgstr ""
+"Deprecated: the authoritative inventory state lives on "
+"inventory.VehicleStock.status (§8). Do not use."
 
 #: apps/vehicles/models.py:107
 msgid "Branch where this vehicle is assigned or stored."
@@ -3138,7 +3153,7 @@ msgid "vehicles"
 msgstr "vehicles"
 
 #: apps/vehicles/templates/vehicles/detail.html:11
-#: apps/vehicles/templates/vehicles/list.html:4 templates/base.html:69
+#: apps/vehicles/templates/vehicles/list.html:4 templates/base.html:80
 msgid "Vehicles"
 msgstr "Vehicles"
 
@@ -3180,7 +3195,7 @@ msgid "Bought from"
 msgstr "Bought from"
 
 #: apps/vehicles/templates/vehicles/detail.html:68
-#: apps/vehicles/templates/vehicles/detail.html:225
+#: apps/vehicles/templates/vehicles/detail.html:230
 msgid "Landed cost"
 msgstr "Landed cost"
 
@@ -3275,8 +3290,12 @@ msgid "Purchased from"
 msgstr "Purchased from"
 
 #: apps/vehicles/templates/vehicles/detail.html:151
-msgid "Not linked to a purchase order yet — add this car as a line on a purchase order to record who it was bought from."
-msgstr "Not linked to a purchase order yet — add this car as a line on a purchase order to record who it was bought from."
+msgid ""
+"Not linked to a purchase order yet — add this car as a line on a purchase "
+"order to record who it was bought from."
+msgstr ""
+"Not linked to a purchase order yet — add this car as a line on a purchase "
+"order to record who it was bought from."
 
 #: apps/vehicles/templates/vehicles/detail.html:158
 msgid "Photo gallery"
@@ -3286,20 +3305,20 @@ msgstr "Photo gallery"
 msgid "Upload the first one"
 msgstr "Upload the first one"
 
-#: apps/vehicles/templates/vehicles/detail.html:212
+#: apps/vehicles/templates/vehicles/detail.html:217
 msgid "No documents yet (license, sale documents, insurance…)."
 msgstr "No documents yet (license, sale documents, insurance…)."
 
-#: apps/vehicles/templates/vehicles/detail.html:223
+#: apps/vehicles/templates/vehicles/detail.html:228
 msgid "Cost history"
 msgstr "Cost history"
 
-#: apps/vehicles/templates/vehicles/detail.html:250
+#: apps/vehicles/templates/vehicles/detail.html:255
 msgid "No cost lines yet."
 msgstr "No cost lines yet."
 
-#: apps/vehicles/templates/vehicles/detail.html:257
-#: apps/vehicles/templates/vehicles/detail.html:263
+#: apps/vehicles/templates/vehicles/detail.html:262
+#: apps/vehicles/templates/vehicles/detail.html:268
 msgid "Add cost line"
 msgstr "Add cost line"
 
@@ -3308,8 +3327,12 @@ msgid "Vehicle registry"
 msgstr "Vehicle registry"
 
 #: apps/vehicles/templates/vehicles/form.html:12
-msgid "Record permanent vehicle identity and specifications. Inventory lifecycle state is managed separately through stock operations."
-msgstr "Record permanent vehicle identity and specifications. Inventory lifecycle state is managed separately through stock operations."
+msgid ""
+"Record permanent vehicle identity and specifications. Inventory lifecycle "
+"state is managed separately through stock operations."
+msgstr ""
+"Record permanent vehicle identity and specifications. Inventory lifecycle "
+"state is managed separately through stock operations."
 
 #: apps/vehicles/templates/vehicles/form.html:16
 msgid "Back to vehicles"
@@ -3320,8 +3343,12 @@ msgid "Core vehicle identity"
 msgstr "Core vehicle identity"
 
 #: apps/vehicles/templates/vehicles/form.html:28
-msgid "VIN and manufacturer details uniquely identify this vehicle inside the company."
-msgstr "VIN and manufacturer details uniquely identify this vehicle inside the company."
+msgid ""
+"VIN and manufacturer details uniquely identify this vehicle inside the "
+"company."
+msgstr ""
+"VIN and manufacturer details uniquely identify this vehicle inside the "
+"company."
 
 #: apps/vehicles/templates/vehicles/form.html:47
 msgid "Registration & serial numbers"
@@ -3329,7 +3356,8 @@ msgstr "Registration & serial numbers"
 
 #: apps/vehicles/templates/vehicles/form.html:47
 msgid "Government registration references and manufacturer serial identifiers."
-msgstr "Government registration references and manufacturer serial identifiers."
+msgstr ""
+"Government registration references and manufacturer serial identifiers."
 
 #: apps/vehicles/templates/vehicles/form.html:66
 msgid "Technical specification"
@@ -3348,8 +3376,12 @@ msgid "Inventory state is separate"
 msgstr "Inventory state is separate"
 
 #: apps/vehicles/templates/vehicles/form.html:101
-msgid "Availability, location, reservation, sale, and delivery are authoritative on VehicleStock and inventory services."
-msgstr "Availability, location, reservation, sale, and delivery are authoritative on VehicleStock and inventory services."
+msgid ""
+"Availability, location, reservation, sale, and delivery are authoritative on "
+"VehicleStock and inventory services."
+msgstr ""
+"Availability, location, reservation, sale, and delivery are authoritative on "
+"VehicleStock and inventory services."
 
 #: apps/vehicles/templates/vehicles/form.html:104
 msgid "VIN is unique per company."
@@ -3376,8 +3408,12 @@ msgid "Vehicle inventory"
 msgstr "Vehicle inventory"
 
 #: apps/vehicles/templates/vehicles/list.html:15
-msgid "Search the permanent vehicle registry and review each vehicle's current inventory position."
-msgstr "Search the permanent vehicle registry and review each vehicle's current inventory position."
+msgid ""
+"Search the permanent vehicle registry and review each vehicle's current "
+"inventory position."
+msgstr ""
+"Search the permanent vehicle registry and review each vehicle's current "
+"inventory position."
 
 #: apps/vehicles/templates/vehicles/list.html:20 apps/vehicles/views.py:146
 #: templates/accounts/dashboard.html:171
@@ -3433,7 +3469,7 @@ msgid "Vehicle updated."
 msgstr "Vehicle updated."
 
 #: templates/accounts/dashboard.html:4 templates/accounts/dashboard.html:8
-#: templates/base.html:58
+#: templates/base.html:69
 msgid "Dashboard"
 msgstr "Dashboard"
 
@@ -3459,8 +3495,12 @@ msgid "Admin console"
 msgstr "Admin console"
 
 #: templates/accounts/dashboard.html:30
-msgid "Day-to-day records live in each company's workspace. Use the admin console for companies, branches, users and roles."
-msgstr "Day-to-day records live in each company's workspace. Use the admin console for companies, branches, users and roles."
+msgid ""
+"Day-to-day records live in each company's workspace. Use the admin console "
+"for companies, branches, users and roles."
+msgstr ""
+"Day-to-day records live in each company's workspace. Use the admin console "
+"for companies, branches, users and roles."
 
 #: templates/accounts/dashboard.html:31
 msgid "Open admin console"
@@ -3566,75 +3606,88 @@ msgstr "Create the first one"
 msgid "Log in"
 msgstr "Log in"
 
-#: templates/accounts/login.html:33
+#: templates/accounts/login.html:44
 msgid "Vehicle Management Database"
 msgstr "Vehicle Management Database"
 
-#: templates/accounts/login.html:36
+#: templates/accounts/login.html:47
 msgid "Every vehicle."
 msgstr "Every vehicle."
 
-#: templates/accounts/login.html:38
+#: templates/accounts/login.html:49
 msgid "One intelligent system."
 msgstr "One intelligent system."
 
-#: templates/accounts/login.html:41
-msgid "Manage inventory, ownership records, purchases, exports and vehicle documentation from one centralized workspace."
-msgstr "Manage inventory, ownership records, purchases, exports and vehicle documentation from one centralized workspace."
+#: templates/accounts/login.html:52
+msgid ""
+"Manage inventory, ownership records, purchases, exports and vehicle "
+"documentation from one centralized workspace."
+msgstr ""
+"Manage inventory, ownership records, purchases, exports and vehicle "
+"documentation from one centralized workspace."
 
-#: templates/accounts/login.html:56
+#: templates/accounts/login.html:67
 msgid "Secure database"
 msgstr "Secure database"
 
-#: templates/accounts/login.html:57
+#: templates/accounts/login.html:68
 msgid "Vehicle records"
 msgstr "Vehicle records"
 
-#: templates/accounts/login.html:58
+#: templates/accounts/login.html:69
 msgid "Export management"
 msgstr "Export management"
 
-#: templates/accounts/login.html:65
+#: templates/accounts/login.html:77 templates/accounts/login.html:78
+#: templates/base.html:200
+msgid "Language"
+msgstr "Language"
+
+#: templates/accounts/login.html:84 templates/base.html:207
+msgid "Toggle theme"
+msgstr "Toggle theme"
+
+#: templates/accounts/login.html:91
 msgid "Log in to CarFlow"
 msgstr "Log in to CarFlow"
 
-#: templates/accounts/login.html:66
+#: templates/accounts/login.html:92
 msgid "Sign in to access your vehicle management dashboard."
 msgstr "Sign in to access your vehicle management dashboard."
 
-#: templates/accounts/login.html:69
+#: templates/accounts/login.html:95
 msgid "Your email and password didn't match. Please try again."
 msgstr "Your email and password didn't match. Please try again."
 
-#: templates/accounts/login.html:84
+#: templates/accounts/login.html:110
 msgid "Password"
 msgstr "Password"
 
-#: templates/accounts/login.html:90
+#: templates/accounts/login.html:116
 msgid "Enter your password"
 msgstr "Enter your password"
 
-#: templates/accounts/login.html:91
+#: templates/accounts/login.html:117
 msgid "Show password"
 msgstr "Show password"
 
-#: templates/accounts/login.html:91
+#: templates/accounts/login.html:117
 msgid "Hide password"
 msgstr "Hide password"
 
-#: templates/accounts/login.html:100
+#: templates/accounts/login.html:126
 msgid "Remember me"
 msgstr "Remember me"
 
-#: templates/accounts/login.html:102
+#: templates/accounts/login.html:128
 msgid "Need help? Contact your administrator."
 msgstr "Need help? Contact your administrator."
 
-#: templates/accounts/login.html:106
+#: templates/accounts/login.html:132
 msgid "Signing in…"
 msgstr "Signing in…"
 
-#: templates/accounts/login.html:106
+#: templates/accounts/login.html:132
 msgid "Sign in"
 msgstr "Sign in"
 
@@ -3646,67 +3699,50 @@ msgstr "Django site admin"
 msgid "AUTOMEX CarFlow"
 msgstr "AUTOMEX CarFlow"
 
-#: templates/base.html:39
+#: templates/base.html:50
 msgid "Automotive ERP"
 msgstr "Automotive ERP"
 
-#: templates/base.html:41
+#: templates/base.html:52
 msgid "Live"
 msgstr "Live"
 
-#: templates/base.html:42
+#: templates/base.html:53
 msgid "Close navigation"
 msgstr "Close navigation"
 
-#: templates/base.html:50
+#: templates/base.html:61
 msgid "Search CarFlow"
 msgstr "Search CarFlow"
 
-#: templates/base.html:87
+#: templates/base.html:98
 msgid "Purchases"
 msgstr "Purchases"
 
-#: templates/base.html:121
+#: templates/base.html:132
 msgid "Finance"
 msgstr "Finance"
 
-#: templates/base.html:150
+#: templates/base.html:161
 msgid "Accounting summary"
 msgstr "Accounting summary"
 
-#: templates/base.html:158
+#: templates/base.html:169
 msgid "System"
 msgstr "System"
 
-#: templates/base.html:164
+#: templates/base.html:175
 msgid "Log out"
 msgstr "Log out"
 
-#: templates/base.html:178
+#: templates/base.html:189
 msgid "Open navigation"
 msgstr "Open navigation"
 
-#: templates/base.html:184
+#: templates/base.html:195
 msgid "CarFlow workspace"
 msgstr "CarFlow workspace"
 
-#: templates/base.html:189
-msgid "Language"
-msgstr "Language"
-
-#: templates/base.html:196
-msgid "Toggle theme"
-msgstr "Toggle theme"
-
-#: templates/base.html:203
+#: templates/base.html:215
 msgid "Platform admin"
 msgstr "Platform admin"
-
-#~ msgid "Operational command center across sales, inventory and finance"
-#~ msgstr "Operational command center across sales, inventory and finance"
-
-#~ msgid "All companies"
-#~ msgstr "All companies"
-
-#~ msgid "Theme"
-#~ msgstr "Theme"

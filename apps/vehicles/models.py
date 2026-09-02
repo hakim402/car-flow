@@ -128,14 +128,14 @@ class Vehicle(TenantModel, CompanyConsistencyMixin):
         scoped query on direct use (e.g. the detail page)."""
         photo_list = getattr(self, "photo_list", None)
         if photo_list is not None:
-            return photo_list[0] if photo_list else None
+            return next((photo for photo in photo_list if photo.file_exists), None)
         from apps.documents.models import Document, DocumentType
 
-        return (
+        photos = (
             self.documents.filter(doc_type=DocumentType.VEHICLE_PHOTO)
             .order_by("created_at", "pk")
-            .first()
         )
+        return next((photo for photo in photos if photo.file_exists), None)
 
     def get_absolute_url(self):
         return reverse("vehicles:detail", kwargs={"pk": self.pk})
