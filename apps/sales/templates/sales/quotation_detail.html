@@ -5,21 +5,21 @@
 
 {% block content %}
 <div class="flex items-center justify-between mb-4">
-    <h1 class="text-2xl font-semibold">{{ quotation }}</h1>
+    <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">{{ quotation }}</h1>
     <form method="post" action="{% url 'sales:quotation_update_status' quotation.pk %}" class="flex items-center gap-2">
         {% csrf_token %}
         <label class="text-sm text-slate-500" for="quotation-status">{% translate "Status" %}</label>
-        <select id="quotation-status" name="status" class="rounded border border-slate-300 px-3 py-2 text-sm">
+        <select id="quotation-status" name="status" class="rounded-xl border border-slate-300 bg-slate-50 px-3 py-2.5 text-sm text-slate-800 shadow-sm outline-none transition focus:border-amber-500 focus:bg-white focus:ring-4 focus:ring-amber-100">
             {% for value, label in statuses %}
                 <option value="{{ value }}" {% if value == quotation.status %}selected{% endif %}>{{ label }}</option>
             {% endfor %}
         </select>
-        <button type="submit" class="rounded bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 text-sm">
+        <button type="submit" class="inline-flex items-center justify-center rounded-xl bg-slate-900 hover:bg-slate-800 text-white px-4 py-2.5 text-sm font-bold shadow-sm transition">
             {% translate "Update" %}
         </button>
     </form>
 </div>
-<div class="bg-white rounded-lg shadow p-6 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 text-sm">
+<div class="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 shadow-sm grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 text-sm">
     <div><span class="text-slate-500">{% translate "Customer" %}:</span>
         <a class="text-slate-700 hover:text-amber-600" href="{{ quotation.customer.get_absolute_url }}">
             {{ quotation.customer }}

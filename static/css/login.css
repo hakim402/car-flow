@@ -333,15 +333,75 @@
 /* FORM SIDE */
 
 .login-form-side {
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 48px 52px;
     background: white;
+    transition: background-color .2s ease, color .2s ease;
 }
 
 .login-form {
     width: min(410px, 100%);
+}
+
+.login-toolbar {
+    position: absolute;
+    z-index: 3;
+    top: 24px;
+    inset-inline-end: 28px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.login-language-form select,
+.login-theme-button {
+    height: 40px;
+    border: 1px solid #dfe3e8;
+    border-radius: 10px;
+    background: #fff;
+    color: #4b5563;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, .04);
+}
+
+.login-language-form select {
+    min-width: 104px;
+    padding: 0 34px 0 12px;
+    padding-inline: 12px 34px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.login-theme-button {
+    width: 40px;
+    padding: 0;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+}
+
+.login-theme-button:hover,
+.login-language-form select:hover {
+    border-color: #f59e0b;
+}
+
+.login-theme-button svg {
+    width: 18px;
+    height: 18px;
+}
+
+.theme-moon {
+    display: none;
+}
+
+.dark .theme-sun {
+    display: none;
+}
+
+.dark .theme-moon {
+    display: block;
 }
 
 .login-form h1 {
@@ -394,6 +454,8 @@
     padding-inline-end: 44px;
     border: 1px solid #dfe3e8;
     border-radius: 10px;
+    background: #fff;
+    color: #111827;
     outline: none;
     font-size: 16px;
     transition: .18s;
@@ -402,6 +464,10 @@
 .login-input:focus {
     border-color: #f59e0b;
     box-shadow: 0 0 0 3px rgba(245, 158, 11, .18);
+}
+
+.login-input::placeholder {
+    color: #969ca5;
 }
 
 .password-toggle {
@@ -429,7 +495,7 @@
     height: 18px;
 }
 
-.login-button {
+.login-submit {
     width: 100%;
     min-height: 50px;
     border: none;
@@ -442,18 +508,122 @@
     transition: .2s;
 }
 
-.login-button:hover {
+.login-submit:hover {
     background: #d97706;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px rgba(217, 119, 6, .2);
 }
 
-.login-button:focus-visible {
+.login-submit:focus-visible {
     outline: 3px solid rgba(245, 158, 11, .35);
     outline-offset: 2px;
 }
 
-.login-button:disabled {
+.login-submit:disabled {
     cursor: wait;
     opacity: .7;
+}
+
+.login-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin: 2px 0 22px;
+}
+
+.login-remember {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    color: #4b5563;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.login-remember input {
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    accent-color: #f59e0b;
+}
+
+.login-help {
+    color: #b45309;
+    font-size: 13px;
+    font-weight: 600;
+    text-align: end;
+}
+
+html[dir="rtl"] .login-hero h2,
+html[dir="rtl"] .login-form h1 {
+    letter-spacing: 0;
+    line-height: 1.22;
+}
+
+html[dir="rtl"] .login-input {
+    text-align: start;
+}
+
+html[dir="rtl"] input[type="email"] {
+    direction: ltr;
+    text-align: left;
+}
+
+/* Dark login surface: the visual panel stays intentionally cinematic while
+   the form surface and controls follow the user's saved/system theme. */
+.dark .carflow-login,
+.dark .login-form-side {
+    background: #020617;
+}
+
+.dark .login-form h1,
+.dark .login-field label {
+    color: #f8fafc;
+}
+
+.dark .login-subtitle,
+.dark .login-remember {
+    color: #94a3b8;
+}
+
+.dark .login-input,
+.dark .login-language-form select,
+.dark .login-theme-button {
+    border-color: #334155;
+    background: #0f172a;
+    color: #e2e8f0;
+}
+
+.dark .login-input::placeholder {
+    color: #64748b;
+}
+
+.dark .password-toggle {
+    color: #94a3b8;
+}
+
+.dark .password-toggle:hover,
+.dark .login-theme-button:hover {
+    background: #1e293b;
+}
+
+.dark .login-help {
+    color: #fbbf24;
+}
+
+.dark .login-error {
+    border-color: rgba(251, 113, 133, .35);
+    background: rgba(244, 63, 94, .12);
+    color: #fda4af;
+}
+
+.dark .login-footer {
+    color: #64748b;
+}
+
+.login-submit:active {
+    transform: translateY(0);
 }
 
 .login-error {
@@ -486,11 +656,29 @@
     .login-form-side {
         min-height: 100vh;
         min-height: 100dvh;
-        padding: 36px 24px;
+        padding: 92px 24px 36px;
+    }
+
+    .login-toolbar {
+        top: 20px;
+        inset-inline: 24px;
+        justify-content: flex-end;
     }
 
     .login-form h1 {
         font-size: 30px;
+    }
+}
+
+@media (max-width: 420px) {
+    .login-form-side {
+        padding-inline: 20px;
+    }
+
+    .login-actions {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 12px;
     }
 }
 

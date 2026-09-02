@@ -4,59 +4,104 @@
 {% block title %}{{ vehicle }} — AUTOMEX CarFlow{% endblock %}
 
 {% block content %}
-<div class="flex items-center justify-between mb-4">
-    <h1 class="text-2xl font-semibold">{{ vehicle.make }} {{ vehicle.model }} ({{ vehicle.year }})</h1>
-    <div class="flex items-center gap-2">
-        {% if can_upload_documents %}
-            <a href="{% url 'documents:upload_for_vehicle' vehicle.pk %}"
-               class="rounded bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 text-sm">
-                {% translate "Add photo / document" %}
+<div class="space-y-6">
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+            <div class="flex flex-wrap items-center gap-2 text-xs font-bold text-slate-500">
+                <a href="{% url 'vehicles:list' %}" class="hover:text-amber-600">{% translate "Vehicles" %}</a>
+                <span class="text-slate-300">/</span>
+                <span class="font-mono" dir="ltr">{{ vehicle.vin }}</span>
+            </div>
+            <h1 class="mt-1 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">{{ vehicle.year }} {{ vehicle.make }} {{ vehicle.model }}</h1>
+            <p class="mt-1 text-sm text-slate-500">{% if vehicle.model_variant %}{{ vehicle.model_variant }} · {% endif %}{{ vehicle.get_body_type_display|default:"—" }}{% if vehicle.color %} · {{ vehicle.color }}{% endif %}</p>
+        </div>
+        <div class="flex flex-wrap gap-2">
+            {% if can_upload_documents %}
+                <a href="{% url 'documents:upload_for_vehicle' vehicle.pk %}" class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 shadow-sm transition hover:bg-slate-50">
+                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-width="1.8" d="M12 5v14M5 12h14"/></svg>
+                    {% translate "Photo / document" %}
+                </a>
+            {% endif %}
+            <a href="{% url 'vehicles:edit' vehicle.pk %}" class="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-slate-800">
+                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-width="1.8" d="M4 20h4l11-11-4-4L4 16v4ZM13.5 6.5l4 4"/></svg>
+                {% translate "Edit vehicle" %}
             </a>
-        {% endif %}
-        <a href="{% url 'vehicles:edit' vehicle.pk %}"
-           class="rounded bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 text-sm">{% translate "Edit" %}</a>
+        </div>
     </div>
-</div>
-<div class="card p-6 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 text-sm">
-    <div><span class="text-slate-500">{% translate "VIN" %}:</span> <span class="font-mono">{{ vehicle.vin }}</span></div>
-    <div><span class="text-slate-500">{% translate "Plate number" %}:</span> {{ vehicle.plate_number|default:"—" }}</div>
-    <div><span class="text-slate-500">{% translate "Registration number" %}:</span> {{ vehicle.registration_number|default:"—" }}</div>
-    <div><span class="text-slate-500">{% translate "Engine number" %}:</span> {{ vehicle.engine_number|default:"—" }}</div>
-    <div><span class="text-slate-500">{% translate "Chassis number" %}:</span> {{ vehicle.chassis_number|default:"—" }}</div>
-    <div><span class="text-slate-500">{% translate "Make" %}:</span> {{ vehicle.make }}</div>
-    <div><span class="text-slate-500">{% translate "Model" %}:</span> {{ vehicle.model }}</div>
-    <div><span class="text-slate-500">{% translate "Variant" %}:</span> {{ vehicle.model_variant|default:"—" }}</div>
-    <div><span class="text-slate-500">{% translate "Body type" %}:</span> {{ vehicle.get_body_type_display|default:"—" }}</div>
-    <div><span class="text-slate-500">{% translate "Fuel type" %}:</span> {{ vehicle.get_fuel_type_display|default:"—" }}</div>
-    <div><span class="text-slate-500">{% translate "Transmission" %}:</span> {{ vehicle.get_transmission_display|default:"—" }}</div>
-    <div><span class="text-slate-500">{% translate "Drive type" %}:</span> {{ vehicle.get_drive_type_display|default:"—" }}</div>
-    <div><span class="text-slate-500">{% translate "Color" %}:</span> {{ vehicle.color|default:"—" }}</div>
-    <div><span class="text-slate-500">{% translate "Mileage (km)" %}:</span> {{ vehicle.mileage }}</div>
-    <div><span class="text-slate-500">{% translate "Door count" %}:</span> {{ vehicle.door_count }}</div>
-    <div><span class="text-slate-500">{% translate "Seating capacity" %}:</span> {{ vehicle.seating_capacity }}</div>
-    <div><span class="text-slate-500">{% translate "Country of origin" %}:</span> {{ vehicle.get_country_of_origin_display|default:"—" }}</div>
-    <div><span class="text-slate-500">{% translate "First registration date" %}:</span> {{ vehicle.first_registration_date|default:"—" }}</div>
-    <div><span class="text-slate-500">{% translate "Status" %}:</span> {% if stock %}{{ stock.get_status_display }}{% else %}—{% endif %}</div>
-    <div><span class="text-slate-500">{% translate "Condition" %}:</span> {% if stock %}{{ stock.get_condition_display }}{% else %}—{% endif %}</div>
-    <div><span class="text-slate-500">{% translate "Branch" %}:</span> {% if stock %}{{ stock.branch|default:"—" }}{% else %}—{% endif %}</div>
-    <div><span class="text-slate-500">{% translate "Location" %}:</span> {% if stock %}{{ stock.location|default:"—" }}{% else %}—{% endif %}</div>
-    <div><span class="text-slate-500">{% translate "Created" %}:</span> {{ vehicle.created_at|date:"SHORT_DATE_FORMAT" }}</div>
-    <div>
-        <span class="text-slate-500">{% translate "Bought from" %}:</span>
-        {% if source_supplier %}
-            <a href="{{ source_supplier.get_absolute_url }}" class="font-medium text-slate-800 hover:text-amber-600">
-                {{ source_supplier.name }}
-            </a>
-        {% else %}—{% endif %}
-    </div>
-    {% if vehicle.notes %}
-        <div class="sm:col-span-2"><span class="text-slate-500">{% translate "Notes" %}:</span> {{ vehicle.notes|linebreaksbr }}</div>
-    {% endif %}
+
+    <section class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <div class="grid lg:grid-cols-[minmax(0,1.4fr)_minmax(340px,.8fr)]">
+            <div class="relative min-h-[280px] bg-slate-100 sm:min-h-[360px]">
+                {% if photos %}
+                    <img src="{{ photos.0.file.url }}" alt="{{ vehicle.make }} {{ vehicle.model }}" class="absolute inset-0 h-full w-full object-cover">
+                    <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-950/70 to-transparent p-5 pt-16 text-white">
+                        <p class="text-xs font-semibold text-white/70">{% blocktranslate count counter=photos|length %}{{ counter }} photo{% plural %}{{ counter }} photos{% endblocktranslate %}</p>
+                        <p class="mt-1 text-sm font-bold">{{ vehicle.year }} {{ vehicle.make }} {{ vehicle.model }}</p>
+                    </div>
+                {% else %}
+                    <div class="absolute inset-0 flex flex-col items-center justify-center gap-3 text-slate-400">
+                        <svg class="h-14 w-14" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-width="1.2" d="m5 17-2-1v-4l2-5h14l2 5v4l-2 1M5 12h14M7 15h.01M17 15h.01"/></svg>
+                        <span class="text-sm font-semibold">{% translate "No vehicle photos yet" %}</span>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="p-5 sm:p-6">
+                <div class="flex items-center justify-between gap-3">
+                    <div>
+                        <p class="text-[11px] font-bold uppercase tracking-[0.14em] text-slate-400">{% translate "Current inventory state" %}</p>
+                        <div class="mt-2 flex items-center gap-2">
+                            {% if stock %}
+                                <span class="h-2.5 w-2.5 rounded-full {% if stock.status == 'available' %}bg-emerald-500{% elif stock.status == 'reserved' %}bg-amber-500{% elif stock.status == 'sold' %}bg-blue-500{% elif stock.status == 'delivered' %}bg-slate-400{% else %}bg-violet-500{% endif %}"></span>
+                                <span class="text-lg font-extrabold text-slate-900">{{ stock.get_status_display }}</span>
+                            {% else %}
+                                <span class="h-2.5 w-2.5 rounded-full bg-slate-300"></span><span class="text-lg font-extrabold text-slate-600">{% translate "No stock record" %}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% if stock %}<span class="rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-600">{{ stock.get_condition_display }}</span>{% endif %}
+                </div>
+
+                <dl class="mt-6 space-y-4 text-sm">
+                    <div class="flex items-start justify-between gap-4 border-b border-slate-100 pb-3"><dt class="text-slate-500">{% translate "Branch / location" %}</dt><dd class="text-end font-bold text-slate-800">{% if stock %}{{ stock.branch|default:"—" }}{% if stock.location %}<br><span class="text-xs font-medium text-slate-500">{{ stock.location }}</span>{% endif %}{% else %}—{% endif %}</dd></div>
+                    <div class="flex items-start justify-between gap-4 border-b border-slate-100 pb-3"><dt class="text-slate-500">{% translate "Bought from" %}</dt><dd class="text-end font-bold text-slate-800">{% if source_supplier %}<a href="{{ source_supplier.get_absolute_url }}" class="hover:text-amber-600">{{ source_supplier.name }}</a>{% else %}—{% endif %}</dd></div>
+                    <div class="flex items-start justify-between gap-4 border-b border-slate-100 pb-3"><dt class="text-slate-500">{% translate "Landed cost" %}</dt><dd class="text-end font-extrabold text-slate-900" dir="ltr">{% for currency, amount in landed_cost.items %}<span class="block whitespace-nowrap">{{ amount }} {{ currency }}</span>{% empty %}—{% endfor %}</dd></div>
+                    <div class="flex items-start justify-between gap-4"><dt class="text-slate-500">{% translate "Mileage" %}</dt><dd class="font-extrabold text-slate-900" dir="ltr">{{ vehicle.mileage }} {% translate "km" %}</dd></div>
+                </dl>
+            </div>
+        </div>
+    </section>
+
+    <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+        <div class="mb-5 flex items-center justify-between gap-3">
+            <div><h2 class="text-lg font-extrabold tracking-tight text-slate-900">{% translate "Vehicle information" %}</h2><p class="mt-1 text-xs text-slate-500">{% translate "Permanent identity, registration, and technical specification." %}</p></div>
+            <span class="rounded-lg bg-slate-50 px-2.5 py-1 font-mono text-[11px] font-bold text-slate-500" dir="ltr">{{ vehicle.vin }}</span>
+        </div>
+        <div class="grid gap-x-8 gap-y-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 text-sm">
+            <div><p class="text-[11px] font-semibold text-slate-400">{% translate "Plate number" %}</p><p class="mt-1 font-bold text-slate-800" dir="ltr">{{ vehicle.plate_number|default:"—" }}</p></div>
+            <div><p class="text-[11px] font-semibold text-slate-400">{% translate "Registration number" %}</p><p class="mt-1 font-bold text-slate-800" dir="ltr">{{ vehicle.registration_number|default:"—" }}</p></div>
+            <div><p class="text-[11px] font-semibold text-slate-400">{% translate "Engine number" %}</p><p class="mt-1 font-bold text-slate-800" dir="ltr">{{ vehicle.engine_number|default:"—" }}</p></div>
+            <div><p class="text-[11px] font-semibold text-slate-400">{% translate "Chassis number" %}</p><p class="mt-1 font-bold text-slate-800" dir="ltr">{{ vehicle.chassis_number|default:"—" }}</p></div>
+            <div><p class="text-[11px] font-semibold text-slate-400">{% translate "Make" %}</p><p class="mt-1 font-bold text-slate-800">{{ vehicle.make }}</p></div>
+            <div><p class="text-[11px] font-semibold text-slate-400">{% translate "Model" %}</p><p class="mt-1 font-bold text-slate-800">{{ vehicle.model }}</p></div>
+            <div><p class="text-[11px] font-semibold text-slate-400">{% translate "Variant" %}</p><p class="mt-1 font-bold text-slate-800">{{ vehicle.model_variant|default:"—" }}</p></div>
+            <div><p class="text-[11px] font-semibold text-slate-400">{% translate "Model year" %}</p><p class="mt-1 font-bold text-slate-800">{{ vehicle.year }}</p></div>
+            <div><p class="text-[11px] font-semibold text-slate-400">{% translate "Body type" %}</p><p class="mt-1 font-bold text-slate-800">{{ vehicle.get_body_type_display|default:"—" }}</p></div>
+            <div><p class="text-[11px] font-semibold text-slate-400">{% translate "Fuel type" %}</p><p class="mt-1 font-bold text-slate-800">{{ vehicle.get_fuel_type_display|default:"—" }}</p></div>
+            <div><p class="text-[11px] font-semibold text-slate-400">{% translate "Transmission" %}</p><p class="mt-1 font-bold text-slate-800">{{ vehicle.get_transmission_display|default:"—" }}</p></div>
+            <div><p class="text-[11px] font-semibold text-slate-400">{% translate "Drive type" %}</p><p class="mt-1 font-bold text-slate-800">{{ vehicle.get_drive_type_display|default:"—" }}</p></div>
+            <div><p class="text-[11px] font-semibold text-slate-400">{% translate "Color" %}</p><p class="mt-1 font-bold text-slate-800">{{ vehicle.color|default:"—" }}</p></div>
+            <div><p class="text-[11px] font-semibold text-slate-400">{% translate "Doors / seats" %}</p><p class="mt-1 font-bold text-slate-800">{{ vehicle.door_count }} / {{ vehicle.seating_capacity }}</p></div>
+            <div><p class="text-[11px] font-semibold text-slate-400">{% translate "Country of origin" %}</p><p class="mt-1 font-bold text-slate-800">{{ vehicle.get_country_of_origin_display|default:"—" }}</p></div>
+            <div><p class="text-[11px] font-semibold text-slate-400">{% translate "First registration" %}</p><p class="mt-1 font-bold text-slate-800">{{ vehicle.first_registration_date|date:"SHORT_DATE_FORMAT"|default:"—" }}</p></div>
+        </div>
+        {% if vehicle.notes %}<div class="mt-6 rounded-xl bg-slate-50 p-4"><p class="text-[11px] font-bold uppercase tracking-wide text-slate-400">{% translate "Internal notes" %}</p><div class="mt-2 text-sm leading-6 text-slate-700">{{ vehicle.notes|linebreaksbr }}</div></div>{% endif %}
+    </section>
 </div>
 
 {# ============ Purchase history: which supplier sold us this car ============ #}
-<div class="card p-6 mt-6">
-    <h2 class="text-lg font-semibold mb-3">{% translate "Purchased from" %}</h2>
+<div class="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 shadow-sm mt-6">
+    <h2 class="text-lg font-extrabold tracking-tight text-slate-900 mb-3">{% translate "Purchased from" %}</h2>
     {% if purchase_lines %}
         <div class="overflow-x-auto">
             <table class="data-table">
@@ -109,8 +154,8 @@
 </div>
 
 {# ============================ Photo gallery ============================ #}
-<div class="card p-6 mt-6">
-    <h2 class="text-lg font-semibold mb-3">{% translate "Photo gallery" %}</h2>
+<div class="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 shadow-sm mt-6">
+    <h2 class="text-lg font-extrabold tracking-tight text-slate-900 mb-3">{% translate "Photo gallery" %}</h2>
     {% if photos %}
         <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
             {% for photo in photos %}
@@ -132,8 +177,8 @@
 </div>
 
 {# ============================ Documents ============================ #}
-<div class="card p-6 mt-6">
-    <h2 class="text-lg font-semibold mb-3">{% translate "Documents" %}</h2>
+<div class="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 shadow-sm mt-6">
+    <h2 class="text-lg font-extrabold tracking-tight text-slate-900 mb-3">{% translate "Documents" %}</h2>
     {% if documents %}
         <div class="overflow-x-auto">
             <table class="data-table">
@@ -173,9 +218,9 @@
 </div>
 
 {# Cost history (§6): immutable rows, landed cost computed per currency. #}
-<div class="card p-6 mt-6">
+<div class="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 shadow-sm mt-6">
     <div class="flex items-center justify-between mb-3">
-        <h2 class="text-lg font-semibold">{% translate "Cost history" %}</h2>
+        <h2 class="text-lg font-extrabold tracking-tight text-slate-900">{% translate "Cost history" %}</h2>
         <div class="text-sm" dir="ltr">
             <span class="text-slate-500">{% translate "Landed cost" %}:</span>
             {% for currency, amount in landed_cost.items %}
@@ -214,7 +259,7 @@
             {% csrf_token %}
             {% include "includes/_form_fields.html" with form=cost_form %}
             <button type="submit"
-                    class="rounded bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 text-sm">
+                    class="inline-flex items-center justify-center rounded-xl bg-slate-900 hover:bg-slate-800 text-white px-4 py-2.5 text-sm font-bold shadow-sm transition">
                 {% translate "Add cost line" %}
             </button>
         </form>

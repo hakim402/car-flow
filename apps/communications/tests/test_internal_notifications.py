@@ -61,8 +61,7 @@ def test_user_unread_notifications_count_ignores_read_items():
             channel="in_app",
             read_at=timezone.now(),
         )
-
-    assert user.unread_notifications_count == 1
+        assert user.unread_notifications_count == 1
 
 
 @pytest.mark.django_db

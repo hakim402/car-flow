@@ -4,12 +4,12 @@
 {% block title %}{% translate "Dashboard" %} — AUTOMEX CarFlow{% endblock %}
 
 {% block content %}
-<div class="mb-6">
+{% if platform %}<div class="mb-6">
     <h1 class="text-2xl font-semibold">{% translate "Dashboard" %}</h1>
     <p class="mt-1 text-sm text-slate-500">
         {% blocktranslate with name=user.get_full_name|default:user.get_username %}Welcome back, {{ name }}.{% endblocktranslate %}
     </p>
-</div>
+</div>{% endif %}
 
 {# ============================ KPI cards ============================ #}
 {% if platform %}
@@ -32,14 +32,14 @@
     </div>
 </div>
 {% else %}
-<div class="mb-6 rounded-2xl border border-amber-200 bg-gradient-to-r from-amber-50 to-white p-5 shadow-sm">
+<div class="mb-6 rounded-2xl border border-amber-200 bg-gradient-to-r from-amber-50 via-white to-white p-5 shadow-sm transition-colors dark:border-amber-400/20 dark:from-amber-500/10 dark:via-slate-900 dark:to-slate-900 dark:shadow-none">
     <div class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
         <div>
-            <p class="text-xs font-semibold uppercase tracking-[0.2em] text-amber-700">{% translate "Operations snapshot" %}</p>
-            <h2 class="mt-1 text-xl font-semibold text-slate-900">{% blocktranslate with name=user.get_full_name|default:user.get_username %}Welcome back, {{ name }}.{% endblocktranslate %}</h2>
+            <p class="text-xs font-semibold uppercase tracking-[0.2em] text-amber-700 dark:text-amber-300">{% translate "Operations snapshot" %}</p>
+            <h2 class="mt-1 text-xl font-semibold text-slate-900 dark:text-slate-100">{% blocktranslate with name=user.get_full_name|default:user.get_username %}Welcome back, {{ name }}.{% endblocktranslate %}</h2>
         </div>
         {% if user.is_super_admin or 'sales.view' in user.permission_codenames %}
-        <a href="{% url 'sales:lead_create' %}" class="inline-flex items-center gap-2 rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800">
+        <a href="{% url 'sales:lead_create' %}" class="inline-flex items-center gap-2 rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-slate-800 dark:bg-amber-400 dark:text-slate-950 dark:hover:bg-amber-300">
             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
             {% translate "Create lead" %}
         </a>

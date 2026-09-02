@@ -5,13 +5,13 @@
 
 {% block content %}
 <div class="flex items-center justify-between mb-4">
-    <h1 class="text-2xl font-semibold">{{ order }}</h1>
+    <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">{{ order }}</h1>
     <div class="flex items-center gap-2">
         {% if next_status and can_edit %}
             <form method="post" action="{% url 'purchases:advance' order.pk %}">
                 {% csrf_token %}
                 <button type="submit"
-                        class="rounded bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 text-sm">
+                        class="inline-flex items-center justify-center rounded-xl bg-slate-900 hover:bg-slate-800 text-white px-4 py-2.5 text-sm font-bold shadow-sm transition">
                     {% if next_status == "ordered" %}
                         {% translate "Confirm order" %}
                     {% elif next_status == "shipped" %}
@@ -26,7 +26,7 @@
             <form method="post" action="{% url 'purchases:receive' order.pk %}">
                 {% csrf_token %}
                 <button type="submit"
-                        class="rounded bg-green-600 hover:bg-green-700 text-white px-4 py-2 text-sm">
+                        class="inline-flex items-center justify-center rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 text-sm font-bold shadow-sm transition">
                     {% translate "Receive order" %}
                 </button>
             </form>
@@ -34,7 +34,7 @@
     </div>
 </div>
 
-<div class="card p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-3 text-sm mb-6">
+<div class="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 shadow-sm grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-3 text-sm mb-6">
     <div><span class="text-slate-500">{% translate "Supplier" %}:</span>
         <a href="{{ order.supplier.get_absolute_url }}" class="text-slate-800 hover:text-amber-600">{{ order.supplier }}</a>
     </div>
@@ -50,8 +50,8 @@
 </div>
 
 {% if order.is_import %}
-    <div class="card p-6 mb-6">
-        <h2 class="text-lg font-semibold mb-3">{% translate "Import / shipment tracking" %}</h2>
+    <div class="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 shadow-sm mb-6">
+        <h2 class="text-lg font-extrabold tracking-tight text-slate-900 mb-3">{% translate "Import / shipment tracking" %}</h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-3 text-sm">
             <div><span class="text-slate-500">{% translate "Origin country" %}:</span> {{ order.get_origin_country_display|default:"—" }}</div>
             <div><span class="text-slate-500">{% translate "Incoterms" %}:</span> {{ order.get_incoterms_display|default:"—" }}</div>
@@ -63,8 +63,8 @@
         </div>
     </div>
 {% endif %}
-<div class="card p-6 mb-6">
-    <h2 class="text-lg font-semibold mb-3">{% translate "Lines" %}</h2>
+<div class="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 shadow-sm mb-6">
+    <h2 class="text-lg font-extrabold tracking-tight text-slate-900 mb-3">{% translate "Lines" %}</h2>
     <table class="data-table">
         <thead>
             <tr>
@@ -106,13 +106,13 @@
 </div>
 
 {% if can_receive %}
-    <div class="card p-6 max-w-2xl mb-6">
-        <h2 class="text-lg font-semibold mb-3">{% translate "Add line" %}</h2>
+    <div class="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 shadow-sm max-w-2xl mb-6">
+        <h2 class="text-lg font-extrabold tracking-tight text-slate-900 mb-3">{% translate "Add line" %}</h2>
         <form method="post" action="{% url 'purchases:add_line' order.pk %}" novalidate>
             {% csrf_token %}
             {% include "includes/_form_fields.html" with form=line_form %}
             <button type="submit"
-                    class="rounded bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 text-sm">
+                    class="inline-flex items-center justify-center rounded-xl bg-slate-900 hover:bg-slate-800 text-white px-4 py-2.5 text-sm font-bold shadow-sm transition">
                 {% translate "Add line" %}
             </button>
         </form>

@@ -4,106 +4,117 @@
 {% block title %}{{ title }} — AUTOMEX CarFlow{% endblock %}
 
 {% block content %}
-<div class="mx-auto max-w-6xl">
-    <div class="mb-6 flex items-center justify-between gap-3">
+<div class="mx-auto max-w-7xl">
+    <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-            <p class="text-xs font-medium uppercase tracking-[0.2em] text-amber-600">{% translate "Vehicle" %}</p>
-            <h1 class="mt-1 text-2xl font-semibold text-slate-900">{{ title }}</h1>
+            <p class="text-xs font-bold uppercase tracking-[0.18em] text-amber-600">{% translate "Vehicle registry" %}</p>
+            <h1 class="mt-1 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">{{ title }}</h1>
+            <p class="mt-1 max-w-2xl text-sm text-slate-500">{% translate "Record permanent vehicle identity and specifications. Inventory lifecycle state is managed separately through stock operations." %}</p>
         </div>
-        <a href="{% url 'vehicles:list' %}" class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-600 shadow-sm transition hover:border-slate-300 hover:text-slate-900">
-            {% translate "Back to list" %}
+        <a href="{% url 'vehicles:list' %}" class="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-600 shadow-sm transition hover:bg-slate-50">
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-width="2" d="m15 18-6-6 6-6"/></svg>
+            {% translate "Back to vehicles" %}
         </a>
     </div>
 
-    <form method="post" class="space-y-6">
+    {% if form.non_field_errors %}<div class="mb-5 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">{{ form.non_field_errors }}</div>{% endif %}
+
+    <form method="post" class="space-y-5" novalidate>
         {% csrf_token %}
 
-        <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm md:p-6">
-            <div class="mb-5 flex items-center gap-2">
-                <span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-amber-100 text-sm font-semibold text-amber-700">01</span>
-                <h2 class="text-lg font-semibold text-slate-800">{% translate "Vehicle information" %}</h2>
+        <section class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+            <div class="flex items-start gap-3 border-b border-slate-100 px-5 py-4 sm:px-6">
+                <span class="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-amber-50 text-amber-700"><svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-width="1.7" d="M4 5h16v14H4zM8 9h8M8 13h5"/></svg></span>
+                <div><h2 class="text-base font-extrabold text-slate-900">{% translate "Core vehicle identity" %}</h2><p class="mt-0.5 text-xs text-slate-500">{% translate "VIN and manufacturer details uniquely identify this vehicle inside the company." %}</p></div>
             </div>
-
-            <div class="space-y-5">
-                <div class="flex flex-col gap-5 md:flex-row">
-                    {% for field in form %}
-                        {% if field.name in "make model year" %}
-                            <div class="flex-1 space-y-2">
-                                <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-slate-700">
-                                    {{ field.label }}{% if field.field.required %} <span class="text-red-600">*</span>{% endif %}
-                                </label>
-                                {{ field }}
-                                {% if field.help_text %}<p class="text-xs leading-5 text-slate-500">{{ field.help_text }}</p>{% endif %}
-                                {% for error in field.errors %}<p class="text-sm text-red-700">{{ error }}</p>{% endfor %}
-                            </div>
-                        {% endif %}
-                    {% endfor %}
-                </div>
-
-                <div class="flex flex-col gap-5 md:flex-row">
-                    {% for field in form %}
-                        {% if field.name in "color mileage branch" %}
-                            <div class="flex-1 space-y-2">
-                                <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-slate-700">
-                                    {{ field.label }}{% if field.field.required %} <span class="text-red-600">*</span>{% endif %}
-                                </label>
-                                {{ field }}
-                                {% if field.help_text %}<p class="text-xs leading-5 text-slate-500">{{ field.help_text }}</p>{% endif %}
-                                {% for error in field.errors %}<p class="text-sm text-red-700">{{ error }}</p>{% endfor %}
-                            </div>
-                        {% endif %}
-                    {% endfor %}
-                </div>
-            </div>
-        </div>
-
-        <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm md:p-6">
-            <div class="mb-5 flex items-center gap-2">
-                <span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-sky-100 text-sm font-semibold text-sky-700">02</span>
-                <h2 class="text-lg font-semibold text-slate-800">{% translate "Registration and specification" %}</h2>
-            </div>
-            <div class="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+            <div class="grid gap-5 p-5 sm:grid-cols-2 sm:p-6 lg:grid-cols-3">
                 {% for field in form %}
-                    {% if field.name in "vin plate_number registration_number engine_number chassis_number model_variant body_type fuel_type transmission drive_type door_count seating_capacity country_of_origin first_registration_date" %}
-                        <div class="space-y-2">
-                            <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-slate-700">
-                                {{ field.label }}{% if field.field.required %} <span class="text-red-600">*</span>{% endif %}
-                            </label>
+                    {% if field.name in "vin make model model_variant year color" %}
+                        <div>
+                            <label for="{{ field.id_for_label }}" class="mb-1.5 flex items-center gap-1 text-xs font-bold text-slate-700">{{ field.label }}{% if field.field.required %}<span class="text-rose-500">*</span>{% endif %}</label>
                             {{ field }}
-                            {% if field.help_text %}<p class="text-xs leading-5 text-slate-500">{{ field.help_text }}</p>{% endif %}
-                            {% for error in field.errors %}<p class="text-sm text-red-700">{{ error }}</p>{% endfor %}
+                            {% if field.help_text %}<p class="mt-1.5 text-[11px] leading-4 text-slate-500">{{ field.help_text }}</p>{% endif %}
+                            {% for error in field.errors %}<p class="mt-1.5 text-xs font-semibold text-rose-600">{{ error }}</p>{% endfor %}
                         </div>
                     {% endif %}
                 {% endfor %}
             </div>
-        </div>
+        </section>
 
-        <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm md:p-6">
-            <div class="mb-5 flex items-center gap-2">
-                <span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100 text-sm font-semibold text-emerald-700">03</span>
-                <h2 class="text-lg font-semibold text-slate-800">{% translate "Notes" %}</h2>
+        <section class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+            <div class="flex items-start gap-3 border-b border-slate-100 px-5 py-4 sm:px-6">
+                <span class="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-sky-50 text-sky-700"><svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-width="1.7" d="M6 3h12v18H6zM9 7h6M9 11h6M9 15h3"/></svg></span>
+                <div><h2 class="text-base font-extrabold text-slate-900">{% translate "Registration & serial numbers" %}</h2><p class="mt-0.5 text-xs text-slate-500">{% translate "Government registration references and manufacturer serial identifiers." %}</p></div>
             </div>
-            <div class="space-y-2">
+            <div class="grid gap-5 p-5 sm:grid-cols-2 sm:p-6 lg:grid-cols-3">
                 {% for field in form %}
-                    {% if field.name == "notes" %}
-                        <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-slate-700">
-                            {{ field.label }}{% if field.field.required %} <span class="text-red-600">*</span>{% endif %}
-                        </label>
-                        {{ field }}
-                        {% if field.help_text %}<p class="text-xs leading-5 text-slate-500">{{ field.help_text }}</p>{% endif %}
-                        {% for error in field.errors %}<p class="text-sm text-red-700">{{ error }}</p>{% endfor %}
+                    {% if field.name in "plate_number registration_number engine_number chassis_number first_registration_date country_of_origin" %}
+                        <div>
+                            <label for="{{ field.id_for_label }}" class="mb-1.5 flex items-center gap-1 text-xs font-bold text-slate-700">{{ field.label }}{% if field.field.required %}<span class="text-rose-500">*</span>{% endif %}</label>
+                            {{ field }}
+                            {% if field.help_text %}<p class="mt-1.5 text-[11px] leading-4 text-slate-500">{{ field.help_text }}</p>{% endif %}
+                            {% for error in field.errors %}<p class="mt-1.5 text-xs font-semibold text-rose-600">{{ error }}</p>{% endfor %}
+                        </div>
                     {% endif %}
                 {% endfor %}
             </div>
-        </div>
+        </section>
 
-        <div class="flex items-center justify-end gap-3 border-t border-slate-200 pt-5">
-            <a href="{% url 'vehicles:list' %}" class="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-600 transition hover:border-slate-300 hover:text-slate-900">
-                {% translate "Cancel" %}
-            </a>
-            <button type="submit" class="rounded-xl bg-amber-500 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-amber-600">
-                {% translate "Save vehicle" %}
-            </button>
+        <section class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+            <div class="flex items-start gap-3 border-b border-slate-100 px-5 py-4 sm:px-6">
+                <span class="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-violet-50 text-violet-700"><svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-width="1.7" d="m5 17-2-1v-4l2-5h14l2 5v4l-2 1M5 12h14M7 15h.01M17 15h.01"/></svg></span>
+                <div><h2 class="text-base font-extrabold text-slate-900">{% translate "Technical specification" %}</h2><p class="mt-0.5 text-xs text-slate-500">{% translate "Configuration used by sales, inventory, and vehicle detail screens." %}</p></div>
+            </div>
+            <div class="grid gap-5 p-5 sm:grid-cols-2 sm:p-6 lg:grid-cols-4">
+                {% for field in form %}
+                    {% if field.name in "mileage body_type fuel_type transmission drive_type door_count seating_capacity" %}
+                        <div>
+                            <label for="{{ field.id_for_label }}" class="mb-1.5 flex items-center gap-1 text-xs font-bold text-slate-700">{{ field.label }}{% if field.field.required %}<span class="text-rose-500">*</span>{% endif %}</label>
+                            {{ field }}
+                            {% if field.help_text %}<p class="mt-1.5 text-[11px] leading-4 text-slate-500">{{ field.help_text }}</p>{% endif %}
+                            {% for error in field.errors %}<p class="mt-1.5 text-xs font-semibold text-rose-600">{{ error }}</p>{% endfor %}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </section>
+
+        <section class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+            <div class="grid lg:grid-cols-[1fr_340px]">
+                <div class="border-b border-slate-100 p-5 sm:p-6 lg:border-b-0 lg:border-e">
+                    <h2 class="text-base font-extrabold text-slate-900">{% translate "Assignment & internal notes" %}</h2>
+                    <div class="mt-5 space-y-5">
+                        {% for field in form %}
+                            {% if field.name == "branch" or field.name == "notes" %}
+                                <div>
+                                    <label for="{{ field.id_for_label }}" class="mb-1.5 flex items-center gap-1 text-xs font-bold text-slate-700">{{ field.label }}{% if field.field.required %}<span class="text-rose-500">*</span>{% endif %}</label>
+                                    {{ field }}
+                                    {% if field.help_text %}<p class="mt-1.5 text-[11px] leading-4 text-slate-500">{{ field.help_text }}</p>{% endif %}
+                                    {% for error in field.errors %}<p class="mt-1.5 text-xs font-semibold text-rose-600">{{ error }}</p>{% endfor %}
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+                <aside class="bg-slate-50/80 p-5 sm:p-6">
+                    <div class="rounded-xl border border-amber-200 bg-amber-50 p-4">
+                        <div class="flex gap-3"><svg class="mt-0.5 h-5 w-5 shrink-0 text-amber-600" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-width="1.8" d="M12 9v4M12 17h.01M10.3 3.6 2.7 17a2 2 0 0 0 1.7 3h15.2a2 2 0 0 0 1.7-3L13.7 3.6a2 2 0 0 0-3.4 0Z"/></svg><div><p class="text-xs font-extrabold text-amber-900">{% translate "Inventory state is separate" %}</p><p class="mt-1 text-[11px] leading-5 text-amber-800/80">{% translate "Availability, location, reservation, sale, and delivery are authoritative on VehicleStock and inventory services." %}</p></div></div>
+                    </div>
+                    <ul class="mt-4 space-y-2 text-[11px] leading-5 text-slate-500">
+                        <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500"></span>{% translate "VIN is unique per company." %}</li>
+                        <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-sky-500"></span>{% translate "Landed cost is derived from immutable vehicle cost events." %}</li>
+                        <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-violet-500"></span>{% translate "Branch choices remain tenant-scoped." %}</li>
+                    </ul>
+                </aside>
+            </div>
+        </section>
+
+        <div class="sticky bottom-3 z-20 flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white/95 p-3 shadow-lg backdrop-blur">
+            <p class="hidden text-xs text-slate-500 sm:block">{% translate "Fields marked with * are required." %}</p>
+            <div class="ms-auto flex gap-2">
+                <a href="{% url 'vehicles:list' %}" class="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-600 transition hover:bg-slate-50">{% translate "Cancel" %}</a>
+                <button type="submit" class="inline-flex items-center gap-2 rounded-xl bg-amber-500 px-5 py-2.5 text-sm font-extrabold text-white shadow-sm transition hover:bg-amber-600"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-width="1.8" d="M5 4h11l3 3v13H5zM8 4v6h8V4M8 20v-6h8v6"/></svg>{% translate "Save vehicle" %}</button>
+            </div>
         </div>
     </form>
 </div>

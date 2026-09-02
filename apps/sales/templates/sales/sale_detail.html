@@ -5,13 +5,13 @@
 
 {% block content %}
 <div class="flex items-center justify-between mb-4">
-    <h1 class="text-2xl font-semibold">{{ sale }}</h1>
+    <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">{{ sale }}</h1>
     <div class="flex items-center gap-2">
         {% if can_complete %}
             <form method="post" action="{% url 'sales:sale_complete' sale.pk %}">
                 {% csrf_token %}
                 <button type="submit"
-                        class="rounded bg-green-600 hover:bg-green-700 text-white px-4 py-2 text-sm">
+                        class="inline-flex items-center justify-center rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 text-sm font-bold shadow-sm transition">
                     {% translate "Complete sale" %}
                 </button>
             </form>
@@ -20,7 +20,7 @@
             <form method="post" action="{% url 'sales:sale_issue_invoice' sale.pk %}">
                 {% csrf_token %}
                 <button type="submit"
-                        class="rounded bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 text-sm">
+                        class="inline-flex items-center justify-center rounded-xl bg-slate-900 hover:bg-slate-800 text-white px-4 py-2.5 text-sm font-bold shadow-sm transition">
                     {% translate "Issue invoice" %}
                 </button>
             </form>
@@ -29,14 +29,14 @@
             <form method="post" action="{% url 'sales:sale_deliver' sale.pk %}">
                 {% csrf_token %}
                 <button type="submit"
-                        class="rounded bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 text-sm">
+                        class="inline-flex items-center justify-center rounded-xl bg-amber-500 hover:bg-amber-600 text-white px-4 py-2.5 text-sm font-bold shadow-sm transition">
                     {% translate "Deliver vehicle" %}
                 </button>
             </form>
         {% endif %}
     </div>
 </div>
-<div class="bg-white rounded-lg shadow p-6 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 text-sm mb-6">
+<div class="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 shadow-sm grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 text-sm mb-6">
     <div><span class="text-slate-500">{% translate "Customer" %}:</span>
         <a class="text-slate-700 hover:text-amber-600" href="{{ sale.customer.get_absolute_url }}">{{ sale.customer }}</a>
     </div>
@@ -59,8 +59,8 @@
     {% endif %}
 </div>
 
-<div class="bg-white rounded-lg shadow p-6">
-    <h2 class="text-lg font-semibold mb-3">{% translate "Invoice" %}</h2>
+<div class="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 shadow-sm">
+    <h2 class="text-lg font-extrabold tracking-tight text-slate-900 mb-3">{% translate "Invoice" %}</h2>
     {% if invoice %}
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-x-8 gap-y-3 text-sm">
             <div><span class="text-slate-500">{% translate "Number" %}:</span> <span class="font-mono">{{ invoice.number }}</span></div>

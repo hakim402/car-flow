@@ -5,21 +5,21 @@
 
 {% block content %}
 <div class="flex items-center justify-between mb-4">
-    <h1 class="text-2xl font-semibold">{% translate "Leads" %}</h1>
+    <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">{% translate "Leads" %}</h1>
     <a href="{% url 'sales:lead_create' %}"
-       class="rounded bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 text-sm">
+       class="inline-flex items-center justify-center rounded-xl bg-amber-500 hover:bg-amber-600 text-white px-4 py-2.5 text-sm font-bold shadow-sm transition">
         {% translate "New lead" %}
     </a>
 </div>
 <form method="get" class="flex items-center gap-3 mb-4">
-    <select name="status" class="rounded border border-slate-300 px-3 py-2 text-sm" onchange="this.form.submit()">
+    <select name="status" class="rounded-xl border border-slate-300 bg-slate-50 px-3 py-2.5 text-sm text-slate-800 shadow-sm outline-none transition focus:border-amber-500 focus:bg-white focus:ring-4 focus:ring-amber-100" onchange="this.form.submit()">
         <option value="">{% translate "All statuses" %}</option>
         {% for value, label in statuses %}
             <option value="{{ value }}" {% if value == status %}selected{% endif %}>{{ label }}</option>
         {% endfor %}
     </select>
 </form>
-<div class="card overflow-x-auto">
+<div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
     <table class="data-table">
         <thead>
             <tr>

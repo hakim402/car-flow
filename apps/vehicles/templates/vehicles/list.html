@@ -4,85 +4,127 @@
 {% block title %}{% translate "Vehicles" %} — AUTOMEX CarFlow{% endblock %}
 
 {% block content %}
-<div class="flex items-center justify-between mb-4">
-    <h1 class="text-2xl font-semibold">{% translate "Vehicles" %}</h1>
-    <a href="{% url 'vehicles:create' %}"
-       class="rounded bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 text-sm">
-        {% translate "Add vehicle" %}
-    </a>
-</div>
-
-<form method="get" class="flex flex-wrap items-center gap-3 mb-4">
-    <input type="search" name="q" value="{{ q }}" placeholder="{% translate 'Search VIN, make, model…' %}"
-           class="rounded border border-slate-300 px-3 py-2 text-sm w-64">
-    <select name="status" class="rounded border border-slate-300 px-3 py-2 text-sm">
-        <option value="">{% translate "All statuses" %}</option>
-        {% for value, label in statuses %}
-            <option value="{{ value }}" {% if value == status %}selected{% endif %}>{{ label }}</option>
-        {% endfor %}
-    </select>
-    <button type="submit" class="rounded bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 text-sm">
-        {% translate "Filter" %}
-    </button>
-</form>
-
-{# Card grid: primary photo + quick facts; click through to the full record. #}
-<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-    {% for vehicle in vehicles %}
-        <a href="{{ vehicle.get_absolute_url }}"
-           class="group overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition hover:border-amber-300 hover:shadow">
-            <div class="aspect-video w-full overflow-hidden bg-slate-200">
-                {% if vehicle.primary_photo %}
-                    <img src="{{ vehicle.primary_photo.file.url }}"
-                         alt="{{ vehicle.make }} {{ vehicle.model }}"
-                         class="h-full w-full object-cover transition duration-200 group-hover:scale-105">
-                {% else %}
-                    <div class="flex h-full items-center justify-center text-slate-400">
-                        <svg class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" />
-                        </svg>
-                    </div>
-                {% endif %}
+<div class="space-y-6">
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+            <p class="text-xs font-bold uppercase tracking-[0.18em] text-amber-600">{% translate "Inventory" %}</p>
+            <div class="mt-1 flex items-center gap-3">
+                <h1 class="text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">{% translate "Vehicle inventory" %}</h1>
+                <span class="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-xs font-bold text-slate-500 shadow-sm">{{ vehicles|length }}</span>
             </div>
-            <div class="p-4">
-                <div class="flex items-start justify-between gap-2">
-                    <div>
-                        <p class="font-semibold text-slate-900 group-hover:text-amber-600">
-                            {{ vehicle.make }} {{ vehicle.model }}
-                        </p>
-                        <p class="text-xs text-slate-500">{{ vehicle.year }}{% if vehicle.color %} · {{ vehicle.color }}{% endif %} · {{ vehicle.mileage }} {% translate "km" %}</p>
-                    </div>
-                    <span class="whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-medium
-                        {% if vehicle.stock %}
-                            {% if vehicle.stock.status == 'sold' or vehicle.stock.status == 'delivered' %}bg-green-100 text-green-700
-                            {% elif vehicle.stock.status == 'reserved' %}bg-sky-100 text-sky-700
-                            {% elif vehicle.stock.status == 'available' %}bg-amber-100 text-amber-700
-                            {% else %}bg-slate-100 text-slate-600{% endif %}
-                        {% else %}bg-slate-100 text-slate-600{% endif %}">
-                        {% if vehicle.stock %}{{ vehicle.stock.get_status_display }}{% else %}—{% endif %}
-                    </span>
-                </div>
-                <p class="mt-2 font-mono text-xs text-slate-400">{{ vehicle.vin }}</p>
-                {% if vehicle.plate_number %}
-                    <p class="mt-1 text-xs text-slate-500">{% translate "Plate" %}: <span class="font-medium">{{ vehicle.plate_number }}</span></p>
-                {% endif %}
-                {% if vehicle.model_variant %}
-                    <p class="mt-1 text-xs text-slate-500">{% translate "Variant" %}: <span class="font-medium">{{ vehicle.model_variant }}</span></p>
-                {% endif %}
-                {% if vehicle.stock and vehicle.stock.branch %}
-                    <p class="mt-1 text-xs text-slate-400">{{ vehicle.stock.branch }}</p>
-                {% endif %}
-                {% if vehicle.source_supplier %}
-                    <p class="mt-1 text-xs text-slate-500">
-                        {% translate "From" %}: <span class="font-medium text-slate-600">{{ vehicle.source_supplier.name }}</span>
-                    </p>
-                {% endif %}
-            </div>
-        </a>
-    {% empty %}
-        <div class="col-span-full rounded-lg bg-white px-4 py-10 text-center text-slate-500 shadow">
-            {% translate "No vehicles found." %}
+            <p class="mt-1 max-w-2xl text-sm text-slate-500">{% translate "Search the permanent vehicle registry and review each vehicle's current inventory position." %}</p>
         </div>
-    {% endfor %}
+        <a href="{% url 'vehicles:create' %}"
+           class="inline-flex items-center justify-center gap-2 rounded-xl bg-amber-500 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-amber-600">
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-width="2" d="M12 5v14M5 12h14"/></svg>
+            {% translate "Add vehicle" %}
+        </a>
+    </div>
+
+    <form method="get" class="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
+        <div class="flex flex-col gap-3 lg:flex-row lg:items-center">
+            <div class="relative min-w-0 flex-1">
+                <svg class="pointer-events-none absolute start-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-width="1.8" d="m21 21-4.3-4.3M19 11a8 8 0 1 1-16 0 8 8 0 0 1 16 0Z"/></svg>
+                <input type="search" name="q" value="{{ q }}" placeholder="{% translate 'Search VIN, make, model…' %}"
+                       class="w-full rounded-xl border border-slate-300 bg-slate-50 py-2.5 ps-10 pe-3 text-sm text-slate-800 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-amber-500 focus:bg-white focus:ring-4 focus:ring-amber-100">
+            </div>
+            <select name="status" class="min-w-48 rounded-xl border border-slate-300 bg-slate-50 px-3 py-2.5 text-sm font-semibold text-slate-700 shadow-sm outline-none transition focus:border-amber-500 focus:bg-white focus:ring-4 focus:ring-amber-100">
+                <option value="">{% translate "All inventory statuses" %}</option>
+                {% for value, label in statuses %}
+                    <option value="{{ value }}" {% if value == status %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+            <div class="flex gap-2">
+                <button type="submit" class="inline-flex flex-1 items-center justify-center rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-slate-800">{% translate "Apply filters" %}</button>
+                {% if q or status %}
+                    <a href="{% url 'vehicles:list' %}" class="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-600 transition hover:bg-slate-50">{% translate "Clear" %}</a>
+                {% endif %}
+            </div>
+        </div>
+    </form>
+
+    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+        {% for vehicle in vehicles %}
+            <a href="{{ vehicle.get_absolute_url }}" class="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-amber-300 hover:shadow-lg">
+                <div class="relative aspect-[16/9] w-full overflow-hidden bg-slate-100">
+                    {% if vehicle.primary_photo %}
+                        <img src="{{ vehicle.primary_photo.file.url }}" alt="{{ vehicle.make }} {{ vehicle.model }}" class="h-full w-full object-cover transition duration-300 group-hover:scale-[1.03]">
+                    {% else %}
+                        <div class="flex h-full flex-col items-center justify-center gap-2 text-slate-400">
+                            <svg class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.3" d="m5 17-2-1v-4l2-5h14l2 5v4l-2 1M5 12h14M7 15h.01M17 15h.01M6 17v2M18 17v2"/></svg>
+                            <span class="text-xs font-semibold">{% translate "No vehicle photo" %}</span>
+                        </div>
+                    {% endif %}
+
+                    <div class="absolute start-3 top-3">
+                        {% if vehicle.stock %}
+                            {% if vehicle.stock.status == 'available' %}
+                                <span class="inline-flex items-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50/95 px-2.5 py-1 text-[11px] font-bold text-emerald-700 shadow-sm backdrop-blur"><span class="h-1.5 w-1.5 rounded-full bg-current"></span>{{ vehicle.stock.get_status_display }}</span>
+                            {% elif vehicle.stock.status == 'reserved' %}
+                                <span class="inline-flex items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50/95 px-2.5 py-1 text-[11px] font-bold text-amber-700 shadow-sm backdrop-blur"><span class="h-1.5 w-1.5 rounded-full bg-current"></span>{{ vehicle.stock.get_status_display }}</span>
+                            {% elif vehicle.stock.status == 'sold' %}
+                                <span class="inline-flex items-center gap-1.5 rounded-lg border border-blue-200 bg-blue-50/95 px-2.5 py-1 text-[11px] font-bold text-blue-700 shadow-sm backdrop-blur"><span class="h-1.5 w-1.5 rounded-full bg-current"></span>{{ vehicle.stock.get_status_display }}</span>
+                            {% elif vehicle.stock.status == 'delivered' %}
+                                <span class="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white/95 px-2.5 py-1 text-[11px] font-bold text-slate-600 shadow-sm backdrop-blur"><span class="h-1.5 w-1.5 rounded-full bg-current"></span>{{ vehicle.stock.get_status_display }}</span>
+                            {% elif vehicle.stock.status == 'inspection' or vehicle.stock.status == 'preparation' %}
+                                <span class="inline-flex items-center gap-1.5 rounded-lg border border-violet-200 bg-violet-50/95 px-2.5 py-1 text-[11px] font-bold text-violet-700 shadow-sm backdrop-blur"><span class="h-1.5 w-1.5 rounded-full bg-current"></span>{{ vehicle.stock.get_status_display }}</span>
+                            {% else %}
+                                <span class="inline-flex items-center gap-1.5 rounded-lg border border-sky-200 bg-sky-50/95 px-2.5 py-1 text-[11px] font-bold text-sky-700 shadow-sm backdrop-blur"><span class="h-1.5 w-1.5 rounded-full bg-current"></span>{{ vehicle.stock.get_status_display }}</span>
+                            {% endif %}
+                        {% else %}
+                            <span class="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white/95 px-2.5 py-1 text-[11px] font-bold text-slate-600 shadow-sm backdrop-blur"><span class="h-1.5 w-1.5 rounded-full bg-current"></span>{% translate "No stock record" %}</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-950/80 via-slate-950/35 to-transparent px-4 pb-3 pt-12 text-white">
+                        <p class="text-xs font-medium text-white/70">{{ vehicle.year }}{% if vehicle.model_variant %} · {{ vehicle.model_variant }}{% endif %}</p>
+                        <h2 class="mt-0.5 truncate text-lg font-extrabold tracking-tight">{{ vehicle.make }} {{ vehicle.model }}</h2>
+                    </div>
+                </div>
+
+                <div class="p-4">
+                    <div class="grid grid-cols-2 gap-2">
+                        <div class="rounded-xl bg-slate-50 p-2.5">
+                            <p class="text-[10px] font-bold uppercase tracking-wide text-slate-400">VIN</p>
+                            <p class="mt-1 truncate font-mono text-[11px] font-semibold text-slate-700" dir="ltr">{{ vehicle.vin }}</p>
+                        </div>
+                        <div class="rounded-xl bg-slate-50 p-2.5">
+                            <p class="text-[10px] font-bold uppercase tracking-wide text-slate-400">{% translate "Mileage" %}</p>
+                            <p class="mt-1 text-xs font-extrabold text-slate-800" dir="ltr">{{ vehicle.mileage }} {% translate "km" %}</p>
+                        </div>
+                    </div>
+
+                    <div class="mt-3 space-y-2 text-xs">
+                        {% if vehicle.stock and vehicle.stock.branch %}
+                            <div class="flex items-center gap-2 text-slate-500">
+                                <svg class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-width="1.7" d="M3 21h18M6 21V7l6-4 6 4v14"/></svg>
+                                <span class="truncate">{{ vehicle.stock.branch }}{% if vehicle.stock.location %} · {{ vehicle.stock.location }}{% endif %}</span>
+                            </div>
+                        {% endif %}
+                        {% if vehicle.source_supplier %}
+                            <div class="flex items-center gap-2 text-slate-500">
+                                <svg class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-width="1.7" d="M4 19h16M7 19V9l5-4 5 4v10"/></svg>
+                                <span class="truncate">{% translate "Bought from" %}: <span class="font-semibold text-slate-700">{{ vehicle.source_supplier.name }}</span></span>
+                            </div>
+                        {% endif %}
+                        {% if vehicle.plate_number %}
+                            <div class="flex items-center gap-2 text-slate-500"><span class="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-bold uppercase text-slate-500">{% translate "Plate" %}</span><span dir="ltr">{{ vehicle.plate_number }}</span></div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mt-4 flex items-center justify-between border-t border-slate-100 pt-3">
+                        <span class="text-xs font-bold text-amber-600 group-hover:text-amber-700">{% translate "View details" %}</span>
+                        <svg class="h-4 w-4 text-slate-400 transition group-hover:text-amber-600" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-width="2" d="m9 18 6-6-6-6"/></svg>
+                    </div>
+                </div>
+            </a>
+        {% empty %}
+            <div class="col-span-full rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center">
+                <div class="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-slate-100 text-slate-400"><svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-width="1.5" d="m5 17-2-1v-4l2-5h14l2 5v4l-2 1M5 12h14"/></svg></div>
+                <h3 class="mt-4 text-sm font-extrabold text-slate-800">{% translate "No vehicles found" %}</h3>
+                <p class="mt-1 text-sm text-slate-500">{% translate "Try changing your search or inventory-status filter." %}</p>
+            </div>
+        {% endfor %}
+    </div>
 </div>
 {% endblock %}

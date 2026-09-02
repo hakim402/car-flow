@@ -1,16 +1,27 @@
 {% load i18n static %}
 <!DOCTYPE html>
-<html lang="{{ LANGUAGE_CODE }}" dir="{% if LANGUAGE_BIDI %}rtl{% else %}ltr{% endif %}" class="h-full bg-[#F4F7FB]">
+<html lang="{{ LANGUAGE_CODE }}" dir="{% if LANGUAGE_BIDI %}rtl{% else %}ltr{% endif %}" class="h-full bg-[#F4F7FB] dark:bg-slate-950">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="color-scheme" content="light dark">
     <title>{% translate "Log in" %} — AUTOMEX CarFlow</title>
+    <script>
+        (function () {
+            try {
+                var savedTheme = localStorage.getItem("automex-theme");
+                var prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+                document.documentElement.classList.toggle("dark", savedTheme ? savedTheme === "dark" : prefersDark);
+            } catch (error) {
+                document.documentElement.classList.remove("dark");
+            }
+        })();
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Arabic:wght@400;500;600;700;800&family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="{% static 'css/login.css' %}">
+    <link rel="stylesheet" href="{% static 'css/tailwind.css' %}?v=20260902-3">
+    <link rel="stylesheet" href="{% static 'css/login.css' %}?v=20260902-3">
 </head>
 <body class="min-h-screen bg-slate-100">
 <div class="carflow-login">
@@ -60,6 +71,21 @@
     </section>
 
     <section class="login-form-side">
+        <div class="login-toolbar">
+            <form method="post" action="{% url 'accounts:set_language' %}" class="login-language-form">
+                {% csrf_token %}
+                <label for="login-language" class="sr-only">{% translate "Language" %}</label>
+                <select id="login-language" name="language" onchange="this.form.submit()" aria-label="{% translate 'Language' %}">
+                    {% for code, name in LANGUAGES %}
+                        <option value="{{ code }}" {% if request.LANGUAGE_CODE == code %}selected{% endif %}>{{ name }}</option>
+                    {% endfor %}
+                </select>
+            </form>
+            <button id="loginThemeBtn" type="button" class="login-theme-button" aria-label="{% translate 'Toggle theme' %}" aria-pressed="false" title="{% translate 'Toggle theme' %}">
+                <svg class="theme-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25M12 18.75V21M4.93 4.93l1.59 1.59M17.48 17.48l1.59 1.59M3 12h2.25M18.75 12H21M4.93 19.07l1.59-1.59M17.48 6.52l1.59-1.59M12 7.5A4.5 4.5 0 1016.5 12 4.5 4.5 0 0012 7.5z" /></svg>
+                <svg class="theme-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M20.4 15.2A8.5 8.5 0 018.8 3.6 8.5 8.5 0 1020.4 15.2z" /></svg>
+            </button>
+        </div>
         <form method="post" class="login-form" id="carflowLoginForm">
             {% csrf_token %}
             <h1>{% translate "Log in to CarFlow" %}</h1>
@@ -99,7 +125,7 @@
                     <input type="checkbox" name="remember" value="1">
                     <span>{% translate "Remember me" %}</span>
                 </label>
-                <a href="#" class="login-link">{% translate "Forgot password?" %}</a>
+                <span class="login-help">{% translate "Need help? Contact your administrator." %}</span>
             </div>
 
             <input type="hidden" name="next" value="{{ next }}">
@@ -116,6 +142,16 @@
             passwordInput.type = isPassword ? 'text' : 'password';
             togglePassword.setAttribute('aria-label', isPassword ? togglePassword.dataset.labelHide : togglePassword.dataset.labelShow);
             togglePassword.title = isPassword ? togglePassword.dataset.labelHide : togglePassword.dataset.labelShow;
+        });
+    }
+    const loginThemeBtn = document.getElementById('loginThemeBtn');
+    if (loginThemeBtn) {
+        const root = document.documentElement;
+        loginThemeBtn.setAttribute('aria-pressed', root.classList.contains('dark') ? 'true' : 'false');
+        loginThemeBtn.addEventListener('click', function () {
+            const dark = root.classList.toggle('dark');
+            localStorage.setItem('automex-theme', dark ? 'dark' : 'light');
+            loginThemeBtn.setAttribute('aria-pressed', dark ? 'true' : 'false');
         });
     }
 </script>

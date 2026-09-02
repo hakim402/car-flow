@@ -10,22 +10,22 @@
             <img src="{{ logo.file.url }}" alt="{{ supplier.name }}"
                  class="h-16 w-16 rounded-xl object-cover ring-1 ring-slate-200">
         {% endif %}
-        <h1 class="text-2xl font-semibold">{{ supplier.name }}</h1>
+        <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">{{ supplier.name }}</h1>
     </div>
     <div class="flex items-center gap-2">
         {% if can_upload_documents %}
             <a href="{% url 'documents:upload_for_supplier' supplier.pk %}"
-               class="rounded bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 text-sm">
+               class="inline-flex items-center justify-center rounded-xl bg-amber-500 hover:bg-amber-600 text-white px-4 py-2.5 text-sm font-bold shadow-sm transition">
                 {% translate "Add logo / document" %}
             </a>
         {% endif %}
         {% if can_edit %}
             <a href="{% url 'suppliers:edit' supplier.pk %}"
-               class="rounded bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 text-sm">{% translate "Edit" %}</a>
+               class="inline-flex items-center justify-center rounded-xl bg-slate-900 hover:bg-slate-800 text-white px-4 py-2.5 text-sm font-bold shadow-sm transition">{% translate "Edit" %}</a>
         {% endif %}
     </div>
 </div>
-<div class="card p-6 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 text-sm mb-6">
+<div class="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 shadow-sm grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 text-sm mb-6">
     <div><span class="text-slate-500">{% translate "Kind" %}:</span>
         {% if supplier.is_individual %}
             <span class="rounded-full bg-emerald-100 text-emerald-700 px-2 py-0.5 text-xs">{{ supplier.get_kind_display }}</span>
@@ -47,9 +47,9 @@
     {% endif %}
 </div>
 
-<div class="card p-6">
-    <h2 class="text-lg font-semibold mb-3">
-        {% blocktranslate count counter=order_count %}Purchase order{% plural %}Purchase orders{% endblocktranslate %}
+<div class="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 shadow-sm">
+    <h2 class="text-lg font-extrabold tracking-tight text-slate-900 mb-3">
+        {% blocktranslate context "purchase order count" count counter=order_count %}Purchase order{% plural %}Purchase orders{% endblocktranslate %}
         <span class="text-slate-400 text-sm font-normal">({{ order_count }})</span>
     </h2>
     {% if orders %}
@@ -96,8 +96,8 @@
     {% endif %}
 </div>
 
-<div class="card p-6 mt-6">
-    <h2 class="text-lg font-semibold mb-3">
+<div class="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 shadow-sm mt-6">
+    <h2 class="text-lg font-extrabold tracking-tight text-slate-900 mb-3">
         {% translate "Cars bought from this supplier" %}
         <span class="text-slate-400 text-sm font-normal">({{ vehicles_bought|length }})</span>
     </h2>
@@ -140,9 +140,9 @@
     {% endif %}
 </div>
 
-<div class="card p-6 mt-6">
+<div class="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 shadow-sm mt-6">
     <div class="flex items-center justify-between mb-3">
-        <h2 class="text-lg font-semibold">
+        <h2 class="text-lg font-extrabold tracking-tight text-slate-900">
             {% translate "Documents" %}
             <span class="text-slate-400 text-sm font-normal">({{ documents|length }})</span>
         </h2>
@@ -183,9 +183,9 @@
     {% endif %}
 </div>
 
-<div class="card p-6 mt-6">
+<div class="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 shadow-sm mt-6">
     <div class="flex items-center justify-between mb-3">
-        <h2 class="text-lg font-semibold">
+        <h2 class="text-lg font-extrabold tracking-tight text-slate-900">
             {% translate "Payments" %}
             {% if total_paid %}
                 <span class="ms-2 text-sm font-normal text-slate-500">
@@ -198,7 +198,7 @@
         </h2>
         {% if can_record_payments %}
             <a href="{% url 'payments:supplier_payment' %}?supplier={{ supplier.pk }}"
-               class="rounded bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 text-sm">
+               class="inline-flex items-center justify-center rounded-xl bg-amber-500 hover:bg-amber-600 text-white px-4 py-2.5 text-sm font-bold shadow-sm transition">
                 {% translate "Record payment" %}
             </a>
         {% endif %}

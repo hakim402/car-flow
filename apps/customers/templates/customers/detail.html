@@ -5,19 +5,19 @@
 
 {% block content %}
 <div class="flex items-center justify-between mb-4">
-    <h1 class="text-2xl font-semibold">{{ customer.full_name }}</h1>
+    <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">{{ customer.full_name }}</h1>
     <div class="flex items-center gap-2">
         {% if can_upload_documents %}
             <a href="{% url 'documents:upload_for_customer' customer.pk %}"
-               class="rounded bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 text-sm">
+               class="inline-flex items-center justify-center rounded-xl bg-amber-500 hover:bg-amber-600 text-white px-4 py-2.5 text-sm font-bold shadow-sm transition">
                 {% translate "Add photo / document" %}
             </a>
         {% endif %}
         <a href="{% url 'customers:edit' customer.pk %}"
-           class="rounded bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 text-sm">{% translate "Edit" %}</a>
+           class="inline-flex items-center justify-center rounded-xl bg-slate-900 hover:bg-slate-800 text-white px-4 py-2.5 text-sm font-bold shadow-sm transition">{% translate "Edit" %}</a>
     </div>
 </div>
-<div class="card p-6 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 text-sm mb-6">
+<div class="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 shadow-sm grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 text-sm mb-6">
     <div><span class="text-slate-500">{% translate "Phone" %}:</span> <span dir="ltr">{{ customer.phone|default:"—" }}</span></div>
     <div><span class="text-slate-500">{% translate "Email" %}:</span> <span dir="ltr">{{ customer.email|default:"—" }}</span></div>
     <div><span class="text-slate-500">{% translate "National ID" %}:</span> {{ customer.national_id|default:"—" }}</div>
@@ -27,8 +27,8 @@
     {% endif %}
 </div>
 
-<div class="card p-6 mb-6">
-    <h2 class="text-lg font-semibold mb-3">{% translate "Photos" %}</h2>
+<div class="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 shadow-sm mb-6">
+    <h2 class="text-lg font-extrabold tracking-tight text-slate-900 mb-3">{% translate "Photos" %}</h2>
     {% if photos %}
         <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
             {% for photo in photos %}
@@ -50,8 +50,8 @@
     {% endif %}
 </div>
 
-<div class="card p-6 mb-6">
-    <h2 class="text-lg font-semibold mb-3">{% translate "Documents" %}</h2>
+<div class="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 shadow-sm mb-6">
+    <h2 class="text-lg font-extrabold tracking-tight text-slate-900 mb-3">{% translate "Documents" %}</h2>
     {% if documents %}
         <div class="overflow-x-auto">
             <table class="data-table">
@@ -90,8 +90,8 @@
 </div>
 
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-    <div class="card p-6">
-        <h2 class="text-lg font-semibold mb-3">{% translate "Leads" %}</h2>
+    <div class="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 shadow-sm">
+        <h2 class="text-lg font-extrabold tracking-tight text-slate-900 mb-3">{% translate "Leads" %}</h2>
         <ul class="text-sm space-y-2">
             {% for lead in leads %}
                 <li>
@@ -103,8 +103,8 @@
             {% endfor %}
         </ul>
     </div>
-    <div class="card p-6">
-        <h2 class="text-lg font-semibold mb-3">{% translate "Sales" %}</h2>
+    <div class="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 shadow-sm">
+        <h2 class="text-lg font-extrabold tracking-tight text-slate-900 mb-3">{% translate "Sales" %}</h2>
         <ul class="text-sm space-y-2">
             {% for sale in sales %}
                 <li>
