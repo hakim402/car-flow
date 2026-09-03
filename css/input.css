@@ -163,8 +163,11 @@
         color: rgb(100 116 139);
     }
 
-    .sidebar-search-input {
+    .app-sidebar .sidebar-search-input {
         @apply min-w-0 flex-1 border-0 bg-transparent p-0 text-[12px] text-slate-800 outline-none placeholder:text-slate-400 focus:ring-0 dark:text-white dark:placeholder:text-slate-600;
+        background-color: transparent;
+        border-color: transparent;
+        box-shadow: none;
     }
 
     .sidebar-navigation {
@@ -495,7 +498,7 @@
     .dark .text-rose-600,
     .dark .text-rose-500 { color: rgb(253 164 175); }
 
-    .dark :where(input, textarea, select):not([type="checkbox"]):not([type="radio"]):not([type="file"]) {
+    .dark :where(input, textarea, select):not([type="checkbox"]):not([type="radio"]):not([type="file"]):not(.sidebar-search-input) {
         border-color: rgb(71 85 105);
         background-color: rgb(15 23 42);
         color: rgb(226 232 240);
