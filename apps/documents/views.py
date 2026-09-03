@@ -8,6 +8,7 @@ from apps.core.decorators import require_permission
 from .forms import (
     CustomerDocumentForm,
     DocumentForm,
+    FinancingDocumentForm,
     SupplierDocumentForm,
     VehicleDocumentForm,
 )
@@ -17,18 +18,19 @@ from .models import Document
 @require_permission("documents.view")
 def document_list(request):
     documents = Document.objects.all().select_related(  # TenantManager scopes.
-        "vehicle", "customer", "supplier"
+        "vehicle", "customer", "supplier", "finance_agreement"
     )
     return render(request, "documents/list.html", {"documents": documents})
 
 
 @require_permission("documents.add")
-def document_upload(request, vehicle_pk=None, customer_pk=None, supplier_pk=None):
+def document_upload(request, vehicle_pk=None, customer_pk=None, supplier_pk=None, agreement_pk=None):
     if request.user.company is None:
         raise PermissionDenied
     vehicle = None
     customer = None
     supplier = None
+    agreement = None
     if vehicle_pk is not None:
         # TenantManager scopes the lookup — another company's vehicle 404s.
         from apps.vehicles.models import Vehicle
@@ -53,6 +55,13 @@ def document_upload(request, vehicle_pk=None, customer_pk=None, supplier_pk=None
         form = SupplierDocumentForm(
             request.POST or None, request.FILES or None, supplier=supplier
         )
+    elif agreement_pk is not None:
+        from apps.financing.models import FinanceAgreement
+
+        agreement = get_object_or_404(FinanceAgreement, pk=agreement_pk)
+        form = FinancingDocumentForm(
+            request.POST or None, request.FILES or None, agreement=agreement
+        )
     else:
         form = DocumentForm(request.POST or None, request.FILES or None)
     if request.method == "POST" and form.is_valid():
@@ -67,6 +76,8 @@ def document_upload(request, vehicle_pk=None, customer_pk=None, supplier_pk=None
             return redirect(customer)
         if supplier is not None:
             return redirect(supplier)
+        if agreement is not None:
+            return redirect(agreement)
         return redirect("documents:list")
     if vehicle is not None:
         title = _("Add photo / document to %(vehicle)s") % {"vehicle": vehicle}
@@ -74,6 +85,8 @@ def document_upload(request, vehicle_pk=None, customer_pk=None, supplier_pk=None
         title = _("Add photo / document for %(customer)s") % {"customer": customer}
     elif supplier is not None:
         title = _("Add logo / document for %(supplier)s") % {"supplier": supplier}
+    elif agreement is not None:
+        title = _("Add document for %(agreement)s") % {"agreement": agreement}
     else:
         title = _("Upload document")
     return render(
@@ -85,5 +98,6 @@ def document_upload(request, vehicle_pk=None, customer_pk=None, supplier_pk=None
             "vehicle": vehicle,
             "customer": customer,
             "supplier": supplier,
+            "agreement": agreement,
         },
     )

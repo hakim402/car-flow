@@ -48,7 +48,7 @@ class ExpenseForm(StyledFormMixin, forms.Form):
     account = forms.ModelChoiceField(
         label=_("financial account"),
         queryset=FinancialAccount.all_objects.none(),
-        required=False,
+        required=True,
         help_text=_("Cash or bank account from which this expense was paid."),
     )
     branch = forms.ModelChoiceField(
@@ -80,8 +80,8 @@ class ExpenseForm(StyledFormMixin, forms.Form):
         super().__init__(*args, **kwargs)
         company = get_current_company()
         if company is not None:
-            self.fields["category"].queryset = ExpenseCategory.objects.all()
-            self.fields["account"].queryset = FinancialAccount.objects.all()
+            self.fields["category"].queryset = ExpenseCategory.objects.filter(active=True)
+            self.fields["account"].queryset = FinancialAccount.objects.filter(active=True)
             self.fields["branch"].queryset = Branch.objects.filter(company=company)
         else:
             self.fields["category"].queryset = ExpenseCategory.all_objects.none()

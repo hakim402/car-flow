@@ -25,4 +25,9 @@ urlpatterns = [
         views.document_upload,
         name="upload_for_supplier",
     ),
+    path(
+        "add/financing/<int:agreement_pk>/",
+        views.document_upload,
+        name="upload_for_financing",
+    ),
 ]

@@ -10,6 +10,7 @@ from decimal import Decimal
 import pytest
 from django.core.exceptions import ValidationError
 
+from apps.branches.models import Branch
 from apps.core.tenancy import company_scope
 from apps.core.testing import (
     CustomerFactory,
@@ -18,9 +19,11 @@ from apps.core.testing import (
     SupplierFactory,
     VehicleFactory,
 )
-from apps.payments.models import LedgerEntry
+from apps.expenses.models import ExpenseCategory
+from apps.expenses.services import record_expense
+from apps.payments.models import FinancialAccount, LedgerEntry
 from apps.payments.services import record_payment, reverse_entry
-from apps.purchases.models import PurchaseOrder, PurchaseStatus
+from apps.purchases.models import PurchaseOrder, PurchaseStatus, PurchaseType
 from apps.purchases.receiving import receive_order
 from apps.sales.models import Invoice, Sale, SaleStatus
 from apps.sales.services import complete_sale, issue_invoice
@@ -141,9 +144,11 @@ def test_receive_order_places_stock_and_is_idempotent():
     company = OrganizationFactory()
     supplier = SupplierFactory(company=company)
     vehicle = VehicleFactory(company=company)
+    branch = Branch.objects.create(company=company, name="HQ")
     order = PurchaseOrder.all_objects.create(
         company=company,
         supplier=supplier,
+        branch=branch,
         order_date=datetime.date.today(),
         status=PurchaseStatus.ORDERED,
     )
@@ -169,3 +174,88 @@ def test_receive_order_places_stock_and_is_idempotent():
         ).count()
         == 1
     )
+
+
+@pytest.mark.django_db
+def test_receive_order_requires_vehicle_lines():
+    company = OrganizationFactory()
+    supplier = SupplierFactory(company=company)
+    order = PurchaseOrder.all_objects.create(
+        company=company,
+        supplier=supplier,
+        order_date=datetime.date.today(),
+        status=PurchaseStatus.ORDERED,
+    )
+
+    with company_scope(company):
+        with pytest.raises(ValidationError):
+            receive_order(order)
+
+    assert PurchaseOrder.all_objects.get(pk=order.pk).status == PurchaseStatus.ORDERED
+
+
+@pytest.mark.django_db
+def test_receive_import_requires_customs_status():
+    company = OrganizationFactory()
+    supplier = SupplierFactory(company=company)
+    order = PurchaseOrder.all_objects.create(
+        company=company,
+        supplier=supplier,
+        purchase_type=PurchaseType.IMPORT,
+        order_date=datetime.date.today(),
+        status=PurchaseStatus.ORDERED,
+    )
+
+    with company_scope(company):
+        with pytest.raises(ValidationError):
+            receive_order(order)
+
+
+@pytest.mark.django_db
+def test_record_expense_enforces_positive_money_and_account_currency():
+    company = OrganizationFactory()
+    with company_scope(company):
+        category = ExpenseCategory.objects.create(company=company, name="Rent")
+        account = FinancialAccount.objects.create(
+            company=company,
+            name="AFN Cashbox",
+            currency="AFN",
+        )
+        with pytest.raises(ValidationError):
+            record_expense(
+                company,
+                Decimal("-1.00"),
+                "AFN",
+                category=category,
+                account=account,
+            )
+        with pytest.raises(ValidationError):
+            record_expense(
+                company,
+                Decimal("100.00"),
+                "USD",
+                category=category,
+                account=account,
+            )
+
+
+@pytest.mark.django_db
+def test_record_expense_rejects_cross_company_category():
+    company = OrganizationFactory()
+    foreign_company = OrganizationFactory()
+    category = ExpenseCategory.all_objects.create(company=foreign_company, name="Rent")
+    account = FinancialAccount.all_objects.create(
+        company=company,
+        name="USD Cashbox",
+        currency="USD",
+    )
+
+    with company_scope(company):
+        with pytest.raises(ValidationError):
+            record_expense(
+                company,
+                Decimal("100.00"),
+                "USD",
+                category=category,
+                account=account,
+            )

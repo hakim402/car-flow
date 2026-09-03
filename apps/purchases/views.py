@@ -1,5 +1,5 @@
 from django.contrib import messages
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_POST
@@ -101,6 +101,14 @@ def order_advance(request, pk):
 @require_POST
 def order_receive(request, pk):
     order = get_object_or_404(PurchaseOrder, pk=pk)
-    count = receive_order(order, user=request.user)
-    messages.success(request, _("Order received (%(count)d vehicles into stock).") % {"count": count})
+    try:
+        count = receive_order(order, user=request.user)
+    except ValidationError as error:
+        for message in error.messages:
+            messages.error(request, message)
+    else:
+        messages.success(
+            request,
+            _("Order received (%(count)d vehicles into stock).") % {"count": count},
+        )
     return redirect(order)

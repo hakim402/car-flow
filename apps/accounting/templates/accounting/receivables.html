@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% translate "Customer balances" %} — AUTOMEX CarFlow{% endblock %}
+
+{% block content %}
+<div class="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+    <div>
+        <p class="text-xs font-bold uppercase tracking-[.16em] text-brand-600 dark:text-brand-300">{% translate "Loans and receivables" %}</p>
+        <h1 class="mt-1 text-2xl font-extrabold text-slate-950 dark:text-white sm:text-3xl">{% translate "Customer balances" %}</h1>
+        <p class="mt-2 max-w-2xl text-sm text-slate-500 dark:text-slate-400">{% translate "Completed sales remain here until every valid payment is recorded. Even a small remaining amount is kept as customer debt." %}</p>
+    </div>
+    <a href="{% url 'financing:list' %}" class="rounded-xl border border-slate-200 px-4 py-2.5 text-center text-sm font-bold text-slate-700 dark:border-slate-700 dark:text-slate-200">{% translate "Loans and installments" %}</a>
+</div>
+
+<div class="mb-5 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    {% for currency,amount in totals.items %}<div class="rounded-2xl border border-red-200 bg-red-50 p-5 shadow-sm dark:border-red-900/50 dark:bg-red-950/30"><p class="text-xs font-bold uppercase text-red-600 dark:text-red-300">{% translate "Total customer debt" %} · {{ currency }}</p><p class="mt-2 text-2xl font-extrabold text-red-700 dark:text-red-300" dir="ltr">{{ amount }} {{ currency }}</p></div>{% empty %}<div class="rounded-2xl border border-emerald-200 bg-emerald-50 p-5 text-sm font-bold text-emerald-700 dark:border-emerald-900/50 dark:bg-emerald-950/30 dark:text-emerald-300">{% translate "No unpaid customer balances." %}</div>{% endfor %}
+</div>
+
+<div class="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <table class="data-table min-w-full">
+        <thead><tr><th class="px-4 py-3 text-start">{% translate "Customer" %}</th><th class="px-4 py-3 text-start">{% translate "Sale / vehicle" %}</th><th class="px-4 py-3 text-end">{% translate "Sale price" %}</th><th class="px-4 py-3 text-end">{% translate "Paid" %}</th><th class="px-4 py-3 text-end">{% translate "Remaining balance" %}</th><th class="px-4 py-3 text-start">{% translate "Loan record" %}</th></tr></thead>
+        <tbody>
+        {% for row in rows %}<tr><td class="px-4 py-3"><a href="{{ row.sale.customer.get_absolute_url }}" class="font-bold text-slate-800 hover:text-brand-700 dark:text-slate-100 dark:hover:text-brand-300">{{ row.sale.customer }}</a></td><td class="px-4 py-3"><a href="{{ row.sale.get_absolute_url }}" class="font-semibold text-brand-700 dark:text-brand-300">#{{ row.sale.pk }}</a><div class="text-xs text-slate-500">{{ row.sale.vehicle }}</div></td><td class="px-4 py-3 text-end" dir="ltr">{{ row.payment.agreed }} {{ row.payment.currency }}</td><td class="px-4 py-3 text-end text-emerald-600" dir="ltr">{{ row.payment.paid }} {{ row.payment.currency }}</td><td class="px-4 py-3 text-end font-extrabold text-red-600 dark:text-red-400" dir="ltr">{{ row.payment.outstanding }} {{ row.payment.currency }}</td><td class="px-4 py-3">{% if row.sale.finance_agreement %}<a href="{{ row.sale.finance_agreement.get_absolute_url }}" class="font-bold text-brand-700 dark:text-brand-300">{{ row.sale.finance_agreement.number }}</a>{% elif can_add_financing %}<a href="{% url 'financing:create' %}?sale={{ row.sale.pk }}" class="font-bold text-brand-700 dark:text-brand-300">{% translate "Create loan / installments" %}</a>{% else %}—{% endif %}</td></tr>{% empty %}<tr><td colspan="6" class="px-4 py-10 text-center text-slate-500">{% translate "No unpaid customer balances." %}</td></tr>{% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

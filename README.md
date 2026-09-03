@@ -51,6 +51,7 @@ document management, audit trails, and an omnichannel **Conversation Hub**
 | **Purchasing**           | Suppliers, purchase orders, receiving flow. Vehicle cost is **never stored on the vehicle** — it is computed from immutable `VehicleCostLine` rows.                                                                                            |
 | **Sales pipeline**       | Lead → Quotation → Reservation → Sale → Invoice. Completing a sale updates stock and notifies the customer automatically.                                                                                                                      |
 | **Money**                | Append-only ledger (`LedgerEntry`): rows are never updated or deleted; corrections are mirror rows with `reversal_of`. Balances and outstanding amounts are always computed aggregates — never stored columns.                                 |
+| **Financing**            | Dealer installment agreements, fixed schedule generation, down-payment verification, partial payment allocation, guarantors, external lender references, receipts, overdue aging and scheduled reminders.                                  |
 | **Audit**                | `django-simple-history` tracks changes on business models (immutable financial rows are excluded by design).                                                                                                                                   |
 | **Conversation Hub**     | One inbox per company across all channels. Unknown senders automatically become new customers (never silently merged). Raw provider payloads are persisted before parsing; webhook redelivery is deduplicated.                                 |
 | **Notifications**        | Business code calls exactly one function — `notification_engine.notify(event, company, customer, context)` — which fans out over all of the customer's active channel identities.                                                              |
@@ -99,6 +100,7 @@ for the database, and **only the `web` role runs migrations** — concurrent
 | `customers`      | Customer directory + channel identities                                                                     |
 | `sales`          | Lead / Quotation / Reservation / Sale / Invoice pipeline                                                    |
 | `payments`       | The append-only **ledger** (`LedgerEntry`)                                                                  |
+| `financing`      | Dealer installments, lender references, schedules, allocations, aging and reminders                        |
 | `expenses`       | Expense capture (writes through the ledger)                                                                 |
 | `accounting`     | Computed aggregates: balance, money in/out, sale outstanding                                                |
 | `audit`          | `django-simple-history` wiring                                                                              |
@@ -289,6 +291,7 @@ user.save()   # re-save keeps is_staff in sync with the role set
 | `sales`          | Pipeline and payments                         |
 | `inventory`      | Vehicles, stock, receiving                    |
 | `accountant`     | Payments, expenses, accounting                |
+| `finance_officer`| Financing approval, collections and defaults  |
 
 Custom roles and granular permissions are plain database rows — see
 [`PRODUCTION.md` §5](PRODUCTION.md#5-users-companies-branches-roles).

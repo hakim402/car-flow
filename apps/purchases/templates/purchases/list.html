@@ -7,12 +7,12 @@
 <div class="flex items-center justify-between mb-4">
     <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">{% translate "Purchase orders" %}</h1>
     <a href="{% url 'purchases:create' %}"
-       class="inline-flex items-center justify-center rounded-xl bg-amber-500 hover:bg-amber-600 text-white px-4 py-2.5 text-sm font-bold shadow-sm transition">
+       class="inline-flex items-center justify-center rounded-xl bg-brand-600 hover:bg-brand-700 text-white px-4 py-2.5 text-sm font-bold shadow-sm transition">
         {% translate "New purchase order" %}
     </a>
 </div>
 <form method="get" class="flex items-center gap-3 mb-4">
-    <select name="status" class="rounded-xl border border-slate-300 bg-slate-50 px-3 py-2.5 text-sm text-slate-800 shadow-sm outline-none transition focus:border-amber-500 focus:bg-white focus:ring-4 focus:ring-amber-100">
+    <select name="status" class="rounded-xl border border-slate-300 bg-slate-50 px-3 py-2.5 text-sm text-slate-800 shadow-sm outline-none transition focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-100">
         <option value="">{% translate "All statuses" %}</option>
         {% for value, label in statuses %}
             <option value="{{ value }}" {% if value == status %}selected{% endif %}>{{ label }}</option>
@@ -22,7 +22,7 @@
         {% translate "Filter" %}
     </button>
 </form>
-<div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+<div class="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
     <table class="data-table">
         <thead>
             <tr>
@@ -38,12 +38,12 @@
             {% for order in orders %}
                 <tr>
                     <td class="px-4 py-3">
-                        <a href="{{ order.get_absolute_url }}" class="font-medium text-slate-800 hover:text-amber-600">
+                        <a href="{{ order.get_absolute_url }}" class="font-medium text-slate-800 hover:text-brand-600">
                             {{ order }}
                         </a>
                     </td>
                     <td class="px-4 py-3">
-                        <a href="{{ order.supplier.get_absolute_url }}" class="text-slate-700 hover:text-amber-600">
+                        <a href="{{ order.supplier.get_absolute_url }}" class="text-slate-700 hover:text-brand-600">
                             {{ order.supplier }}
                         </a>
                     </td>

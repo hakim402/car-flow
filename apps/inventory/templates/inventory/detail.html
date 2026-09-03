@@ -34,7 +34,7 @@
         <h2 class="text-lg font-extrabold tracking-tight text-slate-900 mb-3">{% translate "Move within branch" %}</h2>
         <form method="post" action="{% url 'inventory:move' stock.pk %}" class="space-y-3">
             {% csrf_token %}
-            <select name="location" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2.5 text-sm text-slate-800 shadow-sm outline-none transition focus:border-amber-500 focus:bg-white focus:ring-4 focus:ring-amber-100" required>
+            <select name="location" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2.5 text-sm text-slate-800 shadow-sm outline-none transition focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-100" required>
                 <option value="">{% translate "Choose a location…" %}</option>
                 {% for location in locations %}
                     {% if location.branch_id == stock.branch_id %}
@@ -45,7 +45,7 @@
                 {% endfor %}
             </select>
             <input type="text" name="notes" placeholder="{% translate 'Notes (optional)' %}"
-                   class="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2.5 text-sm text-slate-800 shadow-sm outline-none transition focus:border-amber-500 focus:bg-white focus:ring-4 focus:ring-amber-100">
+                   class="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2.5 text-sm text-slate-800 shadow-sm outline-none transition focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-100">
             <button type="submit" class="inline-flex items-center justify-center rounded-xl bg-slate-900 hover:bg-slate-800 text-white px-4 py-2.5 text-sm font-bold shadow-sm transition">
                 {% translate "Move" %}
             </button>
@@ -56,7 +56,7 @@
         <h2 class="text-lg font-extrabold tracking-tight text-slate-900 mb-3">{% translate "Transfer to another branch" %}</h2>
         <form method="post" action="{% url 'inventory:transfer' stock.pk %}" class="space-y-3">
             {% csrf_token %}
-            <select name="branch" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2.5 text-sm text-slate-800 shadow-sm outline-none transition focus:border-amber-500 focus:bg-white focus:ring-4 focus:ring-amber-100" required>
+            <select name="branch" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2.5 text-sm text-slate-800 shadow-sm outline-none transition focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-100" required>
                 <option value="">{% translate "Choose a branch…" %}</option>
                 {% for branch in branches %}
                     <option value="{{ branch.pk }}" {% if branch.pk == stock.branch_id %}selected{% endif %}>
@@ -64,15 +64,15 @@
                     </option>
                 {% endfor %}
             </select>
-            <select name="location" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2.5 text-sm text-slate-800 shadow-sm outline-none transition focus:border-amber-500 focus:bg-white focus:ring-4 focus:ring-amber-100">
+            <select name="location" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2.5 text-sm text-slate-800 shadow-sm outline-none transition focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-100">
                 <option value="">{% translate "No specific location" %}</option>
                 {% for location in locations %}
                     <option value="{{ location.pk }}">{{ location }}</option>
                 {% endfor %}
             </select>
             <input type="text" name="notes" placeholder="{% translate 'Notes (optional)' %}"
-                   class="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2.5 text-sm text-slate-800 shadow-sm outline-none transition focus:border-amber-500 focus:bg-white focus:ring-4 focus:ring-amber-100">
-            <button type="submit" class="inline-flex items-center justify-center rounded-xl bg-amber-500 hover:bg-amber-600 text-white px-4 py-2.5 text-sm font-bold shadow-sm transition">
+                   class="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2.5 text-sm text-slate-800 shadow-sm outline-none transition focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-100">
+            <button type="submit" class="inline-flex items-center justify-center rounded-xl bg-brand-600 hover:bg-brand-700 text-white px-4 py-2.5 text-sm font-bold shadow-sm transition">
                 {% translate "Transfer" %}
             </button>
         </form>

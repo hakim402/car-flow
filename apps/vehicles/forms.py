@@ -54,7 +54,7 @@ class VehicleForm(StyledFormMixin, forms.ModelForm):
 
             base_classes = [
                 "w-full rounded-xl border border-slate-300 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-800 shadow-sm outline-none transition placeholder:text-slate-400",
-                "focus:border-amber-500 focus:bg-white focus:ring-4 focus:ring-amber-100",
+                "focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-100",
             ]
             if field_name == "notes":
                 base_classes.append("min-h-[110px]")

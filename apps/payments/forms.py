@@ -94,6 +94,17 @@ class PaymentForm(StyledFormMixin, forms.Form):
             self.fields["sale"].queryset = Sale.all_objects.none()
             self.fields["account"].queryset = FinancialAccount.all_objects.none()
 
+    def clean(self):
+        cleaned = super().clean()
+        sale = cleaned.get("sale")
+        account = cleaned.get("account")
+        currency = cleaned.get("currency")
+        if sale and currency and sale.currency != currency:
+            self.add_error("currency", _("Payment currency must match the sale currency."))
+        if account and currency and account.currency != currency:
+            self.add_error("account", _("Payment currency must match the financial account currency."))
+        return cleaned
+
 
 class SupplierPaymentForm(StyledFormMixin, forms.Form):
     supplier = forms.ModelChoiceField(
@@ -159,3 +170,11 @@ class SupplierPaymentForm(StyledFormMixin, forms.Form):
         else:
             self.fields["supplier"].queryset = Supplier.all_objects.none()
             self.fields["account"].queryset = FinancialAccount.all_objects.none()
+
+    def clean(self):
+        cleaned = super().clean()
+        account = cleaned.get("account")
+        currency = cleaned.get("currency")
+        if account and currency and account.currency != currency:
+            self.add_error("account", _("Payment currency must match the financial account currency."))
+        return cleaned

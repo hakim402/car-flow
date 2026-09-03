@@ -4,9 +4,9 @@
 {% block title %}{% translate "Inventory locations" %} — AUTOMEX CarFlow{% endblock %}
 
 {% block content %}
-<div class="mb-6 flex items-center justify-between gap-3">
+<div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
     <div>
-        <p class="text-xs font-medium uppercase tracking-[0.2em] text-amber-600">{% translate "Inventory" %}</p>
+        <p class="text-xs font-medium uppercase tracking-[0.2em] text-brand-600">{% translate "Inventory" %}</p>
         <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 text-slate-900">{% translate "Inventory locations" %}</h1>
     </div>
     <a href="{% url 'inventory:list' %}"
@@ -21,7 +21,7 @@
         {% csrf_token %}
         <div class="space-y-1">
             <label class="block text-xs font-medium uppercase tracking-wide text-slate-500">{% translate "Branch" %}</label>
-            <select name="branch" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2.5 text-sm text-slate-800 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-100" required>
+            <select name="branch" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2.5 text-sm text-slate-800 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100" required>
                 <option value="">{% translate "Branch…" %}</option>
                 {% for branch in request.user.company.branches.all %}
                     <option value="{{ branch.pk }}">{{ branch }}</option>
@@ -31,11 +31,11 @@
         <div class="space-y-1 xl:col-span-2">
             <label class="block text-xs font-medium uppercase tracking-wide text-slate-500">{% translate "Name" %}</label>
             <input type="text" name="name" placeholder="{% translate 'Name (e.g. Kabul Main Showroom)' %}"
-                   class="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2.5 text-sm text-slate-800 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-100" required>
+                   class="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2.5 text-sm text-slate-800 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100" required>
         </div>
         <div class="space-y-1">
             <label class="block text-xs font-medium uppercase tracking-wide text-slate-500">{% translate "Type" %}</label>
-            <select name="type" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2.5 text-sm text-slate-800 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-100">
+            <select name="type" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2.5 text-sm text-slate-800 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100">
                 {% for value, label in location_types %}
                     <option value="{{ value }}">{{ label }}</option>
                 {% endfor %}
@@ -44,17 +44,17 @@
         <div class="space-y-1">
             <label class="block text-xs font-medium uppercase tracking-wide text-slate-500">{% translate "Code" %}</label>
             <input type="text" name="code" placeholder="{% translate 'Code (optional, unique per branch)' %}"
-                   class="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2.5 text-sm text-slate-800 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-100">
+                   class="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2.5 text-sm text-slate-800 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100">
         </div>
         <div class="flex items-end md:col-span-2 xl:col-span-1">
-            <button type="submit" class="w-full rounded-xl bg-amber-500 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-amber-600">
+            <button type="submit" class="w-full rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-brand-700">
                 {% translate "Create" %}
             </button>
         </div>
     </form>
 </div>
 
-<div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+<div class="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
     <table class="data-table">
         <thead>
             <tr>

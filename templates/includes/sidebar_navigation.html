@@ -1,0 +1,108 @@
+{% load i18n %}
+{% with perms=user.permission_codenames %}
+<nav id="primary-navigation" class="sidebar-navigation thin-scroll" aria-label="{% translate 'Primary navigation' %}">
+    <p class="sidebar-section-label">{% translate "Main menu" %}</p>
+    <a data-nav-link data-tooltip="{% translate 'Dashboard' %}" href="{% url 'home' %}" class="nav-rail-link {% if request.resolver_match.view_name == 'home' %}nav-rail-link-active{% endif %}" {% if request.resolver_match.view_name == 'home' %}aria-current="page"{% endif %}>
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 13h6V4H4v9zm10 7h6v-9h-6v9zM4 20h6v-3H4v3zm10-13h6V4h-6v3z" /></svg>
+        <span class="nav-label">{% translate "Dashboard" %}</span>
+    </a>
+
+    {% if user.company_id %}
+    <p class="sidebar-section-label">{% translate "Workspace" %}</p>
+
+        {% if user.is_super_admin or 'customers.view' in perms or 'sales.view' in perms %}
+        <details data-nav-group class="group nav-rail-group" {% if request.resolver_match.app_name == 'customers' or request.resolver_match.app_name == 'sales' %}open{% endif %}>
+            <summary data-tooltip="{% translate 'CRM & Sales' %}" class="nav-rail-summary {% if request.resolver_match.app_name == 'customers' or request.resolver_match.app_name == 'sales' %}nav-rail-summary-active{% endif %}">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 19.5a4.5 4.5 0 00-9 0M12 12a3.75 3.75 0 100-7.5 3.75 3.75 0 000 7.5zm6.75 7.5a3.75 3.75 0 00-3-3.67" /></svg>
+                <span class="nav-label">{% translate "CRM & Sales" %}</span>
+                <svg class="nav-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m6 9 6 6 6-6" /></svg>
+            </summary>
+            <div class="nav-rail-children">
+                {% if user.is_super_admin or 'customers.view' in perms %}<a data-nav-link href="{% url 'customers:list' %}" class="nav-rail-child {% if request.resolver_match.app_name == 'customers' %}nav-rail-child-active{% endif %}">{% translate "Customers" %}</a>{% endif %}
+                {% if user.is_super_admin or 'sales.view' in perms %}
+                <a data-nav-link href="{% url 'sales:lead_list' %}" class="nav-rail-child {% if 'lead' in request.resolver_match.url_name %}nav-rail-child-active{% endif %}">{% translate "Leads" %}</a>
+                <a data-nav-link href="{% url 'sales:quotation_list' %}" class="nav-rail-child {% if 'quotation' in request.resolver_match.url_name %}nav-rail-child-active{% endif %}">{% translate "Quotations" %}</a>
+                <a data-nav-link href="{% url 'sales:reservation_list' %}" class="nav-rail-child {% if 'reservation' in request.resolver_match.url_name %}nav-rail-child-active{% endif %}">{% translate "Reservations" %}</a>
+                <a data-nav-link href="{% url 'sales:sale_list' %}" class="nav-rail-child {% if 'sale' in request.resolver_match.url_name %}nav-rail-child-active{% endif %}">{% translate "Sales" %}</a>
+                {% endif %}
+            </div>
+        </details>
+        {% endif %}
+
+        {% if user.is_super_admin or 'vehicles.view' in perms or 'inventory.view' in perms or 'suppliers.view' in perms or 'purchases.view' in perms %}
+        <details data-nav-group class="group nav-rail-group" {% if request.resolver_match.app_name == 'vehicles' or request.resolver_match.app_name == 'inventory' or request.resolver_match.app_name == 'suppliers' or request.resolver_match.app_name == 'purchases' %}open{% endif %}>
+            <summary data-tooltip="{% translate 'Inventory & procurement' %}" class="nav-rail-summary {% if request.resolver_match.app_name == 'vehicles' or request.resolver_match.app_name == 'inventory' or request.resolver_match.app_name == 'suppliers' or request.resolver_match.app_name == 'purchases' %}nav-rail-summary-active{% endif %}">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M3.5 15.5 5 10.75A2.5 2.5 0 017.4 9h9.2a2.5 2.5 0 012.4 1.75l1.5 4.75M5 15.5h14M7 19h-.5A1.5 1.5 0 015 17.5v-2h14v2a1.5 1.5 0 01-1.5 1.5H17M8 13h.01M16 13h.01" /></svg>
+                <span class="nav-label">{% translate "Inventory & procurement" %}</span>
+                <svg class="nav-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m6 9 6 6 6-6" /></svg>
+            </summary>
+            <div class="nav-rail-children">
+                {% if user.is_super_admin or 'vehicles.view' in perms %}<a data-nav-link href="{% url 'vehicles:list' %}" class="nav-rail-child {% if request.resolver_match.app_name == 'vehicles' %}nav-rail-child-active{% endif %}">{% translate "Vehicle registry" %}</a>{% endif %}
+                {% if user.is_super_admin or 'inventory.view' in perms %}
+                <a data-nav-link href="{% url 'inventory:list' %}" class="nav-rail-child {% if request.resolver_match.app_name == 'inventory' and 'location' not in request.resolver_match.url_name %}nav-rail-child-active{% endif %}">{% translate "Current stock" %}</a>
+                <a data-nav-link href="{% url 'inventory:location_list' %}" class="nav-rail-child {% if 'location' in request.resolver_match.url_name %}nav-rail-child-active{% endif %}">{% translate "Inventory locations" %}</a>
+                {% endif %}
+                {% if user.is_super_admin or 'suppliers.view' in perms %}<a data-nav-link href="{% url 'suppliers:list' %}" class="nav-rail-child {% if request.resolver_match.app_name == 'suppliers' %}nav-rail-child-active{% endif %}">{% translate "Suppliers" %}</a>{% endif %}
+                {% if user.is_super_admin or 'purchases.view' in perms %}<a data-nav-link href="{% url 'purchases:list' %}" class="nav-rail-child {% if request.resolver_match.app_name == 'purchases' %}nav-rail-child-active{% endif %}">{% translate "Purchase orders" %}</a>{% endif %}
+            </div>
+        </details>
+        {% endif %}
+
+        {% if user.is_super_admin or 'payments.view' in perms or 'financing.view' in perms or 'expenses.view' in perms or 'accounting.view' in perms %}
+        <details data-nav-group class="group nav-rail-group" {% if request.resolver_match.app_name == 'payments' or request.resolver_match.app_name == 'financing' or request.resolver_match.app_name == 'expenses' or request.resolver_match.app_name == 'accounting' %}open{% endif %}>
+            <summary data-tooltip="{% translate 'Finance & accounting' %}" class="nav-rail-summary {% if request.resolver_match.app_name == 'payments' or request.resolver_match.app_name == 'financing' or request.resolver_match.app_name == 'expenses' or request.resolver_match.app_name == 'accounting' %}nav-rail-summary-active{% endif %}">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6.5h16v11H4zM7 10h10M7 14h6" /></svg>
+                <span class="nav-label">{% translate "Finance & accounting" %}</span>
+                <svg class="nav-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m6 9 6 6 6-6" /></svg>
+            </summary>
+            <div class="nav-rail-children">
+                {% if user.is_super_admin or 'payments.view' in perms %}
+                <a data-nav-link href="{% url 'accounting:summary' %}" class="nav-rail-child {% if request.resolver_match.view_name == 'accounting:summary' %}nav-rail-child-active{% endif %}">{% translate "Financial overview" %}</a>
+                <a data-nav-link href="{% url 'accounting:receivables' %}" class="nav-rail-child {% if request.resolver_match.view_name == 'accounting:receivables' %}nav-rail-child-active{% endif %}">{% translate "Customer balances" %}</a>
+                <a data-nav-link href="{% url 'payments:list' %}" class="nav-rail-child {% if request.resolver_match.app_name == 'payments' and request.resolver_match.view_name != 'payments:account_list' %}nav-rail-child-active{% endif %}">{% translate "Payments & receipts" %}</a>
+                <a data-nav-link href="{% url 'payments:account_list' %}" class="nav-rail-child {% if request.resolver_match.view_name == 'payments:account_list' %}nav-rail-child-active{% endif %}">{% translate "Cashboxes & bank accounts" %}</a>
+                {% endif %}
+                {% if user.is_super_admin or 'financing.view' in perms %}
+                <a data-nav-link href="{% url 'financing:list' %}" class="nav-rail-child {% if request.resolver_match.app_name == 'financing' and 'partner' not in request.resolver_match.url_name %}nav-rail-child-active{% endif %}">{% translate "Loans & installments" %}</a>
+                <a data-nav-link href="{% url 'financing:partner_list' %}" class="nav-rail-child {% if 'partner' in request.resolver_match.url_name %}nav-rail-child-active{% endif %}">{% translate "Finance partners" %}</a>
+                {% endif %}
+                {% if user.is_super_admin or 'expenses.view' in perms %}
+                <a data-nav-link href="{% url 'expenses:list' %}" class="nav-rail-child {% if request.resolver_match.app_name == 'expenses' and 'category' not in request.resolver_match.url_name %}nav-rail-child-active{% endif %}">{% translate "Operating expenses" %}</a>
+                <a data-nav-link href="{% url 'expenses:category_list' %}" class="nav-rail-child {% if 'category' in request.resolver_match.url_name %}nav-rail-child-active{% endif %}">{% translate "Expense categories" %}</a>
+                {% endif %}
+            </div>
+        </details>
+        {% endif %}
+
+        {% if user.is_super_admin or 'communications.view' in perms %}
+        <details data-nav-group class="group nav-rail-group" {% if request.resolver_match.app_name == 'communications' %}open{% endif %}>
+            <summary data-tooltip="{% translate 'Communication hub' %}" class="nav-rail-summary {% if request.resolver_match.app_name == 'communications' %}nav-rail-summary-active{% endif %}">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 5.5h16v11H9l-5 4v-15z" /></svg>
+                <span class="nav-label">{% translate "Communication hub" %}</span>
+                <svg class="nav-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m6 9 6 6 6-6" /></svg>
+            </summary>
+            <div class="nav-rail-children">
+                <a data-nav-link href="{% url 'communications:conversation_list' %}" class="nav-rail-child {% if 'conversation' in request.resolver_match.url_name %}nav-rail-child-active{% endif %}">{% translate "Conversation inbox" %}</a>
+                <a data-nav-link href="{% url 'communications:channel_list' %}" class="nav-rail-child {% if 'channel' in request.resolver_match.url_name %}nav-rail-child-active{% endif %}">{% translate "Channels & integrations" %}</a>
+            </div>
+        </details>
+        {% endif %}
+
+        {% if user.is_super_admin or 'documents.view' in perms %}
+        <a data-nav-link data-tooltip="{% translate 'Documents & files' %}" href="{% url 'documents:list' %}" class="nav-rail-link mt-1 {% if request.resolver_match.app_name == 'documents' %}nav-rail-link-active{% endif %}">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 3.5h8l4 4V20H6zM14 3.5V8h4M9 12h6M9 16h6" /></svg>
+            <span class="nav-label">{% translate "Documents & files" %}</span>
+        </a>
+        {% endif %}
+    {% endif %}
+
+    {% if user.is_super_admin %}
+    <a data-nav-link data-tooltip="{% translate 'Platform administration' %}" href="{% url 'admin:index' %}" class="nav-rail-link mt-1">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3.5 20 7v5c0 4.5-3.1 7.7-8 8.5C7.1 19.7 4 16.5 4 12V7zM9 12l2 2 4-4" /></svg>
+        <span class="nav-label">{% translate "Platform administration" %}</span>
+    </a>
+    {% endif %}
+
+    <p id="nav-search-empty" class="hidden px-3 py-8 text-center text-sm text-slate-500">{% translate "No matching pages." %}</p>
+</nav>
+{% endwith %}

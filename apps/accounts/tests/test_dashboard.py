@@ -76,6 +76,8 @@ def test_company_dashboard_exposes_finance_setup_links():
     assert "Expense categories" in html
     assert reverse("payments:account_list") in html
     assert reverse("expenses:category_list") in html
+    assert reverse("financing:partner_list") in html
+    assert reverse("accounting:receivables") in html
 
 
 @pytest.mark.django_db

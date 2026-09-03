@@ -14,6 +14,7 @@ from apps.accounting.services import (
     money_in,
     money_out,
     sale_outstanding,
+    sale_payment_summary,
     sale_payments,
 )
 from apps.core.models import ImmutableRecordError
@@ -111,9 +112,35 @@ def test_sale_outstanding_matches_rows(sale):
 
 
 @pytest.mark.django_db
+def test_two_dollar_balance_remains_a_partial_customer_debt(sale):
+    sale.agreed_amount = Decimal("100.00")
+    sale.save(update_fields=["agreed_amount", "updated_at"])
+    with company_scope(sale.company):
+        record_payment(sale, Decimal("98.00"), "USD")
+        summary = sale_payment_summary(sale)
+
+    assert summary["paid"] == Decimal("98.00")
+    assert summary["outstanding"] == Decimal("2.00")
+    assert summary["status"] == "partial"
+
+
+@pytest.mark.django_db
 def test_balance_ignores_other_tenants(sale):
     other_sale = SaleFactory()
     _entry(other_sale.company, amount=Decimal("9999.00"))
 
     with company_scope(sale.company):
         assert ledger_balance() == {}
+
+
+@pytest.mark.django_db
+def test_payment_rejects_currency_mismatch_and_reversal_preserves_references(sale):
+    with company_scope(sale.company):
+        with pytest.raises(Exception, match="sale currency"):
+            record_payment(sale, Decimal("50.00"), "AFN")
+        entry = record_payment(sale, Decimal("50.00"), "USD", reference="TRANSFER-1")
+        reversal = reverse_entry(entry)
+        assert reversal.sale_id == sale.pk
+        assert reversal.customer_id == sale.customer_id
+        assert reversal.reference == "TRANSFER-1"
+        assert reversal.receipt_number.startswith("RCT-")

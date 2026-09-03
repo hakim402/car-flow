@@ -15,7 +15,7 @@
     <div class="flex items-center gap-2">
         {% if can_upload_documents %}
             <a href="{% url 'documents:upload_for_supplier' supplier.pk %}"
-               class="inline-flex items-center justify-center rounded-xl bg-amber-500 hover:bg-amber-600 text-white px-4 py-2.5 text-sm font-bold shadow-sm transition">
+               class="inline-flex items-center justify-center rounded-xl bg-brand-600 hover:bg-brand-700 text-white px-4 py-2.5 text-sm font-bold shadow-sm transition">
                 {% translate "Add logo / document" %}
             </a>
         {% endif %}
@@ -68,7 +68,7 @@
                     {% for order in orders %}
                         <tr>
                             <td class="px-4 py-3">
-                                <a href="{{ order.get_absolute_url }}" class="font-medium text-slate-800 hover:text-amber-600">
+                                <a href="{{ order.get_absolute_url }}" class="font-medium text-slate-800 hover:text-brand-600">
                                     {{ order }}
                                 </a>
                             </td>
@@ -118,13 +118,13 @@
                         <tr>
                             <td class="px-4 py-3">
                                 <a href="{{ line.vehicle.get_absolute_url }}"
-                                   class="font-medium text-slate-800 hover:text-amber-600">
+                                   class="font-medium text-slate-800 hover:text-brand-600">
                                     {{ line.vehicle }}
                                 </a>
                             </td>
                             <td class="px-4 py-3 font-mono text-xs text-slate-500" dir="ltr">{{ line.vehicle.vin }}</td>
                             <td class="px-4 py-3">
-                                <a href="{{ line.order.get_absolute_url }}" class="text-slate-700 hover:text-amber-600">
+                                <a href="{{ line.order.get_absolute_url }}" class="text-slate-700 hover:text-brand-600">
                                     {{ line.order }}
                                 </a>
                             </td>
@@ -164,7 +164,7 @@
                             <td class="px-4 py-3">
                                 {% if document.file_exists %}
                                     <a href="{{ document.file.url }}" target="_blank" rel="noopener"
-                                       class="font-medium text-slate-800 hover:text-amber-600">{{ document }}</a>
+                                       class="font-medium text-slate-800 hover:text-brand-600">{{ document }}</a>
                                 {% else %}
                                     <span class="font-medium text-slate-500">{{ document }}</span>
                                     <span class="ms-2 inline-flex rounded-full bg-red-50 px-2 py-0.5 text-xs font-semibold text-red-700">{% translate "File missing from storage" %}</span>
@@ -182,7 +182,7 @@
         <p class="text-sm text-slate-500">
             {% translate "No documents yet." %}
             {% if can_upload_documents %}
-                <a class="text-amber-600 hover:text-amber-700" href="{% url 'documents:upload_for_supplier' supplier.pk %}">{% translate "Upload the first one." %}</a>
+                <a class="text-brand-600 hover:text-brand-700" href="{% url 'documents:upload_for_supplier' supplier.pk %}">{% translate "Upload the first one." %}</a>
             {% endif %}
         </p>
     {% endif %}
@@ -203,7 +203,7 @@
         </h2>
         {% if can_record_payments %}
             <a href="{% url 'payments:supplier_payment' %}?supplier={{ supplier.pk }}"
-               class="inline-flex items-center justify-center rounded-xl bg-amber-500 hover:bg-amber-600 text-white px-4 py-2.5 text-sm font-bold shadow-sm transition">
+               class="inline-flex items-center justify-center rounded-xl bg-brand-600 hover:bg-brand-700 text-white px-4 py-2.5 text-sm font-bold shadow-sm transition">
                 {% translate "Record payment" %}
             </a>
         {% endif %}

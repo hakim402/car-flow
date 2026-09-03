@@ -20,6 +20,13 @@ from .services import (
 )
 
 
+MANUAL_STATUS_TARGETS = {
+    StockStatus.INSPECTION,
+    StockStatus.PREPARATION,
+    StockStatus.AVAILABLE,
+}
+
+
 @require_permission("inventory.view")
 def stock_list(request):
     queryset = VehicleStock.objects.all()  # TenantManager filters by company.
@@ -38,6 +45,12 @@ def stock_list(request):
             (value, label)
             for value, label in StockStatus.choices
             if value in ALLOWED_TRANSITIONS.get(item.status, set())
+            and value in MANUAL_STATUS_TARGETS
+            and item.status in {
+                StockStatus.RECEIVED,
+                StockStatus.INSPECTION,
+                StockStatus.PREPARATION,
+            }
         ]
     return render(
         request,
@@ -81,6 +94,17 @@ def stock_update_status(request, pk):
     new_status = request.POST.get("status", "")
     if new_status not in StockStatus.values:
         messages.error(request, _("Unknown status."))
+        return redirect("inventory:list")
+    allowed = ALLOWED_TRANSITIONS.get(stock.status, set())
+    if new_status not in allowed or new_status not in MANUAL_STATUS_TARGETS or stock.status not in {
+        StockStatus.RECEIVED,
+        StockStatus.INSPECTION,
+        StockStatus.PREPARATION,
+    }:
+        messages.error(
+            request,
+            _("Use the reservation, sale, delivery, or return workflow for this status change."),
+        )
         return redirect("inventory:list")
     try:
         adjust_stock_status(

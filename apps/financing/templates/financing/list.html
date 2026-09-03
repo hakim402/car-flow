@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Financing" %} — AUTOMEX CarFlow{% endblock %}
+{% block content %}
+<div class="mb-5 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <div>
+        <p class="text-xs font-bold uppercase tracking-[.16em] text-brand-600 dark:text-brand-300">{% translate "Receivables" %}</p>
+        <h1 class="mt-1 text-2xl font-extrabold tracking-tight text-slate-950 dark:text-white sm:text-3xl">{% translate "Loans and installment agreements" %}</h1>
+        <p class="mt-2 max-w-2xl text-sm text-slate-500 dark:text-slate-400">{% translate "Every unpaid amount remains recorded until the customer's valid payments fully settle the sale." %}</p>
+    </div>
+    <div class="flex gap-2"><a href="{% url 'financing:partner_list' %}" class="inline-flex justify-center rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">{% translate "Partners" %}</a>{% if user.is_super_admin or 'financing.add' in user.permission_codenames %}<a href="{% url 'financing:create' %}" class="inline-flex justify-center rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-brand-700">{% translate "New agreement" %}</a>{% endif %}</div>
+</div>
+
+<div class="mb-5 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    {% for currency,values in totals.items %}<div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900"><p class="text-xs font-bold uppercase tracking-wider text-slate-400">{% translate "Outstanding" %} · {{ currency }}</p><p class="mt-2 text-2xl font-extrabold text-slate-950 dark:text-white" dir="ltr">{{ values.outstanding }} {{ currency }}</p><p class="mt-2 text-sm font-bold text-red-600 dark:text-red-400" dir="ltr">{% translate "Overdue" %}: {{ values.overdue }} {{ currency }}</p></div>{% empty %}<div class="rounded-2xl border border-slate-200 bg-white p-5 text-sm text-slate-500 dark:border-slate-800 dark:bg-slate-900">{% translate "No active receivables." %}</div>{% endfor %}
+</div>
+
+{% if aging %}<div class="mb-5 overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900"><div class="border-b border-slate-200 px-5 py-4 dark:border-slate-800"><h2 class="font-extrabold text-slate-950 dark:text-white">{% translate "Receivables aging" %}</h2></div><table class="data-table min-w-full"><thead><tr><th class="px-4 py-3 text-start">{% translate "Currency" %}</th><th class="px-4 py-3 text-end">{% translate "Current" %}</th><th class="px-4 py-3 text-end">1–30</th><th class="px-4 py-3 text-end">31–60</th><th class="px-4 py-3 text-end">61–90</th><th class="px-4 py-3 text-end">90+</th></tr></thead><tbody>{% for currency,buckets in aging.items %}<tr><td class="px-4 py-3 font-bold">{{ currency }}</td><td class="px-4 py-3 text-end" dir="ltr">{{ buckets.current }}</td><td class="px-4 py-3 text-end" dir="ltr">{{ buckets.days_1_30 }}</td><td class="px-4 py-3 text-end" dir="ltr">{{ buckets.days_31_60 }}</td><td class="px-4 py-3 text-end" dir="ltr">{{ buckets.days_61_90 }}</td><td class="px-4 py-3 text-end font-bold text-red-600" dir="ltr">{{ buckets.days_90_plus }}</td></tr>{% endfor %}</tbody></table></div>{% endif %}
+
+<form method="get" class="mb-4 flex max-w-xs gap-2">
+    <select name="status" class="w-full rounded-xl border-slate-200 bg-white text-sm dark:border-slate-700 dark:bg-slate-900">
+        <option value="">{% translate "All statuses" %}</option>
+        {% for value,label in statuses %}<option value="{{ value }}" {% if selected_status == value %}selected{% endif %}>{{ label }}</option>{% endfor %}
+    </select>
+    <button class="rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold dark:border-slate-700 dark:bg-slate-900">{% translate "Filter" %}</button>
+</form>
+
+<div class="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <table class="data-table min-w-full">
+        <thead><tr><th class="px-4 py-3 text-start">{% translate "Agreement" %}</th><th class="px-4 py-3 text-start">{% translate "Customer / vehicle" %}</th><th class="px-4 py-3 text-start">{% translate "Status" %}</th><th class="px-4 py-3 text-end">{% translate "Outstanding" %}</th><th class="px-4 py-3 text-end">{% translate "Overdue" %}</th><th class="px-4 py-3 text-start">{% translate "Next due" %}</th></tr></thead>
+        <tbody>
+        {% for agreement in agreements %}
+            <tr class="border-t border-slate-100 dark:border-slate-800">
+                <td class="px-4 py-3"><a class="font-bold text-brand-700 hover:underline dark:text-brand-300" href="{{ agreement.get_absolute_url }}">{{ agreement.number }}</a><div class="text-xs text-slate-400">{{ agreement.get_agreement_type_display }}</div></td>
+                <td class="px-4 py-3"><div class="font-semibold text-slate-800 dark:text-slate-100">{{ agreement.sale.customer }}</div><div class="text-xs text-slate-500">{{ agreement.sale.vehicle }}</div></td>
+                <td class="px-4 py-3"><span class="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-700 dark:bg-slate-800 dark:text-slate-200">{{ agreement.get_status_display }}</span></td>
+                <td class="px-4 py-3 text-end font-semibold" dir="ltr">{{ agreement.summary.outstanding }} {{ agreement.currency }}</td>
+                <td class="px-4 py-3 text-end font-semibold text-red-600 dark:text-red-400" dir="ltr">{{ agreement.summary.overdue }} {{ agreement.currency }}</td>
+                <td class="px-4 py-3">{{ agreement.summary.next_due|date:"SHORT_DATE_FORMAT"|default:"—" }}</td>
+            </tr>
+        {% empty %}<tr><td colspan="6" class="px-4 py-10 text-center text-sm text-slate-500">{% translate "No financing agreements yet." %}</td></tr>{% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

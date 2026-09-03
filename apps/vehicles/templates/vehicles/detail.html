@@ -8,7 +8,7 @@
     <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
             <div class="flex flex-wrap items-center gap-2 text-xs font-bold text-slate-500">
-                <a href="{% url 'vehicles:list' %}" class="hover:text-amber-600">{% translate "Vehicles" %}</a>
+                <a href="{% url 'vehicles:list' %}" class="hover:text-brand-600">{% translate "Vehicles" %}</a>
                 <span class="text-slate-300">/</span>
                 <span class="font-mono" dir="ltr">{{ vehicle.vin }}</span>
             </div>
@@ -64,7 +64,7 @@
 
                 <dl class="mt-6 space-y-4 text-sm">
                     <div class="flex items-start justify-between gap-4 border-b border-slate-100 pb-3"><dt class="text-slate-500">{% translate "Branch / location" %}</dt><dd class="text-end font-bold text-slate-800">{% if stock %}{{ stock.branch|default:"—" }}{% if stock.location %}<br><span class="text-xs font-medium text-slate-500">{{ stock.location }}</span>{% endif %}{% else %}—{% endif %}</dd></div>
-                    <div class="flex items-start justify-between gap-4 border-b border-slate-100 pb-3"><dt class="text-slate-500">{% translate "Bought from" %}</dt><dd class="text-end font-bold text-slate-800">{% if source_supplier %}<a href="{{ source_supplier.get_absolute_url }}" class="hover:text-amber-600">{{ source_supplier.name }}</a>{% else %}—{% endif %}</dd></div>
+                    <div class="flex items-start justify-between gap-4 border-b border-slate-100 pb-3"><dt class="text-slate-500">{% translate "Bought from" %}</dt><dd class="text-end font-bold text-slate-800">{% if source_supplier %}<a href="{{ source_supplier.get_absolute_url }}" class="hover:text-brand-600">{{ source_supplier.name }}</a>{% else %}—{% endif %}</dd></div>
                     <div class="flex items-start justify-between gap-4 border-b border-slate-100 pb-3"><dt class="text-slate-500">{% translate "Landed cost" %}</dt><dd class="text-end font-extrabold text-slate-900" dir="ltr">{% for currency, amount in landed_cost.items %}<span class="block whitespace-nowrap">{{ amount }} {{ currency }}</span>{% empty %}—{% endfor %}</dd></div>
                     <div class="flex items-start justify-between gap-4"><dt class="text-slate-500">{% translate "Mileage" %}</dt><dd class="font-extrabold text-slate-900" dir="ltr">{{ vehicle.mileage }} {% translate "km" %}</dd></div>
                 </dl>
@@ -120,12 +120,12 @@
                         <tr>
                             <td class="px-4 py-3">
                                 <a href="{{ line.order.supplier.get_absolute_url }}"
-                                   class="font-medium text-slate-800 hover:text-amber-600">
+                                   class="font-medium text-slate-800 hover:text-brand-600">
                                     {{ line.order.supplier.name }}
                                 </a>
                             </td>
                             <td class="px-4 py-3">
-                                <a href="{{ line.order.get_absolute_url }}" class="text-slate-700 hover:text-amber-600">
+                                <a href="{{ line.order.get_absolute_url }}" class="text-slate-700 hover:text-brand-600">
                                     {{ line.order }}
                                 </a>
                             </td>
@@ -170,7 +170,7 @@
         <p class="py-4 text-center text-sm text-slate-500">
             {% translate "No photos yet." %}
             {% if can_upload_documents %}
-                <a href="{% url 'documents:upload_for_vehicle' vehicle.pk %}" class="text-amber-600 hover:text-amber-700">{% translate "Upload the first one" %} →</a>
+                <a href="{% url 'documents:upload_for_vehicle' vehicle.pk %}" class="text-brand-600 hover:text-brand-700">{% translate "Upload the first one" %} →</a>
             {% endif %}
         </p>
     {% endif %}
@@ -196,7 +196,7 @@
                             <td class="px-4 py-2">
                                 {% if doc.file_exists %}
                                     <a href="{{ doc.file.url }}" target="_blank" rel="noopener"
-                                       class="font-medium text-slate-800 hover:text-amber-600">
+                                       class="font-medium text-slate-800 hover:text-brand-600">
                                         {{ doc }}
                                     </a>
                                 {% else %}
@@ -216,7 +216,7 @@
         <p class="py-4 text-center text-sm text-slate-500">
             {% translate "No documents yet (license, sale documents, insurance…)." %}
             {% if can_upload_documents %}
-                <a href="{% url 'documents:upload_for_vehicle' vehicle.pk %}" class="text-amber-600 hover:text-amber-700">{% translate "Upload one" %} →</a>
+                <a href="{% url 'documents:upload_for_vehicle' vehicle.pk %}" class="text-brand-600 hover:text-brand-700">{% translate "Upload one" %} →</a>
             {% endif %}
         </p>
     {% endif %}

@@ -1,6 +1,6 @@
 {% load i18n static %}
 <!DOCTYPE html>
-<html lang="{{ LANGUAGE_CODE }}" dir="{% if LANGUAGE_BIDI %}rtl{% else %}ltr{% endif %}" class="h-full bg-[#F4F7FB] dark:bg-slate-950">
+<html lang="{{ LANGUAGE_CODE }}" dir="{% if LANGUAGE_BIDI %}rtl{% else %}ltr{% endif %}" class="h-full bg-[#F6F6F3] dark:bg-[#0D0F12]">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -12,15 +12,17 @@
                 var savedTheme = localStorage.getItem("automex-theme");
                 var prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
                 document.documentElement.classList.toggle("dark", savedTheme ? savedTheme === "dark" : prefersDark);
+                document.documentElement.classList.toggle("sidebar-collapsed", localStorage.getItem("automex-sidebar-collapsed") === "true");
             } catch (error) {
                 document.documentElement.classList.remove("dark");
+                document.documentElement.classList.remove("sidebar-collapsed");
             }
         })();
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Arabic:wght@400;500;600;700;800&family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'css/tailwind.css' %}?v=20260902-3">
+    <link rel="stylesheet" href="{% static 'css/tailwind.css' %}?v=20260903-3">
     <style>
         * { box-sizing: border-box; }
         body { font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
@@ -30,196 +32,107 @@
         .thin-scroll { scrollbar-width: thin; scrollbar-color: #CBD5E1 transparent; }
         .thin-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
         .thin-scroll::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 999px; }
-        @media (max-width: 1023px) {
-            #sidebar { transform: translateX(-105%); }
-            html[dir="rtl"] #sidebar { transform: translateX(105%); }
-            #sidebar.open { transform: translateX(0); }
-        }
     </style>
     {% block extra_head %}{% endblock %}
 </head>
-<body class="min-h-full bg-[#F4F7FB] text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100">
-<div class="min-h-screen lg:grid lg:grid-cols-[280px_minmax(0,1fr)]">
-    <aside id="sidebar" class="fixed inset-y-0 start-0 z-50 flex w-[280px] flex-col border-e border-slate-200/80 bg-white transition-transform duration-300 dark:border-slate-800 dark:bg-slate-900 lg:sticky lg:top-0 lg:h-screen">
-        <div class="flex h-[84px] shrink-0 items-center gap-3 border-b border-slate-200/80 px-5 dark:border-slate-800">
-            <div class="grid h-11 w-11 shrink-0 place-items-center rounded-[14px] bg-gradient-to-br from-brand-500 to-brand-700 text-white shadow-lg shadow-blue-600/20">
-                <svg class="h-[22px] w-[22px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 14.5V9.25A2.25 2.25 0 016.25 7h11.5A2.25 2.25 0 0120 9.25v5.25M7.5 14.5v-2.25a2.25 2.25 0 012.25-2.25h4.5A2.25 2.25 0 0116.5 12.25v2.25M3.75 14.5h16.5M8 18.75a1.25 1.25 0 11-2.5 0 1.25 1.25 0 012.5 0zm10 0a1.25 1.25 0 11-2.5 0 1.25 1.25 0 012.5 0z" /></svg>
-            </div>
-            <div class="min-w-0 flex-1">
-                <div class="text-[15px] font-extrabold tracking-[.16em] text-slate-950 dark:text-white">AUTOMEX</div>
-                <div class="mt-1 text-[10px] font-medium text-slate-400">CarFlow · {% translate "Automotive ERP" %}</div>
-            </div>
-            <span class="rounded-full bg-emerald-50 px-2 py-1 text-[9px] font-extrabold text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300">{% translate "Live" %}</span>
-            <button id="sidebar-close" type="button" class="ms-1 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-slate-200 text-slate-500 transition hover:bg-slate-50 hover:text-slate-800 dark:border-slate-700 dark:hover:bg-slate-800 dark:hover:text-white lg:hidden" aria-label="{% translate 'Close navigation' %}">
+<body class="min-h-full bg-[#F6F6F3] text-slate-950 antialiased dark:bg-[#0D0F12] dark:text-slate-100">
+<div class="app-shell">
+    <aside id="sidebar" class="app-sidebar" aria-label="{% translate 'Primary navigation' %}">
+        <div class="sidebar-brand-row">
+            <a href="{% url 'home' %}" class="sidebar-logo-group" data-tooltip="AUTOMEX">
+                <span class="sidebar-logo">
+                    <svg class="h-[22px] w-[22px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 14.5V9.25A2.25 2.25 0 016.25 7h11.5A2.25 2.25 0 0120 9.25v5.25M7.5 14.5v-2.25a2.25 2.25 0 012.25-2.25h4.5A2.25 2.25 0 0116.5 12.25v2.25M3.75 14.5h16.5M8 18.75a1.25 1.25 0 11-2.5 0 1.25 1.25 0 012.5 0zm10 0a1.25 1.25 0 11-2.5 0 1.25 1.25 0 012.5 0z" /></svg>
+                </span>
+                <span class="sidebar-brand-copy">
+                    <span class="block text-[15px] font-extrabold tracking-[.18em] text-slate-950 dark:text-white">AUTOMEX</span>
+                    <span class="mt-0.5 block text-[10px] font-medium text-slate-400 dark:text-slate-500">CarFlow · {% translate "Automotive ERP" %}</span>
+                </span>
+            </a>
+            <button id="sidebar-close" type="button" class="sidebar-mobile-close" aria-label="{% translate 'Close navigation' %}">
                 <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" d="M6 6l12 12M18 6 6 18" /></svg>
             </button>
         </div>
 
-        <div class="px-3 pt-4">
-            <button type="button" class="flex h-10 w-full items-center gap-2.5 rounded-xl border border-slate-200 bg-slate-50 px-3 text-start text-[11px] font-medium text-slate-400 transition hover:border-slate-300 dark:border-slate-700 dark:bg-slate-950/70 dark:hover:border-slate-600">
-                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35m1.6-5.15a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-                <span class="flex-1">{% translate "Search CarFlow" %}</span>
-                <kbd class="rounded-md border border-slate-200 bg-white px-1.5 py-0.5 font-sans text-[9px] text-slate-400 dark:border-slate-700 dark:bg-slate-900">⌘ K</kbd>
-            </button>
+        <button id="sidebar-collapse" type="button" class="sidebar-collapse-button" aria-label="{% translate 'Close navigation' %}" aria-controls="sidebar" aria-expanded="true" data-label-expand="{% translate 'Open navigation' %}" data-label-collapse="{% translate 'Close navigation' %}">
+            <svg class="sidebar-collapse-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m15 18-6-6 6-6" /></svg>
+        </button>
+
+        <div class="sidebar-search-shell">
+            <label for="nav-search" class="sr-only">{% translate "Search navigation" %}</label>
+            <div id="sidebar-search-control" class="sidebar-search" data-tooltip="{% translate 'Search navigation' %}">
+                <svg class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35m1.6-5.15a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                <input id="nav-search" type="search" autocomplete="off" placeholder="{% translate 'Search navigation' %}" class="sidebar-search-input">
+                <kbd class="rounded-md border border-slate-200 bg-white px-1.5 py-0.5 font-sans text-[9px] text-slate-400 dark:border-white/10 dark:bg-black/20 dark:text-slate-600">⌘K</kbd>
+            </div>
         </div>
+        {% include "includes/sidebar_navigation.html" %}
 
-        <nav class="thin-scroll flex-1 overflow-y-auto px-3 pb-5 pt-3">
-            <a href="{% url 'home' %}" class="mb-4 flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium {% if request.resolver_match.view_name == 'home' %}bg-slate-100 text-slate-900 dark:bg-slate-800 dark:text-white{% else %}text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800{% endif %}">
-                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10.5L12 3l9 7.5V20a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1v-9.5z" /></svg>
-                {% translate "Dashboard" %}
-            </a>
-
-            {% if user.company_id %}
-                {% if user.is_super_admin or 'vehicles.view' in user.permission_codenames or 'inventory.view' in user.permission_codenames or 'suppliers.view' in user.permission_codenames or 'purchases.view' in user.permission_codenames %}
-                <div class="mb-4">
-                    <p class="px-3 pb-2 text-[10px] font-bold uppercase tracking-[.18em] text-slate-400">{% translate "Operations" %}</p>
-                    <div class="space-y-1">
-                        {% if user.is_super_admin or 'vehicles.view' in user.permission_codenames %}
-                        <a href="{% url 'vehicles:list' %}" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm {% if request.resolver_match.app_name == 'vehicles' %}bg-slate-100 text-slate-900 dark:bg-slate-800 dark:text-white{% else %}text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800{% endif %}">
-                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M3.5 13l7.2-5.7a2 2 0 012.6 0L20.5 13m-17 0v4.5a1 1 0 001 1h15a1 1 0 001-1V13m-15 0h15" /></svg>
-                            {% translate "Vehicles" %}
-                        </a>
-                        {% endif %}
-                        {% if user.is_super_admin or 'inventory.view' in user.permission_codenames %}
-                        <a href="{% url 'inventory:list' %}" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm {% if request.resolver_match.app_name == 'inventory' %}bg-slate-100 text-slate-900 dark:bg-slate-800 dark:text-white{% else %}text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800{% endif %}">
-                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7.5A2.5 2.5 0 015.5 5h13A2.5 2.5 0 0121 7.5v9A2.5 2.5 0 0118.5 19h-13A2.5 2.5 0 013 16.5v-9zm2.5 0h13M8 12h8" /></svg>
-                            {% translate "Inventory" %}
-                        </a>
-                        {% endif %}
-                        {% if user.is_super_admin or 'suppliers.view' in user.permission_codenames %}
-                        <a href="{% url 'suppliers:list' %}" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm {% if request.resolver_match.app_name == 'suppliers' %}bg-slate-100 text-slate-900 dark:bg-slate-800 dark:text-white{% else %}text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800{% endif %}">
-                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 19V7.5A1.5 1.5 0 016.5 6H18a1.5 1.5 0 011.5 1.5V19M8 9.5h8M8 13h8M8 16.5h5" /></svg>
-                            {% translate "Suppliers" %}
-                        </a>
-                        {% endif %}
-                        {% if user.is_super_admin or 'purchases.view' in user.permission_codenames %}
-                        <a href="{% url 'purchases:list' %}" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm {% if request.resolver_match.app_name == 'purchases' %}bg-slate-100 text-slate-900 dark:bg-slate-800 dark:text-white{% else %}text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800{% endif %}">
-                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7.5h18M6 7.5V6a1.5 1.5 0 011.5-1.5h9A1.5 1.5 0 0118 6v1.5M6 7.5v9A2.5 2.5 0 008.5 19h7A2.5 2.5 0 0018 16.5v-9" /></svg>
-                            {% translate "Purchases" %}
-                        </a>
-                        {% endif %}
-                    </div>
+        <div class="sidebar-footer" data-dropdown>
+            <button type="button" class="sidebar-user-button" data-dropdown-toggle data-tooltip="{{ user.get_full_name|default:user.get_username }}" aria-haspopup="menu" aria-expanded="false">
+                <span class="sidebar-user-avatar">{{ user.get_full_name|default:user.get_username|slice:':1'|upper }}</span>
+                <span class="sidebar-user-copy">
+                    <span class="block truncate text-[12px] font-semibold text-slate-900 dark:text-white">{{ user.get_full_name|default:user.get_username }}</span>
+                    <span class="mt-0.5 block truncate text-[10px] text-slate-400 dark:text-slate-500">{% if user.company %}{{ user.company.name }}{% else %}{% translate "Platform admin" %}{% endif %}</span>
+                </span>
+                <svg class="sidebar-user-chevron h-4 w-4 shrink-0 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m6 9 6 6 6-6" /></svg>
+            </button>
+            <div class="sidebar-user-menu hidden" data-dropdown-panel role="menu">
+                <div class="border-b border-slate-100 px-3 py-2.5 dark:border-white/[.08]">
+                    <p class="truncate text-xs font-bold text-slate-900 dark:text-white">{{ user.get_full_name|default:user.get_username }}</p>
+                    <p class="mt-1 truncate text-[10px] text-slate-500">{{ user.email }}</p>
                 </div>
-                {% endif %}
-            {% endif %}
-
-            {% if user.is_super_admin or 'customers.view' in user.permission_codenames or 'sales.view' in user.permission_codenames %}
-            <div class="mb-4">
-                <p class="px-3 pb-2 text-[10px] font-bold uppercase tracking-[.18em] text-slate-400">{% translate "Sales" %}</p>
-                <div class="space-y-1">
-                    {% if user.is_super_admin or 'customers.view' in user.permission_codenames %}
-                    <a href="{% url 'customers:list' %}" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm {% if request.resolver_match.app_name == 'customers' %}bg-slate-100 text-slate-900 dark:bg-slate-800 dark:text-white{% else %}text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800{% endif %}">
-                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 19.5a4.5 4.5 0 00-9 0M12 12a3.75 3.75 0 100-7.5 3.75 3.75 0 000 7.5zm6.75 7.5a3.75 3.75 0 00-3-3.67m3 3.67a7.5 7.5 0 00-6.75-3.12" /></svg>
-                        {% translate "Customers" %}
-                    </a>
-                    {% endif %}
-                    {% if user.is_super_admin or 'sales.view' in user.permission_codenames %}
-                    <a href="{% url 'sales:sale_list' %}" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm {% if request.resolver_match.app_name == 'sales' %}bg-slate-100 text-slate-900 dark:bg-slate-800 dark:text-white{% else %}text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800{% endif %}">
-                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 18.5A2.5 2.5 0 016.5 16h11A2.5 2.5 0 0120 18.5M4 9.5A2.5 2.5 0 016.5 7h11A2.5 2.5 0 0120 9.5v9A2.5 2.5 0 0117.5 21h-11A2.5 2.5 0 014 18.5v-9zm6.5-4h3" /></svg>
-                        {% translate "Sales" %}
-                    </a>
-                    <a href="{% url 'sales:lead_list' %}" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm {% if request.resolver_match.app_name == 'sales' and 'lead' in request.resolver_match.url_name %}bg-slate-100 text-slate-900 dark:bg-slate-800 dark:text-white{% else %}text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800{% endif %}">
-                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6.5 12.5h11M9 9.5h6M9 15.5h4M12 3.5a8.5 8.5 0 018.5 8.5v6.5H3.5v-6.5A8.5 8.5 0 0112 3.5z" /></svg>
-                        {% translate "Leads" %}
-                    </a>
-                    {% endif %}
-                </div>
+                <form method="post" action="{% url 'accounts:logout' %}" class="pt-1">
+                    {% csrf_token %}
+                    <button type="submit" role="menuitem">
+                        <svg class="h-[18px] w-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 8.25V6a2.25 2.25 0 00-2.25-2.25H6A2.25 2.25 0 003.75 6v12A2.25 2.25 0 006 20.25h7.5a2.25 2.25 0 002.25-2.25v-2.25M10.5 12h9m0 0-2.25-2.25M19.5 12l-2.25 2.25" /></svg>
+                        {% translate "Log out" %}
+                    </button>
+                </form>
             </div>
-            {% endif %}
-
-            {% if user.is_super_admin or 'payments.view' in user.permission_codenames or 'expenses.view' in user.permission_codenames or 'accounting.view' in user.permission_codenames %}
-            <div class="mb-4">
-                <p class="px-3 pb-2 text-[10px] font-bold uppercase tracking-[.18em] text-slate-400">{% translate "Finance" %}</p>
-                <div class="space-y-1">
-                    {% if user.is_super_admin or 'payments.view' in user.permission_codenames %}
-                    <a href="{% url 'payments:list' %}" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm {% if request.resolver_match.app_name == 'payments' %}bg-slate-100 text-slate-900 dark:bg-slate-800 dark:text-white{% else %}text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800{% endif %}">
-                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8.5h18M5.5 8.5V6a1.5 1.5 0 011.5-1.5h10A1.5 1.5 0 0118.5 6v2.5M5.5 8.5v7A2.5 2.5 0 008 18h8a2.5 2.5 0 002.5-2.5v-7" /></svg>
-                        {% translate "Payments" %}
-                    </a>
-                    {% endif %}
-                    {% if user.is_super_admin or 'expenses.view' in user.permission_codenames %}
-                    <a href="{% url 'expenses:list' %}" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm {% if request.resolver_match.app_name == 'expenses' %}bg-slate-100 text-slate-900 dark:bg-slate-800 dark:text-white{% else %}text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800{% endif %}">
-                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 4.5h12a1.5 1.5 0 011.5 1.5v12A1.5 1.5 0 0118 19.5H6A1.5 1.5 0 014.5 18V6A1.5 1.5 0 016 4.5zm1.5 4.5h9m-9 4h9" /></svg>
-                        {% translate "Expenses" %}
-                    </a>
-                    {% endif %}
-                    {% if user.is_super_admin or 'payments.view' in user.permission_codenames %}
-                    <a href="{% url 'payments:account_list' %}" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm {% if request.resolver_match.view_name == 'payments:account_list' %}bg-slate-100 text-slate-900 dark:bg-slate-800 dark:text-white{% else %}text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800{% endif %}">
-                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 7.5A2.5 2.5 0 016.5 5h11A2.5 2.5 0 0120 7.5v9A2.5 2.5 0 0117.5 19h-11A2.5 2.5 0 014 16.5v-9zm2 4.5h12" /></svg>
-                        {% translate "Financial accounts" %}
-                    </a>
-                    {% endif %}
-                    {% if user.is_super_admin or 'expenses.view' in user.permission_codenames %}
-                    <a href="{% url 'expenses:category_list' %}" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm {% if request.resolver_match.view_name == 'expenses:category_list' %}bg-slate-100 text-slate-900 dark:bg-slate-800 dark:text-white{% else %}text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800{% endif %}">
-                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 7.5h9m-9 4.5h9m-9 4.5h9M5 7.5h.01M5 12h.01M5 16.5h.01" /></svg>
-                        {% translate "Expense categories" %}
-                    </a>
-                    {% endif %}
-                    {% if user.is_super_admin or 'payments.view' in user.permission_codenames %}
-                    <a href="{% url 'accounting:summary' %}" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm {% if request.resolver_match.app_name == 'accounting' %}bg-slate-100 text-slate-900 dark:bg-slate-800 dark:text-white{% else %}text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800{% endif %}">
-                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 18.5V7.5A2.5 2.5 0 017.5 5h9A2.5 2.5 0 0119 7.5v11M8 9.5h8M8 13h8M8 16.5h5" /></svg>
-                        {% translate "Accounting summary" %}
-                    </a>
-                    {% endif %}
-                </div>
-            </div>
-            {% endif %}
-
-            <div class="pb-5">
-                <div class="px-3 pb-2 text-[10px] font-bold uppercase tracking-[.18em] text-slate-400">{% translate "System" %}</div>
-                <div class="space-y-1">
-                    <form method="post" action="{% url 'accounts:logout' %}" class="block">
-                        {% csrf_token %}
-                        <button type="submit" class="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left text-sm text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800">
-                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 8.25V6a2.25 2.25 0 00-2.25-2.25H6A2.25 2.25 0 003.75 6v12A2.25 2.25 0 006 20.25h7.5a2.25 2.25 0 002.25-2.25v-2.25M10.5 12h9m0 0l-2.25-2.25M19.5 12l-2.25 2.25" /></svg>
-                            {% translate "Log out" %}
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </nav>
+        </div>
     </aside>
 
     <div id="sidebar-backdrop" class="fixed inset-0 z-40 hidden bg-slate-950/50 backdrop-blur-[2px] lg:hidden" aria-hidden="true"></div>
 
     <div class="min-w-0 lg:col-start-2">
-        <header class="sticky top-0 z-40 border-b border-slate-200/80 bg-white/80 backdrop-blur-sm dark:border-slate-800 dark:bg-slate-900/80">
-            <div class="flex h-[84px] items-center justify-between gap-4 px-4 sm:px-6">
-                <div class="flex items-center gap-3 lg:hidden">
-                    <button id="sidebar-open" type="button" class="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300" aria-label="{% translate 'Open navigation' %}" aria-controls="sidebar" aria-expanded="false">
+        <header class="sticky top-0 z-30 border-b border-slate-200/80 bg-[#F6F6F3]/90 backdrop-blur-xl dark:border-white/[.07] dark:bg-[#0D0F12]/90">
+            <div class="flex h-[72px] items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+                <div class="flex min-w-0 items-center gap-3">
+                    <button id="sidebar-open" type="button" class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 shadow-sm hover:bg-slate-50 dark:border-white/10 dark:bg-white/[.04] dark:text-slate-300 lg:hidden" aria-label="{% translate 'Open navigation' %}" aria-controls="sidebar" aria-expanded="false">
                         <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 7h16M4 12h16M4 17h16" /></svg>
                     </button>
+                    <div class="min-w-0">
+                        <p class="truncate text-sm font-semibold text-slate-900 dark:text-white">{% if user.company %}{{ user.company.name }}{% else %}{% translate "Platform administration" %}{% endif %}</p>
+                        <p class="hidden text-[11px] text-slate-500 sm:block">{% translate "Dealership control center" %}</p>
+                    </div>
                 </div>
-                <div class="hidden items-center gap-3 lg:flex">
-                    <div class="rounded-xl bg-brand-50 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[.18em] text-brand-700">AUTOMEX</div>
-                    <span class="text-sm text-slate-500">{% translate "CarFlow workspace" %}</span>
-                </div>
-                <div class="flex items-center gap-3">
-                    <form method="post" action="{% url 'accounts:set_language' %}" class="hidden items-center sm:flex">
+                <button id="header-search-trigger" type="button" class="hidden min-w-[260px] max-w-md flex-1 items-center gap-3 rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-start text-sm text-slate-400 shadow-sm transition hover:border-slate-300 lg:flex dark:border-white/[.08] dark:bg-white/[.04] dark:text-slate-500 dark:hover:border-white/20">
+                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35m1.6-5.15a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                    <span class="flex-1">{% translate "Find a page or workflow" %}</span>
+                    <kbd class="rounded-md border border-slate-200 bg-slate-50 px-2 py-0.5 font-sans text-[10px] text-slate-400 dark:border-white/10 dark:bg-black/20 dark:text-slate-500">⌘ K</kbd>
+                </button>
+                <div class="flex shrink-0 items-center gap-2 sm:gap-3">
+                    {% if user.is_super_admin or 'communications.view' in user.permission_codenames %}
+                    <a href="{% url 'communications:conversation_list' %}" class="hidden h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 shadow-sm transition hover:text-slate-900 sm:inline-flex dark:border-white/10 dark:bg-white/[.04] dark:text-slate-400 dark:hover:text-white" aria-label="{% translate 'Conversations' %}">
+                        <svg class="h-[19px] w-[19px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 5.5h16v11H9l-5 4v-15z" /></svg>
+                    </a>
+                    {% endif %}
+                    <button id="themeBtn" type="button" class="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 shadow-sm transition hover:text-slate-900 dark:border-white/10 dark:bg-white/[.04] dark:text-slate-400 dark:hover:text-white" aria-label="{% translate 'Toggle theme' %}" aria-pressed="false" title="{% translate 'Toggle theme' %}">
+                        <svg class="h-[19px] w-[19px] dark:hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25M12 18.75V21M4.93 4.93l1.59 1.59M17.48 17.48l1.59 1.59M3 12h2.25M18.75 12H21M4.93 19.07l1.59-1.59M17.48 6.52l1.59-1.59M12 7.5A4.5 4.5 0 1016.5 12 4.5 4.5 0 0012 7.5z" /></svg>
+                        <svg class="hidden h-[19px] w-[19px] dark:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M20.4 15.2A8.5 8.5 0 018.8 3.6 8.5 8.5 0 1020.4 15.2z" /></svg>
+                    </button>
+                    <form method="post" action="{% url 'accounts:set_language' %}" class="flex items-center">
                         {% csrf_token %}
                         <label for="language-switcher" class="sr-only">{% translate "Language" %}</label>
-                        <select id="language-switcher" name="language" onchange="this.form.submit()" class="rounded-xl border border-slate-200 bg-white px-2.5 py-2 text-sm text-slate-700 shadow-sm outline-none transition focus:border-brand-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
-                            {% for code, name in LANGUAGES %}
-                                <option value="{{ code }}" {% if request.LANGUAGE_CODE == code or user.preferred_language == code %}selected{% endif %}>{{ name }}</option>
-                            {% endfor %}
+                        <select id="language-switcher" name="language" onchange="this.form.submit()" class="max-w-[82px] rounded-xl border border-slate-200 bg-white px-2 py-2 text-sm text-slate-700 shadow-sm outline-none transition focus:border-slate-400 dark:border-white/10 dark:bg-white/[.04] dark:text-slate-200 sm:max-w-none sm:px-2.5">
+                            {% for code, name in LANGUAGES %}<option value="{{ code }}" {% if request.LANGUAGE_CODE == code or user.preferred_language == code %}selected{% endif %}>{{ name }}</option>{% endfor %}
                         </select>
                     </form>
-                    <button id="themeBtn" type="button" class="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300" aria-label="{% translate 'Toggle theme' %}" aria-pressed="false" title="{% translate 'Toggle theme' %}">
-                        <svg class="h-5 w-5 dark:hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25M12 18.75V21M4.93 4.93l1.59 1.59M17.48 17.48l1.59 1.59M3 12h2.25M18.75 12H21M4.93 19.07l1.59-1.59M17.48 6.52l1.59-1.59M12 7.5A4.5 4.5 0 1016.5 12 4.5 4.5 0 0012 7.5z" /></svg>
-                        <svg class="hidden h-5 w-5 dark:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M20.4 15.2A8.5 8.5 0 018.8 3.6 8.5 8.5 0 1020.4 15.2z" /></svg>
-                    </button>
-                    <div class="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 dark:border-slate-700 dark:bg-slate-800/50">
-                        <div class="grid h-8 w-8 place-items-center rounded-full bg-brand-100 text-xs font-bold text-brand-700">{{ user.get_full_name|default:user.get_username|slice:':1'|upper }}</div>
-                        <div class="hidden text-start sm:block">
-                            <div class="text-sm font-semibold text-slate-800 dark:text-slate-200">{{ user.get_full_name|default:user.get_username }}</div>
-                            <div class="text-[11px] text-slate-500">{% if user.company %}{{ user.company.name }}{% else %}{% translate "Platform admin" %}{% endif %}</div>
-                        </div>
-                    </div>
                 </div>
             </div>
         </header>
 
-        <main class="px-4 py-6 sm:px-6 lg:px-8">
+        <main class="mx-auto w-full max-w-[1600px] px-4 py-5 sm:px-6 sm:py-7 lg:px-8">
             {% block content %}{% endblock %}
         </main>
     </div>
@@ -231,14 +144,35 @@
     var backdrop = document.getElementById("sidebar-backdrop");
     var openBtn = document.getElementById("sidebar-open");
     var closeBtn = document.getElementById("sidebar-close");
+    var collapseBtn = document.getElementById("sidebar-collapse");
     var themeBtn = document.getElementById("themeBtn");
+    var navSearch = document.getElementById("nav-search");
+    var sidebarSearchControl = document.getElementById("sidebar-search-control");
+    var headerSearchTrigger = document.getElementById("header-search-trigger");
+    var navSearchEmpty = document.getElementById("nav-search-empty");
     var root = document.documentElement;
 
+    function isDesktop() {
+        return window.innerWidth >= 1024;
+    }
+
+    function setDesktopSidebar(collapsed) {
+        root.classList.toggle("sidebar-collapsed", collapsed);
+        try {
+            localStorage.setItem("automex-sidebar-collapsed", collapsed ? "true" : "false");
+        } catch (error) {
+            /* The sidebar remains usable when storage is unavailable. */
+        }
+        if (collapseBtn) {
+            collapseBtn.setAttribute("aria-expanded", collapsed ? "false" : "true");
+            collapseBtn.setAttribute("aria-label", collapsed ? collapseBtn.dataset.labelExpand : collapseBtn.dataset.labelCollapse);
+            collapseBtn.title = collapsed ? collapseBtn.dataset.labelExpand : collapseBtn.dataset.labelCollapse;
+        }
+    }
+
     function setSidebarState(open) {
-        if (!sidebar || window.innerWidth >= 1024) return;
+        if (!sidebar || isDesktop()) return;
         sidebar.classList.toggle("open", open);
-        sidebar.classList.toggle("-translate-x-full", !open);
-        sidebar.classList.toggle("translate-x-0", open);
         if (backdrop) {
             backdrop.classList.toggle("hidden", !open);
         }
@@ -248,16 +182,89 @@
 
     if (openBtn) openBtn.addEventListener("click", function () { setSidebarState(true); });
     if (closeBtn) closeBtn.addEventListener("click", function () { setSidebarState(false); });
+    if (collapseBtn) {
+        setDesktopSidebar(root.classList.contains("sidebar-collapsed"));
+        collapseBtn.addEventListener("click", function () {
+            setDesktopSidebar(!root.classList.contains("sidebar-collapsed"));
+        });
+    }
     if (backdrop) backdrop.addEventListener("click", function () { setSidebarState(false); });
     document.addEventListener("keydown", function (event) {
         if (event.key === "Escape") setSidebarState(false);
     });
     window.addEventListener("resize", function () {
-        if (window.innerWidth >= 1024) {
+        if (isDesktop()) {
+            if (sidebar) sidebar.classList.remove("open");
             if (backdrop) backdrop.classList.add("hidden");
             if (openBtn) openBtn.setAttribute("aria-expanded", "false");
             document.body.classList.remove("overflow-hidden");
         }
+    });
+
+    var navGroups = Array.prototype.slice.call(document.querySelectorAll("[data-nav-group]"));
+    var navLinks = Array.prototype.slice.call(document.querySelectorAll("[data-nav-link]"));
+    navGroups.forEach(function (group) {
+        group.dataset.defaultOpen = group.open ? "true" : "false";
+        var summary = group.querySelector("summary");
+        if (summary) {
+            summary.addEventListener("click", function (event) {
+                if (isDesktop() && root.classList.contains("sidebar-collapsed")) {
+                    event.preventDefault();
+                    setDesktopSidebar(false);
+                    group.open = true;
+                }
+            });
+        }
+    });
+
+    function filterNavigation() {
+        if (!navSearch) return;
+        var query = navSearch.value.trim().toLocaleLowerCase();
+        var visibleCount = 0;
+        navLinks.forEach(function (link) {
+            var matches = !query || link.textContent.trim().toLocaleLowerCase().indexOf(query) !== -1;
+            link.hidden = !matches;
+            if (matches) visibleCount += 1;
+        });
+        navGroups.forEach(function (group) {
+            var hasMatch = Array.prototype.some.call(
+                group.querySelectorAll("[data-nav-link]"),
+                function (link) { return !link.hidden; }
+            );
+            group.hidden = !hasMatch;
+            group.open = query ? hasMatch : group.dataset.defaultOpen === "true";
+        });
+        if (navSearchEmpty) navSearchEmpty.classList.toggle("hidden", visibleCount !== 0);
+    }
+
+    if (navSearch) {
+        navSearch.addEventListener("input", filterNavigation);
+        document.addEventListener("keydown", function (event) {
+            if ((event.metaKey || event.ctrlKey) && event.key.toLocaleLowerCase() === "k") {
+                event.preventDefault();
+                setSidebarState(true);
+                if (isDesktop() && root.classList.contains("sidebar-collapsed")) setDesktopSidebar(false);
+                window.setTimeout(function () { navSearch.focus(); }, 220);
+            }
+        });
+    }
+    if (sidebarSearchControl && navSearch) {
+        sidebarSearchControl.addEventListener("click", function () {
+            if (isDesktop() && root.classList.contains("sidebar-collapsed")) {
+                setDesktopSidebar(false);
+                window.setTimeout(function () { navSearch.focus(); }, 220);
+            }
+        });
+    }
+    if (headerSearchTrigger && navSearch) {
+        headerSearchTrigger.addEventListener("click", function () {
+            setSidebarState(true);
+            if (isDesktop() && root.classList.contains("sidebar-collapsed")) setDesktopSidebar(false);
+            window.setTimeout(function () { navSearch.focus(); }, isDesktop() ? 220 : 0);
+        });
+    }
+    navLinks.forEach(function (link) {
+        link.addEventListener("click", function () { setSidebarState(false); });
     });
 
     if (themeBtn) {
@@ -280,8 +287,11 @@
                 dropdowns.forEach(function (other) {
                     var otherPanel = other.querySelector("[data-dropdown-panel]");
                     if (otherPanel) otherPanel.classList.add("hidden");
+                    var otherToggle = other.querySelector("[data-dropdown-toggle]");
+                    if (otherToggle) otherToggle.setAttribute("aria-expanded", "false");
                 });
                 panel.classList.toggle("hidden", !shouldOpen);
+                toggle.setAttribute("aria-expanded", shouldOpen ? "true" : "false");
             });
         }
     });
@@ -290,6 +300,8 @@
         dropdowns.forEach(function (dd) {
             var panel = dd.querySelector("[data-dropdown-panel]");
             if (panel) panel.classList.add("hidden");
+            var toggle = dd.querySelector("[data-dropdown-toggle]");
+            if (toggle) toggle.setAttribute("aria-expanded", "false");
         });
     });
 })();

@@ -51,7 +51,15 @@ def stock(inventory_user):
 
 @pytest.mark.django_db
 def test_stock_list_requires_permission(client):
-    client.force_login(UserFactory())  # no roles at all
+    user = UserFactory()
+    # Role-less company users intentionally receive standard access. Assign
+    # an explicit empty role to exercise the fail-closed permission branch.
+    role, _ = Role.objects.get_or_create(
+        key="inventory_denied_test", defaults={"name": "Inventory denied test"}
+    )
+    role.permissions.clear()
+    user.roles.add(role)
+    client.force_login(user)
     response = client.get(reverse("inventory:list"))
     assert response.status_code == 403
 

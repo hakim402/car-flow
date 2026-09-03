@@ -49,18 +49,31 @@ def customer_create(request):
 
 @require_permission("customers.view")
 def customer_detail(request, pk):
+    from apps.accounting.services import sale_payment_summary
+
     customer = get_object_or_404(Customer, pk=pk)
     attachments = customer.documents.all().select_related("uploaded_by")
+    sales = list(customer.sales.select_related("vehicle"))
+    balances = {}
+    for sale in sales:
+        sale.payment_summary = sale_payment_summary(sale)
+        if sale.status == "completed" and sale.payment_summary["outstanding"] > 0:
+            currency = sale.currency
+            balances[currency] = (
+                balances.get(currency, 0) + sale.payment_summary["outstanding"]
+            )
     return render(
         request,
         "customers/detail.html",
         {
             "customer": customer,
-            "sales": customer.sales.select_related("vehicle"),
+            "sales": sales,
+            "outstanding_balances": balances,
             "leads": customer.leads.all(),
             "photos": [d for d in attachments if d.is_photo and d.file_exists],
             "documents": [d for d in attachments if not d.is_photo],
             "can_upload_documents": request.user.has_permission("documents.add"),
+            "can_view_receivables": request.user.has_permission("payments.view"),
         },
     )
 

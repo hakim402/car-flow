@@ -33,13 +33,14 @@
     </div>
 </div>
 
-<div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-    <h2 class="text-lg font-extrabold tracking-tight text-slate-900 px-6 pt-6 pb-3">{% translate "Outstanding on completed sales" %}</h2>
+<div class="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <div class="flex items-center justify-between gap-3 px-6 pb-3 pt-6"><h2 class="text-lg font-extrabold tracking-tight text-slate-900">{% translate "Unpaid customer balances" %}</h2><a class="text-sm font-bold text-brand-700" href="{% url 'accounting:receivables' %}">{% translate "View all" %}</a></div>
     <table class="data-table">
         <thead>
             <tr>
                 <th class="px-4 py-3 text-start font-medium">{% translate "Sale" %}</th>
                 <th class="px-4 py-3 text-start font-medium">{% translate "Customer" %}</th>
+                <th class="px-4 py-3 text-end font-medium">{% translate "Paid" %}</th>
                 <th class="px-4 py-3 text-end font-medium">{% translate "Outstanding" %}</th>
             </tr>
         </thead>
@@ -47,20 +48,21 @@
             {% for row in outstanding %}
                 <tr>
                     <td class="px-4 py-3">
-                        <a href="{{ row.sale.get_absolute_url }}" class="text-slate-700 hover:text-amber-600">
+                        <a href="{{ row.sale.get_absolute_url }}" class="text-slate-700 hover:text-brand-600">
                             #{{ row.sale.pk }}
                         </a>
                     </td>
                     <td class="px-4 py-3">{{ row.sale.customer }}</td>
                     <td class="px-4 py-3 text-end font-medium" dir="ltr">
-                        {% for currency, amount in row.amounts.items %}
-                            <span class="whitespace-nowrap">{{ amount }} {{ currency }}</span>{% if not forloop.last %}<br>{% endif %}
-                        {% endfor %}
+                        {{ row.payment.paid }} {{ row.payment.currency }}
+                    </td>
+                    <td class="px-4 py-3 text-end font-bold text-red-600" dir="ltr">
+                        {{ row.payment.outstanding }} {{ row.payment.currency }}
                     </td>
                 </tr>
             {% empty %}
-                <tr><td colspan="3" class="px-4 py-8 text-center text-slate-500">
-                    {% translate "No completed sales yet." %}
+                <tr><td colspan="4" class="px-4 py-8 text-center text-slate-500">
+                    {% translate "No unpaid customer balances." %}
                 </td></tr>
             {% endfor %}
         </tbody>

@@ -36,6 +36,8 @@ class DocumentType(models.TextChoices):
     SUPPLIER_PHOTO = "supplier_photo", _("Supplier portrait photo")
     SUPPLIER_LICENSE = "supplier_license", _("Supplier business license")
     SUPPLIER_DOCUMENT = "supplier_document", _("Other supplier document")
+    FINANCE_AGREEMENT = "finance_agreement", _("Signed financing agreement")
+    GUARANTOR_DOCUMENT = "guarantor_document", _("Guarantor document")
     OTHER = "other", _("Other")
 
 
@@ -75,9 +77,18 @@ SUPPLIER_DOC_TYPES = [
     DocumentType.SUPPLIER_DOCUMENT,
 ]
 
+FINANCING_DOC_TYPES = [
+    DocumentType.FINANCE_AGREEMENT,
+    DocumentType.GUARANTOR_DOCUMENT,
+    DocumentType.TAZKERA,
+    DocumentType.PASSPORT,
+    DocumentType.OTHER_BILL,
+    DocumentType.OTHER,
+]
+
 
 class Document(TenantModel, CompanyConsistencyMixin):
-    company_relations = ("vehicle", "customer", "supplier")
+    company_relations = ("vehicle", "customer", "supplier", "finance_agreement")
 
     vehicle = models.ForeignKey(
         "vehicles.Vehicle",
@@ -100,6 +111,14 @@ class Document(TenantModel, CompanyConsistencyMixin):
         on_delete=models.PROTECT,
         related_name="documents",
         verbose_name=_("supplier"),
+        null=True,
+        blank=True,
+    )
+    finance_agreement = models.ForeignKey(
+        "financing.FinanceAgreement",
+        on_delete=models.PROTECT,
+        related_name="documents",
+        verbose_name=_("financing agreement"),
         null=True,
         blank=True,
     )
@@ -127,9 +146,10 @@ class Document(TenantModel, CompanyConsistencyMixin):
             # shell scripts, imports and future code bypass form validation.
             models.CheckConstraint(
                 condition=(
-                    models.Q(vehicle__isnull=False, customer__isnull=True, supplier__isnull=True)
-                    | models.Q(vehicle__isnull=True, customer__isnull=False, supplier__isnull=True)
-                    | models.Q(vehicle__isnull=True, customer__isnull=True, supplier__isnull=False)
+                    models.Q(vehicle__isnull=False, customer__isnull=True, supplier__isnull=True, finance_agreement__isnull=True)
+                    | models.Q(vehicle__isnull=True, customer__isnull=False, supplier__isnull=True, finance_agreement__isnull=True)
+                    | models.Q(vehicle__isnull=True, customer__isnull=True, supplier__isnull=False, finance_agreement__isnull=True)
+                    | models.Q(vehicle__isnull=True, customer__isnull=True, supplier__isnull=True, finance_agreement__isnull=False)
                 ),
                 name="document_exactly_one_target",
             ),

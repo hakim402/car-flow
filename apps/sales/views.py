@@ -201,10 +201,15 @@ def reservation_cancel(request, pk):
 @require_permission("sales.view")
 def sale_list(request):
     queryset = Sale.objects.all()  # TenantManager filters by company.
+    sales = list(queryset.select_related("customer", "vehicle"))
+    from apps.accounting.services import sale_payment_summary
+
+    for sale in sales:
+        sale.payment_summary = sale_payment_summary(sale)
     return render(
         request,
         "sales/sale_list.html",
-        {"sales": queryset.select_related("customer", "vehicle")},
+        {"sales": sales},
     )
 
 
@@ -225,8 +230,11 @@ def sale_create(request):
 
 @require_permission("sales.view")
 def sale_detail(request, pk):
+    from apps.accounting.services import sale_payment_summary
+
     sale = get_object_or_404(Sale, pk=pk)
     stock = getattr(sale.vehicle, "stock", None)
+    finance_agreement = getattr(sale, "finance_agreement", None)
     return render(
         request,
         "sales/sale_detail.html",
@@ -234,6 +242,16 @@ def sale_detail(request, pk):
             "sale": sale,
             "invoice": sale.invoices.first(),
             "stock": stock,
+            "finance_agreement": finance_agreement,
+            "payment_summary": sale_payment_summary(sale),
+            "can_record_payment": sale.status == SaleStatus.COMPLETED
+            and (
+                finance_agreement is None
+                or finance_agreement.status in {"draft", "pending_approval"}
+            )
+            and request.user.has_permission("payments.add"),
+            "can_add_financing": finance_agreement is None
+            and request.user.has_permission("financing.add"),
             "can_complete": sale.status == SaleStatus.DRAFT,
             "can_invoice": sale.status == SaleStatus.COMPLETED and not sale.invoices.exists(),
             "can_deliver": sale.status == SaleStatus.COMPLETED

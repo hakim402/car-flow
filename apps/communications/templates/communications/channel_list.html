@@ -4,14 +4,14 @@
 {% block title %}{% translate "Channels" %} — AUTOMEX CarFlow{% endblock %}
 
 {% block content %}
-<div class="flex items-center justify-between mb-4">
+<div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
     <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">{% translate "Channels" %}</h1>
     <a href="{% url 'communications:channel_create' %}"
-       class="inline-flex items-center justify-center rounded-xl bg-amber-500 hover:bg-amber-600 text-white px-4 py-2.5 text-sm font-bold shadow-sm transition">
+       class="inline-flex items-center justify-center rounded-xl bg-brand-600 hover:bg-brand-700 text-white px-4 py-2.5 text-sm font-bold shadow-sm transition">
         {% translate "Add channel" %}
     </a>
 </div>
-<div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+<div class="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
     <table class="data-table">
         <thead>
             <tr>

@@ -14,6 +14,9 @@
         --text-strong: 15 23 42;
         --text-body: 51 65 85;
         --text-muted: 100 116 139;
+        --brand-primary: 37 99 235;
+        --brand-hover: 29 78 216;
+        --brand-accent: 96 165 250;
     }
 
     :root.dark {
@@ -65,16 +68,313 @@
     }
 
     ::selection {
-        background: rgb(245 158 11 / .24);
+        background: rgb(var(--brand-primary) / .20);
     }
 
     :where(a, button, input, select, textarea):focus-visible {
-        outline: 2px solid rgb(245 158 11 / .75);
+        outline: 2px solid rgb(var(--brand-primary) / .72);
         outline-offset: 2px;
     }
 }
 
 @layer components {
+    .app-shell {
+        min-height: 100vh;
+    }
+
+    .app-sidebar {
+        @apply fixed inset-y-0 start-0 z-50 flex flex-col border-e border-slate-200 bg-white text-slate-700 shadow-2xl shadow-slate-950/15;
+        width: min(88vw, 18rem);
+        transform: translateX(-105%);
+        transition: transform 220ms ease, width 220ms ease, background-color 180ms ease, border-color 180ms ease;
+    }
+
+    html[dir="rtl"] .app-sidebar {
+        transform: translateX(105%);
+    }
+
+    .app-sidebar.open {
+        transform: translateX(0);
+    }
+
+    .dark .app-sidebar {
+        @apply border-white/[.08] bg-[#151719] text-slate-300 shadow-black/30;
+    }
+
+    .sidebar-brand-row {
+        @apply flex h-[76px] shrink-0 items-center px-4;
+    }
+
+    .sidebar-logo-group {
+        @apply flex min-w-0 flex-1 items-center gap-3 rounded-xl;
+    }
+
+    .sidebar-logo {
+        @apply grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-brand-600 text-white shadow-[0_8px_24px_rgba(37,99,235,.20)];
+    }
+
+    .sidebar-brand-copy {
+        @apply min-w-0 overflow-hidden whitespace-nowrap;
+    }
+
+    .sidebar-mobile-close {
+        @apply ms-2 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-slate-200 text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 lg:hidden;
+    }
+
+    .dark .sidebar-mobile-close {
+        @apply border-white/10 hover:bg-white/[.07] hover:text-white;
+        color: rgb(148 163 184);
+    }
+
+    .sidebar-collapse-button {
+        @apply absolute z-10 hidden h-7 w-7 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 shadow-md transition hover:border-brand-200 hover:text-brand-600 lg:flex;
+        inset-inline-end: -0.875rem;
+        top: 1.5rem;
+    }
+
+    .dark .sidebar-collapse-button {
+        @apply border-white/10 bg-slate-800 hover:border-brand-400/50 hover:text-brand-300;
+        color: rgb(148 163 184);
+    }
+
+    .sidebar-collapse-icon {
+        @apply h-3.5 w-3.5 transition-transform duration-200;
+    }
+
+    html[dir="rtl"] .sidebar-collapse-icon,
+    html.sidebar-collapsed:not([dir="rtl"]) .sidebar-collapse-icon {
+        transform: rotate(180deg);
+    }
+
+    html[dir="rtl"].sidebar-collapsed .sidebar-collapse-icon {
+        transform: rotate(0deg);
+    }
+
+    .sidebar-search-shell {
+        @apply px-3 pb-2;
+    }
+
+    .sidebar-search {
+        @apply flex h-10 items-center gap-2.5 rounded-xl border border-slate-200 bg-slate-50 px-3 text-slate-400 transition focus-within:border-brand-300 focus-within:bg-white focus-within:ring-4 focus-within:ring-brand-100/70;
+    }
+
+    .dark .sidebar-search {
+        @apply border-white/[.08] bg-white/[.04] focus-within:border-brand-400/60 focus-within:bg-white/[.07] focus-within:ring-brand-500/10;
+        color: rgb(100 116 139);
+    }
+
+    .sidebar-search-input {
+        @apply min-w-0 flex-1 border-0 bg-transparent p-0 text-[12px] text-slate-800 outline-none placeholder:text-slate-400 focus:ring-0 dark:text-white dark:placeholder:text-slate-600;
+    }
+
+    .sidebar-navigation {
+        @apply flex-1 overflow-y-auto px-3 pb-4;
+    }
+
+    .sidebar-section-label {
+        @apply px-3 pb-2 pt-4 text-[10px] font-bold uppercase tracking-[.2em] text-slate-400 transition-opacity;
+    }
+
+    .dark .sidebar-section-label {
+        color: rgb(71 85 105);
+    }
+
+    .nav-rail-link,
+    .nav-rail-summary {
+        @apply relative flex min-h-11 w-full cursor-pointer list-none items-center gap-3 rounded-xl px-3 py-2.5 text-start text-[13px] font-semibold text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-950;
+    }
+
+    .dark .nav-rail-link,
+    .dark .nav-rail-summary {
+        color: rgb(148 163 184);
+    }
+
+    .dark .nav-rail-link:hover,
+    .dark .nav-rail-summary:hover {
+        background-color: rgb(255 255 255 / .06);
+        color: rgb(255 255 255);
+    }
+
+    .nav-rail-summary::-webkit-details-marker {
+        display: none;
+    }
+
+    .nav-icon {
+        @apply h-[19px] w-[19px] shrink-0;
+    }
+
+    .nav-label {
+        @apply min-w-0 flex-1 truncate whitespace-nowrap;
+    }
+
+    .nav-chevron {
+        @apply h-3.5 w-3.5 shrink-0 transition-transform duration-200 group-open:rotate-180;
+    }
+
+    .nav-rail-link-active,
+    .nav-rail-summary-active {
+        @apply bg-brand-50 text-brand-700 shadow-[inset_0_0_0_1px_rgba(37,99,235,.08)] hover:bg-brand-100 hover:text-brand-800 dark:bg-brand-500/[.14] dark:text-brand-300 dark:shadow-[inset_0_0_0_1px_rgba(96,165,250,.10)] dark:hover:bg-brand-500/20 dark:hover:text-brand-200;
+    }
+
+    .nav-rail-link-active::before,
+    .nav-rail-summary-active::before {
+        content: "";
+        @apply absolute inset-y-2 start-0 w-[3px] rounded-full bg-brand-600 dark:bg-brand-400;
+    }
+
+    .nav-rail-group {
+        @apply mb-0.5;
+    }
+
+    .nav-rail-children {
+        @apply mb-2 ms-11 mt-1 space-y-0.5;
+    }
+
+    .nav-rail-child {
+        @apply relative block rounded-lg px-3 py-2 text-[12px] font-medium text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900;
+    }
+
+    .dark .nav-rail-child {
+        color: rgb(100 116 139);
+    }
+
+    .dark .nav-rail-child:hover {
+        background-color: rgb(255 255 255 / .05);
+        color: rgb(226 232 240);
+    }
+
+    .nav-rail-child-active {
+        @apply bg-brand-50 font-semibold text-brand-700 dark:bg-brand-500/10 dark:text-brand-300;
+    }
+
+    .nav-rail-child-active::before {
+        content: "";
+        @apply absolute start-0 top-1/2 h-1.5 w-1.5 -translate-y-1/2 rounded-full bg-brand-600 shadow-[0_0_0_4px_rgba(37,99,235,.10)] dark:bg-brand-400;
+    }
+
+    .sidebar-footer {
+        @apply relative shrink-0 border-t border-slate-200 p-3 dark:border-white/[.08];
+    }
+
+    .sidebar-user-button {
+        @apply flex w-full items-center gap-3 rounded-xl p-2 text-start transition hover:bg-slate-100 dark:hover:bg-white/[.06];
+    }
+
+    .sidebar-user-avatar {
+        @apply grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-brand-50 text-xs font-bold text-brand-700 ring-1 ring-brand-100 dark:bg-brand-500/[.14] dark:text-brand-300 dark:ring-brand-400/20;
+    }
+
+    .sidebar-user-copy {
+        @apply min-w-0 flex-1 overflow-hidden whitespace-nowrap;
+    }
+
+    .sidebar-user-menu {
+        @apply absolute bottom-[calc(100%+.5rem)] start-3 end-3 z-30 rounded-2xl border border-slate-200 bg-white p-2 shadow-xl shadow-slate-950/10 dark:border-white/10 dark:bg-slate-800 dark:shadow-black/30;
+    }
+
+    .sidebar-user-menu button {
+        @apply flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-start text-xs font-semibold text-red-600 transition hover:bg-red-50 dark:text-red-300 dark:hover:bg-red-500/10;
+    }
+
+    @media (min-width: 1024px) {
+        .app-shell {
+            display: grid;
+            grid-template-columns: 17rem minmax(0, 1fr);
+            transition: grid-template-columns 220ms ease;
+        }
+
+        .app-sidebar {
+            @apply sticky top-0 h-screen shadow-none;
+            width: 17rem;
+            transform: none !important;
+        }
+
+        html.sidebar-collapsed .app-shell {
+            grid-template-columns: 4.75rem minmax(0, 1fr);
+        }
+
+        html.sidebar-collapsed .app-sidebar {
+            width: 4.75rem;
+        }
+
+        html.sidebar-collapsed .sidebar-brand-row {
+            @apply px-[18px];
+        }
+
+        html.sidebar-collapsed .sidebar-brand-copy,
+        html.sidebar-collapsed .sidebar-search-input,
+        html.sidebar-collapsed .sidebar-search kbd,
+        html.sidebar-collapsed .sidebar-section-label,
+        html.sidebar-collapsed .nav-label,
+        html.sidebar-collapsed .nav-chevron,
+        html.sidebar-collapsed .nav-rail-children,
+        html.sidebar-collapsed .sidebar-user-copy,
+        html.sidebar-collapsed .sidebar-user-chevron {
+            display: none;
+        }
+
+        html.sidebar-collapsed .sidebar-search-shell {
+            @apply px-4;
+        }
+
+        html.sidebar-collapsed .sidebar-search {
+            @apply w-11 cursor-pointer justify-center px-0;
+        }
+
+        html.sidebar-collapsed .sidebar-navigation {
+            @apply px-4 pt-3;
+        }
+
+        html.sidebar-collapsed .sidebar-section-label {
+            @apply my-3 h-px bg-slate-200 p-0 dark:bg-white/[.08];
+        }
+
+        html.sidebar-collapsed .nav-rail-link,
+        html.sidebar-collapsed .nav-rail-summary {
+            @apply mx-auto w-11 justify-center gap-0 px-0;
+        }
+
+        html.sidebar-collapsed .nav-rail-link-active::before,
+        html.sidebar-collapsed .nav-rail-summary-active::before {
+            @apply inset-y-2;
+        }
+
+        html.sidebar-collapsed .sidebar-footer {
+            @apply px-4;
+        }
+
+        html.sidebar-collapsed .sidebar-user-button {
+            @apply justify-center p-1;
+        }
+
+        html.sidebar-collapsed .sidebar-user-menu {
+            bottom: 0.75rem;
+            inset-inline-start: calc(100% + 0.625rem);
+            inset-inline-end: auto;
+            width: 15rem;
+        }
+
+        html[dir="rtl"].sidebar-collapsed .sidebar-user-menu {
+            inset-inline-start: auto;
+            inset-inline-end: calc(100% + 0.625rem);
+        }
+
+        html.sidebar-collapsed .app-sidebar [data-tooltip]::after {
+            content: attr(data-tooltip);
+            @apply pointer-events-none absolute start-[calc(100%+.75rem)] top-1/2 z-50 -translate-y-1/2 whitespace-nowrap rounded-lg bg-slate-950 px-2.5 py-1.5 text-[11px] font-semibold text-white opacity-0 shadow-lg transition-opacity;
+        }
+
+        html[dir="rtl"].sidebar-collapsed .app-sidebar [data-tooltip]::after {
+            inset-inline-start: auto;
+            inset-inline-end: calc(100% + 0.75rem);
+        }
+
+        html.sidebar-collapsed .app-sidebar [data-tooltip]:hover::after,
+        html.sidebar-collapsed .app-sidebar [data-tooltip]:focus-visible::after {
+            @apply opacity-100;
+        }
+    }
+
     /* Shared card wrapper for panels and tables. */
     .card {
         @apply rounded-xl bg-white shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-800;
@@ -84,6 +384,7 @@
        row utilities in templates (e.g. reversal styling) take precedence. */
     .data-table {
         @apply w-full text-sm;
+        min-width: 44rem;
     }
     .data-table thead {
         @apply bg-slate-50/80 text-slate-500 dark:bg-slate-800/70 dark:text-slate-400;
@@ -124,6 +425,21 @@
     .dark .border-slate-200\/80 { border-color: rgb(51 65 85 / .82); }
     .dark .border-slate-300 { border-color: rgb(71 85 105); }
     .dark .ring-slate-200 { --tw-ring-color: rgb(51 65 85 / .9); }
+
+    /* Automotive Cobalt is the sole interactive brand family. Lighter
+       cobalt values preserve contrast when legacy templates enter dark mode. */
+    .dark .bg-brand-50 { background-color: rgb(37 99 235 / .12); }
+    .dark .bg-brand-100 { background-color: rgb(37 99 235 / .18); }
+    .dark .border-brand-200,
+    .dark .border-brand-300 { border-color: rgb(96 165 250 / .38); }
+    .dark .text-brand-700,
+    .dark .text-brand-600 { color: rgb(147 197 253); }
+    .dark .ring-brand-100,
+    .dark .ring-brand-300 { --tw-ring-color: rgb(96 165 250 / .34); }
+    .dark .hover\:text-brand-600:hover,
+    .dark .hover\:text-brand-700:hover,
+    .dark .group:hover .group-hover\:text-brand-600,
+    .dark .group:hover .group-hover\:text-brand-700 { color: rgb(147 197 253); }
 
     .dark .bg-amber-50,
     .dark .bg-amber-50\/95 { background-color: rgb(245 158 11 / .10); }
@@ -193,4 +509,5 @@
     .dark .hover\:bg-slate-200:hover { background-color: rgb(51 65 85); }
     .dark .hover\:text-slate-900:hover,
     .dark .hover\:text-slate-800:hover { color: rgb(255 255 255); }
+
 }

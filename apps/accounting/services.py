@@ -70,10 +70,9 @@ def money_out(company=None) -> dict[str, Decimal]:
 
 def sale_payments(sale) -> dict[str, Decimal]:
     """Customer payments recorded against a sale, net of reversals."""
-    entries = LedgerEntry.objects.filter(
-        object_id=sale.pk,
-        content_type_id=_sale_content_type_id(),
-    )
+    # The explicit FK is authoritative. GenericForeignKey remains only for
+    # backwards-compatible display of legacy rows.
+    entries = LedgerEntry.objects.filter(sale=sale)
     return _net_totals(entries)
 
 
@@ -85,6 +84,34 @@ def sale_outstanding(sale) -> dict[str, Decimal]:
     for currency, amount in paid.items():
         outstanding[currency] = outstanding.get(currency, Decimal("0")) - amount
     return outstanding
+
+
+def sale_payment_summary(sale) -> dict[str, Decimal | str]:
+    """Return the derived payment state for one sale.
+
+    This is the authoritative customer-debt calculation used by sales,
+    customer profiles, and receivables.  Even a very small positive balance
+    remains outstanding; no mutable ``paid`` or ``balance`` column can drift
+    away from the immutable ledger.
+    """
+    paid = sale_payments(sale).get(sale.currency, Decimal("0"))
+    raw_outstanding = sale.agreed_amount - paid
+    outstanding = max(raw_outstanding, Decimal("0"))
+    credit = max(-raw_outstanding, Decimal("0"))
+    if outstanding <= 0:
+        status = "paid"
+    elif paid > 0:
+        status = "partial"
+    else:
+        status = "unpaid"
+    return {
+        "agreed": sale.agreed_amount,
+        "paid": paid,
+        "outstanding": outstanding,
+        "credit": credit,
+        "currency": sale.currency,
+        "status": status,
+    }
 
 
 def supplier_payments(supplier) -> dict[str, Decimal]:

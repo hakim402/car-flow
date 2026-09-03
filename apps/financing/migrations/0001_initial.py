@@ -1,0 +1,163 @@
+import decimal
+import apps.core.models
+import django.db.models.deletion
+from django.conf import settings
+from django.db import migrations, models
+
+
+class Migration(migrations.Migration):
+    initial = True
+
+    dependencies = [
+        ("branches", "0001_initial"),
+        ("organizations", "0001_initial"),
+        ("payments", "0005_ledgersequence_unique_receipts"),
+        ("sales", "0006_alter_historicallead_branch_and_more"),
+        migrations.swappable_dependency(settings.AUTH_USER_MODEL),
+    ]
+
+    operations = [
+        migrations.CreateModel(
+            name="FinancingPartner",
+            fields=[
+                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                ("name", models.CharField(max_length=200, verbose_name="name")),
+                ("partner_type", models.CharField(choices=[("bank", "Bank"), ("microfinance", "Microfinance institution"), ("other", "Other")], default="bank", max_length=20, verbose_name="partner type")),
+                ("phone", models.CharField(blank=True, max_length=50, verbose_name="phone")),
+                ("email", models.EmailField(blank=True, max_length=254, verbose_name="email")),
+                ("active", models.BooleanField(default=True, verbose_name="active")),
+                ("notes", models.TextField(blank=True, verbose_name="notes")),
+                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="created at")),
+                ("company", models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name="+", to="organizations.organization", verbose_name="company")),
+            ],
+            options={"ordering": ["name"]},
+            bases=(apps.core.models.CompanyConsistencyMixin, models.Model),
+        ),
+        migrations.CreateModel(
+            name="FinanceAgreement",
+            fields=[
+                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                ("number", models.CharField(max_length=50, verbose_name="agreement number")),
+                ("agreement_type", models.CharField(choices=[("dealer_installment", "Dealer installment"), ("external_lender", "External lender")], default="dealer_installment", max_length=30, verbose_name="financing type")),
+                ("external_reference", models.CharField(blank=True, max_length=100, verbose_name="external reference")),
+                ("currency", models.CharField(choices=[("AFN", "AFN"), ("USD", "USD"), ("EUR", "EUR"), ("AED", "AED"), ("PKR", "PKR"), ("IRR", "IRR")], default="AFN", max_length=3, verbose_name="currency")),
+                ("cash_price", models.DecimalField(decimal_places=2, max_digits=14, verbose_name="cash price")),
+                ("markup_amount", models.DecimalField(decimal_places=2, default=decimal.Decimal("0"), max_digits=14, verbose_name="fixed markup / profit")),
+                ("down_payment_required", models.DecimalField(decimal_places=2, default=decimal.Decimal("0"), max_digits=14, verbose_name="required down payment")),
+                ("installment_count", models.PositiveSmallIntegerField(verbose_name="number of installments")),
+                ("frequency", models.CharField(choices=[("weekly", "Weekly"), ("biweekly", "Every two weeks"), ("monthly", "Monthly")], default="monthly", max_length=20, verbose_name="payment frequency")),
+                ("first_due_date", models.DateField(verbose_name="first due date")),
+                ("grace_days", models.PositiveSmallIntegerField(default=0, verbose_name="grace days")),
+                ("status", models.CharField(choices=[("draft", "Draft"), ("pending_approval", "Pending approval"), ("active", "Active"), ("completed", "Completed"), ("defaulted", "Defaulted"), ("cancelled", "Cancelled")], default="draft", max_length=30, verbose_name="status")),
+                ("customer_snapshot", models.JSONField(blank=True, default=dict, verbose_name="customer snapshot")),
+                ("vehicle_snapshot", models.JSONField(blank=True, default=dict, verbose_name="vehicle snapshot")),
+                ("notes", models.TextField(blank=True, verbose_name="notes")),
+                ("approved_at", models.DateTimeField(blank=True, null=True, verbose_name="approved at")),
+                ("activated_at", models.DateTimeField(blank=True, null=True, verbose_name="activated at")),
+                ("completed_at", models.DateTimeField(blank=True, null=True, verbose_name="completed at")),
+                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="created at")),
+                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="updated at")),
+                ("approved_by", models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name="approved_finance_agreements", to=settings.AUTH_USER_MODEL, verbose_name="approved by")),
+                ("branch", models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name="finance_agreements", to="branches.branch", verbose_name="branch")),
+                ("company", models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name="+", to="organizations.organization", verbose_name="company")),
+                ("created_by", models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name="created_finance_agreements", to=settings.AUTH_USER_MODEL, verbose_name="created by")),
+                ("partner", models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name="agreements", to="financing.financingpartner", verbose_name="financing partner")),
+                ("sale", models.OneToOneField(on_delete=django.db.models.deletion.PROTECT, related_name="finance_agreement", to="sales.sale", verbose_name="sale")),
+            ],
+            options={"ordering": ["-created_at"]},
+            bases=(apps.core.models.CompanyConsistencyMixin, models.Model),
+        ),
+        migrations.CreateModel(
+            name="Installment",
+            fields=[
+                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                ("sequence", models.PositiveSmallIntegerField(verbose_name="installment number")),
+                ("due_date", models.DateField(verbose_name="due date")),
+                ("amount", models.DecimalField(decimal_places=2, max_digits=14, verbose_name="scheduled amount")),
+                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="created at")),
+                ("agreement", models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name="installments", to="financing.financeagreement", verbose_name="agreement")),
+                ("company", models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name="+", to="organizations.organization", verbose_name="company")),
+            ],
+            options={"ordering": ["sequence"]},
+            bases=(apps.core.models.CompanyConsistencyMixin, models.Model),
+        ),
+        migrations.CreateModel(
+            name="AgreementGuarantor",
+            fields=[
+                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                ("full_name", models.CharField(max_length=200, verbose_name="full name")),
+                ("national_id", models.CharField(blank=True, max_length=100, verbose_name="national ID")),
+                ("phone", models.CharField(max_length=50, verbose_name="phone")),
+                ("address", models.TextField(blank=True, verbose_name="address")),
+                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="created at")),
+                ("agreement", models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name="guarantors", to="financing.financeagreement", verbose_name="agreement")),
+                ("company", models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name="+", to="organizations.organization", verbose_name="company")),
+            ],
+            bases=(apps.core.models.CompanyConsistencyMixin, models.Model),
+        ),
+        migrations.CreateModel(
+            name="AgreementEvent",
+            fields=[
+                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                ("event_type", models.CharField(choices=[("created", "Created"), ("submitted", "Submitted for approval"), ("activated", "Activated"), ("payment", "Payment recorded"), ("completed", "Completed"), ("defaulted", "Defaulted"), ("cancelled", "Cancelled")], max_length=30, verbose_name="event type")),
+                ("description", models.CharField(blank=True, max_length=255, verbose_name="description")),
+                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="created at")),
+                ("agreement", models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name="events", to="financing.financeagreement", verbose_name="agreement")),
+                ("company", models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name="+", to="organizations.organization", verbose_name="company")),
+                ("performed_by", models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name="finance_agreement_events", to=settings.AUTH_USER_MODEL, verbose_name="performed by")),
+            ],
+            options={"ordering": ["created_at"]},
+            bases=(apps.core.models.CompanyConsistencyMixin, models.Model),
+        ),
+        migrations.CreateModel(
+            name="PaymentAllocation",
+            fields=[
+                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                ("amount", models.DecimalField(decimal_places=2, max_digits=14, verbose_name="allocated amount")),
+                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="created at")),
+                ("company", models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name="+", to="organizations.organization", verbose_name="company")),
+                ("created_by", models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name="installment_allocations", to=settings.AUTH_USER_MODEL, verbose_name="created by")),
+                ("entry", models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name="installment_allocations", to="payments.ledgerentry", verbose_name="ledger entry")),
+                ("installment", models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name="allocations", to="financing.installment", verbose_name="installment")),
+                ("reversal_of", models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name="reversals", to="financing.paymentallocation", verbose_name="reversal of")),
+            ],
+            options={"ordering": ["created_at"]},
+            bases=(apps.core.models.CompanyConsistencyMixin, models.Model),
+        ),
+        migrations.CreateModel(
+            name="InstallmentReminder",
+            fields=[
+                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                ("kind", models.CharField(max_length=30, verbose_name="reminder kind")),
+                ("reminder_date", models.DateField(verbose_name="reminder date")),
+                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="created at")),
+                ("company", models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name="+", to="organizations.organization", verbose_name="company")),
+                ("installment", models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name="reminders", to="financing.installment", verbose_name="installment")),
+            ],
+            bases=(apps.core.models.CompanyConsistencyMixin, models.Model),
+        ),
+        migrations.CreateModel(
+            name="LenderDisbursement",
+            fields=[
+                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                ("external_reference", models.CharField(blank=True, max_length=100, verbose_name="external reference")),
+                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="created at")),
+                ("agreement", models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name="lender_disbursements", to="financing.financeagreement", verbose_name="agreement")),
+                ("company", models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name="+", to="organizations.organization", verbose_name="company")),
+                ("entry", models.OneToOneField(on_delete=django.db.models.deletion.PROTECT, related_name="lender_disbursement", to="payments.ledgerentry", verbose_name="ledger entry")),
+                ("partner", models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name="disbursements", to="financing.financingpartner", verbose_name="financing partner")),
+            ],
+            bases=(apps.core.models.CompanyConsistencyMixin, models.Model),
+        ),
+        migrations.AddConstraint(model_name="financingpartner", constraint=models.UniqueConstraint(fields=("company", "name"), name="unique_financing_partner_name_per_company")),
+        migrations.AddConstraint(model_name="financeagreement", constraint=models.UniqueConstraint(fields=("company", "number"), name="unique_finance_agreement_number_per_company")),
+        migrations.AddConstraint(model_name="financeagreement", constraint=models.CheckConstraint(condition=models.Q(("cash_price__gt", 0)), name="finance_cash_price_positive")),
+        migrations.AddConstraint(model_name="financeagreement", constraint=models.CheckConstraint(condition=models.Q(("markup_amount__gte", 0)), name="finance_markup_nonnegative")),
+        migrations.AddConstraint(model_name="financeagreement", constraint=models.CheckConstraint(condition=models.Q(("down_payment_required__gte", 0)), name="finance_down_payment_nonnegative")),
+        migrations.AddConstraint(model_name="financeagreement", constraint=models.CheckConstraint(condition=models.Q(("installment_count__gt", 0)), name="finance_installment_count_positive")),
+        migrations.AddConstraint(model_name="installment", constraint=models.UniqueConstraint(fields=("agreement", "sequence"), name="unique_installment_sequence_per_agreement")),
+        migrations.AddConstraint(model_name="installment", constraint=models.CheckConstraint(condition=models.Q(("amount__gt", 0)), name="installment_amount_positive")),
+        migrations.AddConstraint(model_name="paymentallocation", constraint=models.CheckConstraint(condition=models.Q(("amount__gt", 0)), name="payment_allocation_amount_positive")),
+        migrations.AddConstraint(model_name="paymentallocation", constraint=models.UniqueConstraint(condition=models.Q(("reversal_of__isnull", False)), fields=("reversal_of",), name="one_reversal_per_payment_allocation")),
+        migrations.AddConstraint(model_name="installmentreminder", constraint=models.UniqueConstraint(fields=("installment", "kind", "reminder_date"), name="unique_installment_reminder_per_day")),
+    ]

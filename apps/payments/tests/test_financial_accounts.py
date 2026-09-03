@@ -108,3 +108,16 @@ def test_financial_account_uses_company_scope_and_currency():
     assert account.company == sale.company
     assert account.currency == "AFN"
     assert account.account_type == "BANK"
+
+
+@pytest.mark.django_db
+def test_receipt_numbers_are_generated_sequentially_per_company():
+    sale = SaleFactory(agreed_amount=Decimal("12000.00"), currency="AFN")
+    with company_scope(sale.company):
+        first = record_payment(sale, Decimal("100.00"), "AFN")
+        second = record_payment(sale, Decimal("100.00"), "AFN")
+    assert first.receipt_number.startswith("RCT-")
+    assert first.receipt_number != second.receipt_number
+    assert int(second.receipt_number.rsplit("-", 1)[1]) == int(
+        first.receipt_number.rsplit("-", 1)[1]
+    ) + 1

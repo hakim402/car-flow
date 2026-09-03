@@ -5,9 +5,11 @@ from apps.core.forms import StyledFormMixin
 from apps.customers.models import Customer
 from apps.suppliers.models import Supplier
 from apps.vehicles.models import Vehicle
+from apps.financing.models import FinanceAgreement
 
 from .models import (
     CUSTOMER_DOC_TYPES,
+    FINANCING_DOC_TYPES,
     SUPPLIER_DOC_TYPES,
     VEHICLE_DOC_TYPES,
     Document,
@@ -33,10 +35,15 @@ class DocumentForm(StyledFormMixin, forms.ModelForm):
         queryset=Supplier.all_objects.none(),
         required=False,
     )
+    finance_agreement = forms.ModelChoiceField(
+        label=Document._meta.get_field("finance_agreement").verbose_name,
+        queryset=FinanceAgreement.all_objects.none(),
+        required=False,
+    )
 
     class Meta:
         model = Document
-        fields = ["doc_type", "title", "vehicle", "customer", "supplier", "file"]
+        fields = ["doc_type", "title", "vehicle", "customer", "supplier", "finance_agreement", "file"]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -44,12 +51,19 @@ class DocumentForm(StyledFormMixin, forms.ModelForm):
         self.fields["vehicle"].queryset = Vehicle.objects.all()
         self.fields["customer"].queryset = Customer.objects.all()
         self.fields["supplier"].queryset = Supplier.objects.all()
+        self.fields["finance_agreement"].queryset = FinanceAgreement.objects.all()
 
     def clean(self):
         cleaned = super().clean()
-        if not (cleaned.get("vehicle") or cleaned.get("customer") or cleaned.get("supplier")):
+        targets = [
+            cleaned.get("vehicle"),
+            cleaned.get("customer"),
+            cleaned.get("supplier"),
+            cleaned.get("finance_agreement"),
+        ]
+        if sum(bool(target) for target in targets) != 1:
             raise forms.ValidationError(
-                _("Attach the document to a vehicle, a customer or a supplier.")
+                _("Attach the document to exactly one vehicle, customer, supplier or financing agreement.")
             )
         return cleaned
 
@@ -63,6 +77,7 @@ class VehicleDocumentForm(DocumentForm):
         self.vehicle = vehicle
         del self.fields["customer"]
         del self.fields["supplier"]
+        del self.fields["finance_agreement"]
         self.fields["vehicle"].widget = forms.HiddenInput()
         if vehicle is not None:
             self.fields["vehicle"].initial = vehicle
@@ -87,6 +102,7 @@ class CustomerDocumentForm(DocumentForm):
         self.customer = customer
         del self.fields["vehicle"]
         del self.fields["supplier"]
+        del self.fields["finance_agreement"]
         self.fields["customer"].widget = forms.HiddenInput()
         if customer is not None:
             self.fields["customer"].initial = customer
@@ -111,6 +127,7 @@ class SupplierDocumentForm(DocumentForm):
         self.supplier = supplier
         del self.fields["vehicle"]
         del self.fields["customer"]
+        del self.fields["finance_agreement"]
         self.fields["supplier"].widget = forms.HiddenInput()
         if supplier is not None:
             self.fields["supplier"].initial = supplier
@@ -123,4 +140,22 @@ class SupplierDocumentForm(DocumentForm):
     def clean(self):
         # Skip DocumentForm.clean: vehicle/customer are gone and supplier is
         # enforced by the locked hidden field.
+        return super(DocumentForm, self).clean()
+
+
+class FinancingDocumentForm(DocumentForm):
+    def __init__(self, *args, agreement=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.agreement = agreement
+        del self.fields["vehicle"]
+        del self.fields["customer"]
+        del self.fields["supplier"]
+        self.fields["finance_agreement"].widget = forms.HiddenInput()
+        if agreement is not None:
+            self.fields["finance_agreement"].initial = agreement
+        self.fields["doc_type"].choices = [
+            choice for choice in DocumentType.choices if choice[0] in FINANCING_DOC_TYPES
+        ]
+
+    def clean(self):
         return super(DocumentForm, self).clean()

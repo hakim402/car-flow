@@ -4,20 +4,20 @@
 {% block title %}{% translate "Ledger" %} — AUTOMEX CarFlow{% endblock %}
 
 {% block content %}
-<div class="flex items-center justify-between mb-4">
+<div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
     <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">{% translate "Ledger" %}</h1>
-    <div class="flex items-center gap-2">
+    <div class="flex flex-wrap items-center gap-2">
         <a href="{% url 'expenses:create' %}"
            class="inline-flex items-center justify-center rounded-xl bg-slate-900 hover:bg-slate-800 text-white px-4 py-2.5 text-sm font-bold shadow-sm transition">
             {% translate "Record expense" %}
         </a>
         <a href="{% url 'payments:create' %}"
-           class="inline-flex items-center justify-center rounded-xl bg-amber-500 hover:bg-amber-600 text-white px-4 py-2.5 text-sm font-bold shadow-sm transition">
+           class="inline-flex items-center justify-center rounded-xl bg-brand-600 hover:bg-brand-700 text-white px-4 py-2.5 text-sm font-bold shadow-sm transition">
             {% translate "Record payment" %}
         </a>
     </div>
 </div>
-<div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+<div class="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
     <table class="data-table">
         <thead>
             <tr>
@@ -47,6 +47,7 @@
                         {% if entry.direction == "in" %}+{% else %}−{% endif %}{{ entry.amount }} {{ entry.currency }}
                     </td>
                     <td class="px-4 py-3 text-end">
+                        {% if entry.receipt_number %}<a href="{% url 'payments:receipt' entry.pk %}" class="me-3 text-sm font-semibold text-brand-700 hover:underline dark:text-brand-300">{% translate "Receipt" %}</a>{% endif %}
                         {% if not entry.reversal_of and not entry.reversals.exists %}
                             <form method="post" action="{% url 'payments:reverse' entry.pk %}" class="inline">
                                 {% csrf_token %}

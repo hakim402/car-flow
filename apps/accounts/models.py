@@ -21,6 +21,7 @@ BUILTIN_ROLES = (
     ("sales", _("Sales")),
     ("inventory", _("Inventory")),
     ("accountant", _("Accountant")),
+    ("finance_officer", _("Finance Officer")),
 )
 
 

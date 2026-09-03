@@ -73,6 +73,7 @@ INSTALLED_APPS = [
     "apps.customers",
     "apps.sales",
     "apps.payments",
+    "apps.financing",
     "apps.expenses",
     "apps.accounting",
     "apps.audit",
@@ -268,7 +269,16 @@ CELERY_TASK_DEFAULT_QUEUE = "default"
 CELERY_TIMEZONE = TIME_ZONE
 # Phase 2 workflows (inventory aging, payment overdue, document expiry) will
 # register their schedules here; the hook exists from Phase 1.
-CELERY_BEAT_SCHEDULE = {}
+CELERY_BEAT_SCHEDULE = {
+    "expire-reservations-every-five-minutes": {
+        "task": "apps.sales.tasks.expire_reservations",
+        "schedule": 60 * 5,
+    },
+    "financing-due-reminders-daily": {
+        "task": "apps.financing.tasks.send_financing_due_reminders",
+        "schedule": 60 * 60 * 24,
+    },
+}
 
 # --------------------------------------------------------------------------
 # File storage backend (§12.2): local `media/` volume by default, S3 when

@@ -5,13 +5,13 @@
 
 {% block content %}
 <div class="flex items-center justify-between mb-4">
-    <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">{% translate "Sales" %}</h1>
+    <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">{% translate "Sales" %}</h1>
     <a href="{% url 'sales:sale_create' %}"
-       class="inline-flex items-center justify-center rounded-xl bg-amber-500 hover:bg-amber-600 text-white px-4 py-2.5 text-sm font-bold shadow-sm transition">
+       class="inline-flex items-center justify-center rounded-xl bg-brand-600 hover:bg-brand-700 text-white px-4 py-2.5 text-sm font-bold shadow-sm transition">
         {% translate "New sale" %}
     </a>
 </div>
-<div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+<div class="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
     <table class="data-table">
         <thead>
             <tr>
@@ -19,6 +19,8 @@
                 <th class="px-4 py-3 text-start font-medium">{% translate "Customer" %}</th>
                 <th class="px-4 py-3 text-start font-medium">{% translate "Vehicle" %}</th>
                 <th class="px-4 py-3 text-end font-medium">{% translate "Agreed amount" %}</th>
+                <th class="px-4 py-3 text-end font-medium">{% translate "Remaining balance" %}</th>
+                <th class="px-4 py-3 text-start font-medium">{% translate "Payment status" %}</th>
                 <th class="px-4 py-3 text-start font-medium">{% translate "Sale date" %}</th>
                 <th class="px-4 py-3 text-start font-medium">{% translate "Status" %}</th>
             </tr>
@@ -27,18 +29,20 @@
             {% for sale in sales %}
                 <tr>
                     <td class="px-4 py-3">
-                        <a href="{{ sale.get_absolute_url }}" class="font-medium text-slate-800 hover:text-amber-600">
+                        <a href="{{ sale.get_absolute_url }}" class="font-medium text-slate-800 hover:text-brand-600">
                             {{ sale.pk }}
                         </a>
                     </td>
                     <td class="px-4 py-3">{{ sale.customer }}</td>
                     <td class="px-4 py-3">{{ sale.vehicle }}</td>
                     <td class="px-4 py-3 text-end" dir="ltr">{{ sale.agreed_amount }} {{ sale.currency }}</td>
+                    <td class="px-4 py-3 text-end font-bold {% if sale.payment_summary.outstanding > 0 %}text-red-600 dark:text-red-400{% else %}text-emerald-600 dark:text-emerald-400{% endif %}" dir="ltr">{{ sale.payment_summary.outstanding }} {{ sale.currency }}</td>
+                    <td class="px-4 py-3">{% if sale.payment_summary.status == 'paid' %}{% translate "Paid in full" %}{% elif sale.payment_summary.status == 'partial' %}{% translate "Partially paid" %}{% else %}{% translate "Unpaid" %}{% endif %}</td>
                     <td class="px-4 py-3">{{ sale.sale_date|date:"SHORT_DATE_FORMAT" }}</td>
                     <td class="px-4 py-3">{{ sale.get_status_display }}</td>
                 </tr>
             {% empty %}
-                <tr><td colspan="6" class="px-4 py-8 text-center text-slate-500">
+                <tr><td colspan="8" class="px-4 py-8 text-center text-slate-500">
                     {% translate "No sales yet." %}
                 </td></tr>
             {% endfor %}

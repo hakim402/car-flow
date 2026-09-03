@@ -9,7 +9,7 @@
     <form method="post" action="{% url 'sales:lead_update_status' lead.pk %}" class="flex items-center gap-2">
         {% csrf_token %}
         <label class="text-sm text-slate-500" for="lead-status">{% translate "Status" %}</label>
-        <select id="lead-status" name="status" class="rounded-xl border border-slate-300 bg-slate-50 px-3 py-2.5 text-sm text-slate-800 shadow-sm outline-none transition focus:border-amber-500 focus:bg-white focus:ring-4 focus:ring-amber-100">
+        <select id="lead-status" name="status" class="rounded-xl border border-slate-300 bg-slate-50 px-3 py-2.5 text-sm text-slate-800 shadow-sm outline-none transition focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-100">
             {% for value, label in statuses %}
                 <option value="{{ value }}" {% if value == lead.status %}selected{% endif %}>{{ label }}</option>
             {% endfor %}
@@ -24,12 +24,12 @@
     <div><span class="text-slate-500">{% translate "Source" %}:</span> {{ lead.get_source_display }}</div>
     <div><span class="text-slate-500">{% translate "Customer" %}:</span>
         {% if lead.customer %}
-            <a class="text-slate-700 hover:text-amber-600" href="{{ lead.customer.get_absolute_url }}">{{ lead.customer }}</a>
+            <a class="text-slate-700 hover:text-brand-600" href="{{ lead.customer.get_absolute_url }}">{{ lead.customer }}</a>
         {% else %}—{% endif %}
     </div>
     <div><span class="text-slate-500">{% translate "Vehicle of interest" %}:</span>
         {% if lead.vehicle_of_interest %}
-            <a class="text-slate-700 hover:text-amber-600" href="{{ lead.vehicle_of_interest.get_absolute_url }}">
+            <a class="text-slate-700 hover:text-brand-600" href="{{ lead.vehicle_of_interest.get_absolute_url }}">
                 {{ lead.vehicle_of_interest }}
             </a>
         {% else %}—{% endif %}

@@ -219,6 +219,7 @@ class ReservationStatus(models.TextChoices):
     ACTIVE = "active", _("Active")
     COMPLETED = "completed", _("Completed")
     CANCELLED = "cancelled", _("Cancelled")
+    EXPIRED = "expired", _("Expired")
 
 
 class Reservation(TenantModel, CompanyConsistencyMixin):
@@ -366,6 +367,30 @@ class Sale(TenantModel, CompanyConsistencyMixin):
         verbose_name = _("sale")
         verbose_name_plural = _("sales")
         ordering = ["-created_at"]
+
+    def clean(self):
+        super().clean()
+        errors = {}
+        if self.reservation_id:
+            if self.reservation.customer_id != self.customer_id:
+                errors["customer"] = _("Sale customer must match the reservation customer.")
+            if self.reservation.vehicle_id != self.vehicle_id:
+                errors["vehicle"] = _("Sale vehicle must match the reserved vehicle.")
+            if self.reservation.currency != self.currency:
+                errors["currency"] = _("Sale currency must match the reservation currency.")
+        if (
+            self.status == SaleStatus.COMPLETED
+            and self.vehicle_id
+            and Sale.all_objects.filter(
+                vehicle_id=self.vehicle_id,
+                status=SaleStatus.COMPLETED,
+            ).exclude(pk=self.pk).exists()
+        ):
+            errors["vehicle"] = _("This vehicle already has a completed sale.")
+        if errors:
+            from django.core.exceptions import ValidationError
+
+            raise ValidationError(errors)
 
     def __str__(self):
         return f"{_('Sale')} #{self.pk} — {self.vehicle}"

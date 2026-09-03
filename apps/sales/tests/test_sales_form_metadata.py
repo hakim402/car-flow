@@ -1,7 +1,9 @@
 import pytest
+from django.urls import reverse
 
 from apps.customers.forms import CustomerForm
-from apps.sales.forms import LeadForm, QuotationForm, ReservationForm
+from apps.core.testing import UserFactory
+from apps.sales.forms import LeadForm, QuotationForm, ReservationForm, SaleForm
 
 
 @pytest.mark.django_db
@@ -26,3 +28,21 @@ def test_sales_forms_include_agent_required_crm_fields():
     reservation_form = ReservationForm()
     assert "expires_at" in reservation_form.fields
     assert reservation_form.fields["expires_at"].help_text
+
+    sale_form = SaleForm()
+    assert "agreed_amount" in sale_form.fields
+
+
+@pytest.mark.django_db
+def test_new_sale_page_renders_financial_fields_once(client):
+    user = UserFactory()
+    client.force_login(user)
+
+    response = client.get(reverse("sales:sale_create"))
+
+    assert response.status_code == 200
+    html = response.content.decode()
+    assert html.count('name="agreed_amount"') == 1
+    assert html.count('name="customer"') == 1
+    assert html.count('name="vehicle"') == 1
+    assert html.count('name="reservation"') == 1

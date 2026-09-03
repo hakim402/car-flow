@@ -97,6 +97,9 @@ def test_domestic_order_only_confirms_then_stops(client, purchase_user):
 def test_receive_import_order_records_cost_and_stock(client, purchase_user, import_order):
     branch = Branch.objects.create(company=purchase_user.company, name="HQ")
     import_order.branch = branch
+    # Imported vehicles can only enter stock after the shipment reaches
+    # customs; receiving a draft/ordered shipment is a workflow violation.
+    import_order.status = PurchaseStatus.CUSTOMS
     import_order.save()
     vehicle = VehicleFactory(company=purchase_user.company)
     PurchaseOrderLine.objects.create(

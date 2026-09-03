@@ -11,8 +11,15 @@ import pytest
 from apps.branches.models import Branch
 from apps.inventory.models import InventoryMovement, VehicleStock
 
-TARGET_0004 = [("inventory", "0004_historicalvehiclestock_available_at_and_more")]
-TARGET_0005 = [("inventory", "0005_backfill_authoritative_stock")]
+VEHICLES_CURRENT = ("vehicles", "0005_alter_historicalvehicle_branch_and_more")
+TARGET_0004 = [
+    ("inventory", "0004_historicalvehiclestock_available_at_and_more"),
+    VEHICLES_CURRENT,
+]
+TARGET_0005 = [
+    ("inventory", "0005_backfill_authoritative_stock"),
+    VEHICLES_CURRENT,
+]
 
 
 @pytest.mark.django_db(transaction=True)

@@ -5,7 +5,7 @@
 
 {% block content %}
 <div class="flex items-center justify-between mb-4">
-    <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">{{ sale }}</h1>
+    <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">{{ sale }}</h1>
     <div class="flex items-center gap-2">
         {% if can_complete %}
             <form method="post" action="{% url 'sales:sale_complete' sale.pk %}">
@@ -29,19 +29,19 @@
             <form method="post" action="{% url 'sales:sale_deliver' sale.pk %}">
                 {% csrf_token %}
                 <button type="submit"
-                        class="inline-flex items-center justify-center rounded-xl bg-amber-500 hover:bg-amber-600 text-white px-4 py-2.5 text-sm font-bold shadow-sm transition">
+                        class="inline-flex items-center justify-center rounded-xl bg-brand-600 hover:bg-brand-700 text-white px-4 py-2.5 text-sm font-bold shadow-sm transition">
                     {% translate "Deliver vehicle" %}
                 </button>
             </form>
         {% endif %}
     </div>
 </div>
-<div class="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 shadow-sm grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 text-sm mb-6">
+<div class="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 shadow-sm grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 text-sm mb-6 dark:border-slate-800 dark:bg-slate-900">
     <div><span class="text-slate-500">{% translate "Customer" %}:</span>
-        <a class="text-slate-700 hover:text-amber-600" href="{{ sale.customer.get_absolute_url }}">{{ sale.customer }}</a>
+        <a class="text-slate-700 hover:text-brand-600" href="{{ sale.customer.get_absolute_url }}">{{ sale.customer }}</a>
     </div>
     <div><span class="text-slate-500">{% translate "Vehicle" %}:</span>
-        <a class="text-slate-700 hover:text-amber-600" href="{{ sale.vehicle.get_absolute_url }}">{{ sale.vehicle }}</a>
+        <a class="text-slate-700 hover:text-brand-600" href="{{ sale.vehicle.get_absolute_url }}">{{ sale.vehicle }}</a>
     </div>
     <div><span class="text-slate-500">{% translate "Agreed amount" %}:</span>
         <span class="font-semibold" dir="ltr">{{ sale.agreed_amount }} {{ sale.currency }}</span>
@@ -59,8 +59,31 @@
     {% endif %}
 </div>
 
-<div class="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 shadow-sm">
-    <h2 class="text-lg font-extrabold tracking-tight text-slate-900 mb-3">{% translate "Invoice" %}</h2>
+<section class="mb-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-6">
+    <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div>
+            <p class="text-xs font-bold uppercase tracking-[.16em] text-brand-600 dark:text-brand-300">{% translate "Customer balance" %}</p>
+            <h2 class="mt-1 text-lg font-extrabold text-slate-950 dark:text-white">
+                {% if payment_summary.status == 'paid' %}{% translate "Paid in full" %}
+                {% elif payment_summary.status == 'partial' %}{% translate "Partially paid" %}
+                {% else %}{% translate "Unpaid" %}{% endif %}
+            </h2>
+        </div>
+        <div class="flex flex-wrap gap-2">
+            {% if can_record_payment %}<a href="{% url 'payments:create' %}?sale={{ sale.pk }}" class="rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-emerald-700">{% translate "Record customer payment" %}</a>{% endif %}
+            {% if payment_summary.outstanding > 0 and can_add_financing and sale.status == 'completed' %}<a href="{% url 'financing:create' %}?sale={{ sale.pk }}" class="rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-brand-700">{% translate "Create loan / installments" %}</a>{% endif %}
+        </div>
+    </div>
+    <dl class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <div class="rounded-xl bg-slate-50 p-4 dark:bg-slate-800"><dt class="text-xs font-bold uppercase text-slate-500">{% translate "Sale price" %}</dt><dd class="mt-1 text-lg font-extrabold" dir="ltr">{{ payment_summary.agreed }} {{ payment_summary.currency }}</dd></div>
+        <div class="rounded-xl bg-emerald-50 p-4 dark:bg-emerald-950/30"><dt class="text-xs font-bold uppercase text-emerald-700 dark:text-emerald-300">{% translate "Paid" %}</dt><dd class="mt-1 text-lg font-extrabold text-emerald-700 dark:text-emerald-300" dir="ltr">{{ payment_summary.paid }} {{ payment_summary.currency }}</dd></div>
+        <div class="rounded-xl bg-red-50 p-4 dark:bg-red-950/30"><dt class="text-xs font-bold uppercase text-red-700 dark:text-red-300">{% translate "Remaining balance" %}</dt><dd class="mt-1 text-lg font-extrabold text-red-700 dark:text-red-300" dir="ltr">{{ payment_summary.outstanding }} {{ payment_summary.currency }}</dd></div>
+    </dl>
+    {% if payment_summary.outstanding > 0 %}<p class="mt-4 text-sm font-medium text-red-700 dark:text-red-300">{% blocktranslate with amount=payment_summary.outstanding currency=payment_summary.currency customer=sale.customer %}{{ customer }} still owes {{ amount }} {{ currency }} on this sale.{% endblocktranslate %}</p>{% endif %}
+</section>
+
+<div class="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <h2 class="text-lg font-extrabold tracking-tight text-slate-900 dark:text-white mb-3">{% translate "Invoice" %}</h2>
     {% if invoice %}
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-x-8 gap-y-3 text-sm">
             <div><span class="text-slate-500">{% translate "Number" %}:</span> <span class="font-mono">{{ invoice.number }}</span></div>
@@ -72,5 +95,15 @@
     {% else %}
         <p class="text-sm text-slate-500">{% translate "No invoice issued yet." %}</p>
     {% endif %}
+</div>
+
+<div class="mt-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-6">
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+            <h2 class="text-lg font-extrabold tracking-tight text-slate-900 dark:text-white">{% translate "Financing" %}</h2>
+            {% if finance_agreement %}<p class="mt-1 text-sm text-slate-500 dark:text-slate-400">{{ finance_agreement.get_status_display }} · {{ finance_agreement.installment_count }} {% translate "installments" %}</p>{% else %}<p class="mt-1 text-sm text-slate-500 dark:text-slate-400">{% translate "No financing agreement has been created for this sale." %}</p>{% endif %}
+        </div>
+        {% if finance_agreement %}<a href="{{ finance_agreement.get_absolute_url }}" class="rounded-xl border border-slate-200 px-4 py-2.5 text-center text-sm font-bold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800">{% translate "View agreement" %}</a>{% elif can_add_financing %}<a href="{% url 'financing:create' %}?sale={{ sale.pk }}" class="rounded-xl bg-brand-600 px-4 py-2.5 text-center text-sm font-bold text-white hover:bg-brand-700">{% translate "Create financing agreement" %}</a>{% endif %}
+    </div>
 </div>
 {% endblock %}

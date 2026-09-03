@@ -1,9 +1,11 @@
 from django import forms
+from django.utils.translation import gettext_lazy as _
 
 from apps.accounts.models import User
 from apps.core.forms import StyledFormMixin
 from apps.core.tenancy import get_current_company
 from apps.customers.models import Customer
+from apps.inventory.models import StockStatus
 from apps.vehicles.models import Vehicle
 
 from .models import Lead, Quotation, Reservation, Sale
@@ -144,9 +146,37 @@ class SaleForm(StyledFormMixin, forms.ModelForm):
         company = get_current_company()
         if company is not None:
             self.fields["customer"].queryset = Customer.objects.filter(company=company)
-            self.fields["vehicle"].queryset = Vehicle.objects.filter(company=company)
-            self.fields["reservation"].queryset = Reservation.objects.filter(company=company)
+            self.fields["vehicle"].queryset = Vehicle.objects.filter(
+                company=company,
+                stock__status__in=[StockStatus.AVAILABLE, StockStatus.RESERVED],
+            ).select_related("stock")
+            self.fields["reservation"].queryset = Reservation.objects.filter(
+                company=company,
+                status="active",
+            ).select_related("customer", "vehicle")
         else:
             self.fields["customer"].queryset = Customer.all_objects.all()
             self.fields["vehicle"].queryset = Vehicle.all_objects.all()
             self.fields["reservation"].queryset = Reservation.all_objects.all()
+
+    def clean(self):
+        cleaned = super().clean()
+        customer = cleaned.get("customer")
+        vehicle = cleaned.get("vehicle")
+        reservation = cleaned.get("reservation")
+        currency = cleaned.get("currency")
+        if reservation:
+            if customer and reservation.customer_id != customer.pk:
+                self.add_error("customer", _("Sale customer must match the reservation customer."))
+            if vehicle and reservation.vehicle_id != vehicle.pk:
+                self.add_error("vehicle", _("Sale vehicle must match the reserved vehicle."))
+            if currency and reservation.currency != currency:
+                self.add_error("currency", _("Sale currency must match the reservation currency."))
+        elif vehicle:
+            stock = getattr(vehicle, "stock", None)
+            if stock is None or stock.status != StockStatus.AVAILABLE:
+                self.add_error(
+                    "vehicle",
+                    _("A direct sale requires an available vehicle; select its active reservation otherwise."),
+                )
+        return cleaned

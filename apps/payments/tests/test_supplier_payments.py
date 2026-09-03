@@ -12,7 +12,7 @@ from apps.accounts.models import Permission, Role
 from apps.accounting.services import supplier_payments
 from apps.core.tenancy import company_scope
 from apps.core.testing import SupplierFactory, UserFactory
-from apps.payments.models import EntryType, LedgerEntry
+from apps.payments.models import EntryType, LedgerEntry, PaymentMethod
 from apps.payments.services import record_supplier_payment, reverse_entry
 
 ZERO = Decimal("0.00")
@@ -81,6 +81,7 @@ def test_pay_supplier_view_records_and_redirects(client, finance_user, supplier)
             "supplier": supplier.pk,
             "amount": "3500.00",
             "currency": "USD",
+            "payment_method": PaymentMethod.CASH,
             "description": "Invoice 2026-114",
         },
     )

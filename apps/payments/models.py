@@ -93,8 +93,29 @@ ENTRY_DIRECTION = {
     EntryType.CUSTOMER_PAYMENT: "in",
     EntryType.SUPPLIER_PAYMENT: "out",
     EntryType.EXPENSE: "out",
+    EntryType.REFUND: "out",
+    EntryType.OTHER_IN: "in",
+    EntryType.OTHER_OUT: "out",
     EntryType.OTHER: "in",
 }
+
+
+class LedgerSequence(TenantModel):
+    """Concurrency-safe per-company counters for financial document numbers."""
+
+    kind = models.CharField(_("sequence kind"), max_length=30)
+    year = models.PositiveSmallIntegerField(_("year"))
+    last_value = models.PositiveBigIntegerField(_("last value"), default=0)
+
+    class Meta:
+        verbose_name = _("ledger sequence")
+        verbose_name_plural = _("ledger sequences")
+        constraints = [
+            models.UniqueConstraint(
+                fields=["company", "kind", "year"],
+                name="unique_ledger_sequence_per_company_year",
+            )
+        ]
 
 
 class LedgerEntry(TenantModel, ImmutableModel, CompanyConsistencyMixin):
@@ -234,6 +255,11 @@ class LedgerEntry(TenantModel, ImmutableModel, CompanyConsistencyMixin):
             # Stored amounts are always positive (README §28); direction
             # comes from the entry type, never from a negative amount.
             models.CheckConstraint(condition=models.Q(amount__gt=0), name="ledger_entry_amount_positive"),
+            models.UniqueConstraint(
+                fields=["company", "receipt_number"],
+                condition=~models.Q(receipt_number=""),
+                name="unique_receipt_number_per_company",
+            ),
         ]
 
     def __str__(self):

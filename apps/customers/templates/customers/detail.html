@@ -5,11 +5,11 @@
 
 {% block content %}
 <div class="flex items-center justify-between mb-4">
-    <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">{{ customer.full_name }}</h1>
+    <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">{{ customer.full_name }}</h1>
     <div class="flex items-center gap-2">
         {% if can_upload_documents %}
             <a href="{% url 'documents:upload_for_customer' customer.pk %}"
-               class="inline-flex items-center justify-center rounded-xl bg-amber-500 hover:bg-amber-600 text-white px-4 py-2.5 text-sm font-bold shadow-sm transition">
+               class="inline-flex items-center justify-center rounded-xl bg-brand-600 hover:bg-brand-700 text-white px-4 py-2.5 text-sm font-bold shadow-sm transition">
                 {% translate "Add photo / document" %}
             </a>
         {% endif %}
@@ -17,6 +17,16 @@
            class="inline-flex items-center justify-center rounded-xl bg-slate-900 hover:bg-slate-800 text-white px-4 py-2.5 text-sm font-bold shadow-sm transition">{% translate "Edit" %}</a>
     </div>
 </div>
+
+<section class="mb-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-6">
+    <div class="flex items-center justify-between gap-3">
+        <div><p class="text-xs font-bold uppercase tracking-[.16em] text-brand-600 dark:text-brand-300">{% translate "Credit and loans" %}</p><h2 class="mt-1 text-lg font-extrabold text-slate-950 dark:text-white">{% translate "Customer outstanding balance" %}</h2></div>
+        {% if can_view_receivables %}<a href="{% url 'accounting:receivables' %}" class="rounded-xl border border-slate-200 px-3 py-2 text-sm font-bold text-slate-700 dark:border-slate-700 dark:text-slate-200">{% translate "All customer balances" %}</a>{% endif %}
+    </div>
+    <div class="mt-4 flex flex-wrap gap-3">
+        {% for currency,amount in outstanding_balances.items %}<div class="min-w-40 rounded-xl bg-red-50 p-4 dark:bg-red-950/30"><p class="text-xs font-bold uppercase text-red-600 dark:text-red-300">{{ currency }} · {% translate "Remaining" %}</p><p class="mt-1 text-xl font-extrabold text-red-700 dark:text-red-300" dir="ltr">{{ amount }} {{ currency }}</p></div>{% empty %}<p class="text-sm font-medium text-emerald-700 dark:text-emerald-300">{% translate "This customer has no unpaid completed sales." %}</p>{% endfor %}
+    </div>
+</section>
 <div class="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 shadow-sm grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 text-sm mb-6">
     <div><span class="text-slate-500">{% translate "Phone" %}:</span> <span dir="ltr">{{ customer.phone|default:"—" }}</span></div>
     <div><span class="text-slate-500">{% translate "Email" %}:</span> <span dir="ltr">{{ customer.email|default:"—" }}</span></div>
@@ -44,7 +54,7 @@
             {% translate "No photos yet." %}
             {% if can_upload_documents %}
                 <a href="{% url 'documents:upload_for_customer' customer.pk %}"
-                   class="text-amber-600 hover:text-amber-700">{% translate "Upload one" %}</a>
+                   class="text-brand-600 hover:text-brand-700">{% translate "Upload one" %}</a>
             {% endif %}
         </p>
     {% endif %}
@@ -69,7 +79,7 @@
                             <td class="px-4 py-3">
                                 {% if doc.file_exists %}
                                     <a href="{{ doc.file.url }}" target="_blank" rel="noopener"
-                                       class="font-medium text-slate-800 hover:text-amber-600">{{ doc.title|default:doc }}</a>
+                                       class="font-medium text-slate-800 hover:text-brand-600">{{ doc.title|default:doc }}</a>
                                 {% else %}
                                     <span class="font-medium text-slate-500">{{ doc.title|default:doc }}</span>
                                     <span class="ms-2 inline-flex rounded-full bg-red-50 px-2 py-0.5 text-xs font-semibold text-red-700">{% translate "File missing from storage" %}</span>
@@ -88,19 +98,19 @@
             {% translate "No documents yet (tazkera, passport, bills…)." %}
             {% if can_upload_documents %}
                 <a href="{% url 'documents:upload_for_customer' customer.pk %}"
-                   class="text-amber-600 hover:text-amber-700">{% translate "Upload one" %}</a>
+                   class="text-brand-600 hover:text-brand-700">{% translate "Upload one" %}</a>
             {% endif %}
         </p>
     {% endif %}
 </div>
 
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-    <div class="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 shadow-sm">
+    <div class="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
         <h2 class="text-lg font-extrabold tracking-tight text-slate-900 mb-3">{% translate "Leads" %}</h2>
         <ul class="text-sm space-y-2">
             {% for lead in leads %}
                 <li>
-                    <a class="text-slate-700 hover:text-amber-600" href="{{ lead.get_absolute_url }}">{{ lead }}</a>
+                    <a class="text-slate-700 hover:text-brand-600" href="{{ lead.get_absolute_url }}">{{ lead }}</a>
                     — {{ lead.get_status_display }}
                 </li>
             {% empty %}
@@ -108,14 +118,13 @@
             {% endfor %}
         </ul>
     </div>
-    <div class="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 shadow-sm">
-        <h2 class="text-lg font-extrabold tracking-tight text-slate-900 mb-3">{% translate "Sales" %}</h2>
-        <ul class="text-sm space-y-2">
+    <div class="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <h2 class="text-lg font-extrabold tracking-tight text-slate-900 dark:text-white mb-3">{% translate "Sales and balances" %}</h2>
+        <ul class="space-y-3 text-sm">
             {% for sale in sales %}
-                <li>
-                    <a class="text-slate-700 hover:text-amber-600" href="{{ sale.get_absolute_url }}">{{ sale }}</a>
-                    — {{ sale.get_status_display }}
-                    (<span dir="ltr">{{ sale.agreed_amount }} {{ sale.currency }}</span>)
+                <li class="rounded-xl bg-slate-50 p-3 dark:bg-slate-800">
+                    <div class="flex items-start justify-between gap-3"><a class="font-bold text-slate-800 hover:text-brand-600 dark:text-slate-100" href="{{ sale.get_absolute_url }}">{{ sale }}</a><span class="text-xs text-slate-500">{{ sale.get_status_display }}</span></div>
+                    <div class="mt-2 grid grid-cols-3 gap-2 text-xs"><span>{% translate "Sale price" %}<strong class="mt-1 block" dir="ltr">{{ sale.payment_summary.agreed }} {{ sale.currency }}</strong></span><span>{% translate "Paid" %}<strong class="mt-1 block text-emerald-600" dir="ltr">{{ sale.payment_summary.paid }} {{ sale.currency }}</strong></span><span>{% translate "Remaining" %}<strong class="mt-1 block {% if sale.payment_summary.outstanding > 0 %}text-red-600{% else %}text-emerald-600{% endif %}" dir="ltr">{{ sale.payment_summary.outstanding }} {{ sale.currency }}</strong></span></div>
                 </li>
             {% empty %}
                 <li class="text-slate-500">{% translate "No sales yet." %}</li>

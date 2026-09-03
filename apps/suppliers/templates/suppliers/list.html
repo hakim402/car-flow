@@ -7,13 +7,13 @@
 <div class="flex items-center justify-between mb-4">
     <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">{% translate "Suppliers" %}</h1>
     <a href="{% url 'suppliers:create' %}"
-       class="inline-flex items-center justify-center rounded-xl bg-amber-500 hover:bg-amber-600 text-white px-4 py-2.5 text-sm font-bold shadow-sm transition">
+       class="inline-flex items-center justify-center rounded-xl bg-brand-600 hover:bg-brand-700 text-white px-4 py-2.5 text-sm font-bold shadow-sm transition">
         {% translate "Add supplier" %}
     </a>
 </div>
 <form method="get" class="flex items-center gap-3 mb-4">
     <input type="search" name="q" value="{{ q }}" placeholder="{% translate 'Search suppliers…' %}"
-           class="rounded-xl border border-slate-300 bg-slate-50 px-3 py-2.5 text-sm text-slate-800 shadow-sm outline-none transition focus:border-amber-500 focus:bg-white focus:ring-4 focus:ring-amber-100 w-64">
+           class="rounded-xl border border-slate-300 bg-slate-50 px-3 py-2.5 text-sm text-slate-800 shadow-sm outline-none transition focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-100 w-64">
     <button type="submit" class="inline-flex items-center justify-center rounded-xl bg-slate-900 hover:bg-slate-800 text-white px-4 py-2.5 text-sm font-bold shadow-sm transition">
         {% translate "Search" %}
     </button>
@@ -21,13 +21,13 @@
 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
     {% for supplier in suppliers %}
         <a href="{{ supplier.get_absolute_url }}"
-           class="group block card transition-shadow hover:shadow-md hover:ring-amber-300 overflow-hidden">
+           class="group block card transition-shadow hover:shadow-md hover:ring-brand-300 overflow-hidden">
             <div class="flex items-center gap-4 px-4 pt-4">
                 {% if supplier.logo %}
                     <img src="{{ supplier.logo.file.url }}" alt="{{ supplier.name }}"
                          class="h-14 w-14 shrink-0 {% if supplier.is_individual %}rounded-full{% else %}rounded-lg{% endif %} object-cover ring-1 ring-slate-200">
                 {% else %}
-                    <span class="flex h-14 w-14 shrink-0 items-center justify-center {% if supplier.is_individual %}rounded-full{% else %}rounded-lg{% endif %} bg-slate-800 text-amber-400">
+                    <span class="flex h-14 w-14 shrink-0 items-center justify-center {% if supplier.is_individual %}rounded-full{% else %}rounded-lg{% endif %} bg-slate-800 text-brand-400">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                          stroke="currentColor" class="h-7 w-7">
                         <path stroke-linecap="round" stroke-linejoin="round"
@@ -36,7 +36,7 @@
                     </span>
                 {% endif %}
                 <div class="min-w-0">
-                    <div class="truncate font-medium text-slate-800 group-hover:text-amber-600">
+                    <div class="truncate font-medium text-slate-800 group-hover:text-brand-600">
                         {{ supplier.name }}
                     </div>
                     <div class="mt-0.5 flex flex-wrap items-center gap-1">
