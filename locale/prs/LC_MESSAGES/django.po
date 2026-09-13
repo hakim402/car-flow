@@ -16,7 +16,7 @@ msgstr ""
 
 #: apps/accounting/export_views.py:59
 msgid "The report filters are invalid. Check the dates, branch and currency."
-msgstr "فیلترهای گزارش معتبر نیستند. تاریخ‌ها، شعبه و ارز را بررسی کنید."
+msgstr "فیلترهای گزارش معتبر نیستند. تاریخ‌ ها، شعبه و ارز را بررسی کنید."
 
 #: apps/accounting/export_views.py:73
 #: apps/accounting/templates/accounting/workspace.html:75
