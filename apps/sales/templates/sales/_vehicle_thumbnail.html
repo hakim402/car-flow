@@ -1,0 +1,13 @@
+{% load i18n %}
+<div class="relative h-14 w-20 shrink-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-100 dark:border-slate-700 dark:bg-slate-800">
+    {% if vehicle and vehicle.primary_photo %}
+        <img src="{{ vehicle.primary_photo.file.url }}"
+             alt="{{ vehicle.year }} {{ vehicle.make }} {{ vehicle.model }}"
+             width="96" height="68" loading="lazy"
+             class="h-full w-full object-cover">
+    {% else %}
+        <div class="grid h-full w-full place-items-center text-slate-400 dark:text-slate-500" aria-label="{% translate 'No vehicle photo' %}">
+            <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.4" d="m5 17-2-1v-4l2-5h14l2 5v4l-2 1M5 12h14M7 15h.01M17 15h.01M6 17v2M18 17v2"/></svg>
+        </div>
+    {% endif %}
+</div>

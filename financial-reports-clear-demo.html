@@ -1,0 +1,432 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AMOXRUNS — Clear Financial Reports Demo</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --brand: #2563eb;
+      --brand-dark: #1d4ed8;
+      --brand-soft: #eff6ff;
+      --bg: #f6f8fc;
+      --panel: #ffffff;
+      --panel-2: #f8fafc;
+      --border: #e2e8f0;
+      --text: #0f172a;
+      --muted: #64748b;
+      --soft: #94a3b8;
+      --green: #10b981;
+      --orange: #f97316;
+      --red: #ef4444;
+      --purple: #7c3aed;
+      --shadow: 0 18px 50px rgba(15, 23, 42, .08);
+    }
+    html.dark {
+      color-scheme: dark;
+      --bg: #020617;
+      --panel: #0f172a;
+      --panel-2: #111827;
+      --border: rgba(148, 163, 184, .18);
+      --text: #f8fafc;
+      --muted: #cbd5e1;
+      --soft: #94a3b8;
+      --brand-soft: rgba(37, 99, 235, .14);
+      --shadow: 0 18px 50px rgba(0, 0, 0, .34);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: radial-gradient(circle at 8% 0%, rgba(37, 99, 235, .14), transparent 32rem), var(--bg);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+    html[dir="rtl"] body { font-family: "Noto Sans Arabic", "Vazirmatn", Inter, system-ui, sans-serif; }
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+    .shell { max-width: 1380px; margin: 0 auto; padding: 28px; }
+    .topbar {
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+      margin-bottom: 18px;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+    .logo { width: 44px; height: 44px; display: grid; place-items: center; border-radius: 16px; color: white; background: var(--brand); box-shadow: 0 16px 34px rgba(37, 99, 235, .24); }
+    .brand h1 { margin: 0; font-size: 18px; letter-spacing: -.03em; }
+    .brand p { margin: 2px 0 0; color: var(--muted); font-size: 13px; }
+    .tools { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+    .btn {
+      border: 1px solid var(--border); background: var(--panel); color: var(--text);
+      min-height: 40px; padding: 9px 13px; border-radius: 999px; font-size: 12px; font-weight: 800;
+    }
+    .btn.primary { background: var(--brand); color: white; border-color: var(--brand); }
+    .btn:hover { border-color: var(--brand); }
+
+    .report-tabs {
+      display: flex; gap: 8px; overflow-x: auto; padding: 8px; margin-bottom: 18px;
+      border: 1px solid var(--border); border-radius: 20px; background: color-mix(in srgb, var(--panel) 92%, transparent);
+      scrollbar-width: thin;
+    }
+    .report-tabs button {
+      flex: 0 0 auto; max-width: 230px; min-height: 42px; padding: 10px 14px;
+      border: 0; border-radius: 14px; background: transparent; color: var(--muted);
+      font-size: 13px; font-weight: 850; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .report-tabs button.active { background: var(--brand); color: white; box-shadow: 0 14px 30px rgba(37, 99, 235, .22); }
+
+    .hero {
+      position: relative; overflow: hidden;
+      border: 1px solid var(--border); border-radius: 30px; background: var(--panel); box-shadow: var(--shadow);
+      padding: 26px; margin-bottom: 18px;
+    }
+    .hero::after {
+      content: ""; position: absolute; inset-inline-end: -120px; top: -140px; width: 420px; height: 420px;
+      border-radius: 999px; background: radial-gradient(circle, rgba(37, 99, 235, .18), transparent 68%);
+    }
+    .hero-inner { position: relative; z-index: 1; display: grid; grid-template-columns: minmax(0, 1fr) 330px; gap: 24px; align-items: center; }
+    .eyebrow { margin: 0 0 10px; color: var(--brand); text-transform: uppercase; letter-spacing: .15em; font-size: 11px; font-weight: 950; }
+    html[dir="rtl"] .eyebrow { letter-spacing: 0; }
+    .hero h2 { margin: 0; font-size: clamp(30px, 4vw, 48px); line-height: 1.05; letter-spacing: -.055em; }
+    .hero p { max-width: 720px; margin: 14px 0 0; color: var(--muted); font-size: 15px; }
+    .hero-summary {
+      border: 1px solid var(--border); border-radius: 24px; background: var(--panel-2); padding: 18px;
+    }
+    .hero-summary span { color: var(--muted); font-size: 12px; font-weight: 800; }
+    .hero-summary strong { display: block; margin-top: 8px; font-size: 34px; letter-spacing: -.05em; }
+    .mini-bars { display: flex; gap: 8px; align-items: end; height: 70px; margin-top: 16px; }
+    .mini-bars i { flex: 1; border-radius: 999px 999px 8px 8px; background: linear-gradient(180deg, var(--brand), #93c5fd); min-height: 12px; }
+
+    .kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-bottom: 18px; }
+    .kpi {
+      min-width: 0; border: 1px solid var(--border); border-radius: 22px; background: var(--panel);
+      padding: 18px; box-shadow: 0 12px 30px rgba(15, 23, 42, .045);
+    }
+    .kpi .label { display: flex; align-items: center; justify-content: space-between; gap: 8px; color: var(--muted); font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: .08em; }
+    html[dir="rtl"] .kpi .label { letter-spacing: 0; }
+    .kpi .dot { width: 10px; height: 10px; border-radius: 999px; background: var(--brand); flex: 0 0 auto; }
+    .kpi strong { display: block; margin-top: 12px; font-size: clamp(24px, 2.6vw, 34px); letter-spacing: -.05em; }
+    .kpi small { display: block; margin-top: 8px; color: var(--green); font-size: 12px; font-weight: 800; }
+    .kpi.warning small { color: var(--orange); }
+    .kpi.danger small { color: var(--red); }
+
+    .analysis-grid { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(320px, .8fr); gap: 18px; margin-bottom: 18px; }
+    .panel {
+      border: 1px solid var(--border); border-radius: 28px; background: var(--panel); box-shadow: var(--shadow); padding: 20px; min-width: 0;
+    }
+    .panel-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; margin-bottom: 16px; }
+    .panel-head h3 { margin: 0; font-size: 18px; letter-spacing: -.03em; }
+    .panel-head p { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
+    .pill { color: var(--brand); background: var(--brand-soft); border-radius: 999px; padding: 7px 10px; font-size: 11px; font-weight: 850; white-space: nowrap; }
+    .chart-frame { width: 100%; min-height: 330px; border-radius: 20px; background: linear-gradient(180deg, color-mix(in srgb, var(--brand) 5%, var(--panel)), var(--panel-2)); border: 1px solid var(--border); padding: 14px; overflow: hidden; }
+    svg { width: 100%; height: auto; display: block; overflow: visible; }
+    .axis { stroke: var(--border); stroke-width: 1; }
+    .grid { stroke: var(--border); stroke-width: 1; stroke-dasharray: 5 8; }
+    .area { fill: rgba(37, 99, 235, .16); }
+    .line { fill: none; stroke: var(--brand); stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; }
+    .line.two { stroke: var(--orange); }
+    .point { fill: var(--panel); stroke: var(--brand); stroke-width: 3; }
+    .svg-label { fill: var(--muted); font-size: 12px; font-weight: 750; }
+    .svg-value { fill: var(--text); font-size: 12px; font-weight: 850; }
+    .legend { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 12px; color: var(--muted); font-size: 12px; font-weight: 800; }
+    .legend span { display: inline-flex; align-items: center; gap: 7px; }
+    .legend i { width: 10px; height: 10px; border-radius: 999px; background: var(--brand); }
+    .legend .orange i { background: var(--orange); }
+
+    .bars { display: grid; gap: 14px; }
+    .bar-row { display: grid; grid-template-columns: minmax(90px, .65fr) minmax(0, 1fr) 74px; gap: 10px; align-items: center; }
+    .bar-row span { color: var(--muted); font-size: 12px; font-weight: 800; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .track { height: 11px; border-radius: 999px; background: var(--panel-2); border: 1px solid var(--border); overflow: hidden; }
+    .track i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--brand), #60a5fa); }
+    .bar-row.orange .track i { background: linear-gradient(90deg, var(--orange), #fdba74); }
+    .bar-row.green .track i { background: linear-gradient(90deg, var(--green), #86efac); }
+    .bar-row.purple .track i { background: linear-gradient(90deg, var(--purple), #c4b5fd); }
+    .bar-row strong { text-align: end; font-size: 12px; font-variant-numeric: tabular-nums; }
+
+    .bottom-grid { display: grid; grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr); gap: 18px; }
+    .insights { display: grid; gap: 12px; }
+    .insight { display: flex; gap: 12px; padding: 14px; border: 1px solid var(--border); border-radius: 18px; background: var(--panel-2); }
+    .insight .icon { width: 34px; height: 34px; flex: 0 0 auto; border-radius: 13px; display: grid; place-items: center; color: white; background: var(--brand); }
+    .insight b { display: block; font-size: 13px; }
+    .insight small { display: block; margin-top: 4px; color: var(--muted); font-size: 12px; line-height: 1.65; }
+    .table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 20px; }
+    table { width: 100%; min-width: 680px; border-collapse: collapse; font-size: 13px; }
+    th, td { padding: 14px 16px; text-align: start; border-bottom: 1px solid var(--border); }
+    th { color: var(--soft); background: var(--panel-2); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; }
+    html[dir="rtl"] th { letter-spacing: 0; }
+    td { color: var(--muted); }
+    td strong { color: var(--text); }
+    .num { text-align: end; font-variant-numeric: tabular-nums; }
+    .status { display: inline-flex; border-radius: 999px; padding: 6px 10px; background: var(--brand-soft); color: var(--brand); font-size: 12px; font-weight: 850; }
+
+    @media (max-width: 1050px) {
+      .hero-inner, .analysis-grid, .bottom-grid { grid-template-columns: 1fr; }
+      .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 640px) {
+      .shell { padding: 14px; }
+      .topbar, .panel-head { align-items: stretch; flex-direction: column; }
+      .tools { justify-content: flex-start; }
+      .hero, .panel { border-radius: 22px; padding: 16px; }
+      .kpis { grid-template-columns: 1fr; }
+      .bar-row { grid-template-columns: 1fr; gap: 6px; }
+      .bar-row strong { text-align: start; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">
+          <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 19V5m0 14h16M8 15l3-3 3 2 4-6"/></svg>
+        </div>
+        <div>
+          <h1>AMOXRUNS Financial Reports</h1>
+          <p>Clear demo: KPI cards, useful charts, simple drill-down.</p>
+        </div>
+      </div>
+      <div class="tools">
+        <button class="btn" id="themeBtn">Dark mode</button>
+        <button class="btn" id="rtlBtn">RTL preview</button>
+        <button class="btn primary">Export report</button>
+      </div>
+    </header>
+
+    <nav class="report-tabs" id="reportTabs" aria-label="Financial report pages">
+      <button class="active" data-report="overview">Report Overview</button>
+      <button data-report="cash">Cash Position</button>
+      <button data-report="profit">Vehicle Profitability</button>
+      <button data-report="expenses">Expense Analysis</button>
+      <button data-report="financing">Financing & Collections</button>
+    </nav>
+
+    <section class="hero">
+      <div class="hero-inner">
+        <div>
+          <p class="eyebrow" id="eyebrow">Financial reports / Overview</p>
+          <h2 id="title">Financial command center</h2>
+          <p id="description">Start with the company-level result, then use focused reports for account, expense, vehicle profit, and financing details.</p>
+        </div>
+        <aside class="hero-summary">
+          <span id="heroLabel">Primary result</span>
+          <strong id="heroValue">$42.8k</strong>
+          <span id="heroMeta">Net movement this period</span>
+          <div class="mini-bars" aria-hidden="true">
+            <i style="height:38%"></i><i style="height:56%"></i><i style="height:44%"></i><i style="height:72%"></i><i style="height:62%"></i><i style="height:92%"></i>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="kpis" id="kpis" aria-label="Key figures"></section>
+
+    <section class="analysis-grid">
+      <article class="panel">
+        <div class="panel-head">
+          <div><h3 id="trendTitle">Cash movement trend</h3><p id="trendHelp">Trend charts answer “is this improving or getting worse?”</p></div>
+          <span class="pill" id="periodPill">Last 6 months</span>
+        </div>
+        <div class="chart-frame">
+          <svg id="trendChart" viewBox="0 0 760 330" role="img" aria-label="Trend chart"></svg>
+          <div class="legend"><span><i></i><b id="seriesOne">Main value</b></span><span class="orange"><i></i><b id="seriesTwo">Comparison</b></span></div>
+        </div>
+      </article>
+
+      <article class="panel">
+        <div class="panel-head">
+          <div><h3 id="breakdownTitle">Breakdown</h3><p id="breakdownHelp">Ranked bars answer “where should I look first?”</p></div>
+        </div>
+        <div class="bars" id="breakdownBars"></div>
+      </article>
+    </section>
+
+    <section class="bottom-grid">
+      <article class="panel">
+        <div class="panel-head">
+          <div><h3>Recommended actions</h3><p>Short, decision-focused actions instead of repeated numbers.</p></div>
+        </div>
+        <div class="insights" id="insights"></div>
+      </article>
+
+      <article class="panel">
+        <div class="panel-head">
+          <div><h3 id="tableTitle">Detail preview</h3><p>Keep full tables on focused pages only. Overview should link to them.</p></div>
+          <span class="pill">Optional drill-down</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Record</th><th>Group</th><th class="num">Amount</th><th>Status</th></tr></thead>
+            <tbody id="detailRows"></tbody>
+          </table>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    const reports = {
+      overview: {
+        eyebrow: "Financial reports / Overview",
+        title: "Financial command center",
+        description: "Start with the company-level result, then use focused reports for account, expense, vehicle profit, and financing details.",
+        heroLabel: "Net movement", heroValue: "$42.8k", heroMeta: "Positive cash movement this period",
+        trendTitle: "Money in vs money out", trendHelp: "One chart compares company cash movement without repeating account details.",
+        seriesOne: "Money in", seriesTwo: "Money out",
+        kpis: [["Money in", "$128.4k", "↗ 12% from previous period", "good"], ["Money out", "$85.6k", "↘ controlled spending", "warn"], ["Gross profit", "$31.2k", "trusted comparable sales", "good"], ["Open exposure", "$18.9k", "financing to collect", "warn"]],
+        trendA: [42, 55, 49, 72, 68, 91], trendB: [31, 38, 44, 41, 49, 54],
+        bars: [["Cash Position", 85, "$76.9k", "blue"], ["Profitability", 68, "$31.2k", "green"], ["Expenses", 42, "$18.6k", "orange"], ["Collections", 35, "$18.9k", "purple"]],
+        insights: [["Open Cash Position", "Check account-level liquidity before making new supplier or purchase payments."], ["Review Expense Analysis", "Import fees and repairs are the largest operating cost areas this period."], ["Follow Collections", "Financing exposure needs collection follow-up before it becomes overdue."]],
+        rows: [["Cash movement", "Company", "$42,800", "Healthy"], ["Operating expenses", "Expense", "$18,600", "Watch"], ["Financing exposure", "Collections", "$18,900", "Follow up"]]
+      },
+      cash: {
+        eyebrow: "Financial reports / Cash position",
+        title: "Cash and liquidity control",
+        description: "Show current balances first, then period movement. This page answers: do we have enough cash and where is it?",
+        heroLabel: "Closing cash", heroValue: "$76.9k", heroMeta: "Across active accounts",
+        trendTitle: "Closing cash trend", trendHelp: "Use a line chart for balance movement over time.",
+        seriesOne: "Closing cash", seriesTwo: "Money out",
+        kpis: [["Closing balance", "$76.9k", "available cash", "good"], ["Money in", "$49.2k", "period receipts", "good"], ["Money out", "$22.5k", "period payments", "warn"], ["Accounts", "4", "1 account needs review", "warn"]],
+        trendA: [40, 45, 51, 60, 66, 77], trendB: [16, 22, 18, 26, 19, 23],
+        bars: [["Main cashbox", 94, "$41.2k", "blue"], ["Kabul bank", 78, "$35.7k", "green"], ["Branch safe", 42, "$12.1k", "purple"], ["Repair float", 18, "$3.6k", "orange"]],
+        insights: [["Reconcile branch safe", "Branch safe changed quickly and should be reconciled before closing."], ["Keep Main cashbox liquid", "Main cashbox covers near-term operating needs."], ["Watch outgoing payments", "Supplier payments are the main outgoing cash driver."]],
+        rows: [["Main cashbox", "Cash", "$41,200", "Healthy"], ["Kabul bank", "Bank", "$35,700", "Active"], ["Repair float", "Cash", "$3,600", "Review"]]
+      },
+      profit: {
+        eyebrow: "Financial reports / Vehicle profitability",
+        title: "Vehicle profit quality",
+        description: "Revenue, cost, and profit stay together. This page answers: which vehicles made trusted margin?",
+        heroLabel: "Gross profit", heroValue: "$31.2k", heroMeta: "Comparable completed sales",
+        trendTitle: "Profit trend", trendHelp: "Use trend + ranked vehicle bars to avoid duplicating revenue and cost tabs.",
+        seriesOne: "Gross profit", seriesTwo: "Landed cost",
+        kpis: [["Revenue", "$224k", "completed sales", "good"], ["Landed cost", "$192k", "matched costs", "warn"], ["Gross profit", "$31.2k", "trusted margin", "good"], ["Avg margin", "13.9%", "comparable vehicles", "good"]],
+        trendA: [18, 22, 16, 29, 25, 31], trendB: [80, 90, 78, 95, 102, 92],
+        bars: [["Toyota Camry", 92, "$8.8k", "green"], ["Corolla", 74, "$6.7k", "blue"], ["Hilux", 58, "$5.2k", "purple"], ["Axio", 26, "$1.8k", "orange"]],
+        insights: [["Resolve missing costs", "Vehicles without matched costs should not be counted in trusted margin."], ["Prioritize high-margin models", "Camry and Corolla produce the strongest comparable margin."], ["Watch low margin sales", "Axio margin is low and may need price/cost review."]],
+        rows: [["Toyota Camry", "Sold vehicle", "$8,800", "Profitable"], ["Corolla", "Sold vehicle", "$6,700", "Profitable"], ["Axio", "Sold vehicle", "$1,800", "Low margin"]]
+      },
+      expenses: {
+        eyebrow: "Financial reports / Expense analysis",
+        title: "Operating spend control",
+        description: "Show spend trend and the categories/branches that drive it. Avoid extra volume tabs unless they change decisions.",
+        heroLabel: "Operating expenses", heroValue: "$18.6k", heroMeta: "This selected period",
+        trendTitle: "Expense trend", trendHelp: "Expenses are best shown as a trend plus category ranking.",
+        seriesOne: "Expenses", seriesTwo: "Previous period",
+        kpis: [["Total spend", "$18.6k", "this period", "warn"], ["Categories", "8", "active categories", "good"], ["Branches", "3", "with expenses", "good"], ["Largest category", "36%", "watch concentration", "warn"]],
+        trendA: [10, 13, 12, 16, 15, 19], trendB: [8, 11, 14, 13, 12, 16],
+        bars: [["Import fees", 91, "$6.7k", "orange"], ["Repairs", 67, "$4.9k", "blue"], ["Logistics", 43, "$3.2k", "purple"], ["Office", 22, "$1.6k", "green"]],
+        insights: [["Review import fees", "Import fees are the highest cost driver this period."], ["Compare branch costs", "One branch may be carrying more repair costs than expected."], ["Keep table for vouchers", "Detailed voucher table belongs here, not on the overview page."]],
+        rows: [["Import fees", "Category", "$6,700", "High"], ["Repairs", "Category", "$4,900", "Review"], ["Logistics", "Category", "$3,200", "Normal"]]
+      },
+      financing: {
+        eyebrow: "Financial reports / Financing & collections",
+        title: "Collections and overdue risk",
+        description: "This page should help staff collect money: exposure, collection progress, and overdue risk only.",
+        heroLabel: "Active outstanding", heroValue: "$18.9k", heroMeta: "Open financing exposure",
+        trendTitle: "Collections progress", trendHelp: "Compare what is scheduled against what has been collected.",
+        seriesOne: "Collected", seriesTwo: "Scheduled",
+        kpis: [["Outstanding", "$18.9k", "active agreements", "warn"], ["Collected", "$11.4k", "this period", "good"], ["Overdue", "$3.2k", "needs action", "danger"], ["Agreements", "24", "active portfolio", "good"]],
+        trendA: [4, 6, 7, 9, 10, 11], trendB: [5, 7, 8, 10, 12, 13],
+        bars: [["Dealer plans", 78, "$9.8k", "blue"], ["Bank partner A", 54, "$5.9k", "green"], ["Bank partner B", 37, "$3.2k", "orange"], ["Other", 18, "$1.1k", "purple"]],
+        insights: [["Call overdue customers", "Overdue customers should appear first in the work queue."], ["Separate lender exposure", "External lender records need settlement status separate from dealer installments."], ["Keep portfolio mix small", "Portfolio mix belongs as KPI context, not a full separate tab."]],
+        rows: [["FIN-001", "Dealer plan", "$2,400", "Overdue"], ["FIN-008", "Bank A", "$1,900", "Active"], ["FIN-014", "Dealer plan", "$850", "Due soon"]]
+      }
+    };
+
+    const tabs = document.getElementById("reportTabs");
+    const kpis = document.getElementById("kpis");
+    const svg = document.getElementById("trendChart");
+    const bars = document.getElementById("breakdownBars");
+    const insights = document.getElementById("insights");
+    const rows = document.getElementById("detailRows");
+
+    function pointPath(values) {
+      const max = Math.max(...values, 1);
+      return values.map((v, index) => {
+        const x = 58 + index * 124;
+        const y = 278 - (v / max) * 210;
+        return [x, y];
+      });
+    }
+
+    function drawTrend(data) {
+      const a = pointPath(data.trendA);
+      const b = pointPath(data.trendB);
+      const labels = ["Apr", "May", "Jun", "Jul", "Aug", "Sep"];
+      const line = pts => pts.map((p, i) => (i ? "L" : "M") + p[0] + " " + p[1]).join(" ");
+      const area = `M ${a[0][0]} 278 ${a.map(p => `L ${p[0]} ${p[1]}`).join(" ")} L ${a[a.length - 1][0]} 278 Z`;
+      svg.innerHTML = `
+        <line class="axis" x1="48" y1="278" x2="718" y2="278"></line>
+        <line class="grid" x1="48" y1="212" x2="718" y2="212"></line>
+        <line class="grid" x1="48" y1="146" x2="718" y2="146"></line>
+        <line class="grid" x1="48" y1="80" x2="718" y2="80"></line>
+        <path class="area" d="${area}"></path>
+        <path class="line two" d="${line(b)}"></path>
+        <path class="line" d="${line(a)}"></path>
+        ${a.map((p, i) => `<circle class="point" cx="${p[0]}" cy="${p[1]}" r="5"></circle><text class="svg-label" x="${p[0]}" y="306" text-anchor="middle">${labels[i]}</text>`).join("")}
+        <text class="svg-value" x="${a[a.length - 1][0]}" y="${a[a.length - 1][1] - 14}" text-anchor="middle">${data.heroValue}</text>
+      `;
+    }
+
+    function render(name) {
+      const data = reports[name];
+      document.getElementById("eyebrow").textContent = data.eyebrow;
+      document.getElementById("title").textContent = data.title;
+      document.getElementById("description").textContent = data.description;
+      document.getElementById("heroLabel").textContent = data.heroLabel;
+      document.getElementById("heroValue").textContent = data.heroValue;
+      document.getElementById("heroMeta").textContent = data.heroMeta;
+      document.getElementById("trendTitle").textContent = data.trendTitle;
+      document.getElementById("trendHelp").textContent = data.trendHelp;
+      document.getElementById("seriesOne").textContent = data.seriesOne;
+      document.getElementById("seriesTwo").textContent = data.seriesTwo;
+      document.getElementById("breakdownTitle").textContent = name === "overview" ? "Report focus areas" : "Priority breakdown";
+      document.getElementById("breakdownHelp").textContent = name === "overview" ? "Overview links to focused pages." : "Highest bars are the first areas to review.";
+      document.getElementById("tableTitle").textContent = name === "overview" ? "Detail routing preview" : "Detail records preview";
+
+      kpis.innerHTML = data.kpis.map(([label, value, meta, tone], i) => `
+        <article class="kpi ${tone === "warn" ? "warning" : tone === "danger" ? "danger" : ""}">
+          <div class="label"><span>${label}</span><i class="dot" style="background:${tone === "warn" ? "var(--orange)" : tone === "danger" ? "var(--red)" : i === 2 ? "var(--green)" : "var(--brand)"}"></i></div>
+          <strong>${value}</strong><small>${meta}</small>
+        </article>`).join("");
+
+      bars.innerHTML = data.bars.map(([label, width, value, color]) => `
+        <div class="bar-row ${color}">
+          <span title="${label}">${label}</span>
+          <div class="track"><i style="width:${width}%"></i></div>
+          <strong>${value}</strong>
+        </div>`).join("");
+
+      insights.innerHTML = data.insights.map(([title, text], i) => `
+        <div class="insight"><div class="icon">${i + 1}</div><div><b>${title}</b><small>${text}</small></div></div>
+      `).join("");
+
+      rows.innerHTML = data.rows.map(([record, group, amount, status]) => `
+        <tr><td><strong>${record}</strong></td><td>${group}</td><td class="num">${amount}</td><td><span class="status">${status}</span></td></tr>
+      `).join("");
+
+      drawTrend(data);
+    }
+
+    tabs.addEventListener("click", event => {
+      const button = event.target.closest("button[data-report]");
+      if (!button) return;
+      tabs.querySelectorAll("button").forEach(item => item.classList.toggle("active", item === button));
+      render(button.dataset.report);
+    });
+
+    document.getElementById("themeBtn").addEventListener("click", event => {
+      document.documentElement.classList.toggle("dark");
+      event.currentTarget.textContent = document.documentElement.classList.contains("dark") ? "Light mode" : "Dark mode";
+      render(tabs.querySelector(".active").dataset.report);
+    });
+
+    document.getElementById("rtlBtn").addEventListener("click", event => {
+      document.documentElement.dir = document.documentElement.dir === "rtl" ? "ltr" : "rtl";
+      event.currentTarget.textContent = document.documentElement.dir === "rtl" ? "LTR preview" : "RTL preview";
+    });
+
+    render("overview");
+  </script>
+</body>
+</html>

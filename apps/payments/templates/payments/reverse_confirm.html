@@ -1,0 +1,14 @@
+{% extends "base.html" %}{% load i18n %}
+{% block title %}{% translate "Reverse transaction" %} — AMOXRUNS{% endblock %}
+{% block content %}
+<div class="mx-auto max-w-2xl">
+    <a href="{% if expense_mode %}{% url 'expenses:detail' entry.pk %}{% else %}{% url 'payments:detail' entry.pk %}{% endif %}" class="text-sm font-bold text-brand-700 dark:text-brand-300">← {% translate "Back to transaction" %}</a>
+    <div class="mt-5 rounded-2xl border border-red-200 bg-white p-6 shadow-sm dark:border-red-900/60 dark:bg-slate-900 sm:p-8">
+        <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-red-100 text-xl font-extrabold text-red-700 dark:bg-red-500/10 dark:text-red-300">!</div>
+        <h1 class="mt-5 text-2xl font-extrabold text-slate-950 dark:text-white">{% if expense_mode %}{% translate "Reverse expense" %}{% else %}{% translate "Reverse transaction" %}{% endif %}</h1>
+        <p class="mt-2 text-sm leading-6 text-slate-500 dark:text-slate-400">{% translate "The original record will remain unchanged. A new opposite entry will be created so the audit trail stays complete." %}</p>
+        <div class="mt-5 rounded-xl bg-slate-50 p-4 dark:bg-slate-800"><div class="flex justify-between gap-4"><span class="text-sm text-slate-500">{{ entry.get_type_display }}</span><strong class="font-mono" dir="ltr">{{ entry.amount }} {{ entry.currency }}</strong></div><p class="mt-2 text-xs text-slate-500">{{ entry.receipt_number|default:entry.pk }} · {{ entry.transaction_date|date:"SHORT_DATE_FORMAT" }}</p></div>
+        <form method="post" class="mt-6">{% csrf_token %}{% include "includes/_form_fields.html" %}<div class="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end"><a href="{% if expense_mode %}{% url 'expenses:detail' entry.pk %}{% else %}{% url 'payments:detail' entry.pk %}{% endif %}" class="button-secondary">{% translate "Keep transaction" %}</a><button class="inline-flex min-h-11 items-center justify-center rounded-xl bg-red-600 px-5 text-sm font-bold text-white hover:bg-red-700">{% translate "Confirm reversal" %}</button></div></form>
+    </div>
+</div>
+{% endblock %}

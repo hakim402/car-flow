@@ -1,21 +1,24 @@
 {% extends "base.html" %}
 {% load i18n %}
-
-{% block title %}{{ title }} — AUTOMEX CarFlow{% endblock %}
-
+{% block title %}{{ title }} — AMOXRUNS{% endblock %}
 {% block content %}
-<h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 mb-4">{{ title }}</h1>
-<div class="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 shadow-sm max-w-2xl">
-    <form method="post" novalidate>
-        {% csrf_token %}
-        {% include "includes/_form_fields.html" %}
-        <button type="submit"
-                class="inline-flex items-center justify-center rounded-xl bg-brand-600 hover:bg-brand-700 text-white px-4 py-2.5 text-sm font-bold shadow-sm transition">
-            {% translate "Save" %}
-        </button>
-        <a href="{% url 'communications:channel_list' %}" class="ms-3 text-sm text-slate-500 hover:text-slate-800">
-            {% translate "Cancel" %}
-        </a>
-    </form>
+<section class="workspace-hero">
+    <a href="{% url 'communications:channel_list' %}" class="workspace-back-link"><svg class="h-4 w-4 rtl:rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m15 18-6-6 6-6" /></svg>{% translate "Channels" %}</a>
+    <div class="workspace-hero-layout mt-4"><div><p class="workspace-eyebrow">{% translate "Channel configuration" %}</p><div class="workspace-title-row"><h1 class="workspace-title">{{ title }}</h1>{% if channel %}<span class="workspace-count">#{{ channel.pk }}</span>{% endif %}</div><p class="workspace-description">{% translate "Configure the provider type, availability, and integration settings for this customer messaging channel." %}</p></div></div>
+</section>
+
+<div class="grid gap-5 xl:grid-cols-3">
+    <section class="workspace-panel xl:col-span-2">
+        <div class="flex items-center gap-3 border-b border-slate-100 pb-4 dark:border-slate-800"><span class="workspace-entity-icon"><svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 5h16v12H8l-4 3V5Zm4 4h8m-8 4h5" /></svg></span><div><h2 class="font-extrabold text-slate-950 dark:text-white">{% translate "Channel details" %}</h2><p class="mt-1 text-xs text-slate-500">{% translate "Fields marked with an asterisk are required." %}</p></div></div>
+        <form method="post" novalidate class="form-shell mt-5">
+            {% csrf_token %}
+            {% include "includes/_form_fields.html" %}
+            <div class="mt-6 flex flex-col-reverse gap-2 border-t border-slate-100 pt-5 dark:border-slate-800 sm:flex-row sm:justify-end"><a href="{% url 'communications:channel_list' %}" class="button-secondary">{% translate "Cancel" %}</a><button type="submit" class="button-primary">{% translate "Save channel" %}</button></div>
+        </form>
+    </section>
+    <aside class="space-y-5">
+        <section class="workspace-panel"><div class="flex items-center gap-3"><span class="workspace-entity-icon"><svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3 4 7v5c0 5 3.4 8 8 9 4.6-1 8-4 8-9V7l-8-4Zm0 6v4m0 3h.01" /></svg></span><h2 class="font-extrabold text-slate-950 dark:text-white">{% translate "Configuration guidance" %}</h2></div><ul class="mt-5 space-y-3 text-sm leading-6 text-slate-600 dark:text-slate-300"><li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-500"></span><span>{% translate "Choose the service customers will use to contact the dealership." %}</span></li><li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-500"></span><span>{% translate "Only activate a channel after its provider settings have been tested." %}</span></li><li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-500"></span><span>{% translate "Credentials must be a valid JSON object containing only the fields required by the provider." %}</span></li></ul></section>
+        <section class="rounded-2xl border border-amber-200 bg-amber-50 p-5 dark:border-amber-900/50 dark:bg-amber-950/20"><p class="text-sm font-extrabold text-amber-800 dark:text-amber-300">{% translate "Protect account access" %}</p><p class="mt-2 text-sm leading-6 text-amber-700 dark:text-amber-200/80">{% translate "Never enter personal passwords in the credentials field. Use provider-issued integration values only." %}</p></section>
+    </aside>
 </div>
 {% endblock %}

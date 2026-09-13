@@ -1,22 +1,57 @@
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
+from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_POST
 
 from apps.core.decorators import require_permission
+from apps.core.pagination import pagination_context
 
 from .forms import ChannelForm, ChannelUpdateForm, ReplyForm
-from .models import Channel, Conversation
+from .models import Channel, Conversation, ConversationStatus
 from .services import send_reply
 
 
 @require_permission("communications.view")
 def conversation_list(request):
-    conversations = Conversation.objects.all().select_related(  # tenant-scoped
+    base_queryset = Conversation.objects.all().select_related(  # tenant-scoped
         "customer", "channel", "assigned_to"
     )
-    return render(request, "communications/conversation_list.html", {"conversations": conversations})
+    metrics = {
+        "total": base_queryset.count(),
+        "open": base_queryset.filter(status=ConversationStatus.OPEN).count(),
+        "closed": base_queryset.filter(status=ConversationStatus.CLOSED).count(),
+        "unassigned": base_queryset.filter(assigned_to__isnull=True).count(),
+    }
+    conversations = base_queryset
+    q = request.GET.get("q", "").strip()
+    if q:
+        conversations = conversations.filter(
+            Q(customer__full_name__icontains=q)
+            | Q(customer__phone__icontains=q)
+            | Q(external_thread_id__icontains=q)
+            | Q(assigned_to__email__icontains=q)
+        )
+    status = request.GET.get("status", "")
+    if status in ConversationStatus.values:
+        conversations = conversations.filter(status=status)
+    channel = request.GET.get("channel", "")
+    if channel.isdigit():
+        conversations = conversations.filter(channel_id=channel)
+    page = pagination_context(request, conversations, page_size=15)
+    return render(
+        request,
+        "communications/conversation_list.html",
+        {
+            **page,
+            "conversations": page["page_obj"],
+            "metrics": metrics,
+            "statuses": ConversationStatus.choices,
+            "channels": Channel.objects.all(),
+            "filters": request.GET,
+        },
+    )
 
 
 @require_permission("communications.view")
@@ -48,8 +83,24 @@ def conversation_reply(request, pk):
 
 @require_permission("communications.view")
 def channel_list(request):
-    channels = Channel.objects.all()  # TenantManager filters by company.
-    return render(request, "communications/channel_list.html", {"channels": channels})
+    channels = Channel.objects.annotate(  # TenantManager filters by company.
+        conversation_count=Count("conversations", distinct=True),
+        identity_count=Count("identities", distinct=True),
+    )
+    metrics = {
+        "total": channels.count(),
+        "active": channels.filter(active=True).count(),
+        "inactive": channels.filter(active=False).count(),
+    }
+    return render(
+        request,
+        "communications/channel_list.html",
+        {
+            "channels": channels,
+            "metrics": metrics,
+            "can_add": request.user.has_permission("communications.add"),
+        },
+    )
 
 
 @require_permission("communications.add")

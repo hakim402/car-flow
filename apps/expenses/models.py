@@ -20,7 +20,12 @@ class ExpenseCategory(TenantModel):
             models.UniqueConstraint(
                 fields=["company", "name"],
                 name="unique_expense_category_name_per_company",
-            )
+            ),
+            models.UniqueConstraint(
+                fields=["company", "code"],
+                condition=~models.Q(code=""),
+                name="unique_expense_category_code_per_company",
+            ),
         ]
 
     def __str__(self):

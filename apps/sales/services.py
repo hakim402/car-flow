@@ -102,6 +102,7 @@ def issue_invoice(sale: Sale, user=None) -> Invoice:
                 sale=sale,
                 number=f"INV-{sale.pk:06d}",
                 issued_on=timezone.localdate(),
+                due_date=sale.sale_date,
                 amount=sale.agreed_amount,
                 currency=sale.currency,
                 created_by=user if user and user.is_authenticated else None,

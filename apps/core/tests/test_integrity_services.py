@@ -34,6 +34,15 @@ def sale(db):
     return SaleFactory(agreed_amount=Decimal("15000.00"), currency="USD")
 
 
+def _sale_account(sale):
+    return FinancialAccount.objects.create(
+        company=sale.company,
+        name="Integrity test cashbox",
+        currency=sale.currency,
+        active=True,
+    )
+
+
 # --------------------------------------------------------------------------
 # Reversal rules (README §16): a reversal cannot be reversed, and an entry
 # can be reversed at most once.
@@ -42,19 +51,19 @@ def sale(db):
 @pytest.mark.django_db
 def test_reverse_entry_rejects_reversing_a_reversal(sale):
     with company_scope(sale.company):
-        entry = record_payment(sale, Decimal("100.00"), "USD")
-        reversal = reverse_entry(entry)
+        entry = record_payment(sale, Decimal("100.00"), "USD", account=_sale_account(sale))
+        reversal = reverse_entry(entry, description="Original payment correction")
         with pytest.raises(ValidationError):
-            reverse_entry(reversal)
+            reverse_entry(reversal, description="Invalid second reversal")
 
 
 @pytest.mark.django_db
 def test_reverse_entry_rejects_double_reversal(sale):
     with company_scope(sale.company):
-        entry = record_payment(sale, Decimal("100.00"), "USD")
-        reverse_entry(entry)
+        entry = record_payment(sale, Decimal("100.00"), "USD", account=_sale_account(sale))
+        reverse_entry(entry, description="Original payment correction")
         with pytest.raises(ValidationError):
-            reverse_entry(entry)
+            reverse_entry(entry, description="Duplicate reversal attempt")
     assert LedgerEntry.all_objects.filter(reversal_of=entry).count() == 1
 
 

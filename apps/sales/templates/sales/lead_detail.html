@@ -1,43 +1,16 @@
 {% extends "base.html" %}
 {% load i18n %}
-
-{% block title %}{{ lead }} — AUTOMEX CarFlow{% endblock %}
-
+{% block title %}{{ lead }} — AMOXRUNS{% endblock %}
 {% block content %}
-<div class="flex items-center justify-between mb-4">
-    <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">{{ lead.name }}</h1>
-    <form method="post" action="{% url 'sales:lead_update_status' lead.pk %}" class="flex items-center gap-2">
-        {% csrf_token %}
-        <label class="text-sm text-slate-500" for="lead-status">{% translate "Status" %}</label>
-        <select id="lead-status" name="status" class="rounded-xl border border-slate-300 bg-slate-50 px-3 py-2.5 text-sm text-slate-800 shadow-sm outline-none transition focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-100">
-            {% for value, label in statuses %}
-                <option value="{{ value }}" {% if value == lead.status %}selected{% endif %}>{{ label }}</option>
-            {% endfor %}
-        </select>
-        <button type="submit" class="inline-flex items-center justify-center rounded-xl bg-slate-900 hover:bg-slate-800 text-white px-4 py-2.5 text-sm font-bold shadow-sm transition">
-            {% translate "Update" %}
-        </button>
-    </form>
-</div>
-<div class="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 shadow-sm grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 text-sm">
-    <div><span class="text-slate-500">{% translate "Phone" %}:</span> <span dir="ltr">{{ lead.phone|default:"—" }}</span></div>
-    <div><span class="text-slate-500">{% translate "Source" %}:</span> {{ lead.get_source_display }}</div>
-    <div><span class="text-slate-500">{% translate "Customer" %}:</span>
-        {% if lead.customer %}
-            <a class="text-slate-700 hover:text-brand-600" href="{{ lead.customer.get_absolute_url }}">{{ lead.customer }}</a>
-        {% else %}—{% endif %}
+<div class="space-y-6">
+    <header class="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between"><div><a href="{% url 'sales:lead_list' %}" class="inline-flex items-center gap-1 text-xs font-bold text-slate-500 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-300"><svg class="h-4 w-4 rtl:rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-width="2" d="m15 18-6-6 6-6"/></svg>{% translate "Back to leads" %}</a><div class="mt-3 flex flex-wrap items-center gap-3"><h1 class="text-2xl font-extrabold tracking-tight text-slate-950 dark:text-white sm:text-3xl">{{ lead.name }}</h1>{% include "sales/_status_badge.html" with status=lead.status label=lead.get_status_display %}</div><p class="mt-1 text-sm text-slate-500 dark:text-slate-400">{% translate "Lead captured" %} {{ lead.created_at|date:"SHORT_DATETIME_FORMAT" }}</p></div><div class="flex flex-col gap-2 sm:flex-row"><a href="{% url 'sales:quotation_create' %}?lead={{ lead.pk }}" class="inline-flex min-h-11 items-center justify-center rounded-xl bg-brand-600 px-4 text-sm font-bold text-white hover:bg-brand-700">{% translate "Create quotation" %}</a><form method="post" action="{% url 'sales:lead_update_status' lead.pk %}" class="flex gap-2">{% csrf_token %}<label class="sr-only" for="lead-status">{% translate "Status" %}</label><select id="lead-status" name="status" class="min-h-11 flex-1 rounded-xl border border-slate-300 bg-white px-3 text-sm font-semibold text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">{% for value, label in statuses %}<option value="{{ value }}" {% if value == lead.status %}selected{% endif %}>{{ label }}</option>{% endfor %}</select><button class="min-h-11 rounded-xl bg-slate-950 px-4 text-sm font-bold text-white dark:bg-white dark:text-slate-950">{% translate "Update" %}</button></form></div></header>
+
+    <div class="grid gap-6 xl:grid-cols-[minmax(0,1fr)_22rem]">
+        <main class="space-y-6">
+            <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-6"><div class="flex items-center justify-between"><div><p class="text-xs font-extrabold uppercase tracking-[.16em] text-brand-600 dark:text-brand-300">{% translate "Prospect profile" %}</p><h2 class="mt-1 text-lg font-extrabold text-slate-950 dark:text-white">{% translate "Contact and assignment" %}</h2></div></div><dl class="mt-5 grid gap-4 sm:grid-cols-2"><div class="rounded-xl bg-slate-50 p-4 dark:bg-slate-800"><dt class="text-xs font-bold text-slate-500">{% translate "Phone" %}</dt><dd class="mt-1 font-bold text-slate-900 dark:text-white" dir="ltr">{{ lead.phone|default:"—" }}</dd></div><div class="rounded-xl bg-slate-50 p-4 dark:bg-slate-800"><dt class="text-xs font-bold text-slate-500">{% translate "Source" %}</dt><dd class="mt-1 font-bold text-slate-900 dark:text-white">{{ lead.get_source_display }}</dd></div><div class="rounded-xl bg-slate-50 p-4 dark:bg-slate-800"><dt class="text-xs font-bold text-slate-500">{% translate "Owner" %}</dt><dd class="mt-1 font-bold text-slate-900 dark:text-white">{% if lead.assigned_to %}{{ lead.assigned_to.get_full_name|default:lead.assigned_to.email }}{% else %}{% translate "Unassigned" %}{% endif %}</dd></div><div class="rounded-xl bg-slate-50 p-4 dark:bg-slate-800"><dt class="text-xs font-bold text-slate-500">{% translate "Branch" %}</dt><dd class="mt-1 font-bold text-slate-900 dark:text-white">{{ lead.branch|default:"—" }}</dd></div></dl>{% if lead.customer %}<a href="{{ lead.customer.get_absolute_url }}" class="mt-4 flex min-h-12 items-center justify-between rounded-xl border border-brand-200 bg-brand-50 px-4 text-sm font-bold text-brand-700 dark:border-brand-500/20 dark:bg-brand-500/10 dark:text-brand-300"><span>{% translate "Linked customer" %}: {{ lead.customer }}</span><svg class="h-4 w-4 rtl:rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-width="2" d="m9 18 6-6-6-6"/></svg></a>{% endif %}</section>
+            <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-6"><h2 class="text-lg font-extrabold text-slate-950 dark:text-white">{% translate "Sales notes" %}</h2>{% if lead.notes %}<p class="mt-3 whitespace-pre-line text-sm leading-7 text-slate-600 dark:text-slate-300">{{ lead.notes }}</p>{% else %}<p class="mt-3 text-sm text-slate-500">{% translate "No notes recorded for this lead." %}</p>{% endif %}{% if lead.status == 'lost' and lead.lost_reason %}<div class="mt-4 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-300"><span class="font-bold">{% translate "Lost reason" %}:</span> {{ lead.get_lost_reason_display }}</div>{% endif %}</section>
+        </main>
+        <aside>{% if lead.vehicle_of_interest %}{% include "sales/_vehicle_panel.html" with vehicle=lead.vehicle_of_interest %}{% else %}<div class="rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center dark:border-slate-700 dark:bg-slate-900"><p class="font-extrabold text-slate-800 dark:text-slate-100">{% translate "No vehicle selected" %}</p><p class="mt-1 text-sm text-slate-500">{% translate "Add a vehicle of interest when the customer's preference is known." %}</p></div>{% endif %}</aside>
     </div>
-    <div><span class="text-slate-500">{% translate "Vehicle of interest" %}:</span>
-        {% if lead.vehicle_of_interest %}
-            <a class="text-slate-700 hover:text-brand-600" href="{{ lead.vehicle_of_interest.get_absolute_url }}">
-                {{ lead.vehicle_of_interest }}
-            </a>
-        {% else %}—{% endif %}
-    </div>
-    <div><span class="text-slate-500">{% translate "Branch" %}:</span> {{ lead.branch|default:"—" }}</div>
-    <div><span class="text-slate-500">{% translate "Created" %}:</span> {{ lead.created_at|date:"SHORT_DATE_FORMAT" }}</div>
-    {% if lead.notes %}
-        <div class="sm:col-span-2"><span class="text-slate-500">{% translate "Notes" %}:</span> {{ lead.notes|linebreaksbr }}</div>
-    {% endif %}
 </div>
 {% endblock %}

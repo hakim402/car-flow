@@ -1,87 +1,59 @@
 {% extends "base.html" %}
 {% load i18n %}
 
-{% block title %}{% translate "Purchase orders" %} — AUTOMEX CarFlow{% endblock %}
+{% block title %}{% translate "Purchase orders" %} — AMOXRUNS{% endblock %}
 
 {% block content %}
-<div class="flex items-center justify-between mb-4">
-    <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">{% translate "Purchase orders" %}</h1>
-    <a href="{% url 'purchases:create' %}"
-       class="inline-flex items-center justify-center rounded-xl bg-brand-600 hover:bg-brand-700 text-white px-4 py-2.5 text-sm font-bold shadow-sm transition">
-        {% translate "New purchase order" %}
-    </a>
-</div>
-<form method="get" class="flex items-center gap-3 mb-4">
-    <select name="status" class="rounded-xl border border-slate-300 bg-slate-50 px-3 py-2.5 text-sm text-slate-800 shadow-sm outline-none transition focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-100">
-        <option value="">{% translate "All statuses" %}</option>
-        {% for value, label in statuses %}
-            <option value="{{ value }}" {% if value == status %}selected{% endif %}>{{ label }}</option>
-        {% endfor %}
-    </select>
-    <button type="submit" class="inline-flex items-center justify-center rounded-xl bg-slate-900 hover:bg-slate-800 text-white px-4 py-2.5 text-sm font-bold shadow-sm transition">
-        {% translate "Filter" %}
-    </button>
-</form>
-<div class="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-    <table class="data-table">
-        <thead>
-            <tr>
-                <th class="px-4 py-3 text-start font-medium">{% translate "Reference" %}</th>
-                <th class="px-4 py-3 text-start font-medium">{% translate "Supplier" %}</th>
-                <th class="px-4 py-3 text-start font-medium">{% translate "Type" %}</th>
-                <th class="px-4 py-3 text-start font-medium">{% translate "Status" %}</th>
-                <th class="px-4 py-3 text-start font-medium">{% translate "Order date" %}</th>
-                <th class="px-4 py-3 text-end font-medium">{% translate "Total" %}</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for order in orders %}
+<div class="space-y-6">
+    <section class="workspace-hero"><div class="workspace-hero-layout"><div><p class="workspace-eyebrow">{% translate "Buy & Stock" %}</p><div class="workspace-title-row"><h1 class="workspace-title">{% translate "Purchase orders" %}</h1><span class="workspace-count">{{ page_obj.paginator.count }}</span></div><p class="workspace-description">{% translate "Track supplier orders from approval through shipping, customs and receiving." %}</p></div><div class="workspace-actions"><a href="{% url 'purchases:create' %}" class="button-primary"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-width="2" d="M12 5v14M5 12h14"/></svg>{% translate "New purchase order" %}</a></div></div></section>
+
+    <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-6">
+        <div class="metric-card"><p class="text-[11px] font-bold uppercase tracking-wide text-slate-500">{% translate "All orders" %}</p><p class="mt-2 text-2xl font-extrabold text-slate-900">{{ metrics.total }}</p></div>
+        <a href="?status=draft" class="metric-card"><p class="text-[11px] font-bold uppercase tracking-wide text-slate-500">{% translate "Draft" %}</p><p class="mt-2 text-2xl font-extrabold text-slate-900">{{ metrics.draft }}</p></a>
+        <a href="?status=shipped" class="metric-card"><p class="text-[11px] font-bold uppercase tracking-wide text-sky-600">{% translate "In transit" %}</p><p class="mt-2 text-2xl font-extrabold text-slate-900">{{ metrics.in_transit }}</p></a>
+        <a href="?status=customs" class="metric-card"><p class="text-[11px] font-bold uppercase tracking-wide text-violet-600">{% translate "At customs" %}</p><p class="mt-2 text-2xl font-extrabold text-slate-900">{{ metrics.customs }}</p></a>
+        <a href="?arrival=overdue" class="metric-card"><p class="text-[11px] font-bold uppercase tracking-wide text-rose-600">{% translate "Overdue arrivals" %}</p><p class="mt-2 text-2xl font-extrabold text-slate-900">{{ metrics.overdue }}</p></a>
+        <a href="?arrival=soon" class="metric-card"><p class="text-[11px] font-bold uppercase tracking-wide text-amber-600">{% translate "Arriving in 14 days" %}</p><p class="mt-2 text-2xl font-extrabold text-slate-900">{{ metrics.arriving_soon }}</p></a>
+    </div>
+
+    <form method="get" class="workspace-panel p-4">
+        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
+            <div class="sm:col-span-2"><label class="filter-label" for="po-search">{% translate "Search orders" %}</label><input id="po-search" type="search" name="q" value="{{ q }}" class="filter-control" placeholder="{% translate 'Reference, supplier, VIN or container…' %}"></div>
+            <div><label class="filter-label" for="po-status">{% translate "Status" %}</label><select id="po-status" name="status" class="filter-control"><option value="">{% translate "All statuses" %}</option>{% for value, label in statuses %}<option value="{{ value }}" {% if status == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+            <div><label class="filter-label" for="po-type">{% translate "Purchase type" %}</label><select id="po-type" name="type" class="filter-control"><option value="">{% translate "All purchase types" %}</option>{% for value, label in purchase_types %}<option value="{{ value }}" {% if purchase_type == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+            <div><label class="filter-label" for="po-supplier">{% translate "Supplier" %}</label><select id="po-supplier" name="supplier" class="filter-control"><option value="">{% translate "All suppliers" %}</option>{% for supplier in suppliers %}<option value="{{ supplier.pk }}" {% if supplier_id == supplier.pk|stringformat:'s' %}selected{% endif %}>{{ supplier }}</option>{% endfor %}</select></div>
+            {% if branches %}<div><label class="filter-label" for="po-branch">{% translate "Receiving branch" %}</label><select id="po-branch" name="branch" class="filter-control"><option value="">{% translate "All branches" %}</option>{% for branch in branches %}<option value="{{ branch.pk }}" {% if branch_id == branch.pk|stringformat:'s' %}selected{% endif %}>{{ branch }}</option>{% endfor %}</select></div>{% endif %}
+            <div><label class="filter-label" for="po-arrival">{% translate "Arrival risk" %}</label><select id="po-arrival" name="arrival" class="filter-control"><option value="">{% translate "Any arrival" %}</option><option value="overdue" {% if arrival == 'overdue' %}selected{% endif %}>{% translate "Overdue" %}</option><option value="soon" {% if arrival == 'soon' %}selected{% endif %}>{% translate "Due within 14 days" %}</option><option value="no_eta" {% if arrival == 'no_eta' %}selected{% endif %}>{% translate "Missing ETA" %}</option></select></div>
+            <div><label class="filter-label" for="po-sort">{% translate "Sort by" %}</label><select id="po-sort" name="sort" class="filter-control"><option value="newest" {% if sort == 'newest' %}selected{% endif %}>{% translate "Newest order" %}</option><option value="oldest" {% if sort == 'oldest' %}selected{% endif %}>{% translate "Oldest order" %}</option><option value="eta" {% if sort == 'eta' %}selected{% endif %}>{% translate "Expected arrival" %}</option><option value="supplier" {% if sort == 'supplier' %}selected{% endif %}>{% translate "Supplier name" %}</option><option value="status" {% if sort == 'status' %}selected{% endif %}>{% translate "Status" %}</option></select></div>
+        </div>
+        <div class="mt-4 flex justify-end gap-2">{% if q or status or purchase_type or supplier_id or branch_id or arrival or sort != 'newest' %}<a href="{% url 'purchases:list' %}" class="button-secondary">{% translate "Clear" %}</a>{% endif %}<button class="button-primary">{% translate "Apply filters" %}</button></div>
+    </form>
+
+    <div class="workspace-panel hidden overflow-x-auto md:block" tabindex="0">
+        <table class="data-table min-w-[75rem]">
+            <thead><tr><th scope="col" class="px-4 py-3">{% translate "Order / supplier" %}</th><th scope="col" class="px-4 py-3">{% translate "Workflow" %}</th><th scope="col" class="px-4 py-3">{% translate "Vehicles" %}</th><th scope="col" class="px-4 py-3">{% translate "Route / receiving" %}</th><th scope="col" class="px-4 py-3">{% translate "Expected arrival" %}</th><th scope="col" class="px-4 py-3 text-end">{% translate "Order value" %}</th><th scope="col" class="px-4 py-3 text-end">{% translate "Actions" %}</th></tr></thead>
+            <tbody>
+                {% for order in orders %}
                 <tr>
-                    <td class="px-4 py-3">
-                        <a href="{{ order.get_absolute_url }}" class="font-medium text-slate-800 hover:text-brand-600">
-                            {{ order }}
-                        </a>
-                    </td>
-                    <td class="px-4 py-3">
-                        <a href="{{ order.supplier.get_absolute_url }}" class="text-slate-700 hover:text-brand-600">
-                            {{ order.supplier }}
-                        </a>
-                    </td>
-                    <td class="px-4 py-3">
-                        {% if order.is_import %}
-                            <span class="rounded-full bg-sky-100 text-sky-700 px-2 py-0.5 text-xs whitespace-nowrap">
-                                {{ order.get_purchase_type_display }}{% if order.origin_country %} · {{ order.get_origin_country_display }}{% endif %}
-                            </span>
-                        {% else %}
-                            <span class="rounded-full bg-slate-100 text-slate-600 px-2 py-0.5 text-xs whitespace-nowrap">
-                                {{ order.get_purchase_type_display }}
-                            </span>
-                        {% endif %}
-                    </td>
-                    <td class="px-4 py-3">
-                        {% if order.status == "received" %}
-                            <span class="rounded-full bg-green-100 text-green-700 px-2 py-0.5 text-xs">{{ order.get_status_display }}</span>
-                        {% elif order.status == "cancelled" %}
-                            <span class="rounded-full bg-red-100 text-red-700 px-2 py-0.5 text-xs">{{ order.get_status_display }}</span>
-                        {% elif order.status == "draft" %}
-                            <span class="rounded-full bg-slate-100 text-slate-600 px-2 py-0.5 text-xs">{{ order.get_status_display }}</span>
-                        {% else %}
-                            <span class="rounded-full bg-amber-100 text-amber-700 px-2 py-0.5 text-xs">{{ order.get_status_display }}</span>
-                        {% endif %}
-                    </td>
-                    <td class="px-4 py-3">{{ order.order_date|date:"SHORT_DATE_FORMAT" }}</td>
-                    <td class="px-4 py-3 text-end" dir="ltr">
-                        {% for currency, amount in order.total_by_currency.items %}
-                            <span class="whitespace-nowrap">{{ amount }} {{ currency }}</span>{% if not forloop.last %}<br>{% endif %}
-                        {% empty %}—{% endfor %}
-                    </td>
+                    <td class="px-4 py-3"><a href="{{ order.get_absolute_url }}" class="font-extrabold text-slate-800 hover:text-brand-600" dir="ltr">{{ order }}</a><a href="{{ order.supplier.get_absolute_url }}" class="mt-1 block max-w-52 truncate text-xs font-semibold text-slate-500 hover:text-brand-600">{{ order.supplier }}</a><span class="mt-1 block text-[11px] text-slate-400">{{ order.order_date|date:"SHORT_DATE_FORMAT" }}</span></td>
+                    <td class="px-4 py-3"><div class="mb-2 flex items-center gap-1" aria-hidden="true">{% if order.is_import %}{% for step in "12345" %}<span class="h-1.5 w-7 rounded-full {% if order.status == 'cancelled' %}bg-rose-300{% elif order.workflow_step >= forloop.counter %}bg-brand-500{% else %}bg-slate-200 dark:bg-slate-700{% endif %}"></span>{% endfor %}{% else %}{% for step in "123" %}<span class="h-1.5 w-10 rounded-full {% if order.status == 'cancelled' %}bg-rose-300{% elif order.status == 'received' or order.workflow_step >= forloop.counter %}bg-brand-500{% else %}bg-slate-200 dark:bg-slate-700{% endif %}"></span>{% endfor %}{% endif %}</div><span class="inline-flex rounded-full px-2.5 py-1 text-xs font-bold {% if order.status == 'received' %}bg-emerald-100 text-emerald-700{% elif order.status == 'cancelled' %}bg-rose-50 text-rose-600{% elif order.status == 'draft' %}bg-slate-100 text-slate-600{% else %}bg-brand-50 text-brand-700{% endif %}">{{ order.get_status_display }}</span></td>
+                    <td class="px-4 py-3"><p class="text-lg font-extrabold text-slate-900">{{ order.line_count }}</p><p class="text-[11px] text-slate-500">{% translate "vehicle lines" %}</p></td>
+                    <td class="px-4 py-3"><span class="block text-xs font-bold text-slate-700">{{ order.get_purchase_type_display }}</span>{% if order.is_import and order.origin_country %}<span class="block text-xs text-slate-500">{{ order.get_origin_country_display }}{% if order.shipping_method %} · {{ order.get_shipping_method_display }}{% endif %}</span>{% endif %}<span class="mt-1 block text-xs text-slate-500">{{ order.branch|default:"—" }}</span></td>
+                    <td class="px-4 py-3"><span class="block font-bold {% if order.arrival_state == 'overdue' %}text-rose-600{% elif order.arrival_state == 'soon' %}text-amber-600{% else %}text-slate-700{% endif %}">{% if order.eta %}{{ order.eta|date:"SHORT_DATE_FORMAT" }}{% else %}—{% endif %}</span>{% if order.arrival_state == 'overdue' %}<span class="text-[11px] font-bold text-rose-600">{% translate "Overdue" %}</span>{% elif order.arrival_state == 'soon' %}<span class="text-[11px] font-bold text-amber-600">{% translate "Due soon" %}</span>{% elif order.arrival_state == 'on_track' %}<span class="text-[11px] font-bold text-emerald-600">{% translate "On track" %}</span>{% elif order.arrival_state == 'no_eta' and order.is_import %}<span class="text-[11px] text-slate-400">{% translate "ETA not set" %}</span>{% endif %}</td>
+                    <td class="px-4 py-3 text-end font-mono text-xs font-semibold text-slate-700" dir="ltr">{% for currency, amount in order.total_by_currency.items %}<span class="block whitespace-nowrap">{{ amount }} {{ currency }}</span>{% empty %}—{% endfor %}</td>
+                    <td class="px-4 py-3 text-end"><a href="{{ order.get_absolute_url }}" class="rounded-lg bg-slate-100 px-3 py-2 text-xs font-bold text-slate-700 hover:bg-brand-50 hover:text-brand-700">{% if order.status == 'received' %}{% translate "View order" %}{% else %}{% translate "Continue order" %}{% endif %}</a></td>
                 </tr>
-            {% empty %}
-                <tr><td colspan="6" class="px-4 py-8 text-center text-slate-500">
-                    {% translate "No purchase orders yet." %}
-                </td></tr>
-            {% endfor %}
-        </tbody>
-    </table>
+                {% empty %}<tr><td colspan="7" class="px-6 py-14 text-center text-slate-500">{% translate "No purchase orders match these filters." %}</td></tr>{% endfor %}
+            </tbody>
+        </table>
+        {% include "includes/pagination.html" %}
+    </div>
+
+    <div class="space-y-3 md:hidden">
+        {% for order in orders %}
+        <article class="record-mobile-card"><div class="flex items-start justify-between gap-3"><div class="min-w-0"><a href="{{ order.get_absolute_url }}" class="block truncate font-mono text-sm font-extrabold text-brand-600" dir="ltr">{{ order }}</a><a href="{{ order.supplier.get_absolute_url }}" class="mt-1 block truncate text-sm font-bold text-slate-800">{{ order.supplier }}</a></div><span class="shrink-0 rounded-full bg-brand-50 px-2.5 py-1 text-[11px] font-bold text-brand-700">{{ order.get_status_display }}</span></div><div class="mt-3 flex items-center gap-1" aria-hidden="true">{% if order.is_import %}{% for step in "12345" %}<span class="h-1.5 flex-1 rounded-full {% if order.status == 'cancelled' %}bg-rose-300{% elif order.workflow_step >= forloop.counter %}bg-brand-500{% else %}bg-slate-200 dark:bg-slate-700{% endif %}"></span>{% endfor %}{% else %}{% for step in "123" %}<span class="h-1.5 flex-1 rounded-full {% if order.status == 'cancelled' %}bg-rose-300{% elif order.status == 'received' or order.workflow_step >= forloop.counter %}bg-brand-500{% else %}bg-slate-200 dark:bg-slate-700{% endif %}"></span>{% endfor %}{% endif %}</div><dl class="mt-4 grid grid-cols-2 gap-3 text-xs"><div><dt class="text-slate-400">{% translate "Type" %}</dt><dd class="mt-0.5 font-semibold text-slate-700">{{ order.get_purchase_type_display }}</dd></div><div><dt class="text-slate-400">{% translate "Vehicles" %}</dt><dd class="mt-0.5 font-semibold text-slate-700">{{ order.line_count }}</dd></div><div><dt class="text-slate-400">{% translate "Receiving branch" %}</dt><dd class="mt-0.5 font-semibold text-slate-700">{{ order.branch|default:"—" }}</dd></div><div><dt class="text-slate-400">{% translate "Expected arrival" %}</dt><dd class="mt-0.5 font-semibold {% if order.arrival_state == 'overdue' %}text-rose-600{% elif order.arrival_state == 'soon' %}text-amber-600{% else %}text-slate-700{% endif %}">{% if order.eta %}{{ order.eta|date:"SHORT_DATE_FORMAT" }}{% else %}—{% endif %}</dd></div><div class="col-span-2"><dt class="text-slate-400">{% translate "Order value" %}</dt><dd class="mt-0.5 font-mono font-bold text-slate-700" dir="ltr">{% for currency, amount in order.total_by_currency.items %}{{ amount }} {{ currency }}{% if not forloop.last %} · {% endif %}{% empty %}—{% endfor %}</dd></div></dl><a href="{{ order.get_absolute_url }}" class="mt-4 inline-flex min-h-10 w-full items-center justify-center rounded-xl bg-slate-100 text-xs font-bold text-slate-700">{% translate "Open purchase order" %}</a></article>
+        {% empty %}<div class="record-mobile-card py-12 text-center text-sm text-slate-500">{% translate "No purchase orders match these filters." %}</div>{% endfor %}
+        <div class="workspace-panel">{% include "includes/pagination.html" %}</div>
+    </div>
 </div>
 {% endblock %}

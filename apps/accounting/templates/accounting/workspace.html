@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% load i18n static l10n %}
+{% block title %}{{ report_data.title }} — AMOXRUNS{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{% static 'css/reports.css' %}?v=20260913-clear-financial-dashboard-2">{% endblock %}
+{% block content %}
+<div class="report-workspace {% if report_data.key == 'activity' %}report-workspace-activity{% endif %}" data-report-workspace>
+    <section class="workspace-hero report-hero">
+        <div class="workspace-hero-layout">
+            <div>
+                <p class="workspace-eyebrow">AMOXRUNS / {{ report_group_label }}</p>
+                <div class="workspace-title-row"><h1 class="workspace-title">{{ report_data.title }}</h1><span class="workspace-count">{{ row_count }}</span></div>
+                <p class="workspace-description">{{ report_data.description }}</p>
+            </div>
+        </div>
+    </section>
+
+    {% if messages %}<div class="report-notices" aria-live="polite">{% for message in messages %}<p class="report-note">{{ message }}</p>{% endfor %}</div>{% endif %}
+
+    <section class="report-panel report-filter-panel" aria-labelledby="report-filter-heading">
+        <div class="report-section-heading"><h2 id="report-filter-heading">{% translate "Report filters" %}</h2><span class="report-subtle">{% translate "Totals reflect all matching records" %}</span></div>
+        <form method="get" action="{{ report_url }}" class="report-filter-form" data-report-filter>
+            {% if filters.sort %}<input type="hidden" name="sort" value="{{ filters.sort }}">{% endif %}
+            {% if filter_form.non_field_errors %}<div class="report-form-errors" role="alert">{{ filter_form.non_field_errors }}</div>{% endif %}
+            <div class="report-filter-grid">{% for field in filter_form %}{% if field.is_hidden %}{{ field }}{% else %}<div class="report-field {% if field.name == 'q' %}report-field-search{% endif %}"><label for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% if field.help_text %}<p class="report-help">{{ field.help_text }}</p>{% endif %}{% if field.errors %}<div class="report-field-error" role="alert">{{ field.errors }}</div>{% endif %}</div>{% endif %}{% endfor %}</div>
+            <div class="report-filter-footer">
+                <div class="report-date-presets" data-report-presets hidden><span>{% translate "Quick dates" %}</span><button type="button" data-report-period="month">{% translate "This month" %}</button><button type="button" data-report-period="30">{% translate "Last 30 days" %}</button><button type="button" data-report-period="year">{% translate "This year" %}</button><button type="button" data-report-period="all">{% translate "All time" %}</button></div>
+                <div class="report-filter-options"><div class="report-page-size"><label for="report-page-size">{% translate "Rows per page" %}</label><select name="page_size" id="report-page-size"><option value="20" {% if filters.page_size == "20" %}selected{% endif %}>20</option><option value="50" {% if filters.page_size == "50" %}selected{% endif %}>50</option><option value="100" {% if filters.page_size == "100" %}selected{% endif %}>100</option></select></div></div>
+                <div class="report-actions"><a href="{{ report_url }}" class="report-button report-button-quiet">{% translate "Reset" %}</a><button type="submit" class="report-button report-button-primary">{% translate "Apply filters" %}</button></div>
+            </div>
+        </form>
+    </section>
+
+    {% if show_report_records %}
+    <section class="report-panel report-records" aria-labelledby="report-records-heading">
+        <div class="report-records-heading"><div><h2 id="report-records-heading">{% if report_data.key == "activity" %}{% translate "Audit table" %}{% else %}{% translate "Detailed records" %}{% endif %}<span class="report-count">{{ row_count }}</span></h2><p>{% if report_data.key == "activity" %}{% translate "Sortable source records for compliance review." %}{% else %}{% translate "The records behind your report, with the same filters and currency scope." %}{% endif %}</p></div></div>
+        {% if display_rows %}
+        <div class="report-table-scroll" tabindex="0" role="region" aria-label="{% translate 'Report records table' %}"><table class="report-table"><caption class="report-sr-only">{{ report_data.title }}</caption><thead><tr>{% for column in columns %}<th scope="col" {% if column.is_sorted %}aria-sort="{{ column.direction }}"{% endif %} class="{% if column.kind == 'money' or column.kind == 'number' %}report-cell-number{% endif %}">{% if column.sort_url %}<a href="{{ column.sort_url }}">{{ column.label }} <span aria-hidden="true">↕</span></a>{% else %}{{ column.label }}{% endif %}</th>{% endfor %}</tr></thead><tbody>{% for row in display_rows %}<tr>{% for cell in row.cells %}<td class="{% if cell.kind == 'money' or cell.kind == 'number' %}report-cell-number{% endif %}">{% if forloop.first %}<div class="report-record-identity">{% if row.image %}<img src="{{ row.image }}" class="report-thumbnail" alt="" loading="lazy" data-report-thumbnail>{% endif %}{% if row.url %}<a href="{{ row.url }}">{% if cell.kind == 'money' or cell.kind == 'number' %}<bdi>{{ cell.value }}</bdi>{% else %}{{ cell.value|default_if_none:'—' }}{% endif %}</a>{% else %}<span>{{ cell.value|default_if_none:'—' }}</span>{% endif %}</div>{% if row.actions %}<div class="report-row-actions">{% for action in row.actions %}<a href="{{ action.url }}">{{ action.label }}</a>{% endfor %}</div>{% endif %}{% else %}{% if cell.key == 'action' %}<span class="report-audit-action report-audit-action-{{ cell.tone }}">{{ cell.value|default_if_none:'—' }}</span>{% elif cell.kind == 'money' or cell.kind == 'number' %}<bdi>{{ cell.value|default_if_none:'—' }}</bdi>{% else %}{{ cell.value|default_if_none:'—' }}{% endif %}{% endif %}</td>{% endfor %}</tr>{% endfor %}</tbody></table></div>
+        <div class="report-mobile-records">{% for row in display_rows %}<article class="report-mobile-record">{% for cell in row.cells %}{% if forloop.first %}<header>{% if row.image %}<img src="{{ row.image }}" class="report-thumbnail" alt="" loading="lazy" data-report-thumbnail>{% endif %}<div><p>{{ cell.label }}</p>{% if row.url %}<a href="{{ row.url }}">{{ cell.value|default_if_none:'—' }}</a>{% else %}<strong>{{ cell.value|default_if_none:'—' }}</strong>{% endif %}</div></header><dl>{% else %}<div><dt>{{ cell.label }}</dt><dd>{% if cell.key == 'action' %}<span class="report-audit-action report-audit-action-{{ cell.tone }}">{{ cell.value|default_if_none:'—' }}</span>{% elif cell.kind == 'money' or cell.kind == 'number' %}<bdi>{{ cell.value|default_if_none:'—' }}</bdi>{% else %}{{ cell.value|default_if_none:'—' }}{% endif %}</dd></div>{% endif %}{% endfor %}</dl>{% if row.actions %}<div class="report-row-actions">{% for action in row.actions %}<a href="{{ action.url }}">{{ action.label }}</a>{% endfor %}</div>{% endif %}</article>{% endfor %}</div>
+        {% if page_obj %}<nav class="report-pagination" aria-label="{% translate 'Pagination' %}"><p>{% blocktranslate with start=page_obj.start_index end=page_obj.end_index total=page_obj.paginator.count %}Showing {{ start }}–{{ end }} of {{ total }} records{% endblocktranslate %}</p><div>{% if page_obj.has_previous %}<a class="report-button" href="?{% if filter_query %}{{ filter_query }}&amp;{% endif %}page={{ page_obj.previous_page_number }}" rel="prev">{% translate "Previous" %}</a>{% endif %}<span class="report-page-number">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>{% if page_obj.has_next %}<a class="report-button" href="?{% if filter_query %}{{ filter_query }}&amp;{% endif %}page={{ page_obj.next_page_number }}" rel="next">{% translate "Next" %}</a>{% endif %}</div></nav>{% endif %}
+        {% else %}<div class="report-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M8 3h8l4 4v14H4V3h4m4 4h4V3M8 12h8m-8 4h5"/></svg><h3>{% if report_data.key == "activity" %}{% translate "No business activity matches these filters." %}{% else %}{% translate "No records match this report" %}{% endif %}</h3><p>{% if report_data.key == "activity" %}{% translate "Try a wider date range or clear a filter." %}{% else %}{% translate "Try a wider date range or clear a filter. No matching records does not mean a zero company balance." %}{% endif %}</p><a href="{{ report_url }}" class="report-button">{% translate "Reset filters" %}</a></div>{% endif %}
+    </section>
+    {% endif %}
+
+    {% if report_data.notes %}<details class="report-methodology"><summary>{% translate 'Reporting notes' %} <span class="report-count">{{ report_data.notes|length }}</span></summary><div class="report-notices">{% for note in report_data.notes %}<p class="report-note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-10v1"/></svg><span>{{ note }}</span></p>{% endfor %}</div></details>{% endif %}
+
+</div>
+{% endblock %}
+{% block extra_js %}<script src="{% static 'js/reports.js' %}?v=20260912-activity-tabs" defer></script>{% endblock %}

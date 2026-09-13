@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{{ partner.name }} — AMOXRUNS{% endblock %}
+{% block content %}
+<section class="workspace-hero">
+    <a href="{% url 'financing:partner_list' %}" class="workspace-back-link"><svg class="h-4 w-4 rtl:rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m15 18-6-6 6-6" /></svg>{% translate "Financing partners" %}</a>
+    <div class="workspace-hero-layout mt-4">
+        <div>
+            <p class="workspace-eyebrow">{{ partner.get_partner_type_display }}</p>
+            <div class="workspace-title-row"><h1 class="workspace-title">{{ partner.name }}</h1><span class="rounded-full px-3 py-1 text-xs font-bold {% if partner.active %}bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300{% else %}bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-300{% endif %}">{% if partner.active %}{% translate "Active" %}{% else %}{% translate "Inactive" %}{% endif %}</span></div>
+            <p class="workspace-description">{% translate "Review partner contacts and the complete financing portfolio connected to this lender." %}</p>
+        </div>
+        {% if can_manage %}<div class="workspace-actions"><a href="{% url 'financing:partner_edit' partner.pk %}" class="button-secondary">{% translate "Edit partner" %}</a></div>{% endif %}
+    </div>
+</section>
+
+<div class="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-3">
+    <div class="metric-card"><p class="text-xs font-bold uppercase text-slate-500">{% translate "All agreements" %}</p><p class="mt-2 text-2xl font-extrabold">{{ agreement_count }}</p></div>
+    <div class="metric-card"><p class="text-xs font-bold uppercase text-brand-600 dark:text-brand-300">{% translate "Active" %}</p><p class="mt-2 text-2xl font-extrabold">{{ active_agreement_count }}</p></div>
+    <div class="metric-card col-span-2 lg:col-span-1"><p class="text-xs font-bold uppercase text-emerald-600 dark:text-emerald-400">{% translate "Completed" %}</p><p class="mt-2 text-2xl font-extrabold">{{ completed_agreement_count }}</p></div>
+</div>
+
+<div class="mb-6 grid gap-5 lg:grid-cols-3">
+    <section class="workspace-panel">
+        <div class="flex items-center gap-3"><span class="workspace-entity-icon"><svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5.5A2.5 2.5 0 0 1 5.5 3h13A2.5 2.5 0 0 1 21 5.5v13a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 18.5v-13ZM8 9h8M8 13h5" /></svg></span><h2 class="font-extrabold text-slate-950 dark:text-white">{% translate "Contact details" %}</h2></div>
+        <dl class="mt-5 grid gap-3">
+            <div class="detail-info-item"><dt>{% translate "Phone" %}</dt><dd dir="ltr">{{ partner.phone|default:"—" }}</dd></div>
+            <div class="detail-info-item"><dt>{% translate "Email" %}</dt><dd class="break-all" dir="ltr">{{ partner.email|default:"—" }}</dd></div>
+        </dl>
+    </section>
+    <section class="workspace-panel lg:col-span-2">
+        <div class="flex items-center gap-3"><span class="workspace-entity-icon"><svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 4h14a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H9l-5 4v-4a2 2 0 0 1-1-1.73V6a2 2 0 0 1 2-2Z" /></svg></span><h2 class="font-extrabold text-slate-950 dark:text-white">{% translate "Internal notes" %}</h2></div>
+        <p class="mt-5 text-sm leading-7 text-slate-600 dark:text-slate-300">{% if partner.notes %}{{ partner.notes|linebreaksbr }}{% else %}{% translate "No notes recorded." %}{% endif %}</p>
+    </section>
+</div>
+
+<section class="workspace-panel overflow-hidden p-0">
+    <div class="flex items-center justify-between gap-3 border-b border-slate-200 px-5 py-4 dark:border-slate-800"><div><h2 class="font-extrabold text-slate-950 dark:text-white">{% translate "Financing portfolio" %}</h2><p class="mt-1 text-xs text-slate-500 dark:text-slate-400">{% translate "Agreements funded or managed by this partner." %}</p></div><span class="workspace-count">{{ agreement_count }}</span></div>
+    <div class="hidden overflow-x-auto lg:block">
+        <table class="data-table min-w-[760px] w-full"><thead><tr><th class="px-5 py-3 text-start">{% translate "Agreement" %}</th><th class="px-5 py-3 text-start">{% translate "Customer" %}</th><th class="px-5 py-3 text-start">{% translate "Vehicle" %}</th><th class="px-5 py-3 text-start">{% translate "Status" %}</th><th class="px-5 py-3 text-end">{% translate "Sale amount" %}</th></tr></thead><tbody>{% for agreement in agreements %}<tr><td class="px-5 py-4"><a href="{{ agreement.get_absolute_url }}" class="font-bold text-brand-700 dark:text-brand-300">{{ agreement.number }}</a><div class="mt-1 text-xs text-slate-500">{{ agreement.get_agreement_type_display }}</div></td><td class="px-5 py-4 font-semibold text-slate-900 dark:text-white">{{ agreement.sale.customer }}</td><td class="px-5 py-4"><span class="block font-semibold">{{ agreement.sale.vehicle.year }} {{ agreement.sale.vehicle.make }} {{ agreement.sale.vehicle.model }}</span><span class="mt-1 block font-mono text-xs text-slate-500" dir="ltr">{{ agreement.sale.vehicle.vin }}</span></td><td class="px-5 py-4"><span class="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold dark:bg-slate-800">{{ agreement.get_status_display }}</span></td><td class="px-5 py-4 text-end font-mono font-bold" dir="ltr">{{ agreement.total_sale_price }} {{ agreement.currency }}</td></tr>{% empty %}<tr><td colspan="5" class="px-5 py-12 text-center text-slate-500">{% translate "No agreements for this partner." %}</td></tr>{% endfor %}</tbody></table>
+    </div>
+    <div class="divide-y divide-slate-200 dark:divide-slate-800 lg:hidden">
+        {% for agreement in agreements %}<a href="{{ agreement.get_absolute_url }}" class="block p-5 transition hover:bg-slate-50 dark:hover:bg-slate-800/50"><div class="flex items-start justify-between gap-3"><div class="min-w-0"><p class="truncate font-bold text-brand-700 dark:text-brand-300">{{ agreement.number }}</p><p class="mt-1 truncate text-sm font-semibold text-slate-900 dark:text-white">{{ agreement.sale.customer }}</p></div><span class="shrink-0 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold dark:bg-slate-800">{{ agreement.get_status_display }}</span></div><p class="mt-3 text-sm font-medium">{{ agreement.sale.vehicle.year }} {{ agreement.sale.vehicle.make }} {{ agreement.sale.vehicle.model }}</p><p class="mt-1 truncate font-mono text-xs text-slate-500" dir="ltr">{{ agreement.sale.vehicle.vin }}</p><div class="mt-4 flex items-end justify-between gap-3 border-t border-slate-100 pt-4 dark:border-slate-800"><span class="text-xs text-slate-500">{{ agreement.get_agreement_type_display }}</span><strong class="font-mono text-sm text-slate-900 dark:text-white" dir="ltr">{{ agreement.total_sale_price }} {{ agreement.currency }}</strong></div></a>{% empty %}<div class="px-5 py-12 text-center text-sm text-slate-500">{% translate "No agreements for this partner." %}</div>{% endfor %}
+    </div>
+    {% include "includes/pagination.html" %}
+</section>
+{% endblock %}

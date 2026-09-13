@@ -73,6 +73,9 @@ def test_activation_requires_completed_sale_and_down_payment():
     sale = SaleFactory(agreed_amount=Decimal("1200.00"), currency="AFN")
     user = UserFactory(company=sale.company)
     with company_scope(sale.company):
+        account = FinancialAccount.objects.create(
+            company=sale.company, name="AFN Cashbox", currency="AFN", active=True
+        )
         agreement = _agreement(
             sale, user, down_payment_required=Decimal("200.00"), installment_count=10
         )
@@ -83,7 +86,7 @@ def test_activation_requires_completed_sale_and_down_payment():
         sale.save(update_fields=["status", "updated_at"])
         with pytest.raises(ValidationError, match="required down payment"):
             approve_agreement(agreement, user)
-        record_payment(sale, Decimal("200.00"), "AFN", user=user)
+        record_payment(sale, Decimal("200.00"), "AFN", user=user, account=account)
         agreement = approve_agreement(agreement, user)
         assert agreement.status == AgreementStatus.ACTIVE
         assert agreement.installments.count() == 10
@@ -118,7 +121,7 @@ def test_partial_payment_allocates_oldest_first_and_reversal_reopens_schedule():
         assert second[1]["paid"] == Decimal("50.00")
         assert summary["outstanding"] == Decimal("850.00")
 
-        reverse_entry(entry, user=user)
+        reverse_entry(entry, user=user, description="Installment payment correction")
         reopened = agreement_summary(agreement)
         assert reopened["outstanding"] == Decimal("1000.00")
         assert reopened["rows"][0][1]["paid"] == Decimal("0")

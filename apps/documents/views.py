@@ -1,9 +1,11 @@
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
+from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import gettext_lazy as _
 
 from apps.core.decorators import require_permission
+from apps.core.pagination import pagination_context
 
 from .forms import (
     CustomerDocumentForm,
@@ -12,15 +14,65 @@ from .forms import (
     SupplierDocumentForm,
     VehicleDocumentForm,
 )
-from .models import Document
+from .models import Document, DocumentType
 
 
 @require_permission("documents.view")
 def document_list(request):
-    documents = Document.objects.all().select_related(  # TenantManager scopes.
-        "vehicle", "customer", "supplier", "finance_agreement"
+    base_queryset = Document.objects.all().select_related(  # TenantManager scopes.
+        "vehicle", "customer", "supplier", "finance_agreement", "uploaded_by"
     )
-    return render(request, "documents/list.html", {"documents": documents})
+    metrics = {
+        "total": base_queryset.count(),
+        "photos": base_queryset.filter(
+            doc_type__in=(
+                DocumentType.VEHICLE_PHOTO,
+                DocumentType.CUSTOMER_PHOTO,
+                DocumentType.SUPPLIER_PHOTO,
+                DocumentType.SUPPLIER_LOGO,
+            )
+        ).count(),
+        "vehicles": base_queryset.filter(vehicle__isnull=False).count(),
+        "customers": base_queryset.filter(customer__isnull=False).count(),
+    }
+    documents = base_queryset
+    q = request.GET.get("q", "").strip()
+    if q:
+        documents = documents.filter(
+            Q(title__icontains=q)
+            | Q(file__icontains=q)
+            | Q(vehicle__vin__icontains=q)
+            | Q(vehicle__make__icontains=q)
+            | Q(vehicle__model__icontains=q)
+            | Q(customer__full_name__icontains=q)
+            | Q(supplier__name__icontains=q)
+            | Q(finance_agreement__number__icontains=q)
+        )
+    doc_type = request.GET.get("type", "")
+    if doc_type in DocumentType.values:
+        documents = documents.filter(doc_type=doc_type)
+    target = request.GET.get("target", "")
+    target_fields = {
+        "vehicle": "vehicle__isnull",
+        "customer": "customer__isnull",
+        "supplier": "supplier__isnull",
+        "financing": "finance_agreement__isnull",
+    }
+    if target in target_fields:
+        documents = documents.filter(**{target_fields[target]: False})
+    page = pagination_context(request, documents, page_size=15)
+    return render(
+        request,
+        "documents/list.html",
+        {
+            **page,
+            "documents": page["page_obj"],
+            "metrics": metrics,
+            "document_types": DocumentType.choices,
+            "filters": request.GET,
+            "can_add": request.user.has_permission("documents.add"),
+        },
+    )
 
 
 @require_permission("documents.add")

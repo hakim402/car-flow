@@ -68,6 +68,11 @@ class FinancialAccount(TenantModel):
     def __str__(self):
         return self.name
 
+    def get_absolute_url(self):
+        from django.urls import reverse
+
+        return reverse("payments:account_detail", kwargs={"pk": self.pk})
+
 
 class PaymentMethod(models.TextChoices):
     CASH = "CASH", _("Cash")
@@ -83,6 +88,7 @@ class EntryType(models.TextChoices):
     SUPPLIER_PAYMENT = "supplier_payment", _("Supplier payment")
     EXPENSE = "expense", _("Expense")
     REFUND = "refund", _("Refund")
+    LENDER_DISBURSEMENT = "lender_disbursement", _("Lender disbursement")
     OTHER_IN = "other_in", _("Other inflow")
     OTHER_OUT = "other_out", _("Other outflow")
     OTHER = "other", _("Other")
@@ -94,6 +100,7 @@ ENTRY_DIRECTION = {
     EntryType.SUPPLIER_PAYMENT: "out",
     EntryType.EXPENSE: "out",
     EntryType.REFUND: "out",
+    EntryType.LENDER_DISBURSEMENT: "in",
     EntryType.OTHER_IN: "in",
     EntryType.OTHER_OUT: "out",
     EntryType.OTHER: "in",

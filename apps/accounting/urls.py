@@ -1,10 +1,9 @@
 from django.urls import path
 
-from . import views
+from . import workspace_views
 
 app_name = "accounting"
 
 urlpatterns = [
-    path("", views.summary, name="summary"),
-    path("receivables/", views.receivables, name="receivables"),
+    path("reports/<slug:key>/", workspace_views.workspace, name="report"),
 ]

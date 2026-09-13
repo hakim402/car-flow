@@ -1,4 +1,4 @@
-"""Shared multi-tenancy infrastructure for AUTOMEX CarFlow (agent.md §5).
+"""Shared multi-tenancy infrastructure for AMOXRUNS (agent.md §5).
 
 Every tenant-scoped model inherits from `TenantModel` and is queried through
 `TenantManager`, which filters by the company set on the request by

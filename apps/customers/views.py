@@ -73,7 +73,7 @@ def customer_detail(request, pk):
             "photos": [d for d in attachments if d.is_photo and d.file_exists],
             "documents": [d for d in attachments if not d.is_photo],
             "can_upload_documents": request.user.has_permission("documents.add"),
-            "can_view_receivables": request.user.has_permission("payments.view"),
+            "can_view_financing": request.user.has_permission("financing.view"),
         },
     )
 

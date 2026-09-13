@@ -95,6 +95,12 @@ class PurchaseOrder(TenantModel, CompanyConsistencyMixin):
         help_text=_("Choose whether this order is domestic or imported from abroad."),
     )
     order_date = models.DateField(_("order date"), help_text=_("Date the order was placed."))
+    payment_due_date = models.DateField(
+        _("payment due date"),
+        null=True,
+        blank=True,
+        help_text=_("Date by which the supplier expects this order to be paid."),
+    )
     # Import/shipment tracking — filled when vehicles arrive from abroad.
     origin_country = models.CharField(
         _("origin country"),

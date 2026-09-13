@@ -8,3 +8,7 @@ django-simple-history>=3.7
 django-storages[boto3]>=1.14
 # Modern theme for Django Admin (Super Admin console, agent.md §8.1).
 django-unfold>=0.104,<1.0
+# Private report delivery. Chromium supplies browser-quality Dari/Pashto shaping.
+openpyxl>=3.1.5,<4.0
+python-docx>=1.2,<2.0
+playwright>=1.56,<2.0

@@ -1,53 +1,9 @@
-{% extends "base.html" %}
-{% load i18n %}
-
-{% block title %}{% translate "Financial accounts" %} — AUTOMEX CarFlow{% endblock %}
-
+{% extends "base.html" %}{% load i18n %}
+{% block title %}{% translate "Cashboxes and bank accounts" %} — AMOXRUNS{% endblock %}
 {% block content %}
-<div class="mb-6 flex items-center justify-between gap-3">
-    <div>
-        <p class="text-xs font-medium uppercase tracking-[0.2em] text-brand-600">{% translate "Finance setup" %}</p>
-        <h1 class="mt-1 text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 text-slate-900">{% translate "Financial accounts" %}</h1>
-    </div>
-    <a href="{% url 'payments:account_create' %}" class="rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-700">
-        {% translate "Add account" %}
-    </a>
-</div>
-
-<div class="card overflow-hidden">
-    <div class="overflow-x-auto">
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th class="px-4 py-3 text-start font-medium">{% translate "Name" %}</th>
-                    <th class="px-4 py-3 text-start font-medium">{% translate "Type" %}</th>
-                    <th class="px-4 py-3 text-start font-medium">{% translate "Currency" %}</th>
-                    <th class="px-4 py-3 text-start font-medium">{% translate "Branch" %}</th>
-                    <th class="px-4 py-3 text-start font-medium">{% translate "Status" %}</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for account in accounts %}
-                    <tr>
-                        <td class="px-4 py-3 font-medium text-slate-800">{{ account.name }}</td>
-                        <td class="px-4 py-3">{{ account.get_account_type_display }}</td>
-                        <td class="px-4 py-3">{{ account.currency }}</td>
-                        <td class="px-4 py-3">{{ account.branch|default:"—" }}</td>
-                        <td class="px-4 py-3">
-                            {% if account.active %}
-                                <span class="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">{% translate "Active" %}</span>
-                            {% else %}
-                                <span class="rounded-full bg-slate-200 px-2 py-0.5 text-xs font-medium text-slate-600">{% translate "Inactive" %}</span>
-                            {% endif %}
-                        </td>
-                    </tr>
-                {% empty %}
-                    <tr>
-                        <td colspan="5" class="px-4 py-8 text-center text-slate-500">{% translate "No financial accounts configured yet." %}</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</div>
+<section class="workspace-hero"><div class="workspace-hero-layout"><div><p class="workspace-eyebrow">{% translate "Money setup" %}</p><div class="workspace-title-row"><h1 class="workspace-title">{% translate "Cashboxes and bank accounts" %}</h1><span class="workspace-count">{{ page_obj.paginator.count }}</span></div><p class="workspace-description">{% translate "Track where money is held without storing a mutable balance." %}</p></div>{% if can_manage %}<div class="workspace-actions"><a href="{% url 'payments:account_create' %}" class="button-primary col-span-2">{% translate "Add account" %}</a></div>{% endif %}</div></section>
+<div class="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3"><div class="metric-card"><p class="text-xs font-bold uppercase text-brand-600 dark:text-brand-300">{% translate "Accounts" %}</p><p class="mt-2 text-2xl font-extrabold text-slate-950 dark:text-white">{{ page_obj.paginator.count }}</p></div>{% for currency,amount in totals.items %}<div class="metric-card"><p class="text-xs font-bold uppercase text-slate-500">{% translate "Cash position" %} · {{ currency }}</p><p class="mt-2 font-mono text-2xl font-extrabold {% if amount < 0 %}text-red-600 dark:text-red-400{% else %}text-slate-950 dark:text-white{% endif %}" dir="ltr">{{ amount }} {{ currency }}</p></div>{% endfor %}</div>
+<form method="get" class="workspace-filter"><div class="workspace-filter-heading"><span class="workspace-filter-icon"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M7 12h10M10 18h4" /></svg></span>{% translate "Filter" %}</div><div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"><div><label class="filter-label" for="account-q">{% translate "Search accounts" %}</label><input id="account-q" class="filter-control" name="q" value="{{ filters.q }}" placeholder="{% translate 'Name or branch…' %}"></div><div><label class="filter-label" for="account-type">{% translate "Type" %}</label><select id="account-type" class="filter-control" name="type"><option value="">{% translate "All types" %}</option>{% for value,label in account_types %}<option value="{{ value }}" {% if filters.type == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div><div><label class="filter-label" for="account-currency">{% translate "Currency" %}</label><select id="account-currency" class="filter-control" name="currency"><option value="">{% translate "All currencies" %}</option><option>AFN</option><option>USD</option><option>EUR</option><option>AED</option><option>PKR</option><option>IRR</option></select></div><div><label class="filter-label" for="account-active">{% translate "Status" %}</label><select id="account-active" class="filter-control" name="active"><option value="">{% translate "All statuses" %}</option><option value="yes" {% if filters.active == 'yes' %}selected{% endif %}>{% translate "Active" %}</option><option value="no" {% if filters.active == 'no' %}selected{% endif %}>{% translate "Inactive" %}</option></select></div></div><div class="mt-4 flex justify-end"><button class="button-primary w-full sm:w-auto">{% translate "Apply filters" %}</button></div></form>
+<div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">{% for account in accounts %}<a href="{{ account.get_absolute_url }}" class="group workspace-entity-card"><div class="flex items-start justify-between gap-3"><div class="workspace-entity-icon">{% if account.account_type == 'BANK' %}<svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M5 10v8m4-8v8m6-8v8m4-8v8M3 20h18M12 4 3 8h18l-9-4Z" /></svg>{% else %}<svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 7h16v11H4zM7 7V5h10v2m0 5h3m-3 3h3" /></svg>{% endif %}</div><span class="rounded-full px-2.5 py-1 text-xs font-bold {% if account.active %}bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300{% else %}bg-slate-100 text-slate-500 dark:bg-slate-800{% endif %}">{% if account.active %}{% translate "Active" %}{% else %}{% translate "Inactive" %}{% endif %}</span></div><h2 class="mt-4 truncate text-lg font-extrabold text-slate-950 group-hover:text-brand-700 dark:text-white dark:group-hover:text-brand-300">{{ account.name }}</h2><p class="mt-1 truncate text-sm text-slate-500">{{ account.get_account_type_display }} · {% if account.branch %}{{ account.branch }}{% else %}{% translate "All branches" %}{% endif %}</p><p class="mt-5 break-words font-mono text-2xl font-extrabold {% if account.balance < 0 %}text-red-600 dark:text-red-400{% else %}text-slate-950 dark:text-white{% endif %}" dir="ltr">{{ account.balance }} {{ account.currency }}</p><div class="mt-4 flex items-center justify-between gap-3 border-t border-slate-200 pt-4 text-xs text-slate-500 dark:border-slate-800"><span>{{ account.transaction_count }} {% translate "transactions" %}</span><span class="shrink-0 font-bold text-brand-700 dark:text-brand-300">{% translate "View statement" %} →</span></div></a>{% empty %}<div class="workspace-panel text-center text-sm text-slate-500 md:col-span-2 xl:col-span-3">{% translate "No financial accounts match these filters." %}</div>{% endfor %}</div>
+<div class="mt-5 workspace-panel p-0">{% include "includes/pagination.html" %}</div>
 {% endblock %}

@@ -63,6 +63,7 @@ def test_finance_forms_include_required_ledger_metadata_and_help_text():
 
     supplier_form = SupplierPaymentForm()
     for field_name in [
+        "purchase_order",
         "supplier",
         "amount",
         "currency",
@@ -114,8 +115,14 @@ def test_financial_account_uses_company_scope_and_currency():
 def test_receipt_numbers_are_generated_sequentially_per_company():
     sale = SaleFactory(agreed_amount=Decimal("12000.00"), currency="AFN")
     with company_scope(sale.company):
-        first = record_payment(sale, Decimal("100.00"), "AFN")
-        second = record_payment(sale, Decimal("100.00"), "AFN")
+        account = FinancialAccount.objects.create(
+            company=sale.company,
+            name="Receipt sequence cashbox",
+            currency="AFN",
+            active=True,
+        )
+        first = record_payment(sale, Decimal("100.00"), "AFN", account=account)
+        second = record_payment(sale, Decimal("100.00"), "AFN", account=account)
     assert first.receipt_number.startswith("RCT-")
     assert first.receipt_number != second.receipt_number
     assert int(second.receipt_number.rsplit("-", 1)[1]) == int(

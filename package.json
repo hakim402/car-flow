@@ -1,7 +1,7 @@
 {
-  "name": "automex-car-flow",
+  "name": "amoxruns-ui",
   "private": true,
-  "description": "Front-end asset build for AUTOMEX CarFlow (Tailwind CSS only).",
+  "description": "Front-end asset build for AMOXRUNS (Tailwind CSS only).",
   "scripts": {
     "css": "tailwindcss -i ./css/input.css -o ./static/css/tailwind.css --minify",
     "css:watch": "tailwindcss -i ./css/input.css -o ./static/css/tailwind.css --watch"

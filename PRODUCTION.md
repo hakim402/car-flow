@@ -1,6 +1,6 @@
-# AUTOMEX CarFlow — Production Guide
+# AMOXRUNS — Production Guide
 
-This guide covers deploying CarFlow on a server: the production compose
+This guide covers deploying AMOXRUNS on a server: the production compose
 stack, PostgreSQL setup (containerized or external), user & role
 management, Nginx/HTTPS, backups, and operations.
 
@@ -140,7 +140,7 @@ docker compose -f docker-compose.yml exec db psql -U carflow -d carflow
 ### 4b. Creating a database with a specific user (manual / external PG)
 
 If you prefer an external PostgreSQL server (managed service or a
-dedicated container), create the role and database first — CarFlow's
+dedicated container), create the role and database first — AMOXRUNS's
 migrations need ownership-level privileges on the schema:
 
 ```sql
@@ -192,7 +192,8 @@ the SQL dump if you use local storage (`S3_ENABLED=False`).
 
 ## 5. Users, companies, branches, roles
 
-Everything is behind login. Bootstrap order:
+Business operations are behind login. Explicitly shared report snapshots have
+a separate token-protected, read-only viewer (see §11). Bootstrap order:
 
 ### 5a. Create the Super Admin
 
@@ -225,7 +226,7 @@ from apps.organizations.models import Organization
 from apps.branches.models import Branch
 from apps.accounts.models import Role, User
 
-org = Organization.objects.create(name="AUTOMEX Kabul")
+org = Organization.objects.create(name="AMOXRUNS Kabul")
 branch = Branch.objects.create(company=org, name="Main")
 
 u = User.objects.create_user(
@@ -285,7 +286,7 @@ docker compose -f docker-compose.yml exec web python manage.py changepassword sa
 
 # list users of a company
 docker compose -f docker-compose.yml exec web python manage.py shell -c \
-  "from apps.accounts.models import User; print(list(User.objects.filter(company__name='AUTOMEX Kabul').values_list('username', flat=True)))"
+  "from apps.accounts.models import User; print(list(User.objects.filter(company__name='AMOXRUNS Kabul').values_list('username', flat=True)))"
 ```
 
 ---
@@ -447,3 +448,50 @@ curl -I http://localhost:8765/accounts/login/    # expect 200
 - [ ] Regular `pg_dump` backups (+ media volume) tested with a restore
 - [ ] Super Admin account used only for admin tasks; daily work happens
       under company-scoped roles
+
+## 11. Reports, private exports and external snapshots
+
+Deploy with the normal production rebuild. The web entrypoint applies the
+additive accounting migration; do not run competing migrations from workers.
+The image includes the PDF browser/fonts and spreadsheet/Word libraries.
+
+```bash
+docker compose -f docker-compose.yml up -d --build
+docker compose -f docker-compose.yml exec -T web python manage.py showmigrations accounting
+docker compose -f docker-compose.yml exec -T web python manage.py check
+docker compose -f docker-compose.yml logs --tail 50 worker beat
+```
+
+Keep worker and beat running: workers render exports and beat schedules
+`apps.accounting.tasks.cleanup_report_delivery` hourly. Files remain in private
+database fields, work across the web/worker containers, and are included in
+database backups. Apply your backup retention policy to those confidential
+snapshots too: application expiry cannot erase an older backup or a file that
+someone already downloaded.
+
+Downloads require current domain permissions, explicit `reports.export`, the
+same tenant and the original requesting user. Export files expire after
+24 hours. The default 15 MiB snapshot and 25 MiB file bounds are overridable
+using Django settings `REPORT_MAX_SNAPSHOT_BYTES` / `REPORT_MAX_FILE_BYTES`;
+raise them only after measuring database and worker memory. Rendering has
+bounded task timeouts and two automatic retries. Failed requests appear in
+delivery history; inspect worker logs before asking users to retry.
+
+External sharing is an intentional authentication exception only under
+`/accounting/shared/<token>/`. Require HTTPS; grant `reports.share` deliberately.
+The report type, selected columns, language and dataset are frozen at creation.
+No public download or live cross-company query is exposed. Links expire after
+their selected lifetime and can be revoked immediately. Tokens are random,
+hashed in storage and unrecoverable from delivery history. Removing the
+creator's role, disabling their account or changing their company also
+invalidates their links.
+
+The supplied Nginx config excludes shared-token paths from access logs.
+Apply the same exclusion/redaction to your outer TLS proxy, monitoring and
+analytics systems. Do not place third-party trackers on the standalone viewer.
+No-store, no-referrer, noindex and restrictive content-security headers are
+sent by the viewer. Avoid sharing customer identifiers unless required.
+
+All reports use `en`, Dari `prs` and Pashto `ps` catalogs. PDF fonts ship in
+Docker; recipients editing DOCX/XLSX should have an Arabic-script font installed.
+Inspect at least one PDF in each language after a renderer/font upgrade.

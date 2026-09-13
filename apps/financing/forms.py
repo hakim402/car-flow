@@ -1,6 +1,7 @@
 from decimal import Decimal
 
 from django import forms
+from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 
 from apps.core.forms import StyledFormMixin
@@ -69,7 +70,10 @@ class FinanceAgreementForm(StyledFormMixin, forms.ModelForm):
             self.fields["partner"].queryset = FinancingPartner.all_objects.none()
             self.fields["branch"].queryset = FinanceAgreement._meta.get_field("branch").remote_field.model.objects.none()
             return
-        self.fields["sale"].queryset = Sale.objects.filter(finance_agreement__isnull=True).select_related(
+        eligible_sales = Q(finance_agreement__isnull=True)
+        if self.instance.pk:
+            eligible_sales |= Q(pk=self.instance.sale_id)
+        self.fields["sale"].queryset = Sale.objects.filter(eligible_sales).select_related(
             "customer", "vehicle"
         )
         self.fields["partner"].queryset = FinancingPartner.objects.filter(active=True)
@@ -114,6 +118,16 @@ class AgreementGuarantorForm(StyledFormMixin, forms.ModelForm):
         model = AgreementGuarantor
         fields = ["full_name", "national_id", "phone", "address"]
         widgets = {"address": forms.Textarea(attrs={"rows": 3})}
+
+
+class AgreementActionForm(StyledFormMixin, forms.Form):
+    reason = forms.CharField(
+        label=_("reason"),
+        min_length=5,
+        max_length=255,
+        widget=forms.Textarea(attrs={"rows": 3}),
+        help_text=_("Explain why this agreement status is being changed."),
+    )
 
 
 class FinancingPartnerForm(StyledFormMixin, forms.ModelForm):

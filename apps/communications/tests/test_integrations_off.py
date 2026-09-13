@@ -65,10 +65,10 @@ def test_send_reply_persists_skipped_disabled():
             company=customer.company, customer=customer, channel=channel
         )
 
-        message = send_reply(conversation, "Hello from CarFlow")
+        message = send_reply(conversation, "Hello from AMOXRUNS")
     assert message.status == MessageStatus.SKIPPED_DISABLED
     assert message.direction == MessageDirection.OUT
-    assert message.body == "Hello from CarFlow"
+    assert message.body == "Hello from AMOXRUNS"
 
 
 @pytest.mark.django_db

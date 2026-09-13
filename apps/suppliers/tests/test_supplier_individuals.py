@@ -70,7 +70,9 @@ def test_create_individual_supplier(client, company_user):
 
 
 @pytest.mark.django_db
-def test_card_shows_individual_badge_and_tazkera(client, company_user, individual):
+def test_card_shows_individual_badge_without_exposing_tazkera(
+    client, company_user, individual
+):
     client.force_login(company_user)
 
     response = client.get(reverse("suppliers:list"))
@@ -79,7 +81,9 @@ def test_card_shows_individual_badge_and_tazkera(client, company_user, individua
     content = response.content.decode()
     assert individual.name in content
     assert individual.get_kind_display() in content  # "Individual (person)" badge
-    assert individual.national_id in content  # tazkera number on the card
+    # Sensitive identity numbers belong on the protected detail page, not on
+    # a directory card that staff scan during routine purchasing work.
+    assert individual.national_id not in content
 
 
 @pytest.mark.django_db

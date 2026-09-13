@@ -21,7 +21,14 @@ class ChannelForm(StyledFormMixin, forms.Form):
     credentials = forms.CharField(
         label=_("credentials (JSON)"),
         required=False,
-        widget=forms.Textarea(attrs={"rows": 4, "placeholder": '{"phone_number_id": "..."}'}),
+        widget=forms.Textarea(
+            attrs={
+                "rows": 4,
+                "placeholder": '{"phone_number_id": "..."}',
+                "dir": "ltr",
+                "spellcheck": "false",
+            }
+        ),
     )
 
     def clean_credentials(self):

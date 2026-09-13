@@ -313,7 +313,7 @@ class Reservation(TenantModel, CompanyConsistencyMixin):
         return f"{_('Reservation')} #{self.pk} — {self.vehicle}"
 
     def get_absolute_url(self):
-        return reverse("sales:reservation_list")
+        return reverse("sales:reservation_detail", kwargs={"pk": self.pk})
 
 
 class SaleStatus(models.TextChoices):
@@ -412,6 +412,12 @@ class Invoice(TenantModel, ImmutableModel, CompanyConsistencyMixin):
     )
     number = models.CharField(_("invoice number"), max_length=50)
     issued_on = models.DateField(_("issued on"))
+    due_date = models.DateField(
+        _("due date"),
+        null=True,
+        blank=True,
+        help_text=_("Date by which the customer is expected to settle the invoice."),
+    )
     amount = models.DecimalField(_("amount"), max_digits=14, decimal_places=2)
     currency = models.CharField(_("currency"), max_length=3, choices=CURRENCIES, default=DEFAULT_CURRENCY)
     created_by = models.ForeignKey(

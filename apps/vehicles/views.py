@@ -1,12 +1,13 @@
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
-from django.db.models import Prefetch
+from django.db.models import Count, Prefetch, Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_POST
 
 from apps.core.decorators import require_permission
-from apps.inventory.models import StockStatus
+from apps.core.pagination import pagination_context
+from apps.inventory.models import InventoryLocation, StockStatus, VehicleCondition
 from apps.inventory.services import receive_vehicle
 
 from .forms import VehicleForm
@@ -24,24 +25,45 @@ def _current_company_or_deny(request):
 @require_permission("vehicles.view")
 def vehicle_list(request):
     from apps.documents.models import Document, DocumentType
-    from apps.purchases.models import PurchaseOrderLine
+    from apps.purchases.models import PurchaseOrderLine, VehicleCostLine
 
-    queryset = Vehicle.objects.all()  # TenantManager filters by company.
+    base_queryset = Vehicle.objects.all()  # TenantManager filters by company.
     if request.user.branch_id:
         # Branch users see their own branch's fleet by default; the branch
         # now lives on the stock row (§8), not on the deprecated
         # Vehicle.branch mirror.
-        queryset = queryset.filter(stock__branch_id=request.user.branch_id)
+        base_queryset = base_queryset.filter(stock__branch_id=request.user.branch_id)
+    queryset = base_queryset
     search = request.GET.get("q", "").strip()
     status = request.GET.get("status", "")
+    make = request.GET.get("make", "").strip()
+    year = request.GET.get("year", "").strip()
+    condition = request.GET.get("condition", "")
+    branch_id = request.GET.get("branch", "")
+    location_id = request.GET.get("location", "")
+    sort = request.GET.get("sort", "newest")
     if search:
-        queryset = queryset.filter(vin__icontains=search) | queryset.filter(
-            make__icontains=search
-        ) | queryset.filter(model__icontains=search)
+        queryset = queryset.filter(
+            Q(vin__icontains=search)
+            | Q(make__icontains=search)
+            | Q(model__icontains=search)
+            | Q(plate_number__icontains=search)
+            | Q(registration_number__icontains=search)
+        )
     if status in StockStatus.values:
         # Inventory state lives on VehicleStock (§8): filter through the
         # stock row, not the deprecated Vehicle.status mirror.
         queryset = queryset.filter(stock__status=status)
+    if make:
+        queryset = queryset.filter(make__iexact=make)
+    if year.isdigit():
+        queryset = queryset.filter(year=int(year))
+    if condition in VehicleCondition.values:
+        queryset = queryset.filter(stock__condition=condition)
+    if not request.user.branch_id and branch_id.isdigit():
+        queryset = queryset.filter(stock__branch_id=branch_id)
+    if location_id.isdigit():
+        queryset = queryset.filter(stock__location_id=location_id)
     # Card thumbnail = oldest photo; one prefetch query for the whole grid.
     photos = Prefetch(
         "documents",
@@ -50,24 +72,86 @@ def vehicle_list(request):
         ),
         to_attr="photo_list",
     )
-    # "Bought from" on each card = supplier of the first purchase-order line.
+    # "Bought from" on each card = supplier of the latest acquisition. This
+    # remains correct when a previously sold vehicle is acquired again.
     purchases = Prefetch(
         "purchase_lines",
         queryset=PurchaseOrderLine.objects.select_related("order__supplier").order_by(
-            "order__order_date", "pk"
+            "-order__order_date", "-pk"
         ),
         to_attr="purchase_line_list",
     )
+    costs = Prefetch(
+        "cost_lines",
+        queryset=VehicleCostLine.objects.order_by("created_at", "pk"),
+        to_attr="cost_line_list",
+    )
+    ordering = {
+        "newest": "-created_at",
+        "oldest": "created_at",
+        "year_desc": "-year",
+        "year_asc": "year",
+        "make": "make",
+        "mileage": "mileage",
+    }
+    sort = sort if sort in ordering else "newest"
+    queryset = (
+        queryset.select_related("branch", "stock__branch", "stock__location")
+        .prefetch_related(photos, purchases, costs)
+        .order_by(ordering[sort], "-pk")
+    )
+    pagination = pagination_context(request, queryset, page_size=12)
+    vehicles = list(pagination["page_obj"].object_list)
+    for vehicle in vehicles:
+        vehicle.landed_cost = {}
+        for cost in getattr(vehicle, "cost_line_list", []):
+            vehicle.landed_cost[cost.currency] = vehicle.landed_cost.get(cost.currency, 0) + cost.amount
+
+    metrics = base_queryset.aggregate(
+        total=Count("pk"),
+        available=Count("pk", filter=Q(stock__status=StockStatus.AVAILABLE)),
+        reserved=Count("pk", filter=Q(stock__status=StockStatus.RESERVED)),
+        in_process=Count(
+            "pk",
+            filter=Q(
+                stock__status__in=[
+                    StockStatus.IN_TRANSIT,
+                    StockStatus.RECEIVED,
+                    StockStatus.INSPECTION,
+                    StockStatus.PREPARATION,
+                ]
+            ),
+        ),
+        attention=Count(
+            "pk",
+            filter=Q(stock__condition__in=[VehicleCondition.DAMAGED, VehicleCondition.NEEDS_REPAIR]),
+        ),
+    )
+    company = request.user.company
+    branches = company.branches.all() if company and not request.user.branch_id else ()
+    locations = InventoryLocation.objects.select_related("branch").filter(active=True)
+    if request.user.branch_id:
+        locations = locations.filter(branch_id=request.user.branch_id)
     return render(
         request,
         "vehicles/list.html",
         {
-            "vehicles": queryset.select_related("branch", "stock__branch", "stock__location").prefetch_related(
-                photos, purchases
-            ),
+            "vehicles": vehicles,
             "statuses": StockStatus.choices,
+            "conditions": VehicleCondition.choices,
+            "makes": base_queryset.order_by("make").values_list("make", flat=True).distinct(),
+            "branches": branches,
+            "locations": locations,
+            "metrics": metrics,
             "q": search,
             "status": status,
+            "make": make,
+            "year": year,
+            "condition": condition,
+            "branch_id": branch_id,
+            "location_id": location_id,
+            "sort": sort,
+            **pagination,
         },
     )
 
@@ -85,7 +169,7 @@ def vehicle_detail(request, pk):
     # Which supplier was this car bought from — via its purchase-order lines.
     purchase_lines = vehicle.purchase_lines.select_related(
         "order__supplier", "order__branch"
-    ).order_by("order__order_date", "pk")
+    ).order_by("-order__order_date", "-pk")
     return render(
         request,
         "vehicles/detail.html",

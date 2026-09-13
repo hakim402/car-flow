@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load i18n %}
 
-{% block title %}{{ customer }} — AUTOMEX CarFlow{% endblock %}
+{% block title %}{{ customer }} — AMOXRUNS{% endblock %}
 
 {% block content %}
 <div class="flex items-center justify-between mb-4">
@@ -21,7 +21,7 @@
 <section class="mb-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-6">
     <div class="flex items-center justify-between gap-3">
         <div><p class="text-xs font-bold uppercase tracking-[.16em] text-brand-600 dark:text-brand-300">{% translate "Credit and loans" %}</p><h2 class="mt-1 text-lg font-extrabold text-slate-950 dark:text-white">{% translate "Customer outstanding balance" %}</h2></div>
-        {% if can_view_receivables %}<a href="{% url 'accounting:receivables' %}" class="rounded-xl border border-slate-200 px-3 py-2 text-sm font-bold text-slate-700 dark:border-slate-700 dark:text-slate-200">{% translate "All customer balances" %}</a>{% endif %}
+        {% if can_view_financing %}<a href="{% url 'financing:list' %}" class="rounded-xl border border-slate-200 px-3 py-2 text-sm font-bold text-slate-700 dark:border-slate-700 dark:text-slate-200">{% translate "Loans and installments" %}</a>{% endif %}
     </div>
     <div class="mt-4 flex flex-wrap gap-3">
         {% for currency,amount in outstanding_balances.items %}<div class="min-w-40 rounded-xl bg-red-50 p-4 dark:bg-red-950/30"><p class="text-xs font-bold uppercase text-red-600 dark:text-red-300">{{ currency }} · {% translate "Remaining" %}</p><p class="mt-1 text-xl font-extrabold text-red-700 dark:text-red-300" dir="ltr">{{ amount }} {{ currency }}</p></div>{% empty %}<p class="text-sm font-medium text-emerald-700 dark:text-emerald-300">{% translate "This customer has no unpaid completed sales." %}</p>{% endfor %}

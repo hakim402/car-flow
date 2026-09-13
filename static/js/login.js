@@ -1,11 +1,11 @@
-/* AUTOMEX CarFlow — login page behavior (externalized from the template).
+/* AMOXRUNS — login page behavior (externalized from the template).
    Same logic as the original inline script; user-visible strings now arrive
    through data-* attributes set by the template so Django i18n translates
    them instead of hardcoding English (§11). */
 (() => {
     "use strict";
 
-    const form = document.getElementById("carflowLoginForm");
+    const form = document.getElementById("amoxrunsLoginForm");
     const password = document.getElementById("id_password");
     const toggle = document.getElementById("togglePassword");
     const loginButton = document.getElementById("loginButton");

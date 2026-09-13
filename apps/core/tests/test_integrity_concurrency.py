@@ -19,7 +19,7 @@ from django.db import connection, transaction
 from apps.branches.models import Branch
 from apps.core.tenancy import company_scope
 from apps.core.testing import OrganizationFactory, SaleFactory, SupplierFactory, VehicleFactory
-from apps.payments.models import LedgerEntry
+from apps.payments.models import FinancialAccount, LedgerEntry
 from apps.payments.services import record_payment, reverse_entry
 from apps.purchases.models import PurchaseOrder, PurchaseOrderLine, PurchaseStatus
 from apps.purchases.receiving import receive_order
@@ -78,12 +78,18 @@ def test_two_racing_reversals_produce_one_reversal():
     sale = SaleFactory(agreed_amount=Decimal("15000.00"))
     company = sale.company
     with company_scope(company):
-        entry = record_payment(sale, Decimal("5000.00"), "USD")
+        account = FinancialAccount.objects.create(
+            company=company,
+            name="Concurrency test cashbox",
+            currency="USD",
+            active=True,
+        )
+        entry = record_payment(sale, Decimal("5000.00"), "USD", account=account)
 
     def call(barrier):
         with company_scope(company), transaction.atomic():
             barrier.wait()
-            return reverse_entry(entry)
+            return reverse_entry(entry, description="Concurrent correction attempt")
 
     results, errors = _run_concurrently([call, call])
     successes = [r for r, e in zip(results, errors) if e is None]

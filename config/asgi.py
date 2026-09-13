@@ -1,4 +1,4 @@
-"""ASGI config for the AUTOMEX CarFlow project."""
+"""ASGI config for the AMOXRUNS project."""
 import os
 
 from django.core.asgi import get_asgi_application

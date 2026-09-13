@@ -1,48 +1,38 @@
 {% extends "base.html" %}
 {% load i18n %}
-
-{% block title %}{% translate "Quotations" %} — AUTOMEX CarFlow{% endblock %}
-
+{% block title %}{% translate "Quotations" %} — AMOXRUNS{% endblock %}
 {% block content %}
-<div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-    <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">{% translate "Quotations" %}</h1>
-    <a href="{% url 'sales:quotation_create' %}"
-       class="inline-flex items-center justify-center rounded-xl bg-brand-600 hover:bg-brand-700 text-white px-4 py-2.5 text-sm font-bold shadow-sm transition">
-        {% translate "New quotation" %}
-    </a>
-</div>
-<div class="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-    <table class="data-table">
-        <thead>
-            <tr>
-                <th class="px-4 py-3 text-start font-medium">#</th>
-                <th class="px-4 py-3 text-start font-medium">{% translate "Customer" %}</th>
-                <th class="px-4 py-3 text-start font-medium">{% translate "Vehicle" %}</th>
-                <th class="px-4 py-3 text-end font-medium">{% translate "Amount" %}</th>
-                <th class="px-4 py-3 text-start font-medium">{% translate "Valid until" %}</th>
-                <th class="px-4 py-3 text-start font-medium">{% translate "Status" %}</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for quotation in quotations %}
-                <tr>
-                    <td class="px-4 py-3">
-                        <a href="{{ quotation.get_absolute_url }}" class="font-medium text-slate-800 hover:text-brand-600">
-                            {{ quotation.pk }}
-                        </a>
-                    </td>
-                    <td class="px-4 py-3">{{ quotation.customer }}</td>
-                    <td class="px-4 py-3">{{ quotation.vehicle|default:"—" }}</td>
-                    <td class="px-4 py-3 text-end" dir="ltr">{{ quotation.amount }} {{ quotation.currency }}</td>
-                    <td class="px-4 py-3">{{ quotation.valid_until|date:"SHORT_DATE_FORMAT" }}</td>
-                    <td class="px-4 py-3">{{ quotation.get_status_display }}</td>
-                </tr>
-            {% empty %}
-                <tr><td colspan="6" class="px-4 py-8 text-center text-slate-500">
-                    {% translate "No quotations yet." %}
-                </td></tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<div class="space-y-6">
+    <section class="workspace-hero"><div class="workspace-hero-layout"><div><p class="workspace-eyebrow">{% translate "Sales pipeline" %}</p><div class="workspace-title-row"><h1 class="workspace-title">{% translate "Quotations" %}</h1><span class="workspace-count">{{ page_obj.paginator.count }}</span></div><p class="workspace-description">{% translate "Track proposed prices, customer decisions, and upcoming quote expirations." %}</p></div><div class="workspace-actions"><a href="{% url 'sales:quotation_create' %}" class="button-primary"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-width="2" d="M12 5v14M5 12h14"/></svg>{% translate "New quotation" %}</a></div></div></section>
+
+    <section class="grid grid-cols-2 gap-3 lg:grid-cols-5" aria-label="{% translate 'Quotation overview' %}">
+        <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900"><p class="text-xs font-bold text-slate-500">{% translate "All quotes" %}</p><p class="mt-2 text-2xl font-extrabold text-slate-950 dark:text-white">{{ metrics.total }}</p></div>
+        <div class="rounded-2xl border border-slate-200 bg-slate-50/70 p-4 dark:border-slate-700 dark:bg-slate-800"><p class="text-xs font-bold text-slate-500">{% translate "Draft" %}</p><p class="mt-2 text-2xl font-extrabold text-slate-800 dark:text-slate-100">{{ metrics.draft }}</p></div>
+        <div class="rounded-2xl border border-brand-200 bg-brand-50/70 p-4 dark:border-brand-500/20 dark:bg-brand-500/10"><p class="text-xs font-bold text-brand-700 dark:text-brand-300">{% translate "Sent" %}</p><p class="mt-2 text-2xl font-extrabold text-brand-800 dark:text-brand-200">{{ metrics.sent }}</p></div>
+        <div class="rounded-2xl border border-emerald-200 bg-emerald-50/70 p-4 dark:border-emerald-500/20 dark:bg-emerald-500/10"><p class="text-xs font-bold text-emerald-700 dark:text-emerald-300">{% translate "Accepted" %}</p><p class="mt-2 text-2xl font-extrabold text-emerald-800 dark:text-emerald-200">{{ metrics.accepted }}</p></div>
+        <div class="col-span-2 rounded-2xl border border-amber-200 bg-amber-50/70 p-4 dark:border-amber-500/20 dark:bg-amber-500/10 lg:col-span-1"><p class="text-xs font-bold text-amber-700 dark:text-amber-300">{% translate "Expiring in 7 days" %}</p><p class="mt-2 text-2xl font-extrabold text-amber-800 dark:text-amber-200">{{ metrics.expiring }}</p></div>
+    </section>
+
+    <form method="get" class="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm dark:border-slate-800 dark:bg-slate-900" role="search"><div class="grid gap-3 lg:grid-cols-[minmax(16rem,1fr)_repeat(2,minmax(10rem,auto))_auto]">
+        <label class="relative block"><span class="sr-only">{% translate "Search quotations" %}</span><svg class="pointer-events-none absolute start-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-width="1.8" d="m21 21-4.3-4.3M19 11a8 8 0 1 1-16 0 8 8 0 0 1 16 0Z"/></svg><input type="search" name="q" value="{{ q }}" placeholder="{% translate 'Search quote, customer, vehicle or VIN' %}" class="w-full rounded-xl border border-slate-300 bg-slate-50 py-2.5 ps-10 pe-3 text-sm text-slate-800 outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:ring-brand-900"></label>
+        <select name="status" aria-label="{% translate 'Status' %}" class="rounded-xl border border-slate-300 bg-slate-50 px-3 py-2.5 text-sm font-semibold text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"><option value="">{% translate "All statuses" %}</option>{% for value, label in statuses %}<option value="{{ value }}" {% if status == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>
+        <select name="sort" aria-label="{% translate 'Sort by' %}" class="rounded-xl border border-slate-300 bg-slate-50 px-3 py-2.5 text-sm font-semibold text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"><option value="newest" {% if sort == 'newest' %}selected{% endif %}>{% translate "Newest first" %}</option><option value="expiring" {% if sort == 'expiring' %}selected{% endif %}>{% translate "Expiration date" %}</option><option value="highest_value" {% if sort == 'highest_value' %}selected{% endif %}>{% translate "Highest value" %}</option><option value="oldest" {% if sort == 'oldest' %}selected{% endif %}>{% translate "Oldest first" %}</option></select>
+        <div class="flex gap-2"><button class="min-h-11 flex-1 rounded-xl bg-slate-950 px-4 text-sm font-bold text-white dark:bg-white dark:text-slate-950">{% translate "Apply" %}</button>{% if q or status or sort != 'newest' %}<a href="{% url 'sales:quotation_list' %}" class="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-200 px-3 text-sm font-bold text-slate-600 dark:border-slate-700 dark:text-slate-300">{% translate "Clear" %}</a>{% endif %}</div>
+    </div></form>
+
+    <section class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900" aria-label="{% translate 'Quotation records' %}">
+        <div class="hidden overflow-x-auto md:block"><table class="data-table min-w-[66rem]"><thead><tr><th scope="col" class="px-5 py-3.5">{% translate "Quote / customer" %}</th><th scope="col" class="px-4 py-3.5">{% translate "Vehicle" %}</th><th scope="col" class="px-4 py-3.5 text-end">{% translate "Quoted amount" %}</th><th scope="col" class="px-4 py-3.5">{% translate "Validity" %}</th><th scope="col" class="px-4 py-3.5">{% translate "Status" %}</th><th scope="col" class="px-4 py-3.5">{% translate "Created" %}</th><th scope="col" class="w-12 px-4 py-3.5"><span class="sr-only">{% translate "View" %}</span></th></tr></thead><tbody>
+            {% for quotation in quotations %}<tr>
+                <td class="px-5 py-4"><a href="{{ quotation.get_absolute_url }}" class="font-mono text-xs font-extrabold text-brand-700 hover:text-brand-800 dark:text-brand-300">{{ quotation.number|default:quotation.pk }}</a><a href="{{ quotation.customer.get_absolute_url }}" class="mt-1 block font-bold text-slate-900 dark:text-white">{{ quotation.customer }}</a><p class="mt-1 text-xs text-slate-500" dir="ltr">{{ quotation.customer.phone }}</p></td>
+                <td class="px-4 py-4">{% if quotation.vehicle %}<a href="{{ quotation.vehicle.get_absolute_url }}" class="flex min-w-56 items-center gap-3">{% include "sales/_vehicle_thumbnail.html" with vehicle=quotation.vehicle %}<span><span class="block font-bold text-slate-800 dark:text-slate-100">{{ quotation.vehicle.year }} {{ quotation.vehicle.make }} {{ quotation.vehicle.model }}</span><span class="mt-1 block font-mono text-[11px] text-slate-500" dir="ltr">{{ quotation.vehicle.vin }}</span></span></a>{% else %}<span class="text-slate-400">{% translate "Not selected" %}</span>{% endif %}</td>
+                <td class="whitespace-nowrap px-4 py-4 text-end text-base font-extrabold text-slate-900 dark:text-white" dir="ltr">{{ quotation.amount }} <span class="text-xs text-slate-500">{{ quotation.currency }}</span></td>
+                <td class="px-4 py-4"><p class="whitespace-nowrap font-semibold {% if quotation.valid_until < today and quotation.status != 'accepted' %}text-red-600 dark:text-red-300{% else %}text-slate-700 dark:text-slate-200{% endif %}">{{ quotation.valid_until|date:"SHORT_DATE_FORMAT" }}</p>{% if quotation.valid_until < today and quotation.status != 'accepted' %}<p class="mt-1 text-xs font-bold text-red-500">{% translate "Past due" %}</p>{% endif %}</td>
+                <td class="px-4 py-4">{% include "sales/_status_badge.html" with status=quotation.status label=quotation.get_status_display %}</td><td class="px-4 py-4 text-slate-600 dark:text-slate-300">{{ quotation.created_at|date:"SHORT_DATE_FORMAT" }}</td>
+                <td class="px-4 py-4"><a href="{{ quotation.get_absolute_url }}" class="grid h-10 w-10 place-items-center rounded-xl text-slate-400 hover:bg-brand-50 hover:text-brand-700 dark:hover:bg-brand-500/10 dark:hover:text-brand-300"><svg class="h-4 w-4 rtl:rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-width="2" d="m9 18 6-6-6-6"/></svg></a></td>
+            </tr>{% empty %}<tr><td colspan="7" class="px-6 py-16 text-center"><p class="font-extrabold text-slate-800 dark:text-slate-100">{% translate "No quotations found" %}</p><p class="mt-1 text-sm text-slate-500">{% translate "Try changing the search or filters." %}</p></td></tr>{% endfor %}
+        </tbody></table></div>
+        <div class="divide-y divide-slate-200 md:hidden dark:divide-slate-800">{% for quotation in quotations %}<article class="p-4"><div class="flex items-start justify-between gap-3"><div><a href="{{ quotation.get_absolute_url }}" class="font-mono text-xs font-extrabold text-brand-700 dark:text-brand-300">{{ quotation.number|default:quotation.pk }}</a><h2 class="mt-1 font-extrabold text-slate-900 dark:text-white">{{ quotation.customer }}</h2></div>{% include "sales/_status_badge.html" with status=quotation.status label=quotation.get_status_display %}</div>{% if quotation.vehicle %}<a href="{{ quotation.vehicle.get_absolute_url }}" class="mt-4 flex items-center gap-3 rounded-xl bg-slate-50 p-2.5 dark:bg-slate-800">{% include "sales/_vehicle_thumbnail.html" with vehicle=quotation.vehicle %}<span class="min-w-0 truncate text-sm font-bold text-slate-800 dark:text-slate-100">{{ quotation.vehicle.year }} {{ quotation.vehicle.make }} {{ quotation.vehicle.model }}</span></a>{% endif %}<dl class="mt-4 grid grid-cols-2 gap-3 text-xs"><div><dt class="font-bold text-slate-400">{% translate "Quoted amount" %}</dt><dd class="mt-1 text-base font-extrabold text-slate-900 dark:text-white" dir="ltr">{{ quotation.amount }} {{ quotation.currency }}</dd></div><div><dt class="font-bold text-slate-400">{% translate "Valid until" %}</dt><dd class="mt-1 font-semibold text-slate-700 dark:text-slate-200">{{ quotation.valid_until|date:"SHORT_DATE_FORMAT" }}</dd></div></dl><a href="{{ quotation.get_absolute_url }}" class="mt-4 inline-flex min-h-10 w-full items-center justify-center rounded-xl border border-slate-200 text-sm font-bold text-brand-700 dark:border-slate-700 dark:text-brand-300">{% translate "View quotation" %}</a></article>{% empty %}<div class="px-6 py-14 text-center"><p class="font-extrabold text-slate-800 dark:text-slate-100">{% translate "No quotations found" %}</p></div>{% endfor %}</div>
+        {% include "includes/pagination.html" %}
+    </section>
 </div>
 {% endblock %}

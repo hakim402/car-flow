@@ -1,51 +1,16 @@
-{% extends "base.html" %}
-{% load i18n %}
-
-{% block title %}{% translate "Expense categories" %} — AUTOMEX CarFlow{% endblock %}
-
+{% extends "base.html" %}{% load i18n %}
+{% block title %}{% translate "Expense categories" %} — AMOXRUNS{% endblock %}
 {% block content %}
-<div class="mb-6 flex items-center justify-between gap-3">
-    <div>
-        <p class="text-xs font-medium uppercase tracking-[0.2em] text-brand-600">{% translate "Finance setup" %}</p>
-        <h1 class="mt-1 text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 text-slate-900">{% translate "Expense categories" %}</h1>
-    </div>
-    <a href="{% url 'expenses:category_create' %}" class="rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-700">
-        {% translate "Add category" %}
-    </a>
-</div>
-
-<div class="card overflow-hidden">
-    <div class="overflow-x-auto">
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th class="px-4 py-3 text-start font-medium">{% translate "Name" %}</th>
-                    <th class="px-4 py-3 text-start font-medium">{% translate "Code" %}</th>
-                    <th class="px-4 py-3 text-start font-medium">{% translate "Status" %}</th>
-                    <th class="px-4 py-3 text-start font-medium">{% translate "Created" %}</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for category in categories %}
-                    <tr>
-                        <td class="px-4 py-3 font-medium text-slate-800">{{ category.name }}</td>
-                        <td class="px-4 py-3">{{ category.code|default:"—" }}</td>
-                        <td class="px-4 py-3">
-                            {% if category.active %}
-                                <span class="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">{% translate "Active" %}</span>
-                            {% else %}
-                                <span class="rounded-full bg-slate-200 px-2 py-0.5 text-xs font-medium text-slate-600">{% translate "Inactive" %}</span>
-                            {% endif %}
-                        </td>
-                        <td class="px-4 py-3 text-slate-500">{{ category.created_at|date:"Y-m-d" }}</td>
-                    </tr>
-                {% empty %}
-                    <tr>
-                        <td colspan="4" class="px-4 py-8 text-center text-slate-500">{% translate "No expense categories configured yet." %}</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+<section class="workspace-hero"><div class="workspace-hero-layout"><div><p class="workspace-eyebrow">{% translate "Expense setup" %}</p><div class="workspace-title-row"><h1 class="workspace-title">{% translate "Expense categories" %}</h1><span class="workspace-count">{{ page_obj.paginator.count }}</span></div><p class="workspace-description">{% translate "Maintain consistent classifications for expense reporting." %}</p></div>{% if can_manage %}<div class="workspace-actions"><a href="{% url 'expenses:category_create' %}" class="button-primary col-span-2">{% translate "Add category" %}</a></div>{% endif %}</div></section>
+<form method="get" class="workspace-filter"><div class="workspace-filter-heading"><span class="workspace-filter-icon"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M7 12h10M10 18h4" /></svg></span>{% translate "Filter" %}</div><div class="grid gap-4 sm:grid-cols-3"><div class="sm:col-span-2"><label class="filter-label" for="category-q">{% translate "Search categories" %}</label><input id="category-q" class="filter-control" name="q" value="{{ filters.q }}" placeholder="{% translate 'Name or code…' %}"></div><div><label class="filter-label" for="category-active">{% translate "Status" %}</label><select id="category-active" class="filter-control" name="active"><option value="">{% translate "All statuses" %}</option><option value="yes" {% if filters.active == 'yes' %}selected{% endif %}>{% translate "Active" %}</option><option value="no" {% if filters.active == 'no' %}selected{% endif %}>{% translate "Inactive" %}</option></select></div></div><div class="mt-4 flex justify-end"><button class="button-primary w-full sm:w-auto">{% translate "Apply filters" %}</button></div></form>
+<div class="hidden lg:block workspace-panel overflow-hidden p-0"><div class="overflow-x-auto"><table class="data-table min-w-[650px] w-full"><thead><tr><th class="px-4 py-3 text-start">{% translate "Category" %}</th><th class="px-4 py-3 text-start">{% translate "Code" %}</th><th class="px-4 py-3 text-end">{% translate "Transactions" %}</th><th class="px-4 py-3 text-start">{% translate "Status" %}</th><th class="px-4 py-3 text-end">{% translate "Actions" %}</th></tr></thead><tbody>{% for category in categories %}<tr><td class="px-4 py-3 font-bold text-slate-900 dark:text-white">{{ category.name }}</td><td class="px-4 py-3 font-mono text-xs">{{ category.code|default:"—" }}</td><td class="px-4 py-3 text-end font-bold">{{ category.transaction_count }}</td><td class="px-4 py-3">{% if category.active %}<span class="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-bold text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300">{% translate "Active" %}</span>{% else %}<span class="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-500 dark:bg-slate-800">{% translate "Inactive" %}</span>{% endif %}</td><td class="px-4 py-3 text-end">{% if can_manage %}<a href="{% url 'expenses:category_edit' category.pk %}" class="font-bold text-brand-700 dark:text-brand-300">{% translate "Edit" %}</a>{% endif %}</td></tr>{% empty %}<tr><td colspan="5" class="px-4 py-10 text-center text-slate-500">{% translate "No expense categories match these filters." %}</td></tr>{% endfor %}</tbody></table></div>{% include "includes/pagination.html" %}</div>
+<div class="space-y-3 lg:hidden">
+{% for category in categories %}
+<article class="group workspace-entity-card">
+    <div class="flex items-start justify-between gap-3"><div><p class="font-bold text-slate-950 dark:text-white">{{ category.name }}</p><p class="mt-1 font-mono text-xs text-slate-500">{{ category.code|default:"—" }}</p></div>{% if category.active %}<span class="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-bold text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300">{% translate "Active" %}</span>{% else %}<span class="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-500 dark:bg-slate-800">{% translate "Inactive" %}</span>{% endif %}</div>
+    <div class="mt-4 flex items-center justify-between border-t border-slate-200 pt-3 dark:border-slate-700"><span class="text-xs text-slate-500">{{ category.transaction_count }} {% translate "transactions" %}</span>{% if can_manage %}<a href="{% url 'expenses:category_edit' category.pk %}" class="inline-flex min-h-10 items-center rounded-xl border border-slate-200 px-3 text-sm font-bold text-brand-700 dark:border-slate-700 dark:text-brand-300">{% translate "Edit" %}</a>{% endif %}</div>
+</article>
+{% empty %}<div class="record-mobile-card text-center text-sm text-slate-500">{% translate "No expense categories match these filters." %}</div>{% endfor %}
+<div class="workspace-panel p-0">{% include "includes/pagination.html" %}</div>
 </div>
 {% endblock %}

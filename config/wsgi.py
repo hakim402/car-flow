@@ -1,4 +1,4 @@
-"""WSGI config for the AUTOMEX CarFlow project."""
+"""WSGI config for the AMOXRUNS project."""
 import os
 
 from django.core.wsgi import get_wsgi_application

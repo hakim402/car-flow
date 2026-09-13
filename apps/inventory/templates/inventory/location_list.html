@@ -1,97 +1,77 @@
 {% extends "base.html" %}
 {% load i18n %}
 
-{% block title %}{% translate "Inventory locations" %} — AUTOMEX CarFlow{% endblock %}
+{% block title %}{% translate "Inventory locations" %} — AMOXRUNS{% endblock %}
 
 {% block content %}
-<div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-    <div>
-        <p class="text-xs font-medium uppercase tracking-[0.2em] text-brand-600">{% translate "Inventory" %}</p>
-        <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 text-slate-900">{% translate "Inventory locations" %}</h1>
+<div class="space-y-6">
+    <section class="workspace-hero">
+        <div class="workspace-hero-layout">
+        <div>
+            <p class="workspace-eyebrow">{% translate "Buy & Stock" %}</p>
+            <div class="workspace-title-row"><h1 class="workspace-title">{% translate "Inventory locations" %}</h1><span class="workspace-count">{{ page_obj.paginator.count }}</span></div>
+            <p class="workspace-description">{% translate "See how stock is distributed across branches, showrooms, yards and workshops." %}</p>
+        </div>
+        <div class="workspace-actions">
+            <a href="{% url 'inventory:list' %}" class="button-secondary">{% translate "Back to current stock" %}</a>
+            <a href="#add-location" class="button-primary"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-width="2" d="M12 5v14M5 12h14"/></svg>{% translate "Add location" %}</a>
+        </div>
+        </div>
+    </section>
+
+    <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <div class="metric-card"><p class="text-[11px] font-bold uppercase tracking-wide text-slate-500">{% translate "All locations" %}</p><p class="mt-2 text-2xl font-extrabold text-slate-900">{{ metrics.total }}</p></div>
+        <a href="?state=active" class="metric-card"><p class="text-[11px] font-bold uppercase tracking-wide text-emerald-600">{% translate "Active" %}</p><p class="mt-2 text-2xl font-extrabold text-slate-900">{{ metrics.active_count }}</p></a>
+        <a href="?sort=busiest" class="metric-card"><p class="text-[11px] font-bold uppercase tracking-wide text-brand-600">{% translate "Locations with stock" %}</p><p class="mt-2 text-2xl font-extrabold text-slate-900">{{ metrics.occupied }}</p></a>
+        <a href="?state=inactive" class="metric-card"><p class="text-[11px] font-bold uppercase tracking-wide text-slate-500">{% translate "Inactive" %}</p><p class="mt-2 text-2xl font-extrabold text-slate-900">{{ metrics.inactive_count }}</p></a>
     </div>
-    <a href="{% url 'inventory:list' %}"
-       class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-600 shadow-sm transition hover:border-slate-300 hover:text-slate-900">
-        {% translate "Back to inventory" %}
-    </a>
-</div>
 
-<div class="mb-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm md:p-6">
-    <h2 class="mb-4 text-lg font-extrabold tracking-tight text-slate-900 text-slate-800">{% translate "Add location" %}</h2>
-    <form method="post" action="{% url 'inventory:location_create' %}" class="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-5">
-        {% csrf_token %}
-        <div class="space-y-1">
-            <label class="block text-xs font-medium uppercase tracking-wide text-slate-500">{% translate "Branch" %}</label>
-            <select name="branch" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2.5 text-sm text-slate-800 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100" required>
-                <option value="">{% translate "Branch…" %}</option>
-                {% for branch in request.user.company.branches.all %}
-                    <option value="{{ branch.pk }}">{{ branch }}</option>
-                {% endfor %}
-            </select>
+    <details id="add-location" class="workspace-panel group scroll-mt-24">
+        <summary class="flex cursor-pointer list-none items-center justify-between gap-3 p-4 sm:p-5">
+            <span><span class="block font-extrabold text-slate-900">{% translate "Create an inventory location" %}</span><span class="mt-0.5 block text-sm text-slate-500">{% translate "Add a physical area inside one of your branches." %}</span></span>
+            <span class="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-brand-50 text-brand-700 transition group-open:rotate-45"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-width="2" d="M12 5v14M5 12h14"/></svg></span>
+        </summary>
+        <form method="post" action="{% url 'inventory:location_create' %}" class="grid grid-cols-1 gap-3 border-t border-slate-200 p-4 sm:grid-cols-2 sm:p-5 lg:grid-cols-5 dark:border-slate-800">
+            {% csrf_token %}
+            <div><label class="filter-label" for="location-branch">{% translate "Branch" %}</label><select id="location-branch" name="branch" class="filter-control" required><option value="">{% translate "Choose a branch…" %}</option>{% for branch in branches %}<option value="{{ branch.pk }}">{{ branch }}</option>{% endfor %}</select></div>
+            <div class="sm:col-span-2"><label class="filter-label" for="location-name">{% translate "Location name" %}</label><input id="location-name" name="name" class="filter-control" placeholder="{% translate 'For example: Kabul Main Showroom' %}" required></div>
+            <div><label class="filter-label" for="location-type">{% translate "Location type" %}</label><select id="location-type" name="type" class="filter-control">{% for value, label in location_types %}<option value="{{ value }}">{{ label }}</option>{% endfor %}</select></div>
+            <div><label class="filter-label" for="location-code">{% translate "Location code" %}</label><input id="location-code" name="code" class="filter-control font-mono" dir="ltr" placeholder="KBL-SH-01"></div>
+            <div class="flex items-end sm:col-span-2 lg:col-span-5"><button type="submit" class="button-primary w-full sm:w-auto">{% translate "Create location" %}</button></div>
+        </form>
+    </details>
+
+    <form method="get" class="workspace-panel p-4">
+        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-6">
+            <div class="sm:col-span-2"><label for="location-search" class="filter-label">{% translate "Search locations" %}</label><input id="location-search" type="search" name="q" value="{{ q }}" class="filter-control" placeholder="{% translate 'Name, code or branch…' %}"></div>
+            <div><label class="filter-label" for="location-filter-branch">{% translate "Branch" %}</label><select id="location-filter-branch" name="branch" class="filter-control"><option value="">{% translate "All branches" %}</option>{% for branch in branches %}<option value="{{ branch.pk }}" {% if branch_id == branch.pk|stringformat:'s' %}selected{% endif %}>{{ branch }}</option>{% endfor %}</select></div>
+            <div><label class="filter-label" for="location-filter-type">{% translate "Type" %}</label><select id="location-filter-type" name="type" class="filter-control"><option value="">{% translate "All types" %}</option>{% for value, label in location_types %}<option value="{{ value }}" {% if location_type == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+            <div><label class="filter-label" for="location-state">{% translate "Activity" %}</label><select id="location-state" name="state" class="filter-control"><option value="">{% translate "Any activity" %}</option><option value="active" {% if state == 'active' %}selected{% endif %}>{% translate "Active" %}</option><option value="inactive" {% if state == 'inactive' %}selected{% endif %}>{% translate "Inactive" %}</option></select></div>
+            <div><label class="filter-label" for="location-sort">{% translate "Sort by" %}</label><select id="location-sort" name="sort" class="filter-control"><option value="branch" {% if sort == 'branch' %}selected{% endif %}>{% translate "Branch and name" %}</option><option value="name" {% if sort == 'name' %}selected{% endif %}>{% translate "Location name" %}</option><option value="busiest" {% if sort == 'busiest' %}selected{% endif %}>{% translate "Most vehicles" %}</option></select></div>
         </div>
-        <div class="space-y-1 xl:col-span-2">
-            <label class="block text-xs font-medium uppercase tracking-wide text-slate-500">{% translate "Name" %}</label>
-            <input type="text" name="name" placeholder="{% translate 'Name (e.g. Kabul Main Showroom)' %}"
-                   class="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2.5 text-sm text-slate-800 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100" required>
-        </div>
-        <div class="space-y-1">
-            <label class="block text-xs font-medium uppercase tracking-wide text-slate-500">{% translate "Type" %}</label>
-            <select name="type" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2.5 text-sm text-slate-800 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100">
-                {% for value, label in location_types %}
-                    <option value="{{ value }}">{{ label }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="space-y-1">
-            <label class="block text-xs font-medium uppercase tracking-wide text-slate-500">{% translate "Code" %}</label>
-            <input type="text" name="code" placeholder="{% translate 'Code (optional, unique per branch)' %}"
-                   class="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2.5 text-sm text-slate-800 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100">
-        </div>
-        <div class="flex items-end md:col-span-2 xl:col-span-1">
-            <button type="submit" class="w-full rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-brand-700">
-                {% translate "Create" %}
-            </button>
-        </div>
+        <div class="mt-4 flex justify-end gap-2">{% if q or branch_id or location_type or state or sort != 'branch' %}<a href="{% url 'inventory:location_list' %}" class="button-secondary">{% translate "Clear" %}</a>{% endif %}<button class="button-primary">{% translate "Apply filters" %}</button></div>
     </form>
-</div>
 
-<div class="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-    <table class="data-table">
-        <thead>
-            <tr>
-                <th class="px-4 py-3 text-start font-medium">{% translate "Branch" %}</th>
-                <th class="px-4 py-3 text-start font-medium">{% translate "Name" %}</th>
-                <th class="px-4 py-3 text-start font-medium">{% translate "Type" %}</th>
-                <th class="px-4 py-3 text-start font-medium">{% translate "Code" %}</th>
-                <th class="px-4 py-3 text-start font-medium">{% translate "Active" %}</th>
-                <th class="px-4 py-3 text-start font-medium">{% translate "Actions" %}</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for location in locations %}
-                <tr>
-                    <td class="px-4 py-3">{{ location.branch }}</td>
-                    <td class="px-4 py-3">{{ location.name }}</td>
-                    <td class="px-4 py-3">{{ location.get_type_display }}</td>
-                    <td class="px-4 py-3 font-mono">{{ location.code|default:"—" }}</td>
-                    <td class="px-4 py-3">
-                        {% if location.active %}{% translate "Yes" %}{% else %}{% translate "No" %}{% endif %}
-                    </td>
-                    <td class="px-4 py-3">
-                        <form method="post" action="{% url 'inventory:location_toggle' location.pk %}">
-                            {% csrf_token %}
-                            <button type="submit"
-                                    class="rounded bg-slate-100 text-slate-700 hover:bg-slate-200 px-2 py-1 text-xs">
-                                {% if location.active %}{% translate "Deactivate" %}{% else %}{% translate "Activate" %}{% endif %}
-                            </button>
-                        </form>
-                    </td>
-                </tr>
-            {% empty %}
-                <tr><td colspan="6" class="px-4 py-8 text-center text-slate-500">
-                    {% translate "No locations yet." %}
-                </td></tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+        {% for location in locations %}
+        <article class="workspace-panel overflow-hidden">
+            <div class="flex items-start gap-3 p-4 sm:p-5">
+                <span class="grid h-11 w-11 shrink-0 place-items-center rounded-xl {% if location.type == 'showroom' %}bg-brand-50 text-brand-700{% elif location.type == 'workshop' or location.type == 'inspection' %}bg-violet-100 text-violet-700{% else %}bg-slate-100 text-slate-600{% endif %}"><svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-width="1.8" d="M3 21h18M5 21V8l7-4 7 4v13M8 12h8M8 16h8"/></svg></span>
+                <div class="min-w-0 flex-1"><div class="flex items-start justify-between gap-2"><div><p class="text-[11px] font-bold uppercase tracking-wide text-brand-600">{{ location.branch }}</p><h2 class="mt-0.5 truncate text-base font-extrabold text-slate-900">{{ location.name }}</h2></div><span class="rounded-full px-2 py-1 text-[10px] font-bold {% if location.active %}bg-emerald-100 text-emerald-700{% else %}bg-slate-100 text-slate-500{% endif %}">{% if location.active %}{% translate "Active" %}{% else %}{% translate "Inactive" %}{% endif %}</span></div><div class="mt-2 flex flex-wrap gap-1.5"><span class="rounded-lg bg-slate-100 px-2 py-1 text-[11px] font-semibold text-slate-600">{{ location.get_type_display }}</span>{% if location.code %}<span class="rounded-lg bg-slate-100 px-2 py-1 font-mono text-[11px] font-semibold text-slate-600" dir="ltr">{{ location.code }}</span>{% endif %}</div></div>
+            </div>
+            <div class="grid grid-cols-4 border-y border-slate-100 bg-slate-50/60 dark:border-slate-800">
+                <div class="p-3 text-center"><p class="text-lg font-extrabold text-slate-900">{{ location.vehicle_count }}</p><p class="text-[10px] font-semibold text-slate-500">{% translate "Vehicles" %}</p></div>
+                <div class="border-s border-slate-100 p-3 text-center dark:border-slate-800"><p class="text-lg font-extrabold text-emerald-600">{{ location.available_count }}</p><p class="text-[10px] font-semibold text-slate-500">{% translate "Available" %}</p></div>
+                <div class="border-s border-slate-100 p-3 text-center dark:border-slate-800"><p class="text-lg font-extrabold text-amber-600">{{ location.reserved_count }}</p><p class="text-[10px] font-semibold text-slate-500">{% translate "Reserved" %}</p></div>
+                <div class="border-s border-slate-100 p-3 text-center dark:border-slate-800"><p class="text-lg font-extrabold text-violet-600">{{ location.preparation_count }}</p><p class="text-[10px] font-semibold text-slate-500">{% translate "Preparing" %}</p></div>
+            </div>
+            <div class="flex items-center justify-between gap-3 p-4">
+                <p class="text-xs text-slate-500">{% translate "Oldest active vehicle" %}: <strong class="text-slate-700" dir="ltr">{% if location.oldest_age %}{{ location.oldest_age }} {% translate "days" %}{% else %}—{% endif %}</strong></p>
+                <div class="flex items-center gap-2"><form method="post" action="{% url 'inventory:location_toggle' location.pk %}">{% csrf_token %}<button class="rounded-lg px-2 py-2 text-xs font-bold text-slate-500 hover:bg-slate-100 hover:text-slate-800" title="{% if location.active %}{% translate 'Deactivate' %}{% else %}{% translate 'Activate' %}{% endif %}">{% if location.active %}{% translate "Deactivate" %}{% else %}{% translate "Activate" %}{% endif %}</button></form><a href="{% url 'inventory:list' %}?location={{ location.pk }}" class="rounded-lg bg-brand-50 px-3 py-2 text-xs font-bold text-brand-700 hover:bg-brand-100">{% translate "View stock" %}</a></div>
+            </div>
+        </article>
+        {% empty %}<div class="workspace-panel col-span-full px-6 py-16 text-center"><h2 class="font-extrabold text-slate-800">{% translate "No locations found" %}</h2><p class="mt-1 text-sm text-slate-500">{% translate "Try changing your filters or create a new location." %}</p></div>{% endfor %}
+    </div>
+    <div class="workspace-panel">{% include "includes/pagination.html" %}</div>
 </div>
 {% endblock %}

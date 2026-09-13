@@ -20,12 +20,18 @@ WORKDIR /app
 
 RUN python -m venv /opt/venv
 COPY requirements/ ./requirements/
-RUN pip install -r requirements/prod.txt
+RUN --mount=type=cache,target=/root/.cache/pip env -u PIP_NO_CACHE_DIR pip install --timeout=120 --retries=5 -r requirements/prod.txt
 
 # ---------- dev: builder + test tooling (dev compose target only) ----------
 FROM builder AS dev
 
-RUN pip install -r requirements/dev.txt
+RUN --mount=type=cache,target=/root/.cache/pip env -u PIP_NO_CACHE_DIR pip install --timeout=120 --retries=5 -r requirements/dev.txt
+
+# Headless-only Chromium supplies PDF layout and native Dari/Pashto shaping.
+# Keep this separate so browser updates do not invalidate Python's build layer.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends chromium-headless-shell fonts-noto-core \
+    && rm -rf /var/lib/apt/lists/*
 
 # Same role-dispatch entrypoint as runtime. It lives OUTSIDE /app because the
 # dev stack bind-mounts the source tree over /app (which would shadow it, and
@@ -51,6 +57,10 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends gettext libpq5 curl \
     && rm -rf /var/lib/apt/lists/* \
     && useradd --create-home --uid 10001 automex
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends chromium-headless-shell fonts-noto-core \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 

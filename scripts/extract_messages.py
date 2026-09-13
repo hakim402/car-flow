@@ -51,11 +51,11 @@ def write_catalog(locale: str, messages: list[str]) -> None:
     out.parent.mkdir(parents=True, exist_ok=True)
     now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M%z")
     lines = [
-        '# AUTOMEX CarFlow catalog. Regenerate with makemessages (gettext) when',
+        '# AMOXRUNS catalog. Regenerate with makemessages (gettext) when',
         '# available; this file is maintained by scripts/extract_messages.py.',
         'msgid ""',
         'msgstr ""',
-        '"Project-Id-Version: automex-carflow 1.0\\n"',
+        '"Project-Id-Version: amoxruns 1.0\\n"',
         '"Report-Msgid-Bugs-To: \\n"',
         f'"POT-Creation-Date: {now}\\n"',
         f'"PO-Revision-Date: {now}\\n"',

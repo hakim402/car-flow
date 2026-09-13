@@ -199,7 +199,7 @@ class User(AbstractUser):
             base = base.replace(" ", "_")
             if not base:
                 base = f"user{self.pk or 'new'}"
-            cleaned = f"{base}@automex.local"
+            cleaned = f"{base}@amoxruns.local"
         self.email = cleaned
 
     def save(self, *args, **kwargs):

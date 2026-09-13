@@ -25,6 +25,7 @@ class ExpenseCategoryForm(StyledFormMixin, forms.ModelForm):
 class ExpenseForm(StyledFormMixin, forms.Form):
     transaction_date = forms.DateField(
         label=_("transaction date"),
+        widget=forms.DateInput(attrs={"type": "date"}),
         help_text=_("Date the expense was incurred or paid."),
     )
     category = forms.ModelChoiceField(
@@ -87,3 +88,13 @@ class ExpenseForm(StyledFormMixin, forms.Form):
             self.fields["category"].queryset = ExpenseCategory.all_objects.none()
             self.fields["account"].queryset = FinancialAccount.all_objects.none()
             self.fields["branch"].queryset = Branch.objects.none()
+
+    def clean(self):
+        cleaned = super().clean()
+        account = cleaned.get("account")
+        currency = cleaned.get("currency")
+        if account and currency and account.currency != currency:
+            self.add_error(
+                "account", _("Expense currency must match the financial account currency.")
+            )
+        return cleaned

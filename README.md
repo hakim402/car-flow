@@ -1,4 +1,4 @@
-# AUTOMEX CarFlow
+# AMOXRUNS
 
 **Internal automotive ERP for multi-company car dealerships** — inventory,
 purchasing, sales pipeline, payments on an append-only financial ledger,
@@ -110,7 +110,8 @@ for the database, and **only the `web` role runs migrations** — concurrent
 ### Non-negotiable design rules (from `agent.md`)
 
 1. **Fully Dockerized** — no host-level services required.
-2. **Internal system behind login** — every page requires authentication.
+2. **Internal system behind login** — business pages require authentication;
+   explicitly authorized report snapshots have a scoped, expiring read-only viewer.
 3. **Trilingual + RTL** — `en` / `prs` / `ps`; direction driven by language.
 4. **Toggleable integrations** — `*_ENABLED` flags; Null/console fallbacks;
    the app must boot with all flags off and empty credentials (enforced by tests).
@@ -273,7 +274,7 @@ docker compose exec web python manage.py shell
 from apps.organizations.models import Organization
 from apps.accounts.models import Role, User
 
-org = Organization.objects.create(name="AUTOMEX Kabul")
+org = Organization.objects.create(name="AMOXRUNS Kabul")
 user = User.objects.create_user(
     username="manager", password="change-me-strong", company=org,
 )
@@ -665,8 +666,9 @@ covered end-to-end in **[`PRODUCTION.md`](PRODUCTION.md)**:
 
 ## Security practices
 
-- **Login everywhere.** No public endpoint except provider webhooks (which
-  verify signatures and refuse while disabled).
+- **Login by default.** Provider webhooks verify signatures and refuse while
+  disabled. The report viewer is a deliberate read-only exception: a valid,
+  unexpired, unrevoked token grants access only to an approved frozen snapshot.
 - **Tenant isolation** at the ORM layer; bulk operations through the default
   manager only ever touch the current tenant.
 - **Append-only money.** Ledger rows cannot be updated or deleted at the
@@ -703,8 +705,64 @@ covered end-to-end in **[`PRODUCTION.md`](PRODUCTION.md)**:
 
 ---
 
+## Reports
+
+Open the report pages from the sidebar's grouped report navigation:
+**Financial Reports**, **Business Reports**, and **Operations Reports**. The
+primary overview remains at `/accounting/`, while specialized reports such as
+customer balances, supplier balances, cash position, expense analysis, vehicle
+profitability, financing and collections, sales pipeline, inventory, purchases,
+customers/partners, communications, documents, and business activity are exposed
+according to the user's domain permissions.
+
+- Use date periods for activity reports and **As of date** for balances.
+  Cash position also accepts a start date for opening/period/closing figures.
+  Current-state reports do not pretend to reconstruct old master records.
+- Select a currency for focused analysis. Different currencies are never added
+  or converted together. Missing/mixed-currency vehicle costs suppress profit
+  estimates. These are operational reports, not a general-ledger balance sheet.
+- Tables support sorting, pagination and mobile cards. Summary figures use the
+  whole filtered dataset. Saved views are scoped to user/company on this browser.
+- **Export report** creates PDF, XLSX, DOCX or UTF-8 CSV files from all matching
+  rows. XLSX includes typed cells and editable charts; PDF includes charts.
+  Production renders files in Celery; development/test settings run inline.
+- Exports require an explicitly assigned `reports.export` permission **and**
+  all permissions for the selected report. Legacy users without roles cannot
+  implicitly export or share confidential data.
+- **Share snapshot** requires explicit `reports.share` (seeded for organization
+  admins and accountants). Select approved columns and a 1-hour, 24-hour or
+  7-day lifetime. Monetary columns retain their currency. The external viewer
+  shows only that frozen table, without internal navigation, files, charts or
+  hidden-column totals. Share tokens are shown once, stored only as hashes,
+  revocable from delivery history, and disabled if the creator loses access.
+- External viewers need a deployed HTTPS URL; `localhost` is not accessible
+  from their computers. Recipients can forward links or keep screenshots.
+- Files and snapshots stay in private database fields, never public media.
+  Downloads expire after 24 hours. An hourly Celery task clears expired
+  payloads and removes delivery metadata older than 30 days after expiration.
+  Snapshots are limited to 15 MiB and output files to 25 MiB; narrow filters for
+  larger reports. These bounds do not silently truncate exported rows.
+
+Docker verification after a report change:
+
+```bash
+docker compose up -d --build
+docker compose exec -T web python manage.py check
+docker compose exec -T web python manage.py makemigrations --check --dry-run
+docker compose exec -T web pytest -q apps/accounting
+docker compose exec -T web python manage.py makemessages -l en -l prs -l ps -i node_modules -i staticfiles -i media -i .venv
+# Review/fill every new and fuzzy message, then compile and reload:
+docker compose exec -T web python manage.py compilemessages
+docker compose restart web worker
+```
+
+The image includes headless Chromium and Noto fonts for Dari/Pashto PDF
+shaping. Rebuild the image after dependency changes; restarting an old image
+does not install the export libraries. Report activity access is explicitly
+granted by `reports.activity` (organization admins by default).
+
 ## License & support
 
-Internal project of AUTOMEX. For the complete product and architecture
+Internal project of AMOXRUNS. For the complete product and architecture
 specification see [`agent.md`](agent.md); for deployment runbooks see
 [`PRODUCTION.md`](PRODUCTION.md).

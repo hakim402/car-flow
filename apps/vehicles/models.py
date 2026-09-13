@@ -150,5 +150,9 @@ class Vehicle(TenantModel, CompanyConsistencyMixin):
         if line_list is not None:
             line = line_list[0] if line_list else None
         else:
-            line = self.purchase_lines.select_related("order__supplier").first()
+            line = (
+                self.purchase_lines.select_related("order__supplier")
+                .order_by("-order__order_date", "-pk")
+                .first()
+            )
         return line.order.supplier if line is not None else None

@@ -1,4 +1,4 @@
-/* AUTOMEX CarFlow — login page styles.
+/* AMOXRUNS — login page styles.
    Design authored by the product owner; moved verbatim from the template's
    inline <style> block into this external file. Do not redesign.
    Brand treatment (owner-approved): full-viewport height and cobalt accent
@@ -6,7 +6,7 @@
    Invisible hardening only: icon offsets on the inputs use logical
    properties so the layout mirrors correctly in Dari/Pashto RTL (§11.3). */
 
-.carflow-login {
+.amoxruns-login {
     min-height: 100vh;
     min-height: 100dvh;
     display: grid;
@@ -45,7 +45,7 @@
     pointer-events: none;
 }
 
-.carflow-brand {
+.amoxruns-brand {
     position: relative;
     z-index: 2;
     display: flex;
@@ -572,7 +572,7 @@ html[dir="rtl"] input[type="email"] {
 
 /* Dark login surface: the visual panel stays intentionally cinematic while
    the form surface and controls follow the user's saved/system theme. */
-.dark .carflow-login,
+.dark .amoxruns-login,
 .dark .login-form-side {
     background: #020617;
 }
@@ -645,7 +645,7 @@ html[dir="rtl"] input[type="email"] {
 
 /* MOBILE */
 @media (max-width: 820px) {
-    .carflow-login {
+    .amoxruns-login {
         grid-template-columns: 1fr;
     }
 

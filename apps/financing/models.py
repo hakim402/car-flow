@@ -39,6 +39,9 @@ class FinancingPartner(TenantModel):
     def __str__(self):
         return self.name
 
+    def get_absolute_url(self):
+        return reverse("financing:partner_detail", kwargs={"pk": self.pk})
+
 
 class AgreementType(models.TextChoices):
     DEALER_INSTALLMENT = "dealer_installment", _("Dealer installment")

@@ -18,6 +18,7 @@ urlpatterns = [
     # Reservations
     path("reservations/", views.reservation_list, name="reservation_list"),
     path("reservations/add/", views.reservation_create, name="reservation_create"),
+    path("reservations/<int:pk>/", views.reservation_detail, name="reservation_detail"),
     path("reservations/<int:pk>/cancel/", views.reservation_cancel, name="reservation_cancel"),
     # Sales + invoices
     path("sales/", views.sale_list, name="sale_list"),

@@ -1,4 +1,4 @@
-"""Create a coherent, repeatable CarFlow dataset for local UI testing."""
+"""Create a coherent, repeatable AMOXRUNS dataset for local UI testing."""
 
 from datetime import timedelta
 from decimal import Decimal
@@ -162,7 +162,7 @@ class Command(BaseCommand):
                         else FinancingPartner.PartnerType.MICROFINANCE
                     ),
                     "phone": f"+9379002{index:04d}",
-                    "email": f"finance{index:02d}@demo.carflow.test",
+                    "email": f"finance{index:02d}@demo.amoxruns.test",
                     "notes": "Local demo financing partner.",
                 },
             )
@@ -228,7 +228,7 @@ class Command(BaseCommand):
                     "country": "AF" if index % 2 else "JP",
                     "contact_person": f"Supplier Contact {index:02d}",
                     "phone": f"+9378001{index:04d}",
-                    "email": f"supplier{index:02d}@demo.carflow.test",
+                    "email": f"supplier{index:02d}@demo.amoxruns.test",
                     "address": f"Demo trade district {index}, Afghanistan",
                 },
             )
@@ -238,7 +238,7 @@ class Command(BaseCommand):
                 defaults={
                     "full_name": f"Demo Customer {index:02d}",
                     "phone": f"+9377000{index:04d}",
-                    "email": f"customer{index:02d}@demo.carflow.test",
+                    "email": f"customer{index:02d}@demo.amoxruns.test",
                     "branch": branch,
                     "notes": "Seeded customer for sales, finance, and messaging UI checks.",
                     "created_by": user,
@@ -581,9 +581,9 @@ class Command(BaseCommand):
                     uploaded_by=user,
                 )
                 document.file.save(
-                    f"carflow-demo-record-{index:03d}.txt",
+                    f"amoxruns-demo-record-{index:03d}.txt",
                     ContentFile(
-                        f"CarFlow demo document {index}\nVehicle: {sold_vehicle.vin}\n".encode()
+                        f"AMOXRUNS demo document {index}\nVehicle: {sold_vehicle.vin}\n".encode()
                     ),
                     save=False,
                 )

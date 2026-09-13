@@ -12,10 +12,10 @@ from .models import Role, User
 
 
 @admin.register(User)
-class CarFlowUserAdmin(DjangoUserAdmin, ModelAdmin):
+class AmoxrunsUserAdmin(DjangoUserAdmin, ModelAdmin):
     fieldsets = DjangoUserAdmin.fieldsets + (
         (
-            "CarFlow",
+            "AMOXRUNS",
             {"fields": ("company", "branch", "roles", "preferred_language")},
         ),
     )

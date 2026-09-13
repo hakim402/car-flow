@@ -1,47 +1,9 @@
-{% extends "base.html" %}
-{% load i18n %}
-
-{% block title %}{% translate "Expenses" %} — AUTOMEX CarFlow{% endblock %}
-
+{% extends "base.html" %}{% load i18n %}
+{% block title %}{% translate "Operating expenses" %} — AMOXRUNS{% endblock %}
 {% block content %}
-<div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-    <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">{% translate "Expenses" %}</h1>
-    <a href="{% url 'expenses:create' %}"
-       class="inline-flex items-center justify-center rounded-xl bg-brand-600 hover:bg-brand-700 text-white px-4 py-2.5 text-sm font-bold shadow-sm transition">
-        {% translate "Record expense" %}
-    </a>
-</div>
-<div class="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-    <table class="data-table">
-        <thead>
-            <tr>
-                <th class="px-4 py-3 text-start font-medium">{% translate "Date" %}</th>
-                <th class="px-4 py-3 text-start font-medium">{% translate "Description" %}</th>
-                <th class="px-4 py-3 text-start font-medium">{% translate "Recorded by" %}</th>
-                <th class="px-4 py-3 text-end font-medium">{% translate "Amount" %}</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for expense in expenses %}
-                <tr class="{% if expense.reversal_of %}bg-slate-50 text-slate-500{% endif %}">
-                    <td class="px-4 py-3">{{ expense.created_at|date:"SHORT_DATE_FORMAT" }}</td>
-                    <td class="px-4 py-3">
-                        {{ expense.description|default:"—" }}
-                        {% if expense.reversal_of %}
-                            <span class="ms-1 rounded bg-red-100 text-red-700 px-1.5 py-0.5 text-xs">
-                                {% translate "reversal" %}
-                            </span>
-                        {% endif %}
-                    </td>
-                    <td class="px-4 py-3">{{ expense.created_by|default:"—" }}</td>
-                    <td class="px-4 py-3 text-end text-red-700" dir="ltr">−{{ expense.amount }} {{ expense.currency }}</td>
-                </tr>
-            {% empty %}
-                <tr><td colspan="4" class="px-4 py-8 text-center text-slate-500">
-                    {% translate "No expenses yet." %}
-                </td></tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
+<section class="workspace-hero"><div class="workspace-hero-layout"><div><p class="workspace-eyebrow">{% translate "Money out" %}</p><div class="workspace-title-row"><h1 class="workspace-title">{% translate "Operating expenses" %}</h1><span class="workspace-count">{{ page_obj.paginator.count }}</span></div><p class="workspace-description">{% translate "General business costs that are not capitalized into a specific vehicle." %}</p></div>{% if can_add %}<div class="workspace-actions"><a href="{% url 'expenses:create' %}" class="button-primary col-span-2">{% translate "Record expense" %}</a></div>{% endif %}</div></section>
+<div class="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{% for currency,amount in totals.items %}<div class="metric-card"><p class="text-xs font-bold uppercase text-red-600 dark:text-red-400">{% translate "Net expenses" %} · {{ currency }}</p><p class="mt-2 font-mono text-2xl font-extrabold text-slate-950 dark:text-white" dir="ltr">{{ amount }} {{ currency }}</p></div>{% empty %}<div class="metric-card text-sm text-slate-500">{% translate "No expense totals for this period." %}</div>{% endfor %}</div>
+<form method="get" class="workspace-filter"><div class="workspace-filter-heading"><span class="workspace-filter-icon"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M7 12h10M10 18h4" /></svg></span>{% translate "Filter" %}</div><div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-6"><div class="sm:col-span-2"><label class="filter-label" for="expense-q">{% translate "Search expenses" %}</label><input id="expense-q" class="filter-control" name="q" value="{{ filters.q }}" placeholder="{% translate 'Vendor, reference, description…' %}"></div><div><label class="filter-label" for="expense-category">{% translate "Category" %}</label><select id="expense-category" class="filter-control" name="category"><option value="">{% translate "All categories" %}</option>{% for category in categories %}<option value="{{ category.pk }}" {% if filters.category == category.pk|stringformat:'s' %}selected{% endif %}>{{ category }}</option>{% endfor %}</select></div><div><label class="filter-label" for="expense-account">{% translate "Account" %}</label><select id="expense-account" class="filter-control" name="account"><option value="">{% translate "All accounts" %}</option>{% for account in accounts %}<option value="{{ account.pk }}" {% if filters.account == account.pk|stringformat:'s' %}selected{% endif %}>{{ account }}</option>{% endfor %}</select></div><div><label class="filter-label" for="expense-from">{% translate "From date" %}</label><input id="expense-from" type="date" class="filter-control" name="date_from" value="{{ filters.date_from }}"></div><div><label class="filter-label" for="expense-to">{% translate "To date" %}</label><input id="expense-to" type="date" class="filter-control" name="date_to" value="{{ filters.date_to }}"></div></div><div class="mt-4 flex justify-end"><button class="button-primary w-full sm:w-auto">{% translate "Apply filters" %}</button></div></form>
+<div class="workspace-panel hidden overflow-hidden p-0 lg:block"><div class="overflow-x-auto"><table class="data-table min-w-[900px] w-full"><thead><tr><th class="px-4 py-3 text-start">{% translate "Expense" %}</th><th class="px-4 py-3 text-start">{% translate "Category" %}</th><th class="px-4 py-3 text-start">{% translate "Vendor" %}</th><th class="px-4 py-3 text-start">{% translate "Account / branch" %}</th><th class="px-4 py-3 text-start">{% translate "Reference" %}</th><th class="px-4 py-3 text-end">{% translate "Amount" %}</th></tr></thead><tbody>{% for expense in expenses %}<tr class="{% if expense.reversal_of_id %}bg-slate-50 dark:bg-slate-950/30{% endif %}"><td class="px-4 py-3"><a href="{% url 'expenses:detail' expense.pk %}" class="font-bold text-slate-900 hover:text-brand-700 dark:text-white dark:hover:text-brand-300">{% if expense.description %}{{ expense.description }}{% else %}{% translate "Operating expense" %}{% endif %}</a><div class="mt-1 text-xs text-slate-500">{{ expense.transaction_date|date:"SHORT_DATE_FORMAT" }} · {{ expense.created_by|default:"—" }}</div></td><td class="px-4 py-3 font-semibold">{{ expense.expense_category|default:"—" }}</td><td class="px-4 py-3">{{ expense.vendor|default:"—" }}</td><td class="px-4 py-3"><div class="font-semibold">{{ expense.account|default:"—" }}</div><div class="text-xs text-slate-500">{{ expense.branch|default:"—" }}</div></td><td class="px-4 py-3 font-mono text-xs">{{ expense.reference|default:"—" }}</td><td class="px-4 py-3 text-end font-mono font-extrabold {% if expense.reversal_of_id %}text-emerald-600{% else %}text-red-600{% endif %}" dir="ltr">{% if expense.reversal_of_id %}+{% else %}−{% endif %}{{ expense.amount }} {{ expense.currency }}</td></tr>{% empty %}<tr><td colspan="6" class="px-4 py-12 text-center text-slate-500">{% translate "No expenses match these filters." %}</td></tr>{% endfor %}</tbody></table></div>{% include "includes/pagination.html" %}</div>
+<div class="space-y-3 lg:hidden">{% for expense in expenses %}<a href="{% url 'expenses:detail' expense.pk %}" class="group workspace-entity-card block"><div class="flex items-start justify-between gap-3"><div class="min-w-0"><p class="break-words font-bold text-slate-900 dark:text-white">{% if expense.description %}{{ expense.description }}{% else %}{% translate "Operating expense" %}{% endif %}</p><p class="mt-1 text-xs text-slate-500">{{ expense.transaction_date|date:"SHORT_DATE_FORMAT" }}</p></div><p class="shrink-0 font-mono font-extrabold text-red-600 dark:text-red-400" dir="ltr">−{{ expense.amount }} {{ expense.currency }}</p></div><div class="mt-4 grid grid-cols-2 gap-3 border-t border-slate-200 pt-4 text-xs dark:border-slate-800"><div><span class="text-slate-500">{% translate "Category" %}</span><p class="mt-1 truncate font-semibold">{{ expense.expense_category|default:"—" }}</p></div><div><span class="text-slate-500">{% translate "Vendor" %}</span><p class="mt-1 truncate font-semibold">{{ expense.vendor|default:"—" }}</p></div></div></a>{% empty %}<div class="record-mobile-card text-center text-sm text-slate-500">{% translate "No expenses match these filters." %}</div>{% endfor %}<div class="workspace-panel p-0">{% include "includes/pagination.html" %}</div></div>
 {% endblock %}

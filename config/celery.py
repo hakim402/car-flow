@@ -1,4 +1,4 @@
-"""Celery application for AUTOMEX CarFlow.
+"""Celery application for AMOXRUNS.
 
 Imported by config/__init__.py so `celery -A config worker` picks it up.
 Task modules are autodiscovered from every installed app's tasks.py.

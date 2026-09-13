@@ -5,14 +5,14 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="color-scheme" content="light dark">
-    <title>{% block title %}{% translate "AUTOMEX CarFlow" %}{% endblock %}</title>
+    <title>{% block title %}{% translate "AMOXRUNS" %}{% endblock %}</title>
     <script>
         (function () {
             try {
-                var savedTheme = localStorage.getItem("automex-theme");
+                var savedTheme = localStorage.getItem("amoxruns-theme");
                 var prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
                 document.documentElement.classList.toggle("dark", savedTheme ? savedTheme === "dark" : prefersDark);
-                document.documentElement.classList.toggle("sidebar-collapsed", localStorage.getItem("automex-sidebar-collapsed") === "true");
+                document.documentElement.classList.toggle("sidebar-collapsed", localStorage.getItem("amoxruns-sidebar-collapsed") === "true");
             } catch (error) {
                 document.documentElement.classList.remove("dark");
                 document.documentElement.classList.remove("sidebar-collapsed");
@@ -22,7 +22,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Arabic:wght@400;500;600;700;800&family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'css/tailwind.css' %}?v=20260903-7">
+    <link rel="stylesheet" href="{% static 'css/tailwind.css' %}?v=20260909-4">
     <style>
         * { box-sizing: border-box; }
         body { font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
@@ -39,13 +39,13 @@
 <div class="app-shell">
     <aside id="sidebar" class="app-sidebar" aria-label="{% translate 'Primary navigation' %}">
         <div class="sidebar-brand-row">
-            <a href="{% url 'home' %}" class="sidebar-logo-group" data-tooltip="AUTOMEX">
+            <a href="{% url 'home' %}" class="sidebar-logo-group" data-tooltip="AMOXRUNS">
                 <span class="sidebar-logo">
                     <svg class="h-[22px] w-[22px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 14.5V9.25A2.25 2.25 0 016.25 7h11.5A2.25 2.25 0 0120 9.25v5.25M7.5 14.5v-2.25a2.25 2.25 0 012.25-2.25h4.5A2.25 2.25 0 0116.5 12.25v2.25M3.75 14.5h16.5M8 18.75a1.25 1.25 0 11-2.5 0 1.25 1.25 0 012.5 0zm10 0a1.25 1.25 0 11-2.5 0 1.25 1.25 0 012.5 0z" /></svg>
                 </span>
                 <span class="sidebar-brand-copy">
-                    <span class="block text-[15px] font-extrabold tracking-[.18em] text-slate-950 dark:text-white">AUTOMEX</span>
-                    <span class="mt-0.5 block text-[10px] font-medium text-slate-400 dark:text-slate-500">CarFlow · {% translate "Automotive ERP" %}</span>
+                    <span class="block text-[15px] font-extrabold tracking-[.18em] text-slate-950 dark:text-white">AMOXRUNS</span>
+                    <span class="mt-0.5 block text-[10px] font-medium text-slate-400 dark:text-slate-500">{% translate "Automotive ERP" %}</span>
                 </span>
             </a>
             <button id="sidebar-close" type="button" class="sidebar-mobile-close" aria-label="{% translate 'Close navigation' %}">
@@ -92,13 +92,13 @@
         </div>
     </aside>
 
-    <div id="sidebar-backdrop" class="fixed inset-0 z-40 hidden bg-slate-950/50 backdrop-blur-[2px] lg:hidden" aria-hidden="true"></div>
+    <div id="sidebar-backdrop" class="fixed inset-0 z-40 hidden bg-slate-950/50 backdrop-blur-[2px] xl:hidden" aria-hidden="true"></div>
 
-    <div class="min-w-0 lg:col-start-2">
+    <div class="min-w-0 xl:col-start-2">
         <header class="sticky top-0 z-30 border-b border-slate-200/80 bg-[#F6F6F3]/90 backdrop-blur-xl dark:border-white/[.07] dark:bg-[#0D0F12]/90">
             <div class="flex h-[72px] items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
                 <div class="flex min-w-0 items-center gap-3">
-                    <button id="sidebar-open" type="button" class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 shadow-sm hover:bg-slate-50 dark:border-white/10 dark:bg-white/[.04] dark:text-slate-300 lg:hidden" aria-label="{% translate 'Open navigation' %}" aria-controls="sidebar" aria-expanded="false">
+                    <button id="sidebar-open" type="button" class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 shadow-sm hover:bg-slate-50 dark:border-white/10 dark:bg-white/[.04] dark:text-slate-300 xl:hidden" aria-label="{% translate 'Open navigation' %}" aria-controls="sidebar" aria-expanded="false">
                         <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 7h16M4 12h16M4 17h16" /></svg>
                     </button>
                     <div class="min-w-0">
@@ -153,13 +153,13 @@
     var root = document.documentElement;
 
     function isDesktop() {
-        return window.innerWidth >= 1024;
+        return window.innerWidth >= 1280;
     }
 
     function setDesktopSidebar(collapsed) {
         root.classList.toggle("sidebar-collapsed", collapsed);
         try {
-            localStorage.setItem("automex-sidebar-collapsed", collapsed ? "true" : "false");
+            localStorage.setItem("amoxruns-sidebar-collapsed", collapsed ? "true" : "false");
         } catch (error) {
             /* The sidebar remains usable when storage is unavailable. */
         }
@@ -221,16 +221,30 @@
         if (!navSearch) return;
         var query = navSearch.value.trim().toLocaleLowerCase();
         var visibleCount = 0;
-        navLinks.forEach(function (link) {
+        Array.prototype.forEach.call(document.querySelectorAll(".sidebar-section-label"), function (label) {
+            label.hidden = Boolean(query);
+        });
+        var directLinks = navLinks.filter(function (link) {
+            return !link.closest("[data-nav-group]");
+        });
+        directLinks.forEach(function (link) {
             var matches = !query || link.textContent.trim().toLocaleLowerCase().indexOf(query) !== -1;
             link.hidden = !matches;
             if (matches) visibleCount += 1;
         });
         navGroups.forEach(function (group) {
-            var hasMatch = Array.prototype.some.call(
-                group.querySelectorAll("[data-nav-link]"),
-                function (link) { return !link.hidden; }
-            );
+            var summary = group.querySelector("summary");
+            var groupMatches = !query || (summary && summary.textContent.trim().toLocaleLowerCase().indexOf(query) !== -1);
+            var childLinks = Array.prototype.slice.call(group.querySelectorAll("[data-nav-link]"));
+            var hasMatch = false;
+            childLinks.forEach(function (link) {
+                var matches = groupMatches || link.textContent.trim().toLocaleLowerCase().indexOf(query) !== -1;
+                link.hidden = !matches;
+                if (matches) {
+                    hasMatch = true;
+                    visibleCount += 1;
+                }
+            });
             group.hidden = !hasMatch;
             group.open = query ? hasMatch : group.dataset.defaultOpen === "true";
         });
@@ -271,7 +285,7 @@
         themeBtn.setAttribute("aria-pressed", root.classList.contains("dark") ? "true" : "false");
         themeBtn.addEventListener("click", function () {
             var dark = root.classList.toggle("dark");
-            localStorage.setItem("automex-theme", dark ? "dark" : "light");
+            localStorage.setItem("amoxruns-theme", dark ? "dark" : "light");
             themeBtn.setAttribute("aria-pressed", dark ? "true" : "false");
         });
     }

@@ -1,42 +1,5 @@
-{% extends "base.html" %}
-{% load i18n %}
-
-{% block title %}{{ title }} — AUTOMEX CarFlow{% endblock %}
-
+{% extends "base.html" %}{% load i18n %}
+{% block title %}{{ title }} — AMOXRUNS{% endblock %}
 {% block content %}
-<h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 mb-4">{{ title }}</h1>
-<div class="card max-w-5xl p-6">
-    <form method="post" novalidate class="space-y-6">
-        {% csrf_token %}
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-            {% for field in form %}
-                <div class="{% if field.name in 'description reference vendor' %}md:col-span-2{% endif %}">
-                    <label for="{{ field.id_for_label }}" class="mb-1.5 block text-sm font-medium text-slate-700">
-                        {{ field.label }}{% if field.field.required %}<span class="text-red-600"> *</span>{% endif %}
-                    </label>
-                    {{ field }}
-                    {% if field.help_text %}
-                        <p class="mt-1 text-xs text-slate-500">{{ field.help_text }}</p>
-                    {% endif %}
-                    {% for error in field.errors %}
-                        <p class="mt-1 text-sm text-red-700">{{ error }}</p>
-                    {% endfor %}
-                </div>
-            {% endfor %}
-        </div>
-        {% if form.non_field_errors %}
-            <div class="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-                {{ form.non_field_errors }}
-            </div>
-        {% endif %}
-        <div class="flex items-center justify-end gap-3 pt-2">
-            <a href="{% url 'expenses:list' %}" class="text-sm text-slate-500 hover:text-slate-800">
-                {% translate "Cancel" %}
-            </a>
-            <button type="submit" class="rounded bg-brand-600 hover:bg-brand-700 text-white px-4 py-2.5 text-sm font-medium">
-                {% translate "Save" %}
-            </button>
-        </div>
-    </form>
-</div>
+<div class="mx-auto max-w-5xl"><div class="mb-6 flex items-end justify-between gap-4"><div><p class="text-xs font-extrabold uppercase tracking-[.18em] text-brand-600 dark:text-brand-300">{{ eyebrow }}</p><h1 class="mt-1 text-2xl font-extrabold text-slate-950 dark:text-white sm:text-3xl">{{ title }}</h1><p class="mt-2 max-w-2xl text-sm text-slate-500 dark:text-slate-400">{% translate "Use this page for general operating costs. Vehicle-specific acquisition and preparation costs belong in landed cost." %}</p></div><a href="{{ cancel_url }}" class="button-secondary">{% translate "Cancel" %}</a></div><form method="post" novalidate class="workspace-panel p-5 sm:p-7">{% csrf_token %}{% if form.non_field_errors %}<div class="mb-5 rounded-xl bg-red-50 p-4 text-sm font-semibold text-red-700 dark:bg-red-950/30 dark:text-red-300">{{ form.non_field_errors }}</div>{% endif %}<div class="grid gap-5 md:grid-cols-2">{% for field in form %}<div class="{% if field.name == 'description' %}md:col-span-2{% endif %}"><label class="mb-1.5 block text-sm font-bold text-slate-700 dark:text-slate-200" for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %}<span class="text-red-600"> *</span>{% endif %}</label>{{ field }}{% if field.help_text %}<p class="mt-1.5 text-xs leading-5 text-slate-500 dark:text-slate-400">{{ field.help_text }}</p>{% endif %}{% for error in field.errors %}<p class="mt-1 text-sm font-semibold text-red-600">{{ error }}</p>{% endfor %}</div>{% endfor %}</div><div class="mt-7 flex justify-end border-t border-slate-200 pt-5 dark:border-slate-800"><button class="button-primary">{{ submit_label }}</button></div></form></div>
 {% endblock %}

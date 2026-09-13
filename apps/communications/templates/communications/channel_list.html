@@ -1,48 +1,27 @@
 {% extends "base.html" %}
 {% load i18n %}
-
-{% block title %}{% translate "Channels" %} — AUTOMEX CarFlow{% endblock %}
-
+{% block title %}{% translate "Channels" %} — AMOXRUNS{% endblock %}
 {% block content %}
-<div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-    <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">{% translate "Channels" %}</h1>
-    <a href="{% url 'communications:channel_create' %}"
-       class="inline-flex items-center justify-center rounded-xl bg-brand-600 hover:bg-brand-700 text-white px-4 py-2.5 text-sm font-bold shadow-sm transition">
-        {% translate "Add channel" %}
-    </a>
+<section class="workspace-hero">
+    <a href="{% url 'communications:conversation_list' %}" class="workspace-back-link"><svg class="h-4 w-4 rtl:rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m15 18-6-6 6-6" /></svg>{% translate "Conversations" %}</a>
+    <div class="workspace-hero-layout mt-4">
+        <div><p class="workspace-eyebrow">{% translate "Integrations" %}</p><div class="workspace-title-row"><h1 class="workspace-title">{% translate "Channels" %}</h1><span class="workspace-count">{{ metrics.total }}</span></div><p class="workspace-description">{% translate "Connect customer messaging services and monitor which channels are ready to receive conversations." %}</p></div>
+        {% if can_add %}<div class="workspace-actions"><a href="{% url 'communications:channel_create' %}" class="button-primary"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" d="M12 5v14M5 12h14" /></svg>{% translate "Add channel" %}</a></div>{% endif %}
+    </div>
+</section>
+
+<div class="mb-6 grid grid-cols-3 gap-3">
+    <div class="metric-card"><p class="text-xs font-bold uppercase text-slate-500">{% translate "All channels" %}</p><p class="mt-2 text-2xl font-extrabold">{{ metrics.total }}</p></div>
+    <div class="metric-card"><p class="text-xs font-bold uppercase text-emerald-600 dark:text-emerald-400">{% translate "Active" %}</p><p class="mt-2 text-2xl font-extrabold">{{ metrics.active }}</p></div>
+    <div class="metric-card"><p class="text-xs font-bold uppercase text-slate-500">{% translate "Inactive" %}</p><p class="mt-2 text-2xl font-extrabold">{{ metrics.inactive }}</p></div>
 </div>
-<div class="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-    <table class="data-table">
-        <thead>
-            <tr>
-                <th class="px-4 py-3 text-start font-medium">{% translate "Type" %}</th>
-                <th class="px-4 py-3 text-start font-medium">{% translate "Status" %}</th>
-                <th class="px-4 py-3"></th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for channel in channels %}
-                <tr>
-                    <td class="px-4 py-3 font-medium">{{ channel.get_type_display }}</td>
-                    <td class="px-4 py-3">
-                        {% if channel.active %}
-                            <span class="rounded bg-green-100 text-green-700 px-1.5 py-0.5 text-xs">{% translate "active" %}</span>
-                        {% else %}
-                            <span class="rounded bg-slate-200 text-slate-600 px-1.5 py-0.5 text-xs">{% translate "inactive" %}</span>
-                        {% endif %}
-                    </td>
-                    <td class="px-4 py-3 text-end">
-                        <a href="{% url 'communications:channel_edit' channel.pk %}" class="text-slate-500 hover:text-slate-800">
-                            {% translate "Edit" %}
-                        </a>
-                    </td>
-                </tr>
-            {% empty %}
-                <tr><td colspan="3" class="px-4 py-8 text-center text-slate-500">
-                    {% translate "No channels configured yet." %}
-                </td></tr>
-            {% endfor %}
-        </tbody>
-    </table>
+
+<div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+    {% for channel in channels %}<article class="workspace-entity-card flex min-h-60 flex-col">
+        <div class="flex items-start justify-between gap-3"><span class="workspace-entity-icon"><svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 5h16v12H8l-4 3V5Zm4 4h8m-8 4h5" /></svg></span><span class="rounded-full px-2.5 py-1 text-xs font-bold {% if channel.active %}bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300{% else %}bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-300{% endif %}">{% if channel.active %}{% translate "Active" %}{% else %}{% translate "Inactive" %}{% endif %}</span></div>
+        <div class="mt-4"><h2 class="text-lg font-extrabold text-slate-950 dark:text-white">{{ channel.get_type_display }}</h2><p class="mt-1 text-xs text-slate-500">{% translate "Messaging channel" %} #{{ channel.pk }}</p></div>
+        <dl class="mt-5 grid grid-cols-2 gap-3"><div class="detail-info-item"><dt>{% translate "Conversations" %}</dt><dd>{{ channel.conversation_count }}</dd></div><div class="detail-info-item"><dt>{% translate "Customer identities" %}</dt><dd>{{ channel.identity_count }}</dd></div></dl>
+        <div class="mt-auto flex items-center justify-between gap-3 border-t border-slate-100 pt-4 dark:border-slate-800"><span class="inline-flex items-center gap-1.5 text-xs font-bold {% if channel.credentials %}text-emerald-600 dark:text-emerald-400{% else %}text-amber-600 dark:text-amber-400{% endif %}"><span class="h-2 w-2 rounded-full {% if channel.credentials %}bg-emerald-500{% else %}bg-amber-500{% endif %}"></span>{% if channel.credentials %}{% translate "Configuration added" %}{% else %}{% translate "Configuration required" %}{% endif %}</span><a href="{% url 'communications:channel_edit' channel.pk %}" class="inline-flex min-h-10 items-center justify-center rounded-xl border border-slate-200 px-3 text-sm font-bold text-slate-600 transition hover:border-brand-300 hover:text-brand-700 dark:border-slate-700 dark:text-slate-300 dark:hover:border-brand-500 dark:hover:text-brand-300">{% translate "Edit" %}</a></div>
+    </article>{% empty %}<div class="workspace-panel py-14 text-center md:col-span-2 xl:col-span-3"><span class="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-brand-50 text-brand-700 dark:bg-brand-500/10 dark:text-brand-300"><svg class="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 5h16v12H8l-4 3V5Z" /></svg></span><h2 class="mt-4 font-extrabold text-slate-950 dark:text-white">{% translate "No channels configured yet." %}</h2><p class="mx-auto mt-2 max-w-md text-sm text-slate-500">{% translate "Add a messaging channel to begin receiving customer conversations." %}</p>{% if can_add %}<a href="{% url 'communications:channel_create' %}" class="button-primary mt-5">{% translate "Add channel" %}</a>{% endif %}</div>{% endfor %}
 </div>
 {% endblock %}

@@ -1,13 +1,34 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n l10n static %}
 
-{% block title %}{% translate "Dashboard" %} — AUTOMEX CarFlow{% endblock %}
+{% block title %}{% translate "Dashboard" %} — AMOXRUNS{% endblock %}
+
+{% block extra_head %}
+{{ block.super }}
+<style>
+    .dashboard-hero-cars {
+        background-image:
+            linear-gradient(110deg, rgba(15, 23, 42, .99) 0%, rgba(15, 23, 42, .94) 34%, rgba(15, 23, 42, .78) 57%, rgba(37, 99, 235, .24) 100%),
+            url("{% static 'img/dashboard-red-cars-hd.png' %}");
+        background-size: cover;
+        background-position: center right;
+        background-repeat: no-repeat;
+    }
+
+    html[dir="rtl"] .dashboard-hero-cars {
+        background-image:
+            linear-gradient(250deg, rgba(15, 23, 42, .99) 0%, rgba(15, 23, 42, .94) 34%, rgba(15, 23, 42, .78) 57%, rgba(37, 99, 235, .24) 100%),
+            url("{% static 'img/dashboard-red-cars-hd.png' %}");
+        background-position: center left;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
 {% if platform %}
 <div class="mb-7 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
     <div>
-        <p class="text-xs font-bold uppercase tracking-[.2em] text-brand-600">AUTOMEX</p>
+        <p class="text-xs font-bold uppercase tracking-[.2em] text-brand-600">AMOXRUNS</p>
         <h1 class="mt-2 text-3xl font-bold tracking-tight text-slate-950 dark:text-white">{% translate "Platform administration" %}</h1>
         <p class="mt-1 text-sm text-slate-500">{% blocktranslate with name=user.get_full_name|default:user.get_username %}Welcome back, {{ name }}.{% endblocktranslate %}</p>
     </div>
@@ -26,138 +47,175 @@
     </div>
 </div>
 {% else %}
-<section class="relative overflow-hidden rounded-[26px] bg-[#151719] px-5 py-6 text-white shadow-[0_24px_70px_rgba(15,17,19,.14)] sm:px-7 sm:py-7 lg:min-h-[230px] lg:px-8">
-    <div class="absolute -end-20 -top-28 h-72 w-72 rounded-full bg-brand-500/20 blur-3xl"></div>
-    <div class="absolute bottom-0 end-0 hidden h-full w-[48%] overflow-hidden lg:block" aria-hidden="true">
-        <svg class="absolute bottom-0 end-0 h-full w-full text-white/[.12]" viewBox="0 0 600 250" fill="none">
-            <path d="M52 169h44l27-48c8-14 22-23 38-25l180-20c25-3 49 6 66 24l44 47 65 16c18 4 31 21 31 40v9H67c-20 0-36-16-36-36v-7h21Z" stroke="currentColor" stroke-width="2"/>
-            <path d="m145 120 48-4 30 48H112l33-44Zm64-6 116-13c19-2 37 4 51 17l43 42H237l-28-46Z" stroke="currentColor" stroke-width="2"/>
-            <circle cx="151" cy="206" r="28" fill="#151719" stroke="#60A5FA" stroke-width="3"/><circle cx="151" cy="206" r="10" stroke="currentColor" stroke-width="2"/>
-            <circle cx="437" cy="206" r="28" fill="#151719" stroke="#60A5FA" stroke-width="3"/><circle cx="437" cy="206" r="10" stroke="currentColor" stroke-width="2"/>
-            <path d="M292 100v64M226 164h213M465 164h55" stroke="currentColor" stroke-width="2"/>
-        </svg>
-    </div>
-    <div class="relative z-10 max-w-2xl">
-        <div class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[.05] px-3 py-1.5 text-[10px] font-bold uppercase tracking-[.18em] text-brand-300">
-            <span class="h-1.5 w-1.5 rounded-full bg-brand-400 shadow-[0_0_0_4px_rgba(37,99,235,.18)]"></span>
-            {% translate "Operations snapshot" %}
+<div class="space-y-5">
+    <section class="dashboard-hero-cars relative overflow-hidden rounded-[32px] bg-[#111827] px-5 py-6 text-white shadow-[0_24px_70px_rgba(15,23,42,.22)] sm:px-7 sm:py-7 lg:px-8">
+        <div class="absolute -end-24 -top-32 h-96 w-96 rounded-full bg-brand-500/25 blur-3xl" aria-hidden="true"></div>
+        <div class="absolute bottom-0 end-0 hidden h-full w-[45%] overflow-hidden opacity-75 xl:block" aria-hidden="true">
+            <svg class="absolute bottom-0 end-0 h-full w-full text-white/[.12]" viewBox="0 0 620 280" fill="none">
+                <path d="M52 188h45l34-58c8-14 22-23 39-25l184-21c26-3 51 7 69 26l44 47 66 17c18 5 31 21 31 40v10H68c-20 0-36-16-36-36h20Z" stroke="currentColor" stroke-width="2"/>
+                <path d="m151 130 50-5 32 53H115l36-48Zm66-7 119-13c20-2 39 4 53 18l43 46H248l-31-51Z" stroke="currentColor" stroke-width="2"/>
+                <circle cx="157" cy="220" r="29" fill="#111827" stroke="#60A5FA" stroke-width="3"/><circle cx="157" cy="220" r="10" stroke="currentColor" stroke-width="2"/>
+                <circle cx="451" cy="220" r="29" fill="#111827" stroke="#60A5FA" stroke-width="3"/><circle cx="451" cy="220" r="10" stroke="currentColor" stroke-width="2"/>
+            </svg>
         </div>
-        <h1 class="mt-5 text-3xl font-bold tracking-[-.03em] text-white sm:text-4xl">{% blocktranslate with name=user.get_full_name|default:user.get_username %}Welcome back, {{ name }}.{% endblocktranslate %}</h1>
-        <p class="mt-2 max-w-lg text-sm leading-6 text-slate-400">{% translate "Sales, inventory and finance in one clear view." %}</p>
-        <div class="mt-6 flex flex-wrap gap-3">
-            {% if user.is_super_admin or 'sales.view' in user.permission_codenames %}
-            <a href="{% url 'sales:lead_create' %}" class="inline-flex items-center gap-2 rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-brand-700">
-                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M12 5v14M5 12h14" /></svg>{% translate "Create lead" %}
-            </a>
-            <a href="{% url 'sales:sale_create' %}" class="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/[.06] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10">{% translate "New sale" %}<span aria-hidden="true">{% if LANGUAGE_BIDI %}←{% else %}→{% endif %}</span></a>
-            {% endif %}
+        <div class="relative z-10 grid gap-6 xl:grid-cols-[1.2fr_.8fr] xl:items-stretch">
+            <div>
+                <div class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[.06] px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[.18em] text-brand-200">
+                    <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_0_6px_rgba(52,211,153,.16)]"></span>
+                    {% translate "Operations snapshot" %}
+                </div>
+                <h1 class="mt-5 max-w-3xl text-3xl font-black tracking-[-.045em] text-white sm:text-5xl xl:text-6xl">{% blocktranslate with name=user.get_full_name|default:user.get_username %}Welcome back, {{ name }}.{% endblocktranslate %}</h1>
+                <p class="mt-4 max-w-2xl text-sm leading-7 text-slate-300 sm:text-base">{% translate "Monitor sales, stock, cash flow and dealership performance from one place." %}</p>
+                <div class="mt-7 flex flex-wrap gap-3">
+                    {% if user.is_super_admin or 'sales.view' in user.permission_codenames %}
+                    <a href="{% url 'sales:lead_create' %}" class="inline-flex min-h-11 items-center gap-2 rounded-xl bg-white px-4 text-sm font-black text-brand-700 shadow-sm transition hover:bg-brand-50">
+                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M12 5v14M5 12h14" /></svg>{% translate "Create lead" %}
+                    </a>
+                    <a href="{% url 'sales:sale_create' %}" class="inline-flex min-h-11 items-center gap-2 rounded-xl border border-white/15 bg-white/[.07] px-4 text-sm font-bold text-white transition hover:bg-white/10">{% translate "New sale" %}<span aria-hidden="true">{% if LANGUAGE_BIDI %}←{% else %}→{% endif %}</span></a>
+                    {% endif %}
+                    {% if user.is_super_admin or 'payments.view' in user.permission_codenames %}
+                    <a href="{% url 'payments:create' %}" class="inline-flex min-h-11 items-center gap-2 rounded-xl border border-white/15 bg-white/[.07] px-4 text-sm font-bold text-white transition hover:bg-white/10">{% translate "Record payment" %}<span aria-hidden="true">{% if LANGUAGE_BIDI %}←{% else %}→{% endif %}</span></a>
+                    {% endif %}
+                </div>
+            </div>
+            <aside class="rounded-[26px] border border-white/10 bg-white/[.08] p-5 backdrop-blur">
+                <div class="flex items-center justify-between gap-3 text-xs font-bold text-slate-300"><span>{% translate "Monthly revenue" %}</span><bdi>{{ dashboard_currency }}</bdi></div>
+                <div class="mt-4 flex flex-wrap items-end gap-3"><strong class="font-mono text-4xl font-black tracking-[-.05em] text-white sm:text-5xl" dir="ltr">{{ dashboard_revenue|floatformat:0 }}</strong><span class="pb-1 text-xs font-black text-emerald-300">{% translate "Completed sales" %}: {{ stats.completed_sales }}</span></div>
+                <svg class="mt-5 h-24 w-full overflow-visible" viewBox="0 0 900 270" preserveAspectRatio="none" aria-hidden="true">
+                    <defs><linearGradient id="heroRevenueArea" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#93c5fd" stop-opacity=".42"/><stop offset="1" stop-color="#93c5fd" stop-opacity="0"/></linearGradient></defs>
+                    <polygon points="{{ sales_trend_area_points }}" fill="url(#heroRevenueArea)"></polygon>
+                    <polyline points="{{ sales_trend_points }}" fill="none" stroke="#bfdbfe" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"></polyline>
+                </svg>
+                <div class="mt-5 grid grid-cols-3 gap-2">
+                    <div class="rounded-2xl bg-white/[.08] p-3"><span class="block text-[11px] font-bold text-slate-300">{% translate "Net cash" %}</span><strong class="mt-1 block truncate font-mono text-sm text-white" dir="ltr">{% for currency,total in cash_position.items %}{{ total|floatformat:0 }} {{ currency }}{% if not forloop.last %} · {% endif %}{% empty %}0 {{ dashboard_currency }}{% endfor %}</strong></div>
+                    <div class="rounded-2xl bg-white/[.08] p-3"><span class="block text-[11px] font-bold text-slate-300">{% translate "Open leads" %}</span><strong class="mt-1 block font-mono text-lg text-white">{{ stats.open_leads }}</strong></div>
+                    <div class="rounded-2xl bg-white/[.08] p-3"><span class="block text-[11px] font-bold text-slate-300">{% translate "Outstanding" %}</span><strong class="mt-1 block font-mono text-lg text-white" dir="ltr">{{ dashboard_outstanding|floatformat:0 }}</strong></div>
+                </div>
+            </aside>
         </div>
-    </div>
-</section>
+    </section>
 
-<div class="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-4">
-    {% if user.is_super_admin or 'inventory.view' in user.permission_codenames %}
-    <a href="{% url 'inventory:list' %}" class="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md sm:p-5 dark:border-white/[.08] dark:bg-white/[.04] dark:hover:border-white/20">
-        <div class="flex items-start justify-between gap-3"><p class="text-xs font-medium text-slate-500 sm:text-sm">{% translate "Vehicles in stock" %}</p><span class="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-brand-50 text-brand-600 dark:bg-brand-500/10 dark:text-brand-300"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M3.5 15.5 5 10.75A2.5 2.5 0 017.4 9h9.2a2.5 2.5 0 012.4 1.75l1.5 4.75M5 15.5h14M7 19h-.5A1.5 1.5 0 015 17.5v-2h14v2a1.5 1.5 0 01-1.5 1.5H17" /></svg></span></div>
-        <p class="mt-5 text-3xl font-bold tracking-tight text-slate-950 dark:text-white">{{ stats.vehicles_in_stock }}</p>
-        <p class="mt-1 text-[11px] font-medium text-slate-400 group-hover:text-brand-600">{% translate "View inventory" %} {% if LANGUAGE_BIDI %}←{% else %}→{% endif %}</p>
-    </a>
+    <section class="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-4">
+        {% if user.is_super_admin or 'inventory.view' in user.permission_codenames %}
+        <a href="{% url 'inventory:list' %}" class="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-brand-200 hover:shadow-md sm:p-5 dark:border-white/[.08] dark:bg-white/[.04] dark:hover:border-brand-400/30">
+            <div class="flex items-start justify-between gap-3"><p class="text-xs font-bold text-slate-500 sm:text-sm">{% translate "Vehicles in stock" %}</p><span class="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-brand-50 text-brand-600 dark:bg-brand-500/10 dark:text-brand-300">🚘</span></div>
+            <p class="mt-5 font-mono text-3xl font-black tracking-tight text-slate-950 dark:text-white">{{ stats.vehicles_in_stock }}</p>
+            <p class="mt-1 text-[11px] font-bold text-slate-400 group-hover:text-brand-600">{% translate "View inventory" %} {% if LANGUAGE_BIDI %}←{% else %}→{% endif %}</p>
+        </a>
+        {% endif %}
+        {% if user.is_super_admin or 'sales.view' in user.permission_codenames %}
+        <a href="{% url 'sales:lead_list' %}" class="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-violet-200 hover:shadow-md sm:p-5 dark:border-white/[.08] dark:bg-white/[.04] dark:hover:border-violet-400/30">
+            <div class="flex items-start justify-between gap-3"><p class="text-xs font-bold text-slate-500 sm:text-sm">{% translate "Open leads" %}</p><span class="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-violet-50 text-violet-600 dark:bg-violet-400/10 dark:text-violet-300">◎</span></div>
+            <p class="mt-5 font-mono text-3xl font-black tracking-tight text-slate-950 dark:text-white">{{ stats.open_leads }}</p>
+            <p class="mt-1 text-[11px] font-bold text-slate-400 group-hover:text-violet-600">{{ stats.qualified_leads }} {% translate "qualified" %}</p>
+        </a>
+        <a href="{% url 'sales:sale_list' %}" class="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-emerald-200 hover:shadow-md sm:p-5 dark:border-white/[.08] dark:bg-white/[.04] dark:hover:border-emerald-400/30">
+            <div class="flex items-start justify-between gap-3"><p class="text-xs font-bold text-slate-500 sm:text-sm">{% translate "Completed sales" %}</p><span class="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-emerald-50 text-emerald-600 dark:bg-emerald-400/10 dark:text-emerald-300">↗</span></div>
+            <p class="mt-5 font-mono text-3xl font-black tracking-tight text-slate-950 dark:text-white">{{ stats.completed_sales }}</p>
+            <p class="mt-1 text-[11px] font-bold text-slate-400 group-hover:text-emerald-600">{% translate "View sales" %} {% if LANGUAGE_BIDI %}←{% else %}→{% endif %}</p>
+        </a>
+        {% endif %}
+        {% if user.is_super_admin or 'customers.view' in user.permission_codenames %}
+        <a href="{% url 'customers:list' %}" class="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-amber-200 hover:shadow-md sm:p-5 dark:border-white/[.08] dark:bg-white/[.04] dark:hover:border-amber-400/30">
+            <div class="flex items-start justify-between gap-3"><p class="text-xs font-bold text-slate-500 sm:text-sm">{% translate "Customers" %}</p><span class="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-amber-50 text-amber-600 dark:bg-amber-400/10 dark:text-amber-300">●</span></div>
+            <p class="mt-5 font-mono text-3xl font-black tracking-tight text-slate-950 dark:text-white">{{ stats.customers }}</p>
+            <p class="mt-1 text-[11px] font-bold text-slate-400 group-hover:text-amber-600">{% translate "View customers" %} {% if LANGUAGE_BIDI %}←{% else %}→{% endif %}</p>
+        </a>
+        {% endif %}
+    </section>
+
+    <section class="grid grid-cols-1 gap-5 xl:grid-cols-12">
+        {% if user.is_super_admin or 'sales.view' in user.permission_codenames %}
+        <article class="rounded-[26px] border border-slate-200 bg-white p-5 shadow-sm xl:col-span-8 dark:border-white/[.08] dark:bg-white/[.04]">
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                <div><h2 class="text-lg font-black tracking-tight text-slate-950 dark:text-white">{% translate "Sales and revenue trend" %}</h2><p class="mt-1 text-xs leading-5 text-slate-500">{% translate "Daily revenue with completed sales count for the selected operating window." %}</p></div>
+                <div class="inline-flex rounded-2xl border border-slate-200 bg-slate-50 p-1 text-xs font-black text-slate-500 dark:border-white/10 dark:bg-white/[.05]"><span class="rounded-xl bg-brand-600 px-3 py-2 text-white">{% translate "Revenue" %}</span><span class="px-3 py-2">{% translate "Sales count" %}</span></div>
+            </div>
+            <div class="mt-6 rounded-3xl bg-slate-50 p-3 dark:bg-white/[.03]">
+                <svg class="h-[330px] w-full overflow-visible" viewBox="0 0 920 300" preserveAspectRatio="none" role="img" aria-label="{% translate 'Sales and revenue trend' %}">
+                    <defs><linearGradient id="revenueArea" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#2563eb" stop-opacity=".24"/><stop offset="1" stop-color="#2563eb" stop-opacity="0"/></linearGradient></defs>
+                    <g stroke="currentColor" class="text-slate-200 dark:text-white/10">{% for i in "1234" %}<line x1="40" x2="880" y1="{{ forloop.counter0|add:1 }}00" y2="{{ forloop.counter0|add:1 }}00" stroke-width="1"/>{% endfor %}</g>
+                    <polygon points="{{ sales_trend_area_points }}" fill="url(#revenueArea)"></polygon>
+                    <polyline points="{{ sales_count_points }}" fill="none" stroke="#10b981" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></polyline>
+                    <polyline points="{{ sales_trend_points }}" fill="none" stroke="#2563eb" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"></polyline>
+                    {% for point in sales_trend %}<circle cx="{{ point.x }}" cy="{{ point.revenue_y }}" r="5" fill="white" stroke="#2563eb" stroke-width="3"></circle>{% if forloop.counter0|divisibleby:2 %}<text x="{{ point.x }}" y="292" text-anchor="middle" class="fill-slate-500 text-[11px] font-bold">{{ point.label }}</text>{% endif %}{% endfor %}
+                </svg>
+            </div>
+            <div class="mt-4 flex flex-wrap gap-4 text-xs font-bold text-slate-500"><span class="inline-flex items-center gap-2"><i class="h-2.5 w-2.5 rounded-full bg-brand-600"></i>{% translate "Revenue" %}</span><span class="inline-flex items-center gap-2"><i class="h-2.5 w-2.5 rounded-full bg-emerald-500"></i>{% translate "Sales count" %}</span></div>
+        </article>
+        {% endif %}
+
+        {% if user.is_super_admin or 'inventory.view' in user.permission_codenames %}
+        <article class="rounded-[26px] border border-slate-200 bg-white p-5 shadow-sm xl:col-span-4 dark:border-white/[.08] dark:bg-white/[.04]">
+            <div><h2 class="text-lg font-black tracking-tight text-slate-950 dark:text-white">{% translate "Inventory mix" %}</h2><p class="mt-1 text-xs leading-5 text-slate-500">{% translate "Current vehicle status distribution." %}</p></div>
+            <div class="mt-6 grid gap-5 sm:grid-cols-[210px_1fr] xl:grid-cols-1">
+                <div class="relative mx-auto grid h-52 w-52 place-items-center">
+                    <svg class="h-full w-full -rotate-90" viewBox="0 0 120 120" aria-hidden="true">
+                        <circle cx="60" cy="60" r="46" fill="none" stroke="currentColor" stroke-width="16" class="text-slate-100 dark:text-white/10"></circle>
+                        {% for item in inventory_mix %}<circle cx="60" cy="60" r="46" pathLength="100" fill="none" stroke-width="16" stroke-linecap="round" class="{% if item.color == 'brand' %}stroke-brand-600{% elif item.color == 'amber' %}stroke-amber-500{% elif item.color == 'emerald' %}stroke-emerald-500{% else %}stroke-slate-400{% endif %}" style="stroke-dasharray: {{ item.width|unlocalize }} 100; stroke-dashoffset: {{ item.offset|unlocalize }}"></circle>{% endfor %}
+                    </svg>
+                    <div class="absolute text-center"><strong class="block font-mono text-4xl font-black text-slate-950 dark:text-white">{{ inventory_total }}</strong><span class="text-xs font-bold text-slate-500">{% translate "Total vehicles" %}</span></div>
+                </div>
+                <div class="space-y-3">
+                    {% for item in inventory_mix %}<div><div class="flex items-center justify-between gap-3 text-xs font-black text-slate-500"><span>{{ item.label }}</span><b class="text-slate-900 dark:text-white">{{ item.value }}</b></div><div class="mt-2 h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-white/10"><span class="block h-full rounded-full {% if item.color == 'brand' %}bg-brand-600{% elif item.color == 'amber' %}bg-amber-500{% elif item.color == 'emerald' %}bg-emerald-500{% else %}bg-slate-400{% endif %}" style="width: {{ item.width|unlocalize }}%"></span></div></div>{% endfor %}
+                </div>
+            </div>
+        </article>
+        {% endif %}
+    </section>
+
+    <section class="grid grid-cols-1 gap-5 xl:grid-cols-12">
+        {% if user.is_super_admin or 'sales.view' in user.permission_codenames %}
+        <article class="rounded-[26px] border border-slate-200 bg-white p-5 shadow-sm xl:col-span-4 dark:border-white/[.08] dark:bg-white/[.04]">
+            <div><h2 class="text-lg font-black tracking-tight text-slate-950 dark:text-white">{% translate "Lead pipeline funnel" %}</h2><p class="mt-1 text-xs leading-5 text-slate-500">{% translate "Spot sales bottlenecks by lead stage." %}</p></div>
+            <div class="mt-6 space-y-3">
+                {% for item in lead_pipeline %}<div class="grid grid-cols-[92px_1fr_36px] items-center gap-3 text-xs font-black text-slate-500 sm:grid-cols-[110px_1fr_42px]"><span>{{ item.label }}</span><div class="h-10 overflow-hidden rounded-xl border border-slate-200 bg-slate-50 dark:border-white/10 dark:bg-white/[.04]"><span class="block h-full rounded-xl bg-gradient-to-r from-brand-600 to-brand-300 rtl:ms-auto" style="width: {{ item.width|unlocalize }}%"></span></div><b class="text-end font-mono text-slate-900 dark:text-white">{{ item.value }}</b></div>{% endfor %}
+            </div>
+        </article>
+        {% endif %}
+
+        {% if user.is_super_admin or 'payments.view' in user.permission_codenames %}
+        <article class="rounded-[26px] border border-slate-200 bg-white p-5 shadow-sm xl:col-span-4 dark:border-white/[.08] dark:bg-white/[.04]">
+            <div class="flex items-start justify-between gap-3"><div><h2 class="text-lg font-black tracking-tight text-slate-950 dark:text-white">{% translate "Cash position" %}</h2><p class="mt-1 text-xs leading-5 text-slate-500">{% translate "Money in and money out across recent days." %}</p></div><a href="{% url 'payments:list' %}" class="text-xs font-black text-brand-600 dark:text-brand-300">{% translate "Payments" %}</a></div>
+            <div class="mt-6 grid min-h-[255px] grid-cols-7 items-end gap-3 overflow-x-auto">
+                {% for item in cash_flow %}<div class="grid h-[255px] min-w-14 items-end justify-items-center gap-2"><div class="grid h-52 w-full grid-cols-2 items-end gap-1"><i class="block min-h-2 rounded-t-full bg-emerald-500" style="height: {{ item.in_height|unlocalize }}%"></i><i class="block min-h-2 rounded-t-full bg-red-500/80" style="height: {{ item.out_height|unlocalize }}%"></i></div><em class="text-[11px] not-italic font-black text-slate-500">{{ item.label }}</em></div>{% endfor %}
+            </div>
+            <div class="mt-4 flex flex-wrap gap-4 text-xs font-bold text-slate-500"><span class="inline-flex items-center gap-2"><i class="h-2.5 w-2.5 rounded-full bg-emerald-500"></i>{% translate "Money in" %}</span><span class="inline-flex items-center gap-2"><i class="h-2.5 w-2.5 rounded-full bg-red-500"></i>{% translate "Money out" %}</span></div>
+        </article>
+        {% endif %}
+
+        {% if user.is_super_admin or 'sales.view' in user.permission_codenames or 'inventory.view' in user.permission_codenames or 'payments.view' in user.permission_codenames or 'financing.view' in user.permission_codenames %}
+        <article class="rounded-[26px] border border-slate-200 bg-white p-5 shadow-sm xl:col-span-4 dark:border-white/[.08] dark:bg-white/[.04]">
+            <div><h2 class="text-lg font-black tracking-tight text-slate-950 dark:text-white">{% translate "Needs attention" %}</h2><p class="mt-1 text-xs leading-5 text-slate-500">{% translate "Actionable signals for today's dealership work." %}</p></div>
+            <div class="mt-6 space-y-3">
+                {% for item in attention_items %}<div class="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-3 dark:border-white/10 dark:bg-white/[.04]"><div><strong class="block text-sm text-slate-900 dark:text-white">{{ item.label }}</strong><span class="mt-0.5 block text-xs font-medium text-slate-500">{{ item.help }}</span></div><b class="grid h-9 min-w-9 place-items-center rounded-xl font-mono text-sm font-black {% if item.tone == 'amber' %}bg-amber-100 text-amber-700 dark:bg-amber-400/10 dark:text-amber-300{% elif item.tone == 'red' %}bg-red-100 text-red-700 dark:bg-red-400/10 dark:text-red-300{% elif item.tone == 'violet' %}bg-violet-100 text-violet-700 dark:bg-violet-400/10 dark:text-violet-300{% else %}bg-brand-100 text-brand-700 dark:bg-brand-500/10 dark:text-brand-300{% endif %}">{{ item.value }}</b></div>{% endfor %}
+            </div>
+        </article>
+        {% endif %}
+    </section>
+
+    {% if user.is_super_admin or 'sales.view' in user.permission_codenames or 'inventory.view' in user.permission_codenames or 'payments.view' in user.permission_codenames or 'expenses.view' in user.permission_codenames or 'customers.view' in user.permission_codenames or 'financing.view' in user.permission_codenames %}
+    <section class="rounded-[26px] border border-slate-200 bg-white p-5 shadow-sm dark:border-white/[.08] dark:bg-white/[.04]">
+        <div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between"><div><h2 class="text-lg font-black tracking-tight text-slate-950 dark:text-white">{% translate "Quick actions" %}</h2><p class="mt-1 text-xs leading-5 text-slate-500">{% translate "Start the most common workflows without leaving the dashboard." %}</p></div></div>
+        <div class="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {% if user.is_super_admin or 'inventory.view' in user.permission_codenames %}<a href="{% url 'vehicles:create' %}" class="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-brand-600 px-4 text-sm font-black text-white transition hover:bg-brand-700"><span class="text-lg">+</span>{% translate "Add vehicle" %}</a>{% endif %}
+            {% if user.is_super_admin or 'customers.view' in user.permission_codenames %}<a href="{% url 'customers:create' %}" class="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 text-sm font-bold text-slate-700 hover:bg-slate-50 dark:border-white/10 dark:text-slate-300 dark:hover:bg-white/[.05]"><span class="text-lg">+</span>{% translate "Add customer" %}</a>{% endif %}
+            {% if user.is_super_admin or 'sales.view' in user.permission_codenames %}<a href="{% url 'sales:lead_create' %}" class="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 text-sm font-bold text-slate-700 hover:bg-slate-50 dark:border-white/10 dark:text-slate-300 dark:hover:bg-white/[.05]"><span class="text-lg">+</span>{% translate "Add lead" %}</a>{% endif %}
+            {% if user.is_super_admin or 'payments.view' in user.permission_codenames %}<a href="{% url 'payments:create' %}" class="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 text-sm font-bold text-slate-700 hover:bg-slate-50 dark:border-white/10 dark:text-slate-300 dark:hover:bg-white/[.05]"><span class="text-lg">+</span>{% translate "Record payment" %}</a><a href="{% url 'payments:account_list' %}" class="inline-flex min-h-12 items-center justify-center rounded-xl border border-slate-200 px-4 text-sm font-bold text-slate-700 hover:bg-slate-50 dark:border-white/10 dark:text-slate-300 dark:hover:bg-white/[.05]">{% translate "Financial accounts" %}</a>{% endif %}
+            {% if user.is_super_admin or 'financing.view' in user.permission_codenames %}<a href="{% url 'financing:list' %}" class="inline-flex min-h-12 items-center justify-center rounded-xl border border-slate-200 px-4 text-sm font-bold text-slate-700 hover:bg-slate-50 dark:border-white/10 dark:text-slate-300 dark:hover:bg-white/[.05]">{% translate "Loans and installments" %}</a><a href="{% url 'financing:partner_list' %}" class="inline-flex min-h-12 items-center justify-center rounded-xl border border-slate-200 px-4 text-sm font-bold text-slate-700 hover:bg-slate-50 dark:border-white/10 dark:text-slate-300 dark:hover:bg-white/[.05]">{% translate "Finance partners" %}</a>{% endif %}
+            {% if user.is_super_admin or 'expenses.view' in user.permission_codenames %}<a href="{% url 'expenses:category_list' %}" class="inline-flex min-h-12 items-center justify-center rounded-xl border border-slate-200 px-4 text-sm font-bold text-slate-700 hover:bg-slate-50 dark:border-white/10 dark:text-slate-300 dark:hover:bg-white/[.05]">{% translate "Expense categories" %}</a>{% endif %}
+        </div>
+    </section>
     {% endif %}
+
     {% if user.is_super_admin or 'sales.view' in user.permission_codenames %}
-    <a href="{% url 'sales:lead_list' %}" class="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md sm:p-5 dark:border-white/[.08] dark:bg-white/[.04] dark:hover:border-white/20">
-        <div class="flex items-start justify-between gap-3"><p class="text-xs font-medium text-slate-500 sm:text-sm">{% translate "Open leads" %}</p><span class="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-violet-50 text-violet-600 dark:bg-violet-400/10 dark:text-violet-300"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3c2.75 0 5.45.23 8.08.68.53.09.92.56.92 1.1v1.04c0 .6-.24 1.17-.66 1.59l-5.43 5.43c-.42.42-.66 1-.66 1.59v2.93c0 .85-.48 1.63-1.24 2.01L9.75 21v-6.57c0-.6-.24-1.17-.66-1.59L3.66 7.41A2.25 2.25 0 013 5.82V4.77c0-.54.38-1 .92-1.09A48.3 48.3 0 0112 3Z" /></svg></span></div>
-        <p class="mt-5 text-3xl font-bold tracking-tight text-slate-950 dark:text-white">{{ stats.open_leads }}</p>
-        <p class="mt-1 text-[11px] font-medium text-slate-400 group-hover:text-violet-600">{% translate "View leads" %} {% if LANGUAGE_BIDI %}←{% else %}→{% endif %}</p>
-    </a>
-    <a href="{% url 'sales:sale_list' %}" class="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md sm:p-5 dark:border-white/[.08] dark:bg-white/[.04] dark:hover:border-white/20">
-        <div class="flex items-start justify-between gap-3"><p class="text-xs font-medium text-slate-500 sm:text-sm">{% translate "Completed sales" %}</p><span class="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-emerald-50 text-emerald-600 dark:bg-emerald-400/10 dark:text-emerald-300"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6.5h16v11H4zM7 10h10M7 14h6" /></svg></span></div>
-        <p class="mt-5 text-3xl font-bold tracking-tight text-slate-950 dark:text-white">{{ stats.completed_sales }}</p>
-        <p class="mt-1 text-[11px] font-medium text-slate-400 group-hover:text-emerald-600">{% translate "View sales" %} {% if LANGUAGE_BIDI %}←{% else %}→{% endif %}</p>
-    </a>
-    {% endif %}
-    {% if user.is_super_admin or 'customers.view' in user.permission_codenames %}
-    <a href="{% url 'customers:list' %}" class="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md sm:p-5 dark:border-white/[.08] dark:bg-white/[.04] dark:hover:border-white/20">
-        <div class="flex items-start justify-between gap-3"><p class="text-xs font-medium text-slate-500 sm:text-sm">{% translate "Customers" %}</p><span class="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-sky-50 text-sky-600 dark:bg-sky-400/10 dark:text-sky-300"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.1a9.4 9.4 0 002.6.4 9.3 9.3 0 004.1-1 4.1 4.1 0 00-7.5-2.4M12 6.4a3.4 3.4 0 11-6.8 0 3.4 3.4 0 016.8 0Z" /></svg></span></div>
-        <p class="mt-5 text-3xl font-bold tracking-tight text-slate-950 dark:text-white">{{ stats.customers }}</p>
-        <p class="mt-1 text-[11px] font-medium text-slate-400 group-hover:text-sky-600">{% translate "View customers" %} {% if LANGUAGE_BIDI %}←{% else %}→{% endif %}</p>
-    </a>
-    {% endif %}
-</div>
-
-<div class="mt-5 grid grid-cols-1 gap-5 xl:grid-cols-12">
-    {% if user.is_super_admin or 'inventory.view' in user.permission_codenames %}
-    <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6 xl:col-span-7 dark:border-white/[.08] dark:bg-white/[.04]">
-        <div class="flex items-center justify-between gap-3">
-            <div><h2 class="text-base font-bold text-slate-950 dark:text-white">{% translate "Inventory status" %}</h2><p class="mt-1 text-xs text-slate-500">{% translate "Current vehicle availability across the dealership." %}</p></div>
-            <a href="{% url 'inventory:list' %}" class="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 transition hover:bg-slate-50 dark:border-white/10 dark:text-slate-300 dark:hover:bg-white/[.05]">{% translate "View inventory" %}</a>
-        </div>
-        <div class="mt-6 grid gap-3 sm:grid-cols-3">
-            <div class="rounded-2xl bg-brand-50 p-4 dark:bg-brand-500/10"><div class="flex items-center justify-between"><span class="text-xs font-semibold text-slate-600 dark:text-slate-300">{% translate "Available" %}</span><span class="h-2 w-2 rounded-full bg-brand-600 dark:bg-brand-400"></span></div><p class="mt-5 text-3xl font-bold text-slate-950 dark:text-white">{{ inventory_statuses.available }}</p><div class="mt-4 h-1.5 overflow-hidden rounded-full bg-brand-900/[.06] dark:bg-white/10"><div class="h-full w-4/5 rounded-full bg-brand-600 dark:bg-brand-400"></div></div></div>
-            <div class="rounded-2xl bg-sky-50 p-4 dark:bg-sky-400/10"><div class="flex items-center justify-between"><span class="text-xs font-semibold text-slate-600 dark:text-slate-300">{% translate "Reserved" %}</span><span class="h-2 w-2 rounded-full bg-sky-500"></span></div><p class="mt-5 text-3xl font-bold text-slate-950 dark:text-white">{{ inventory_statuses.reserved }}</p><div class="mt-4 h-1.5 overflow-hidden rounded-full bg-sky-900/[.06] dark:bg-white/10"><div class="h-full w-1/3 rounded-full bg-sky-500"></div></div></div>
-            <div class="rounded-2xl bg-emerald-50 p-4 dark:bg-emerald-400/10"><div class="flex items-center justify-between"><span class="text-xs font-semibold text-slate-600 dark:text-slate-300">{% translate "Sold pending delivery" %}</span><span class="h-2 w-2 rounded-full bg-emerald-500"></span></div><p class="mt-5 text-3xl font-bold text-slate-950 dark:text-white">{{ inventory_statuses.sold_pending_delivery }}</p><div class="mt-4 h-1.5 overflow-hidden rounded-full bg-emerald-900/[.06] dark:bg-white/10"><div class="h-full w-2/3 rounded-full bg-emerald-500"></div></div></div>
-        </div>
-        <div class="mt-5 flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-slate-100 pt-4 text-xs text-slate-500 dark:border-white/[.07]">
-            <span><strong class="text-slate-900 dark:text-white">{{ stats.active_reservations }}</strong> {% translate "Active reservations" %}</span>
-            <span><strong class="text-slate-900 dark:text-white">{{ stats.qualified_leads }}</strong> {% translate "Qualified leads" %}</span>
-        </div>
-    </section>
-    {% endif %}
-
-    {% if user.is_super_admin or 'payments.view' in user.permission_codenames %}
-    <section class="rounded-2xl bg-[#151719] p-5 text-white shadow-sm sm:p-6 xl:col-span-5">
-        <div class="flex items-center justify-between gap-3"><div><h2 class="text-base font-bold">{% translate "Cash position" %}</h2><p class="mt-1 text-xs text-slate-500">{% translate "Live balance by currency" %}</p></div><a href="{% url 'accounting:summary' %}" class="text-xs font-semibold text-brand-300 hover:text-brand-200">{% translate "Summary" %} {% if LANGUAGE_BIDI %}←{% else %}→{% endif %}</a></div>
-        {% if cash_position %}
-        <div class="mt-6 space-y-3">
-            {% for currency, total in cash_position.items %}
-            <div class="flex items-center justify-between rounded-2xl border border-white/[.08] bg-white/[.04] px-4 py-3.5"><div class="flex items-center gap-3"><span class="grid h-9 w-9 place-items-center rounded-full bg-brand-500/15 text-xs font-bold text-brand-300">{{ currency|slice:':1' }}</span><span class="text-sm font-semibold text-slate-300">{{ currency }}</span></div><span class="font-mono text-lg font-semibold" dir="ltr">{{ total }}</span></div>
-            {% endfor %}
-        </div>
-        {% else %}<div class="mt-6 rounded-2xl border border-dashed border-white/10 px-4 py-8 text-center text-sm text-slate-500">{% translate "No cash movements yet." %}</div>{% endif %}
-        <div class="mt-5 grid grid-cols-2 gap-3 border-t border-white/[.08] pt-5">
-            <a href="{% url 'payments:create' %}" class="rounded-xl bg-brand-600 px-3 py-2.5 text-center text-xs font-bold text-white transition hover:bg-brand-700">{% translate "Record payment" %}</a>
-            <a href="{% url 'accounting:receivables' %}" class="rounded-xl border border-white/10 px-3 py-2.5 text-center text-xs font-semibold text-slate-300 hover:bg-white/[.05]">{% translate "Customer balances" %}</a>
-        </div>
+    <section class="overflow-hidden rounded-[26px] border border-slate-200 bg-white shadow-sm dark:border-white/[.08] dark:bg-white/[.04]">
+        <div class="flex flex-col gap-2 border-b border-slate-100 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 dark:border-white/[.07]"><div><h2 class="text-lg font-black tracking-tight text-slate-950 dark:text-white">{% translate "Recent sales" %}</h2><p class="mt-1 text-xs text-slate-500">{% translate "Latest completed and active deals with payment visibility." %}</p></div><a href="{% url 'sales:sale_list' %}" class="text-xs font-black text-brand-600 dark:text-brand-300">{% translate "View all" %} {% if LANGUAGE_BIDI %}←{% else %}→{% endif %}</a></div>
+        {% if recent_sales_rows %}<div class="overflow-x-auto"><table class="data-table min-w-[820px]"><thead><tr><th class="px-5 py-3 sm:px-6">{% translate "Customer" %}</th><th class="px-5 py-3">{% translate "Vehicle" %}</th><th class="px-5 py-3">{% translate "Amount" %}</th><th class="px-5 py-3">{% translate "Paid" %}</th><th class="px-5 py-3">{% translate "Balance" %}</th><th class="px-5 py-3">{% translate "Status" %}</th><th class="px-5 py-3 sm:px-6">{% translate "Date" %}</th></tr></thead><tbody>
+            {% for row in recent_sales_rows %}<tr><td class="px-5 py-3.5 font-semibold sm:px-6"><a href="{% url 'sales:sale_detail' row.sale.pk %}" class="hover:text-brand-600">{{ row.sale.customer.full_name }}</a></td><td class="px-5 py-3.5 text-slate-600 dark:text-slate-300">{{ row.sale.vehicle.make }} {{ row.sale.vehicle.model }} ({{ row.sale.vehicle.year }})</td><td class="whitespace-nowrap px-5 py-3.5 font-mono text-xs" dir="ltr">{{ row.sale.agreed_amount }} {{ row.sale.currency }}</td><td class="whitespace-nowrap px-5 py-3.5 font-mono text-xs" dir="ltr">{% if row.payment %}{{ row.payment.paid }} {{ row.payment.currency }}{% else %}—{% endif %}</td><td class="whitespace-nowrap px-5 py-3.5 font-mono text-xs" dir="ltr">{% if row.payment %}{{ row.payment.outstanding }} {{ row.payment.currency }}{% else %}—{% endif %}</td><td class="px-5 py-3.5"><span class="rounded-full px-2.5 py-1 text-[10px] font-black {% if row.sale.status == 'completed' %}bg-emerald-50 text-emerald-700 dark:bg-emerald-400/10 dark:text-emerald-300{% elif row.sale.status == 'cancelled' %}bg-red-50 text-red-700 dark:bg-red-400/10 dark:text-red-300{% else %}bg-amber-50 text-amber-700 dark:bg-amber-400/10 dark:text-amber-300{% endif %}">{{ row.sale.get_status_display }}</span></td><td class="whitespace-nowrap px-5 py-3.5 text-xs text-slate-500 sm:px-6">{{ row.sale.created_at|date:"Y-m-d" }}</td></tr>{% endfor %}
+        </tbody></table></div>{% else %}<div class="px-5 py-10 text-center text-sm text-slate-500">{% translate "No sales recorded yet." %} <a href="{% url 'sales:sale_create' %}" class="font-semibold text-brand-600">{% translate "Create the first one" %} {% if LANGUAGE_BIDI %}←{% else %}→{% endif %}</a></div>{% endif %}
     </section>
     {% endif %}
 </div>
-
-<div class="mt-5 grid grid-cols-1 gap-5 xl:grid-cols-12">
-    {% if user.is_super_admin or 'sales.view' in user.permission_codenames %}
-    <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6 xl:col-span-7 dark:border-white/[.08] dark:bg-white/[.04]">
-        <div class="flex items-center justify-between"><div><h2 class="text-base font-bold text-slate-950 dark:text-white">{% translate "Sales pipeline" %}</h2><p class="mt-1 text-xs text-slate-500">{% translate "Latest customer opportunities" %}</p></div><a href="{% url 'sales:lead_list' %}" class="text-xs font-semibold text-brand-600 dark:text-brand-300">{% translate "All leads" %} {% if LANGUAGE_BIDI %}←{% else %}→{% endif %}</a></div>
-        {% if recent_leads %}<div class="mt-5 divide-y divide-slate-100 dark:divide-white/[.07]">
-            {% for lead in recent_leads %}
-            <a href="{% url 'sales:lead_detail' lead.pk %}" class="flex items-center gap-3 py-3 first:pt-0 last:pb-0">
-                <span class="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-slate-100 text-xs font-bold text-slate-600 dark:bg-white/[.07] dark:text-slate-300">{{ lead.name|slice:':1'|upper }}</span>
-                <span class="min-w-0 flex-1"><span class="block truncate text-sm font-semibold text-slate-900 dark:text-white">{{ lead.name }}</span><span class="mt-0.5 block truncate text-xs text-slate-500">{{ lead.phone|default:"—" }} · {% if lead.assigned_to %}{{ lead.assigned_to.get_full_name|default:lead.assigned_to.get_username }}{% else %}{% translate "Unassigned" %}{% endif %}</span></span>
-                <span class="rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-[9px] font-bold uppercase tracking-wide text-amber-700 dark:border-amber-400/20 dark:bg-amber-400/10 dark:text-amber-300">{{ lead.get_status_display }}</span>
-            </a>
-            {% endfor %}
-        </div>{% else %}<div class="mt-5 rounded-2xl border border-dashed border-slate-200 px-4 py-8 text-center text-sm text-slate-500 dark:border-white/10">{% translate "No leads yet." %}</div>{% endif %}
-    </section>
-    {% endif %}
-
-    {% if user.is_super_admin or 'sales.view' in user.permission_codenames or 'inventory.view' in user.permission_codenames or 'payments.view' in user.permission_codenames or 'expenses.view' in user.permission_codenames or 'customers.view' in user.permission_codenames %}
-    <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6 xl:col-span-5 dark:border-white/[.08] dark:bg-white/[.04]">
-        <h2 class="text-base font-bold text-slate-950 dark:text-white">{% translate "Quick actions" %}</h2><p class="mt-1 text-xs text-slate-500">{% translate "Start the most common workflows" %}</p>
-        <div class="mt-5 grid grid-cols-2 gap-3">
-            {% if user.is_super_admin or 'inventory.view' in user.permission_codenames %}<a href="{% url 'vehicles:create' %}" class="inline-flex min-h-12 items-center gap-2 rounded-xl bg-brand-600 px-3 py-3 text-xs font-bold text-white transition hover:bg-brand-700"><span class="text-lg">+</span>{% translate "Add vehicle" %}</a>{% endif %}
-            {% if user.is_super_admin or 'customers.view' in user.permission_codenames %}<a href="{% url 'customers:create' %}" class="inline-flex min-h-12 items-center gap-2 rounded-xl border border-slate-200 px-3 py-3 text-xs font-semibold text-slate-700 hover:bg-slate-50 dark:border-white/10 dark:text-slate-300 dark:hover:bg-white/[.05]"><span class="text-lg">+</span>{% translate "Add customer" %}</a>{% endif %}
-            {% if user.is_super_admin or 'sales.view' in user.permission_codenames %}<a href="{% url 'sales:lead_create' %}" class="inline-flex min-h-12 items-center gap-2 rounded-xl border border-slate-200 px-3 py-3 text-xs font-semibold text-slate-700 hover:bg-slate-50 dark:border-white/10 dark:text-slate-300 dark:hover:bg-white/[.05]"><span class="text-lg">+</span>{% translate "Add lead" %}</a>{% endif %}
-            {% if user.is_super_admin or 'payments.view' in user.permission_codenames %}<a href="{% url 'payments:create' %}" class="inline-flex min-h-12 items-center gap-2 rounded-xl border border-slate-200 px-3 py-3 text-xs font-semibold text-slate-700 hover:bg-slate-50 dark:border-white/10 dark:text-slate-300 dark:hover:bg-white/[.05]"><span class="text-lg">+</span>{% translate "Record payment" %}</a><a href="{% url 'payments:account_list' %}" class="inline-flex min-h-12 items-center rounded-xl border border-slate-200 px-3 py-3 text-xs font-semibold text-slate-700 hover:bg-slate-50 dark:border-white/10 dark:text-slate-300 dark:hover:bg-white/[.05]">{% translate "Financial accounts" %}</a>{% endif %}
-            {% if user.is_super_admin or 'expenses.view' in user.permission_codenames %}<a href="{% url 'expenses:category_list' %}" class="inline-flex min-h-12 items-center rounded-xl border border-slate-200 px-3 py-3 text-xs font-semibold text-slate-700 hover:bg-slate-50 dark:border-white/10 dark:text-slate-300 dark:hover:bg-white/[.05]">{% translate "Expense categories" %}</a>{% endif %}
-        </div>
-    </section>
-    {% endif %}
-</div>
-
-{% if user.is_super_admin or 'sales.view' in user.permission_codenames %}
-<section class="mt-5 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-white/[.08] dark:bg-white/[.04]">
-    <div class="flex items-center justify-between border-b border-slate-100 px-5 py-4 sm:px-6 dark:border-white/[.07]"><div><h2 class="text-base font-bold text-slate-950 dark:text-white">{% translate "Recent sales" %}</h2><p class="mt-1 text-xs text-slate-500">{% translate "Latest completed and active deals" %}</p></div><a href="{% url 'sales:sale_list' %}" class="text-xs font-semibold text-brand-600 dark:text-brand-300">{% translate "View all" %} {% if LANGUAGE_BIDI %}←{% else %}→{% endif %}</a></div>
-    {% if recent_sales %}<div class="overflow-x-auto"><table class="data-table"><thead><tr><th class="px-5 py-3 sm:px-6">{% translate "Customer" %}</th><th class="px-5 py-3">{% translate "Vehicle" %}</th><th class="px-5 py-3">{% translate "Amount" %}</th><th class="px-5 py-3">{% translate "Status" %}</th><th class="px-5 py-3 sm:px-6">{% translate "Date" %}</th></tr></thead><tbody>
-        {% for sale in recent_sales %}<tr><td class="px-5 py-3.5 font-semibold sm:px-6"><a href="{% url 'sales:sale_detail' sale.pk %}" class="hover:text-brand-600">{{ sale.customer.full_name }}</a></td><td class="px-5 py-3.5 text-slate-600">{{ sale.vehicle.make }} {{ sale.vehicle.model }} ({{ sale.vehicle.year }})</td><td class="whitespace-nowrap px-5 py-3.5 font-mono text-xs" dir="ltr">{{ sale.agreed_amount }} {{ sale.currency }}</td><td class="px-5 py-3.5"><span class="rounded-full px-2.5 py-1 text-[10px] font-bold {% if sale.status == 'completed' %}bg-emerald-50 text-emerald-700 dark:bg-emerald-400/10 dark:text-emerald-300{% elif sale.status == 'cancelled' %}bg-red-50 text-red-700 dark:bg-red-400/10 dark:text-red-300{% else %}bg-amber-50 text-amber-700 dark:bg-amber-400/10 dark:text-amber-300{% endif %}">{{ sale.get_status_display }}</span></td><td class="whitespace-nowrap px-5 py-3.5 text-xs text-slate-500 sm:px-6">{{ sale.created_at|date:"Y-m-d" }}</td></tr>{% endfor %}
-    </tbody></table></div>{% else %}<div class="px-5 py-10 text-center text-sm text-slate-500">{% translate "No sales recorded yet." %} <a href="{% url 'sales:sale_create' %}" class="font-semibold text-brand-600">{% translate "Create the first one" %} {% if LANGUAGE_BIDI %}←{% else %}→{% endif %}</a></div>{% endif %}
-</section>
-{% endif %}
 {% endif %}
 {% endblock %}

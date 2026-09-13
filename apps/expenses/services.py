@@ -40,6 +40,12 @@ def record_expense(
     if not category.active:
         raise ValidationError({"category": _("The selected expense category is inactive.")})
     _validate_account(account, company, currency)
+    if branch is None:
+        branch = account.branch
+    elif account.branch_id and account.branch_id != branch.pk:
+        raise ValidationError(
+            {"branch": _("Expense branch must match the financial account branch.")}
+        )
 
     return LedgerEntry.objects.create(
         company=company,

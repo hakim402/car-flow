@@ -7,7 +7,8 @@ from apps.core.constants import CURRENCIES, DEFAULT_CURRENCY
 from apps.core.forms import StyledFormMixin
 from apps.core.tenancy import get_current_company
 from apps.payments.models import FinancialAccount, PaymentMethod
-from apps.sales.models import Sale
+from apps.purchases.models import PurchaseOrder, PurchaseStatus
+from apps.sales.models import Reservation, ReservationStatus, Sale, SaleStatus
 from apps.suppliers.models import Supplier
 
 
@@ -28,17 +29,32 @@ class FinancialAccountForm(StyledFormMixin, forms.ModelForm):
         else:
             self.fields["branch"].queryset = FinancialAccount._meta.get_field("branch").remote_field.model.objects.none()
 
+    def clean_currency(self):
+        currency = self.cleaned_data["currency"]
+        if self.instance.pk and self.instance.ledger_entries.exists() and currency != self.instance.currency:
+            raise forms.ValidationError(
+                _("Currency cannot be changed after transactions have been recorded.")
+            )
+        return currency
+
 
 class PaymentForm(StyledFormMixin, forms.Form):
     sale = forms.ModelChoiceField(
         label=_("sale"),
         queryset=Sale.all_objects.none(),
+        required=False,
         help_text=_("Completed sale this payment belongs to."),
+    )
+    reservation = forms.ModelChoiceField(
+        label=_("reservation"),
+        queryset=Reservation.all_objects.none(),
+        required=False,
+        help_text=_("Active reservation this deposit belongs to."),
     )
     account = forms.ModelChoiceField(
         label=_("financial account"),
         queryset=FinancialAccount.all_objects.none(),
-        required=False,
+        required=True,
         help_text=_("Cash or bank account where the payment was received."),
     )
     amount = forms.DecimalField(
@@ -63,6 +79,7 @@ class PaymentForm(StyledFormMixin, forms.Form):
     transaction_date = forms.DateField(
         label=_("transaction date"),
         required=False,
+        widget=forms.DateInput(attrs={"type": "date"}),
         help_text=_("Date the money was received."),
     )
     reference = forms.CharField(
@@ -88,25 +105,45 @@ class PaymentForm(StyledFormMixin, forms.Form):
         super().__init__(*args, **kwargs)
         company = get_current_company()
         if company is not None:
-            self.fields["sale"].queryset = Sale.objects.all()
-            self.fields["account"].queryset = FinancialAccount.objects.all()
+            self.fields["sale"].queryset = Sale.objects.filter(
+                status=SaleStatus.COMPLETED
+            )
+            self.fields["reservation"].queryset = Reservation.objects.filter(
+                status=ReservationStatus.ACTIVE
+            )
+            self.fields["account"].queryset = FinancialAccount.objects.filter(active=True)
         else:
             self.fields["sale"].queryset = Sale.all_objects.none()
+            self.fields["reservation"].queryset = Reservation.all_objects.none()
             self.fields["account"].queryset = FinancialAccount.all_objects.none()
 
     def clean(self):
         cleaned = super().clean()
         sale = cleaned.get("sale")
+        reservation = cleaned.get("reservation")
         account = cleaned.get("account")
         currency = cleaned.get("currency")
+        if bool(sale) == bool(reservation):
+            raise forms.ValidationError(
+                _("Select exactly one sale or reservation for this payment.")
+            )
         if sale and currency and sale.currency != currency:
             self.add_error("currency", _("Payment currency must match the sale currency."))
+        if reservation and currency and reservation.currency != currency:
+            self.add_error(
+                "currency", _("Payment currency must match the reservation currency.")
+            )
         if account and currency and account.currency != currency:
             self.add_error("account", _("Payment currency must match the financial account currency."))
         return cleaned
 
 
 class SupplierPaymentForm(StyledFormMixin, forms.Form):
+    purchase_order = forms.ModelChoiceField(
+        label=_("purchase order"),
+        queryset=PurchaseOrder.all_objects.none(),
+        help_text=_("Purchase order whose outstanding balance this payment reduces."),
+    )
     supplier = forms.ModelChoiceField(
         label=_("supplier"),
         queryset=Supplier.all_objects.none(),
@@ -115,7 +152,7 @@ class SupplierPaymentForm(StyledFormMixin, forms.Form):
     account = forms.ModelChoiceField(
         label=_("financial account"),
         queryset=FinancialAccount.all_objects.none(),
-        required=False,
+        required=True,
         help_text=_("Bank or cash account used to pay the supplier."),
     )
     amount = forms.DecimalField(
@@ -140,6 +177,7 @@ class SupplierPaymentForm(StyledFormMixin, forms.Form):
     transaction_date = forms.DateField(
         label=_("transaction date"),
         required=False,
+        widget=forms.DateInput(attrs={"type": "date"}),
         help_text=_("Date the supplier payment was made."),
     )
     reference = forms.CharField(
@@ -166,15 +204,39 @@ class SupplierPaymentForm(StyledFormMixin, forms.Form):
         company = get_current_company()
         if company is not None:
             self.fields["supplier"].queryset = Supplier.objects.all()
-            self.fields["account"].queryset = FinancialAccount.objects.all()
+            self.fields["purchase_order"].queryset = PurchaseOrder.objects.exclude(
+                status=PurchaseStatus.CANCELLED
+            ).select_related("supplier")
+            self.fields["account"].queryset = FinancialAccount.objects.filter(active=True)
         else:
             self.fields["supplier"].queryset = Supplier.all_objects.none()
+            self.fields["purchase_order"].queryset = PurchaseOrder.all_objects.none()
             self.fields["account"].queryset = FinancialAccount.all_objects.none()
 
     def clean(self):
         cleaned = super().clean()
         account = cleaned.get("account")
+        supplier = cleaned.get("supplier")
+        purchase_order = cleaned.get("purchase_order")
         currency = cleaned.get("currency")
+        if supplier and purchase_order and purchase_order.supplier_id != supplier.pk:
+            self.add_error(
+                "purchase_order", _("Purchase order must belong to the selected supplier.")
+            )
+        if purchase_order and currency and currency not in purchase_order.total_by_currency():
+            self.add_error(
+                "currency", _("Payment currency must match a currency used by the purchase order.")
+            )
         if account and currency and account.currency != currency:
             self.add_error("account", _("Payment currency must match the financial account currency."))
         return cleaned
+
+
+class ReversalForm(StyledFormMixin, forms.Form):
+    reason = forms.CharField(
+        label=_("reversal reason"),
+        min_length=5,
+        max_length=255,
+        widget=forms.Textarea(attrs={"rows": 3}),
+        help_text=_("Explain why this immutable transaction must be reversed."),
+    )

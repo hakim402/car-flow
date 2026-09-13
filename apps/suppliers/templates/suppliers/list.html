@@ -1,83 +1,47 @@
 {% extends "base.html" %}
 {% load i18n %}
 
-{% block title %}{% translate "Suppliers" %} — AUTOMEX CarFlow{% endblock %}
+{% block title %}{% translate "Suppliers" %} — AMOXRUNS{% endblock %}
 
 {% block content %}
-<div class="flex items-center justify-between mb-4">
-    <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">{% translate "Suppliers" %}</h1>
-    <a href="{% url 'suppliers:create' %}"
-       class="inline-flex items-center justify-center rounded-xl bg-brand-600 hover:bg-brand-700 text-white px-4 py-2.5 text-sm font-bold shadow-sm transition">
-        {% translate "Add supplier" %}
-    </a>
-</div>
-<form method="get" class="flex items-center gap-3 mb-4">
-    <input type="search" name="q" value="{{ q }}" placeholder="{% translate 'Search suppliers…' %}"
-           class="rounded-xl border border-slate-300 bg-slate-50 px-3 py-2.5 text-sm text-slate-800 shadow-sm outline-none transition focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-100 w-64">
-    <button type="submit" class="inline-flex items-center justify-center rounded-xl bg-slate-900 hover:bg-slate-800 text-white px-4 py-2.5 text-sm font-bold shadow-sm transition">
-        {% translate "Search" %}
-    </button>
-</form>
-<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-    {% for supplier in suppliers %}
-        <a href="{{ supplier.get_absolute_url }}"
-           class="group block card transition-shadow hover:shadow-md hover:ring-brand-300 overflow-hidden">
-            <div class="flex items-center gap-4 px-4 pt-4">
-                {% if supplier.logo %}
-                    <img src="{{ supplier.logo.file.url }}" alt="{{ supplier.name }}"
-                         class="h-14 w-14 shrink-0 {% if supplier.is_individual %}rounded-full{% else %}rounded-lg{% endif %} object-cover ring-1 ring-slate-200">
-                {% else %}
-                    <span class="flex h-14 w-14 shrink-0 items-center justify-center {% if supplier.is_individual %}rounded-full{% else %}rounded-lg{% endif %} bg-slate-800 text-brand-400">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                         stroke="currentColor" class="h-7 w-7">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                              d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.37a1.5 1.5 0 0 1 1.5-1.5h3a1.5 1.5 0 0 1 1.5 1.5V21" />
-                    </svg>
-                    </span>
-                {% endif %}
-                <div class="min-w-0">
-                    <div class="truncate font-medium text-slate-800 group-hover:text-brand-600">
-                        {{ supplier.name }}
-                    </div>
-                    <div class="mt-0.5 flex flex-wrap items-center gap-1">
-                        {% if supplier.is_individual %}
-                            <span class="rounded-full bg-emerald-100 text-emerald-700 px-2 py-0.5 text-xs whitespace-nowrap">{{ supplier.get_kind_display }}</span>
-                        {% else %}
-                            <span class="rounded-full bg-slate-100 text-slate-600 px-2 py-0.5 text-xs whitespace-nowrap">{{ supplier.get_kind_display }}</span>
-                        {% endif %}
-                        <span class="truncate text-xs text-slate-500">{{ supplier.get_supplier_type_display }}</span>
-                    </div>
-                    {% if supplier.national_id %}
-                        <div class="truncate text-xs text-slate-500" dir="ltr">{% translate "Tazkera" %}: {{ supplier.national_id }}</div>
-                    {% endif %}
-                    {% if supplier.country %}
-                        <div class="truncate text-xs text-slate-500">{{ supplier.get_country_display }}</div>
-                    {% endif %}
-                </div>
-            </div>
-            <div class="mt-3 border-t border-slate-100 px-4 py-3 text-sm text-slate-600">
-                <div class="flex items-center gap-2" dir="ltr">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                         stroke="currentColor" class="h-4 w-4 shrink-0 text-slate-400">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                              d="M2.25 6.75c0 8.28 6.72 15 15 15h2.25a2.25 2.25 0 0 0 2.25-2.25v-1.37c0-.52-.35-.97-.85-1.09l-4.42-1.11a1.13 1.13 0 0 0-1.17.32l-.88 1.1a11.94 11.94 0 0 1-5.3-5.3l1.1-.88c.37-.37.5-.89.32-1.39L7.84 5.1A1.13 1.13 0 0 0 6.75 4.5H5.63a2.25 2.25 0 0 0-2.25 2.25Z" />
-                    </svg>
-                    {{ supplier.phone|default:"—" }}
-                </div>
-                <div class="mt-1 flex items-center gap-2" dir="ltr">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                         stroke="currentColor" class="h-4 w-4 shrink-0 text-slate-400">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                              d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.24a2.25 2.25 0 0 1-1.07 1.92l-7.5 4.62a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.92v-.24" />
-                    </svg>
-                    {{ supplier.email|default:"—" }}
-                </div>
-            </div>
-        </a>
-    {% empty %}
-        <div class="col-span-full card px-4 py-8 text-center text-slate-500">
-            {% translate "No suppliers yet." %}
+<div class="space-y-6">
+    <section class="workspace-hero"><div class="workspace-hero-layout"><div><p class="workspace-eyebrow">{% translate "Buy & Stock" %}</p><div class="workspace-title-row"><h1 class="workspace-title">{% translate "Suppliers" %}</h1><span class="workspace-count">{{ page_obj.paginator.count }}</span></div><p class="workspace-description">{% translate "Manage private sellers, local dealers, auctions and overseas partners." %}</p></div><div class="workspace-actions"><a href="{% url 'suppliers:create' %}" class="button-primary"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-width="2" d="M12 5v14M5 12h14"/></svg>{% translate "Add supplier" %}</a></div></div></section>
+
+    <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <div class="metric-card"><p class="text-[11px] font-bold uppercase tracking-wide text-slate-500">{% translate "All suppliers" %}</p><p class="mt-2 text-2xl font-extrabold text-slate-900">{{ metrics.total }}</p></div>
+        <a href="?kind=business" class="metric-card"><p class="text-[11px] font-bold uppercase tracking-wide text-brand-600">{% translate "Businesses" %}</p><p class="mt-2 text-2xl font-extrabold text-slate-900">{{ metrics.businesses }}</p></a>
+        <a href="?kind=individual" class="metric-card"><p class="text-[11px] font-bold uppercase tracking-wide text-emerald-600">{% translate "Private sellers" %}</p><p class="mt-2 text-2xl font-extrabold text-slate-900">{{ metrics.individuals }}</p></a>
+        <a href="?type=overseas_dealer" class="metric-card"><p class="text-[11px] font-bold uppercase tracking-wide text-violet-600">{% translate "Overseas dealers" %}</p><p class="mt-2 text-2xl font-extrabold text-slate-900">{{ metrics.overseas }}</p></a>
+    </div>
+
+    <form method="get" class="workspace-panel p-4">
+        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-6">
+            <div class="sm:col-span-2"><label class="filter-label" for="supplier-search">{% translate "Search suppliers" %}</label><input id="supplier-search" type="search" name="q" value="{{ q }}" class="filter-control" placeholder="{% translate 'Name, contact, phone or email…' %}"></div>
+            <div><label class="filter-label" for="supplier-type">{% translate "Supplier type" %}</label><select id="supplier-type" name="type" class="filter-control"><option value="">{% translate "All supplier types" %}</option>{% for value, label in supplier_types %}<option value="{{ value }}" {% if supplier_type == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+            <div><label class="filter-label" for="supplier-kind">{% translate "Profile" %}</label><select id="supplier-kind" name="kind" class="filter-control"><option value="">{% translate "All profiles" %}</option>{% for value, label in supplier_kinds %}<option value="{{ value }}" {% if kind == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+            <div><label class="filter-label" for="supplier-country">{% translate "Country" %}</label><select id="supplier-country" name="country" class="filter-control"><option value="">{% translate "All countries" %}</option>{% for value, label in countries %}<option value="{{ value }}" {% if country == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+            <div><label class="filter-label" for="supplier-sort">{% translate "Sort by" %}</label><select id="supplier-sort" name="sort" class="filter-control"><option value="name" {% if sort == 'name' %}selected{% endif %}>{% translate "Supplier name" %}</option><option value="newest" {% if sort == 'newest' %}selected{% endif %}>{% translate "Recently added" %}</option><option value="most_orders" {% if sort == 'most_orders' %}selected{% endif %}>{% translate "Most orders" %}</option><option value="recent_purchase" {% if sort == 'recent_purchase' %}selected{% endif %}>{% translate "Latest purchase" %}</option></select></div>
         </div>
-    {% endfor %}
+        <div class="mt-4 flex justify-end gap-2">{% if q or supplier_type or kind or country or sort != 'name' %}<a href="{% url 'suppliers:list' %}" class="button-secondary">{% translate "Clear" %}</a>{% endif %}<button class="button-primary">{% translate "Apply filters" %}</button></div>
+    </form>
+
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+        {% for supplier in suppliers %}
+        <article class="workspace-panel overflow-hidden transition hover:-translate-y-0.5 hover:border-brand-300 hover:shadow-lg">
+            <a href="{{ supplier.get_absolute_url }}" class="block p-4 sm:p-5">
+                <div class="flex items-start gap-4">
+                    {% if supplier.logo %}<img src="{{ supplier.logo.file.url }}" alt="" class="h-14 w-14 shrink-0 object-cover ring-1 ring-slate-200 {% if supplier.is_individual %}rounded-full{% else %}rounded-xl{% endif %}">{% else %}<span class="grid h-14 w-14 shrink-0 place-items-center bg-brand-50 text-brand-700 {% if supplier.is_individual %}rounded-full{% else %}rounded-xl{% endif %}"><svg class="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-width="1.6" d="M4 20h16M6 20V8l6-4 6 4v12M9 11h6M9 15h6"/></svg></span>{% endif %}
+                    <div class="min-w-0 flex-1"><div class="flex items-start justify-between gap-2"><div class="min-w-0"><h2 class="truncate font-extrabold text-slate-900">{{ supplier.name }}</h2><p class="mt-0.5 truncate text-xs text-slate-500">{% if supplier.contact_person %}{{ supplier.contact_person }} · {% endif %}{% if supplier.country %}{{ supplier.get_country_display }}{% else %}{% translate "Country not set" %}{% endif %}</p></div>{% if supplier.active_order_count %}<span class="shrink-0 rounded-full bg-amber-100 px-2 py-1 text-[10px] font-bold text-amber-700">{{ supplier.active_order_count }} {% translate "open" %}</span>{% endif %}</div><div class="mt-2 flex flex-wrap gap-1.5"><span class="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-bold text-slate-600">{{ supplier.get_kind_display }}</span><span class="rounded-full bg-brand-50 px-2 py-0.5 text-[11px] font-bold text-brand-700">{{ supplier.get_supplier_type_display }}</span></div></div>
+                </div>
+            </a>
+            <div class="grid grid-cols-3 border-y border-slate-100 bg-slate-50/60 dark:border-slate-800"><div class="p-3 text-center"><p class="text-lg font-extrabold text-slate-900">{{ supplier.order_count }}</p><p class="text-[10px] font-semibold text-slate-500">{% translate "Orders" %}</p></div><div class="border-s border-slate-100 p-3 text-center dark:border-slate-800"><p class="text-lg font-extrabold text-slate-900">{{ supplier.vehicle_count }}</p><p class="text-[10px] font-semibold text-slate-500">{% translate "Vehicles" %}</p></div><div class="border-s border-slate-100 p-3 text-center dark:border-slate-800"><p class="truncate text-sm font-extrabold text-slate-900">{% if supplier.last_purchase_date %}{{ supplier.last_purchase_date|date:"SHORT_DATE_FORMAT" }}{% else %}—{% endif %}</p><p class="text-[10px] font-semibold text-slate-500">{% translate "Last purchase" %}</p></div></div>
+            <div class="p-4">
+                <div class="flex items-start justify-between gap-3"><div class="min-w-0 text-xs text-slate-500"><p class="truncate" dir="ltr">{{ supplier.phone|default:"—" }}</p><p class="mt-1 truncate" dir="ltr">{{ supplier.email|default:"—" }}</p></div><a href="{{ supplier.get_absolute_url }}" class="shrink-0 rounded-lg bg-slate-100 px-3 py-2 text-xs font-bold text-slate-700 hover:bg-brand-50 hover:text-brand-700">{% translate "View profile" %}</a></div>
+                {% if supplier.purchase_totals %}<div class="mt-3 flex items-start justify-between border-t border-slate-100 pt-3 text-xs"><span class="font-semibold text-slate-500">{% translate "Purchased value" %}</span><span class="text-end font-mono font-bold text-slate-700" dir="ltr">{% for currency, amount in supplier.purchase_totals.items %}<span class="block">{{ amount }} {{ currency }}</span>{% endfor %}</span></div>{% endif %}
+            </div>
+        </article>
+        {% empty %}<div class="workspace-panel col-span-full px-6 py-16 text-center"><h2 class="font-extrabold text-slate-800">{% translate "No suppliers found" %}</h2><p class="mt-1 text-sm text-slate-500">{% translate "Try changing your filters or add a new supplier." %}</p></div>{% endfor %}
+    </div>
+    <div class="workspace-panel">{% include "includes/pagination.html" %}</div>
 </div>
 {% endblock %}

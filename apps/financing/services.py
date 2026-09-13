@@ -10,6 +10,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from apps.accounting.services import sale_outstanding, sale_payments
+from apps.payments.models import EntryType
 from apps.payments.services import record_payment
 from apps.sales.models import SaleStatus
 
@@ -114,8 +115,8 @@ def submit_agreement(agreement: FinanceAgreement, user=None) -> FinanceAgreement
     return agreement
 
 
-def _down_payment_received(agreement: FinanceAgreement) -> Decimal:
-    paid = sale_payments(agreement.sale).get(agreement.currency, Decimal("0"))
+def _down_payment_received(agreement: FinanceAgreement, as_of=None) -> Decimal:
+    paid = sale_payments(agreement.sale, as_of=as_of).get(agreement.currency, Decimal("0"))
     return max(paid, Decimal("0"))
 
 
@@ -161,14 +162,16 @@ def approve_agreement(agreement: FinanceAgreement, user=None) -> FinanceAgreemen
     return agreement
 
 
-def installment_paid(installment: Installment) -> Decimal:
+def installment_paid(installment: Installment, as_of=None) -> Decimal:
     total = Decimal("0")
     allocations = installment.allocations.select_related("entry", "reversal_of").prefetch_related(
         "entry__reversals"
     )
     for allocation in allocations:
+        if as_of and allocation.entry.transaction_date > as_of:
+            continue
         # A reversed cash receipt has no economic effect on the schedule.
-        if allocation.entry.reversals.exists():
+        if any(not as_of or reversal.transaction_date <= as_of for reversal in allocation.entry.reversals.all()):
             continue
         total += -allocation.amount if allocation.reversal_of_id else allocation.amount
     return max(total, Decimal("0"))
@@ -176,7 +179,7 @@ def installment_paid(installment: Installment) -> Decimal:
 
 def installment_summary(installment: Installment, as_of=None) -> dict:
     as_of = as_of or timezone.localdate()
-    paid = installment_paid(installment)
+    paid = installment_paid(installment, as_of=as_of)
     outstanding = max(installment.amount - paid, Decimal("0"))
     grace_due = installment.due_date + timedelta(days=installment.agreement.grace_days)
     if outstanding == 0:
@@ -223,7 +226,7 @@ def agreement_summary(agreement: FinanceAgreement, as_of=None) -> dict:
         AgreementStatus.COMPLETED,
     }:
         dealership_outstanding = max(
-            sale_outstanding(agreement.sale).get(agreement.currency, Decimal("0")),
+            sale_outstanding(agreement.sale, as_of=as_of).get(agreement.currency, Decimal("0")),
             Decimal("0"),
         )
         scheduled = agreement.amount_financed
@@ -236,7 +239,7 @@ def agreement_summary(agreement: FinanceAgreement, as_of=None) -> dict:
         "outstanding": max(scheduled - paid, Decimal("0")),
         "overdue": overdue,
         "next_due": next_due,
-        "down_payment_received": _down_payment_received(agreement),
+        "down_payment_received": _down_payment_received(agreement, as_of=as_of),
         "rows": rows,
     }
 
@@ -356,6 +359,7 @@ def record_lender_disbursement(
         payment_method=payment_method,
         transaction_date=transaction_date,
         reference=reference or agreement.external_reference,
+        entry_type=EntryType.LENDER_DISBURSEMENT,
     )
     LenderDisbursement.objects.create(
         company=agreement.company,
@@ -381,6 +385,8 @@ def mark_defaulted(agreement: FinanceAgreement, user=None, description=""):
         raise ValidationError(_("Only active agreements can be marked defaulted."))
     if agreement_summary(agreement)["overdue"] <= 0:
         raise ValidationError(_("An agreement without overdue installments cannot be defaulted."))
+    if not description or len(description.strip()) < 5:
+        raise ValidationError(_("Provide a clear reason for marking this agreement defaulted."))
     agreement.status = AgreementStatus.DEFAULTED
     agreement.save(update_fields=["status", "updated_at"])
     _event(agreement, AgreementEventType.DEFAULTED, user, description)
@@ -392,6 +398,8 @@ def cancel_agreement(agreement: FinanceAgreement, user=None, description=""):
     agreement = FinanceAgreement.objects.select_for_update().get(pk=agreement.pk)
     if agreement.status not in {AgreementStatus.DRAFT, AgreementStatus.PENDING_APPROVAL}:
         raise ValidationError(_("Only draft or pending agreements can be cancelled."))
+    if not description or len(description.strip()) < 5:
+        raise ValidationError(_("Provide a clear reason for cancelling this agreement."))
     agreement.status = AgreementStatus.CANCELLED
     agreement.save(update_fields=["status", "updated_at"])
     _event(agreement, AgreementEventType.CANCELLED, user, description)

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{{ title }} — AMOXRUNS{% endblock %}
+{% block content %}
+<div class="mx-auto max-w-2xl">
+    <a href="{{ agreement.get_absolute_url }}" class="text-sm font-bold text-brand-700 dark:text-brand-300">← {% translate "Back to agreement" %}</a>
+    <section class="workspace-panel mt-5">
+        <p class="text-xs font-extrabold uppercase tracking-[.18em] text-red-600 dark:text-red-400">{% translate "Status change" %}</p>
+        <h1 class="mt-2 text-2xl font-extrabold text-slate-950 dark:text-white">{{ title }}</h1>
+        <p class="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">{{ warning }}</p>
+        <div class="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950/50">
+            <p class="font-bold text-slate-950 dark:text-white">{{ agreement.number }}</p>
+            <p class="mt-1 text-sm text-slate-500">{{ agreement.sale.customer }} · {{ agreement.sale.vehicle }}</p>
+            <p class="mt-2 font-mono text-sm font-extrabold" dir="ltr">{{ agreement.amount_financed }} {{ agreement.currency }}</p>
+        </div>
+        <form method="post" class="mt-6 space-y-5">
+            {% csrf_token %}
+            {% if form.non_field_errors %}<div class="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-900/60 dark:bg-red-950/30 dark:text-red-300">{{ form.non_field_errors }}</div>{% endif %}
+            <div>
+                <label for="{{ form.reason.id_for_label }}" class="mb-2 block text-sm font-bold text-slate-700 dark:text-slate-200">{{ form.reason.label }}</label>
+                {{ form.reason }}
+                {% if form.reason.help_text %}<p class="mt-2 text-xs text-slate-500">{{ form.reason.help_text }}</p>{% endif %}
+                {% if form.reason.errors %}<p class="mt-2 text-sm text-red-600">{{ form.reason.errors|striptags }}</p>{% endif %}
+            </div>
+            <div class="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+                <a href="{{ agreement.get_absolute_url }}" class="button-secondary text-center">{% translate "Keep agreement" %}</a>
+                <button type="submit" class="rounded-xl bg-red-600 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900">{{ submit_label }}</button>
+            </div>
+        </form>
+    </section>
+</div>
+{% endblock %}

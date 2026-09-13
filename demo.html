@@ -1,0 +1,1028 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AMOXRUNS Dashboard Demo</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f5f7fb;
+      --panel: #ffffff;
+      --panel-2: #f8fafc;
+      --text: #0f172a;
+      --muted: #64748b;
+      --line: #e2e8f0;
+      --brand: #2563eb;
+      --brand-2: #60a5fa;
+      --green: #10b981;
+      --amber: #f59e0b;
+      --red: #ef4444;
+      --violet: #7c3aed;
+      --shadow: 0 18px 50px rgba(15, 23, 42, .08);
+      --radius: 26px;
+    }
+
+    body.dark {
+      color-scheme: dark;
+      --bg: #020617;
+      --panel: #0f172a;
+      --panel-2: #111c31;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --line: rgba(255,255,255,.09);
+      --shadow: 0 24px 70px rgba(0, 0, 0, .35);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at top right, rgba(37, 99, 235, .13), transparent 34rem),
+        var(--bg);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    [dir="rtl"] body, body[dir="rtl"] {
+      font-family: "Noto Sans Arabic", "Vazirmatn", Inter, system-ui, sans-serif;
+    }
+
+    .shell {
+      width: min(1480px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 28px 0 56px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .brand-mark {
+      display: grid;
+      place-items: center;
+      width: 44px;
+      height: 44px;
+      border-radius: 16px;
+      background: linear-gradient(145deg, var(--brand), #1d4ed8);
+      color: white;
+      box-shadow: 0 14px 34px rgba(37, 99, 235, .3);
+      font-weight: 900;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.1;
+      letter-spacing: -.03em;
+    }
+
+    .brand p {
+      margin: 3px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .16em;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: end;
+      gap: 10px;
+    }
+
+    .button, .chip {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      color: var(--text);
+      border-radius: 14px;
+      min-height: 42px;
+      padding: 0 14px;
+      font: inherit;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 10px 26px rgba(15, 23, 42, .04);
+    }
+
+    .button.primary {
+      border-color: transparent;
+      background: var(--brand);
+      color: #fff;
+    }
+
+    .dashboard {
+      display: grid;
+      gap: 18px;
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(360px, .85fr);
+      gap: 24px;
+      min-height: 272px;
+      padding: 28px;
+      border-radius: 32px;
+      background:
+        linear-gradient(135deg, rgba(37,99,235,.95), rgba(15,23,42,.96)),
+        #111827;
+      color: white;
+      box-shadow: var(--shadow);
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset-inline-end: -90px;
+      inset-block-start: -110px;
+      width: 330px;
+      height: 330px;
+      border-radius: 999px;
+      background: rgba(96, 165, 250, .25);
+      filter: blur(8px);
+    }
+
+    .hero > * { position: relative; z-index: 1; }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0;
+      color: #bfdbfe;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+    }
+
+    [dir="rtl"] .eyebrow, [dir="rtl"] .brand p { letter-spacing: 0; }
+
+    .pulse {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #22c55e;
+      box-shadow: 0 0 0 7px rgba(34, 197, 94, .16);
+    }
+
+    .hero h2 {
+      margin: 18px 0 0;
+      max-width: 680px;
+      font-size: clamp(34px, 5vw, 58px);
+      line-height: .96;
+      letter-spacing: -.06em;
+    }
+
+    [dir="rtl"] .hero h2 { letter-spacing: 0; line-height: 1.18; }
+
+    .hero-copy {
+      margin: 16px 0 0;
+      max-width: 620px;
+      color: #cbd5e1;
+      font-size: 15px;
+      line-height: 1.8;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 26px;
+    }
+
+    .hero-actions a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 46px;
+      padding: 0 17px;
+      border-radius: 15px;
+      text-decoration: none;
+      color: white;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .hero-actions a:first-child { background: #fff; color: #1d4ed8; }
+    .hero-actions a:not(:first-child) { border: 1px solid rgba(255,255,255,.14); background: rgba(255,255,255,.07); }
+
+    .hero-score {
+      display: grid;
+      gap: 14px;
+      align-self: stretch;
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 26px;
+      background: rgba(255,255,255,.08);
+      padding: 18px;
+      backdrop-filter: blur(14px);
+    }
+
+    .score-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      color: #cbd5e1;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .score-value {
+      display: flex;
+      align-items: end;
+      gap: 10px;
+    }
+
+    .score-value strong {
+      font-size: clamp(38px, 5vw, 64px);
+      line-height: .92;
+      letter-spacing: -.06em;
+    }
+
+    .score-value span {
+      color: #86efac;
+      font-size: 13px;
+      font-weight: 900;
+      padding-bottom: 8px;
+    }
+
+    .sparkline {
+      width: 100%;
+      height: 78px;
+    }
+
+    .hero-mini-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .hero-mini {
+      border-radius: 18px;
+      background: rgba(255,255,255,.08);
+      padding: 12px;
+    }
+
+    .hero-mini span {
+      display: block;
+      color: #cbd5e1;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .hero-mini strong {
+      display: block;
+      margin-top: 6px;
+      font-size: 18px;
+      letter-spacing: -.03em;
+    }
+
+    .kpis {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .kpi, .panel {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: color-mix(in srgb, var(--panel) 94%, transparent);
+      box-shadow: var(--shadow);
+    }
+
+    .kpi {
+      position: relative;
+      overflow: hidden;
+      min-height: 154px;
+      padding: 18px;
+    }
+
+    .kpi::after {
+      content: "";
+      position: absolute;
+      inset-inline-end: -36px;
+      inset-block-start: -40px;
+      width: 110px;
+      height: 110px;
+      border-radius: 999px;
+      background: var(--accent, rgba(37,99,235,.12));
+    }
+
+    .kpi-top {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .kpi-title {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .kpi-icon {
+      display: grid;
+      place-items: center;
+      width: 38px;
+      height: 38px;
+      border-radius: 14px;
+      background: var(--accent, rgba(37,99,235,.12));
+      color: var(--accent-text, var(--brand));
+      font-weight: 900;
+    }
+
+    .kpi strong {
+      position: relative;
+      z-index: 1;
+      display: block;
+      margin-top: 18px;
+      font-size: 38px;
+      line-height: 1;
+      letter-spacing: -.06em;
+    }
+
+    .kpi small {
+      position: relative;
+      z-index: 1;
+      display: inline-flex;
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .grid-12 {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .span-8 { grid-column: span 8; }
+    .span-4 { grid-column: span 4; }
+    .span-7 { grid-column: span 7; }
+    .span-5 { grid-column: span 5; }
+
+    .panel {
+      overflow: hidden;
+      padding: 20px;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .panel-title h3 {
+      margin: 0;
+      font-size: 17px;
+      letter-spacing: -.03em;
+    }
+
+    .panel-title p {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 5px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--panel-2);
+    }
+
+    .tab {
+      border: 0;
+      border-radius: 12px;
+      background: transparent;
+      color: var(--muted);
+      padding: 8px 11px;
+      font: inherit;
+      font-size: 12px;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .tab.active {
+      background: var(--brand);
+      color: #fff;
+      box-shadow: 0 12px 25px rgba(37,99,235,.22);
+    }
+
+    .chart-wrap {
+      position: relative;
+      min-height: 340px;
+      border-radius: 22px;
+      background:
+        repeating-linear-gradient(to top, transparent 0, transparent 67px, rgba(148,163,184,.14) 68px),
+        linear-gradient(180deg, color-mix(in srgb, var(--panel-2) 60%, transparent), transparent);
+      padding: 12px;
+    }
+
+    svg.chart {
+      width: 100%;
+      height: 314px;
+      overflow: visible;
+    }
+
+    .axis-label {
+      fill: var(--muted);
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .chart-line {
+      fill: none;
+      stroke: var(--brand);
+      stroke-width: 4;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .chart-area {
+      fill: url(#areaGradient);
+    }
+
+    .chart-line.secondary { stroke: var(--green); }
+    .chart-point { fill: var(--panel); stroke: var(--brand); stroke-width: 3; }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--brand);
+    }
+
+    .donut-layout {
+      display: grid;
+      grid-template-columns: 210px 1fr;
+      gap: 20px;
+      align-items: center;
+      min-height: 290px;
+    }
+
+    .donut {
+      width: 210px;
+      height: 210px;
+      border-radius: 50%;
+      background: conic-gradient(var(--brand) 0 26%, var(--amber) 26% 51%, var(--green) 51% 90%, #94a3b8 90% 100%);
+      display: grid;
+      place-items: center;
+      box-shadow: inset 0 0 0 1px var(--line);
+    }
+
+    .donut::after {
+      content: "47";
+      display: grid;
+      place-items: center;
+      width: 126px;
+      height: 126px;
+      border-radius: 50%;
+      background: var(--panel);
+      color: var(--text);
+      font-size: 42px;
+      font-weight: 950;
+      letter-spacing: -.05em;
+    }
+
+    .mix-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .mix-row {
+      display: grid;
+      gap: 7px;
+    }
+
+    .mix-row header {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .track {
+      height: 9px;
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--muted) 14%, transparent);
+      overflow: hidden;
+    }
+
+    .track span {
+      display: block;
+      height: 100%;
+      width: var(--w);
+      border-radius: inherit;
+      background: var(--c, var(--brand));
+    }
+
+    .funnel {
+      display: grid;
+      gap: 14px;
+    }
+
+    .funnel-row {
+      display: grid;
+      grid-template-columns: 112px 1fr 42px;
+      align-items: center;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .funnel-bar {
+      height: 40px;
+      border-radius: 14px;
+      background: var(--panel-2);
+      overflow: hidden;
+      border: 1px solid var(--line);
+    }
+
+    .funnel-bar span {
+      display: block;
+      height: 100%;
+      width: var(--w);
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--brand), var(--brand-2));
+    }
+
+    [dir="rtl"] .funnel-bar span, [dir="rtl"] .track span {
+      margin-inline-start: auto;
+    }
+
+    .cash-bars {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      align-items: end;
+      gap: 12px;
+      min-height: 255px;
+      padding-top: 18px;
+    }
+
+    .cash-day {
+      display: grid;
+      align-items: end;
+      justify-items: center;
+      gap: 9px;
+      min-width: 0;
+      height: 255px;
+    }
+
+    .bar-stack {
+      display: grid;
+      align-items: end;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px;
+      width: 100%;
+      height: 205px;
+    }
+
+    .bar {
+      align-self: end;
+      min-height: 8px;
+      border-radius: 999px 999px 6px 6px;
+      background: var(--green);
+      height: var(--h);
+    }
+
+    .bar.out { background: var(--red); opacity: .82; }
+
+    .cash-day em {
+      color: var(--muted);
+      font-style: normal;
+      font-size: 11px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .attention {
+      display: grid;
+      gap: 11px;
+    }
+
+    .attention-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: var(--panel-2);
+      padding: 13px;
+    }
+
+    .attention-item strong {
+      display: block;
+      font-size: 13px;
+    }
+
+    .attention-item span {
+      display: block;
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 32px;
+      min-height: 32px;
+      border-radius: 12px;
+      background: color-mix(in srgb, var(--badge) 13%, transparent);
+      color: var(--badge);
+      font-weight: 950;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+    }
+
+    table {
+      width: 100%;
+      min-width: 760px;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+      text-align: start;
+      white-space: nowrap;
+    }
+
+    th {
+      color: var(--muted);
+      background: var(--panel-2);
+      font-size: 11px;
+      font-weight: 950;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+    }
+
+    [dir="rtl"] th { letter-spacing: 0; }
+    td { font-size: 13px; font-weight: 750; }
+    tr:last-child td { border-bottom: 0; }
+
+    .status {
+      display: inline-flex;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 11px;
+      font-weight: 950;
+      background: rgba(16,185,129,.11);
+      color: var(--green);
+    }
+
+    .mono {
+      font-variant-numeric: tabular-nums;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+
+    @media (max-width: 1100px) {
+      .hero, .grid-12 { grid-template-columns: 1fr; }
+      .span-8, .span-4, .span-7, .span-5 { grid-column: auto; }
+      .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 720px) {
+      .shell { width: min(100% - 20px, 1480px); padding-top: 14px; }
+      .topbar, .panel-header { align-items: stretch; flex-direction: column; }
+      .toolbar { justify-content: stretch; }
+      .button, .chip { flex: 1; }
+      .hero { padding: 20px; border-radius: 24px; }
+      .hero-mini-grid, .kpis, .donut-layout { grid-template-columns: 1fr; }
+      .donut { margin: 0 auto; }
+      .funnel-row { grid-template-columns: 86px 1fr 34px; }
+      .cash-bars { overflow-x: auto; grid-auto-flow: column; grid-auto-columns: 64px; grid-template-columns: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark">AX</div>
+        <div>
+          <h1>AMOXRUNS</h1>
+          <p>Executive dealership dashboard</p>
+        </div>
+      </div>
+      <div class="toolbar">
+        <button class="chip" data-range="7">7 days</button>
+        <button class="chip" data-range="30">30 days</button>
+        <button class="chip" data-range="month">This month</button>
+        <button class="button" id="dirToggle">RTL preview</button>
+        <button class="button primary" id="themeToggle">Toggle theme</button>
+      </div>
+    </header>
+
+    <div class="dashboard">
+      <section class="hero">
+        <div>
+          <p class="eyebrow"><span class="pulse"></span> Live dealership command center</p>
+          <h2>Monitor sales, stock, cash flow and performance from one place.</h2>
+          <p class="hero-copy">A premium dashboard concept for AMOXRUNS with real business priorities: revenue trend, inventory mix, lead conversion, cash movement and daily attention items.</p>
+          <div class="hero-actions">
+            <a href="#">Create lead</a>
+            <a href="#">New sale →</a>
+            <a href="#">Record payment →</a>
+          </div>
+        </div>
+        <aside class="hero-score">
+          <div class="score-head"><span>Monthly revenue</span><span class="mono">USD</span></div>
+          <div class="score-value"><strong class="mono">$487k</strong><span>↗ 18.4%</span></div>
+          <svg class="sparkline" viewBox="0 0 360 80" aria-hidden="true">
+            <defs><linearGradient id="spark" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#93c5fd" stop-opacity=".5"/><stop offset="1" stop-color="#93c5fd" stop-opacity="0"/></linearGradient></defs>
+            <path d="M0 62 C32 58 38 34 70 39 S120 70 152 40 214 22 248 34 306 54 360 18 L360 80 L0 80Z" fill="url(#spark)"/>
+            <path d="M0 62 C32 58 38 34 70 39 S120 70 152 40 214 22 248 34 306 54 360 18" fill="none" stroke="#bfdbfe" stroke-width="4" stroke-linecap="round"/>
+          </svg>
+          <div class="hero-mini-grid">
+            <div class="hero-mini"><span>Net cash</span><strong class="mono">$91k</strong></div>
+            <div class="hero-mini"><span>Gross profit</span><strong class="mono">$76k</strong></div>
+            <div class="hero-mini"><span>Stock value</span><strong class="mono">$1.2m</strong></div>
+          </div>
+        </aside>
+      </section>
+
+      <section class="kpis">
+        <article class="kpi" style="--accent: rgba(37,99,235,.13); --accent-text:#2563eb">
+          <div class="kpi-top"><p class="kpi-title">Vehicles in stock</p><span class="kpi-icon">🚘</span></div>
+          <strong class="mono">47</strong>
+          <small>7 reserved · 4 aging over 60 days</small>
+        </article>
+        <article class="kpi" style="--accent: rgba(124,58,237,.13); --accent-text:#7c3aed">
+          <div class="kpi-top"><p class="kpi-title">Open leads</p><span class="kpi-icon">◎</span></div>
+          <strong class="mono">126</strong>
+          <small>32 qualified opportunities</small>
+        </article>
+        <article class="kpi" style="--accent: rgba(16,185,129,.13); --accent-text:#10b981">
+          <div class="kpi-top"><p class="kpi-title">Completed sales</p><span class="kpi-icon">↗</span></div>
+          <strong class="mono">28</strong>
+          <small>+8 vs previous period</small>
+        </article>
+        <article class="kpi" style="--accent: rgba(245,158,11,.15); --accent-text:#f59e0b">
+          <div class="kpi-top"><p class="kpi-title">Outstanding balance</p><span class="kpi-icon">!</span></div>
+          <strong class="mono">$34k</strong>
+          <small>6 customer balances need follow-up</small>
+        </article>
+      </section>
+
+      <section class="grid-12">
+        <article class="panel span-8">
+          <div class="panel-header">
+            <div class="panel-title">
+              <h3>Sales & revenue trend</h3>
+              <p>Daily revenue with sales count overlay. This should become the main executive chart.</p>
+            </div>
+            <div class="tabs">
+              <button class="tab active" data-chart="revenue">Revenue</button>
+              <button class="tab" data-chart="profit">Profit</button>
+              <button class="tab" data-chart="sales">Sales count</button>
+            </div>
+          </div>
+          <div class="chart-wrap">
+            <svg id="trendChart" class="chart" viewBox="0 0 900 314" role="img" aria-label="Sales and revenue trend chart"></svg>
+          </div>
+          <div class="legend"><span><i class="dot"></i> Revenue</span><span><i class="dot" style="background:var(--green)"></i> Sales count</span></div>
+        </article>
+
+        <article class="panel span-4">
+          <div class="panel-header">
+            <div class="panel-title">
+              <h3>Inventory mix</h3>
+              <p>Real stock status distribution, replacing fixed-width progress bars.</p>
+            </div>
+          </div>
+          <div class="donut-layout">
+            <div class="donut" aria-label="47 total vehicles"></div>
+            <div class="mix-list">
+              <div class="mix-row"><header><span>Available</span><b>26</b></header><div class="track"><span style="--w:55%;--c:var(--brand)"></span></div></div>
+              <div class="mix-row"><header><span>Reserved</span><b>12</b></header><div class="track"><span style="--w:26%;--c:var(--amber)"></span></div></div>
+              <div class="mix-row"><header><span>Sold pending delivery</span><b>7</b></header><div class="track"><span style="--w:15%;--c:var(--green)"></span></div></div>
+              <div class="mix-row"><header><span>Needs attention</span><b>2</b></header><div class="track"><span style="--w:4%;--c:var(--red)"></span></div></div>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section class="grid-12">
+        <article class="panel span-4">
+          <div class="panel-header">
+            <div class="panel-title">
+              <h3>Lead pipeline funnel</h3>
+              <p>Shows sales bottlenecks by stage.</p>
+            </div>
+          </div>
+          <div class="funnel">
+            <div class="funnel-row"><span>New</span><div class="funnel-bar"><span style="--w:100%"></span></div><b>126</b></div>
+            <div class="funnel-row"><span>Contacted</span><div class="funnel-bar"><span style="--w:73%"></span></div><b>92</b></div>
+            <div class="funnel-row"><span>Qualified</span><div class="funnel-bar"><span style="--w:43%"></span></div><b>54</b></div>
+            <div class="funnel-row"><span>Reserved</span><div class="funnel-bar"><span style="--w:18%"></span></div><b>23</b></div>
+            <div class="funnel-row"><span>Sold</span><div class="funnel-bar"><span style="--w:12%"></span></div><b>15</b></div>
+          </div>
+        </article>
+
+        <article class="panel span-4">
+          <div class="panel-header">
+            <div class="panel-title">
+              <h3>Cash flow</h3>
+              <p>Money in vs money out over recent days.</p>
+            </div>
+          </div>
+          <div class="cash-bars">
+            <div class="cash-day"><div class="bar-stack"><i class="bar" style="--h:68%"></i><i class="bar out" style="--h:22%"></i></div><em>Mon</em></div>
+            <div class="cash-day"><div class="bar-stack"><i class="bar" style="--h:35%"></i><i class="bar out" style="--h:48%"></i></div><em>Tue</em></div>
+            <div class="cash-day"><div class="bar-stack"><i class="bar" style="--h:76%"></i><i class="bar out" style="--h:39%"></i></div><em>Wed</em></div>
+            <div class="cash-day"><div class="bar-stack"><i class="bar" style="--h:52%"></i><i class="bar out" style="--h:25%"></i></div><em>Thu</em></div>
+            <div class="cash-day"><div class="bar-stack"><i class="bar" style="--h:86%"></i><i class="bar out" style="--h:51%"></i></div><em>Fri</em></div>
+            <div class="cash-day"><div class="bar-stack"><i class="bar" style="--h:41%"></i><i class="bar out" style="--h:18%"></i></div><em>Sat</em></div>
+            <div class="cash-day"><div class="bar-stack"><i class="bar" style="--h:62%"></i><i class="bar out" style="--h:33%"></i></div><em>Sun</em></div>
+          </div>
+          <div class="legend"><span><i class="dot" style="background:var(--green)"></i> Money in</span><span><i class="dot" style="background:var(--red)"></i> Money out</span></div>
+        </article>
+
+        <article class="panel span-4">
+          <div class="panel-header">
+            <div class="panel-title">
+              <h3>Needs attention</h3>
+              <p>Actionable business signals for today.</p>
+            </div>
+          </div>
+          <div class="attention">
+            <div class="attention-item"><div><strong>Sold vehicles not delivered</strong><span>Follow up with inventory team</span></div><b class="badge" style="--badge:var(--amber)">7</b></div>
+            <div class="attention-item"><div><strong>Negative cash accounts</strong><span>Review bank/cashbox balances</span></div><b class="badge" style="--badge:var(--red)">2</b></div>
+            <div class="attention-item"><div><strong>Overdue installments</strong><span>Collectors should prioritize calls</span></div><b class="badge" style="--badge:var(--violet)">9</b></div>
+            <div class="attention-item"><div><strong>Leads without follow-up</strong><span>No contact in 3+ days</span></div><b class="badge" style="--badge:var(--brand)">14</b></div>
+          </div>
+        </article>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <h3>Recent sales</h3>
+            <p>Latest completed and active deals with payment visibility.</p>
+          </div>
+          <button class="button">View all sales</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Customer</th><th>Vehicle</th><th>Amount</th><th>Paid</th><th>Balance</th><th>Status</th><th>Date</th></tr></thead>
+            <tbody>
+              <tr><td>Ahmad Waziri</td><td>Toyota Corolla 2021</td><td class="mono">$25,800</td><td class="mono">$20,000</td><td class="mono">$5,800</td><td><span class="status">Active</span></td><td>Sep 12</td></tr>
+              <tr><td>Farid Motors</td><td>Honda Civic 2020</td><td class="mono">$22,400</td><td class="mono">$22,400</td><td class="mono">$0</td><td><span class="status">Completed</span></td><td>Sep 11</td></tr>
+              <tr><td>Sahar Trading</td><td>Kia Sportage 2022</td><td class="mono">$39,700</td><td class="mono">$31,000</td><td class="mono">$8,700</td><td><span class="status">Delivery pending</span></td><td>Sep 10</td></tr>
+              <tr><td>Omid Rahmani</td><td>Nissan Sunny 2019</td><td class="mono">$15,900</td><td class="mono">$10,000</td><td class="mono">$5,900</td><td><span class="status">Installment</span></td><td>Sep 09</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const data = {
+      revenue: [21, 34, 29, 52, 48, 74, 66, 88, 79, 112, 98, 126, 141, 156],
+      profit: [8, 13, 11, 20, 19, 27, 23, 31, 29, 42, 36, 49, 52, 57],
+      sales: [2, 3, 2, 5, 4, 7, 6, 8, 7, 10, 9, 12, 13, 15],
+      count: [1, 2, 2, 3, 3, 5, 4, 6, 5, 8, 7, 9, 10, 11],
+      labels: ["Aug 30", "Aug 31", "Sep 1", "Sep 2", "Sep 3", "Sep 4", "Sep 5", "Sep 6", "Sep 7", "Sep 8", "Sep 9", "Sep 10", "Sep 11", "Sep 12"]
+    };
+
+    const svg = document.getElementById("trendChart");
+    const tabs = document.querySelectorAll("[data-chart]");
+    let active = "revenue";
+
+    function points(values) {
+      const width = 840;
+      const height = 230;
+      const left = 40;
+      const top = 28;
+      const max = Math.max(...values) * 1.15 || 1;
+      return values.map((value, index) => {
+        const x = left + (index * (width / (values.length - 1)));
+        const y = top + height - ((value / max) * height);
+        return [x, y, value];
+      });
+    }
+
+    function curve(pointList) {
+      return pointList.map((p, i) => {
+        if (i === 0) return `M ${p[0]} ${p[1]}`;
+        const prev = pointList[i - 1];
+        const cx = (prev[0] + p[0]) / 2;
+        return `C ${cx} ${prev[1]}, ${cx} ${p[1]}, ${p[0]} ${p[1]}`;
+      }).join(" ");
+    }
+
+    function renderChart() {
+      const values = data[active];
+      const secondary = data.count;
+      const p = points(values);
+      const p2 = points(secondary.map(v => v * (Math.max(...values) / Math.max(...secondary)) * .72));
+      const line = curve(p);
+      const line2 = curve(p2);
+      const area = `${line} L ${p[p.length - 1][0]} 286 L ${p[0][0]} 286 Z`;
+      const labels = data.labels.map((label, index) => {
+        if (index % 2) return "";
+        const x = 40 + (index * (840 / (data.labels.length - 1)));
+        return `<text class="axis-label" x="${x}" y="306" text-anchor="middle">${label}</text>`;
+      }).join("");
+      const circles = p.map(([x, y]) => `<circle class="chart-point" cx="${x}" cy="${y}" r="5"></circle>`).join("");
+
+      svg.innerHTML = `
+        <defs>
+          <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
+            <stop stop-color="var(--brand)" stop-opacity=".24"></stop>
+            <stop offset="1" stop-color="var(--brand)" stop-opacity="0"></stop>
+          </linearGradient>
+        </defs>
+        <path class="chart-area" d="${area}"></path>
+        <path class="chart-line secondary" d="${line2}"></path>
+        <path class="chart-line" d="${line}"></path>
+        ${circles}
+        ${labels}
+      `;
+    }
+
+    tabs.forEach(tab => {
+      tab.addEventListener("click", () => {
+        active = tab.dataset.chart;
+        tabs.forEach(item => item.classList.toggle("active", item === tab));
+        renderChart();
+      });
+    });
+
+    document.getElementById("themeToggle").addEventListener("click", () => {
+      document.body.classList.toggle("dark");
+    });
+
+    document.getElementById("dirToggle").addEventListener("click", () => {
+      const html = document.documentElement;
+      const isRtl = html.getAttribute("dir") === "rtl";
+      html.setAttribute("dir", isRtl ? "ltr" : "rtl");
+      html.setAttribute("lang", isRtl ? "en" : "ps");
+    });
+
+    document.querySelectorAll("[data-range]").forEach(button => {
+      button.addEventListener("click", () => {
+        document.querySelectorAll("[data-range]").forEach(item => item.style.borderColor = "var(--line)");
+        button.style.borderColor = "var(--brand)";
+      });
+    });
+
+    renderChart();
+  </script>
+</body>
+</html>

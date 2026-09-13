@@ -1,69 +1,50 @@
 {% extends "base.html" %}
 {% load i18n %}
-
-{% block title %}{% translate "Ledger" %} — AUTOMEX CarFlow{% endblock %}
-
+{% block title %}{% translate "Payments and receipts" %} — AMOXRUNS{% endblock %}
 {% block content %}
-<div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-    <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">{% translate "Ledger" %}</h1>
-    <div class="flex flex-wrap items-center gap-2">
-        <a href="{% url 'expenses:create' %}"
-           class="inline-flex items-center justify-center rounded-xl bg-slate-900 hover:bg-slate-800 text-white px-4 py-2.5 text-sm font-bold shadow-sm transition">
-            {% translate "Record expense" %}
-        </a>
-        <a href="{% url 'payments:create' %}"
-           class="inline-flex items-center justify-center rounded-xl bg-brand-600 hover:bg-brand-700 text-white px-4 py-2.5 text-sm font-bold shadow-sm transition">
-            {% translate "Record payment" %}
-        </a>
+<section class="workspace-hero">
+<div class="workspace-hero-layout">
+    <div>
+        <p class="workspace-eyebrow">{% translate "Money operations" %}</p>
+        <div class="workspace-title-row"><h1 class="workspace-title">{% translate "Payments and receipts" %}</h1><span class="workspace-count">{{ page_obj.paginator.count }}</span></div>
+        <p class="workspace-description">{% translate "A complete immutable record of money received, money paid, receipts, and corrections." %}</p>
     </div>
+    {% if can_add %}<div class="workspace-actions"><a href="{% url 'expenses:create' %}" class="button-secondary">{% translate "Record expense" %}</a><a href="{% url 'payments:supplier_payment' %}" class="button-secondary">{% translate "Pay supplier" %}</a><a href="{% url 'payments:create' %}" class="button-primary order-first col-span-2 sm:order-none">{% translate "Receive payment" %}</a></div>{% endif %}
 </div>
-<div class="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-    <table class="data-table">
-        <thead>
-            <tr>
-                <th class="px-4 py-3 text-start font-medium">{% translate "Date" %}</th>
-                <th class="px-4 py-3 text-start font-medium">{% translate "Type" %}</th>
-                <th class="px-4 py-3 text-start font-medium">{% translate "Description" %}</th>
-                <th class="px-4 py-3 text-start font-medium">{% translate "Related to" %}</th>
-                <th class="px-4 py-3 text-end font-medium">{% translate "Amount" %}</th>
-                <th class="px-4 py-3"></th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for entry in entries %}
-                <tr class="{% if entry.reversal_of %}bg-slate-50 text-slate-500{% endif %}">
-                    <td class="px-4 py-3">{{ entry.created_at|date:"SHORT_DATE_FORMAT" }}</td>
-                    <td class="px-4 py-3">
-                        {{ entry.get_type_display }}
-                        {% if entry.reversal_of %}
-                            <span class="ms-1 rounded bg-red-100 text-red-700 px-1.5 py-0.5 text-xs">
-                                {% translate "reversal" %}
-                            </span>
-                        {% endif %}
-                    </td>
-                    <td class="px-4 py-3">{{ entry.description|default:"—" }}</td>
-                    <td class="px-4 py-3">{{ entry.related_object|default:"—" }}</td>
-                    <td class="px-4 py-3 text-end font-medium {% if entry.direction == 'in' %}text-green-700{% else %}text-red-700{% endif %}" dir="ltr">
-                        {% if entry.direction == "in" %}+{% else %}−{% endif %}{{ entry.amount }} {{ entry.currency }}
-                    </td>
-                    <td class="px-4 py-3 text-end">
-                        {% if entry.receipt_number %}<a href="{% url 'payments:receipt' entry.pk %}" class="me-3 text-sm font-semibold text-brand-700 hover:underline dark:text-brand-300">{% translate "Receipt" %}</a>{% endif %}
-                        {% if not entry.reversal_of and not entry.reversals.exists %}
-                            <form method="post" action="{% url 'payments:reverse' entry.pk %}" class="inline">
-                                {% csrf_token %}
-                                <button type="submit" class="text-slate-500 hover:text-red-700 text-sm">
-                                    {% translate "Reverse" %}
-                                </button>
-                            </form>
-                        {% endif %}
-                    </td>
-                </tr>
-            {% empty %}
-                <tr><td colspan="6" class="px-4 py-8 text-center text-slate-500">
-                    {% translate "No ledger entries yet." %}
-                </td></tr>
-            {% endfor %}
-        </tbody>
-    </table>
+</section>
+
+<div class="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+    <div class="metric-card"><p class="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">{% translate "Money in" %}</p><div class="mt-2 space-y-1 text-xl font-extrabold text-slate-950 dark:text-white" dir="ltr">{% for currency,amount in incoming.items %}<div>+{{ amount }} {{ currency }}</div>{% empty %}<div>—</div>{% endfor %}</div></div>
+    <div class="metric-card"><p class="text-xs font-bold uppercase tracking-wider text-red-600 dark:text-red-400">{% translate "Money out" %}</p><div class="mt-2 space-y-1 text-xl font-extrabold text-slate-950 dark:text-white" dir="ltr">{% for currency,amount in outgoing.items %}<div>−{{ amount }} {{ currency }}</div>{% empty %}<div>—</div>{% endfor %}</div></div>
+    <div class="metric-card sm:col-span-2 lg:col-span-1"><p class="text-xs font-bold uppercase tracking-wider text-slate-500">{% translate "Corrections" %}</p><p class="mt-2 text-2xl font-extrabold text-slate-950 dark:text-white">{{ reversed_count }}</p><p class="mt-1 text-xs text-slate-500">{% translate "Immutable reversal entries" %}</p></div>
 </div>
+
+<form method="get" class="workspace-filter">
+    <div class="workspace-filter-heading"><span class="workspace-filter-icon"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M7 12h10M10 18h4" /></svg></span>{% translate "Filter" %}</div>
+    <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-6">
+        <div class="sm:col-span-2 xl:col-span-2"><label class="filter-label" for="ledger-q">{% translate "Search transactions" %}</label><input id="ledger-q" class="filter-control" name="q" value="{{ filters.q }}" placeholder="{% translate 'Receipt, customer, supplier, reference…' %}"></div>
+        <div><label class="filter-label" for="ledger-type">{% translate "Type" %}</label><select id="ledger-type" class="filter-control" name="type"><option value="">{% translate "All types" %}</option>{% for value,label in entry_types %}<option value="{{ value }}" {% if filters.type == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+        <div><label class="filter-label" for="ledger-direction">{% translate "Direction" %}</label><select id="ledger-direction" class="filter-control" name="direction"><option value="">{% translate "Money in and out" %}</option><option value="in" {% if filters.direction == 'in' %}selected{% endif %}>{% translate "Money in" %}</option><option value="out" {% if filters.direction == 'out' %}selected{% endif %}>{% translate "Money out" %}</option></select></div>
+        <div><label class="filter-label" for="ledger-account">{% translate "Account" %}</label><select id="ledger-account" class="filter-control" name="account"><option value="">{% translate "All accounts" %}</option>{% for account in accounts %}<option value="{{ account.pk }}" {% if filters.account == account.pk|stringformat:'s' %}selected{% endif %}>{{ account }}</option>{% endfor %}</select></div>
+        <div><label class="filter-label" for="ledger-currency">{% translate "Currency" %}</label><select id="ledger-currency" class="filter-control" name="currency"><option value="">{% translate "All currencies" %}</option>{% for code in currency_codes %}<option value="{{ code }}" {% if filters.currency == code %}selected{% endif %}>{{ code }}</option>{% empty %}<option>AFN</option><option>USD</option><option>EUR</option><option>AED</option><option>PKR</option><option>IRR</option>{% endfor %}</select></div>
+        <div><label class="filter-label" for="ledger-from">{% translate "From date" %}</label><input id="ledger-from" type="date" class="filter-control" name="date_from" value="{{ filters.date_from }}"></div>
+        <div><label class="filter-label" for="ledger-to">{% translate "To date" %}</label><input id="ledger-to" type="date" class="filter-control" name="date_to" value="{{ filters.date_to }}"></div>
+    </div>
+    <div class="mt-4 flex flex-wrap justify-end gap-2">{% if request.GET %}<a href="{% url 'payments:list' %}" class="button-secondary">{% translate "Clear filters" %}</a>{% endif %}<button class="button-primary">{% translate "Apply filters" %}</button></div>
+</form>
+
+<div class="workspace-panel hidden overflow-hidden p-0 lg:block">
+    <div class="overflow-x-auto"><table class="data-table min-w-[900px] w-full"><thead><tr><th class="px-4 py-3 text-start">{% translate "Transaction" %}</th><th class="px-4 py-3 text-start">{% translate "Party and source" %}</th><th class="px-4 py-3 text-start">{% translate "Account" %}</th><th class="px-4 py-3 text-start">{% translate "Reference" %}</th><th class="px-4 py-3 text-end">{% translate "Amount" %}</th><th class="px-4 py-3 text-end">{% translate "Actions" %}</th></tr></thead><tbody>
+    {% for entry in entries %}<tr class="{% if entry.reversal_of_id or entry.is_reversed %}bg-slate-50/70 dark:bg-slate-950/30{% endif %}">
+        <td class="px-4 py-3"><a href="{% url 'payments:detail' entry.pk %}" class="font-bold text-slate-900 hover:text-brand-700 dark:text-white dark:hover:text-brand-300">{{ entry.receipt_number|default:entry.pk }}</a><div class="mt-1 text-xs text-slate-500">{{ entry.transaction_date|date:"SHORT_DATE_FORMAT" }} · {{ entry.get_type_display }}</div>{% if entry.reversal_of_id %}<span class="mt-1 inline-flex rounded-full bg-red-100 px-2 py-0.5 text-[11px] font-bold text-red-700 dark:bg-red-500/10 dark:text-red-300">{% translate "Reversal" %}</span>{% elif entry.is_reversed %}<span class="mt-1 inline-flex rounded-full bg-slate-200 px-2 py-0.5 text-[11px] font-bold text-slate-600 dark:bg-slate-700 dark:text-slate-300">{% translate "Reversed" %}</span>{% endif %}</td>
+        <td class="px-4 py-3"><div class="font-semibold text-slate-800 dark:text-slate-100">{{ entry.customer|default:entry.supplier|default:entry.vendor|default:"—" }}</div><div class="mt-1 max-w-xs truncate text-xs text-slate-500">{{ entry.sale|default:entry.purchase_order|default:entry.reservation|default:entry.description|default:"—" }}</div></td>
+        <td class="px-4 py-3"><div class="font-semibold">{{ entry.account|default:"—" }}</div><div class="text-xs text-slate-500">{{ entry.get_payment_method_display }}</div></td>
+        <td class="px-4 py-3 font-mono text-xs">{{ entry.reference|default:"—" }}</td>
+        <td class="px-4 py-3 text-end font-mono font-extrabold {% if entry.economic_direction == 'in' %}text-emerald-600 dark:text-emerald-400{% else %}text-red-600 dark:text-red-400{% endif %}" dir="ltr">{{ entry.economic_sign }}{{ entry.amount }} {{ entry.currency }}</td>
+        <td class="px-4 py-3 text-end"><a href="{% url 'payments:detail' entry.pk %}" class="text-sm font-bold text-brand-700 dark:text-brand-300">{% translate "View" %}</a></td>
+    </tr>{% empty %}<tr><td colspan="6" class="px-4 py-12 text-center text-sm text-slate-500">{% translate "No transactions match these filters." %}</td></tr>{% endfor %}
+    </tbody></table></div>{% include "includes/pagination.html" %}
+</div>
+
+<div class="space-y-3 lg:hidden">{% for entry in entries %}<a href="{% url 'payments:detail' entry.pk %}" class="group workspace-entity-card block"><div class="flex items-start justify-between gap-3"><div class="min-w-0"><p class="truncate font-bold text-slate-900 dark:text-white">{{ entry.get_type_display }}</p><p class="mt-1 truncate text-xs text-slate-500">{{ entry.transaction_date|date:"SHORT_DATE_FORMAT" }} · {{ entry.receipt_number|default:"—" }}</p></div><p class="shrink-0 font-mono font-extrabold {% if entry.economic_direction == 'in' %}text-emerald-600 dark:text-emerald-400{% else %}text-red-600 dark:text-red-400{% endif %}" dir="ltr">{{ entry.economic_sign }}{{ entry.amount }} {{ entry.currency }}</p></div><div class="mt-4 grid grid-cols-2 gap-3 border-t border-slate-200 pt-4 text-xs dark:border-slate-800"><div class="min-w-0"><span class="text-slate-500">{% translate "Party" %}</span><p class="mt-1 truncate font-semibold">{{ entry.customer|default:entry.supplier|default:entry.vendor|default:"—" }}</p></div><div class="min-w-0"><span class="text-slate-500">{% translate "Account" %}</span><p class="mt-1 truncate font-semibold">{{ entry.account|default:"—" }}</p></div></div></a>{% empty %}<div class="record-mobile-card text-center text-sm text-slate-500">{% translate "No transactions match these filters." %}</div>{% endfor %}<div class="workspace-panel p-0">{% include "includes/pagination.html" %}</div></div>
 {% endblock %}

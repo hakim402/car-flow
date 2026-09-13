@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 # event → template with {placeholders} filled from `context`.
 EVENT_TEMPLATES = {
     "payment_recorded": "Payment of {amount} {currency} was recorded on your account. Thank you!",
-    "sale_completed": "Your purchase of {vehicle} is complete. Thank you for choosing AUTOMEX!",
+    "sale_completed": "Your purchase of {vehicle} is complete. Thank you for choosing AMOXRUNS!",
     "installment_due": (
         "Installment {sequence} for agreement {agreement} has {amount} {currency} "
         "outstanding and is due on {due_date}."

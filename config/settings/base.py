@@ -61,7 +61,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    # CarFlow apps (agent.md §4). More are added as each build step ships.
+    # AMOXRUNS apps (agent.md §4). More are added as each build step ships.
     "apps.core",
     "apps.organizations",
     "apps.branches",
@@ -106,8 +106,8 @@ ROOT_URLCONF = "config.urls"
 # Django Admin theme (django-unfold) — Super Admin console (§8.1)
 # --------------------------------------------------------------------------
 UNFOLD = {
-    "SITE_TITLE": "AUTOMEX CarFlow",
-    "SITE_HEADER": "AUTOMEX CarFlow",
+    "SITE_TITLE": "AMOXRUNS",
+    "SITE_HEADER": "AMOXRUNS",
     "SITE_SUBHEADER": "Super Admin console",
     "SITE_URL": "/",
     "SITE_SYMBOL": "settings",
@@ -270,6 +270,10 @@ CELERY_TIMEZONE = TIME_ZONE
 # Phase 2 workflows (inventory aging, payment overdue, document expiry) will
 # register their schedules here; the hook exists from Phase 1.
 CELERY_BEAT_SCHEDULE = {
+    "reports-delivery-cleanup-hourly": {
+        "task": "apps.accounting.tasks.cleanup_report_delivery",
+        "schedule": 3600.0,
+    },
     "expire-reservations-every-five-minutes": {
         "task": "apps.sales.tasks.expire_reservations",
         "schedule": 60 * 5,

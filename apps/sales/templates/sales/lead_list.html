@@ -1,54 +1,65 @@
 {% extends "base.html" %}
 {% load i18n %}
 
-{% block title %}{% translate "Leads" %} — AUTOMEX CarFlow{% endblock %}
+{% block title %}{% translate "Leads" %} — AMOXRUNS{% endblock %}
 
 {% block content %}
-<div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-    <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">{% translate "Leads" %}</h1>
-    <a href="{% url 'sales:lead_create' %}"
-       class="inline-flex items-center justify-center rounded-xl bg-brand-600 hover:bg-brand-700 text-white px-4 py-2.5 text-sm font-bold shadow-sm transition">
-        {% translate "New lead" %}
-    </a>
-</div>
-<form method="get" class="flex items-center gap-3 mb-4">
-    <select name="status" class="rounded-xl border border-slate-300 bg-slate-50 px-3 py-2.5 text-sm text-slate-800 shadow-sm outline-none transition focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-100" onchange="this.form.submit()">
-        <option value="">{% translate "All statuses" %}</option>
-        {% for value, label in statuses %}
-            <option value="{{ value }}" {% if value == status %}selected{% endif %}>{{ label }}</option>
-        {% endfor %}
-    </select>
-</form>
-<div class="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-    <table class="data-table">
-        <thead>
-            <tr>
-                <th class="px-4 py-3 text-start font-medium">{% translate "Name" %}</th>
-                <th class="px-4 py-3 text-start font-medium">{% translate "Phone" %}</th>
-                <th class="px-4 py-3 text-start font-medium">{% translate "Vehicle of interest" %}</th>
-                <th class="px-4 py-3 text-start font-medium">{% translate "Source" %}</th>
-                <th class="px-4 py-3 text-start font-medium">{% translate "Status" %}</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for lead in leads %}
-                <tr>
-                    <td class="px-4 py-3">
-                        <a href="{{ lead.get_absolute_url }}" class="font-medium text-slate-800 hover:text-brand-600">
-                            {{ lead.name }}
-                        </a>
-                    </td>
-                    <td class="px-4 py-3" dir="ltr">{{ lead.phone|default:"—" }}</td>
-                    <td class="px-4 py-3">{{ lead.vehicle_of_interest|default:"—" }}</td>
-                    <td class="px-4 py-3">{{ lead.get_source_display }}</td>
-                    <td class="px-4 py-3">{{ lead.get_status_display }}</td>
-                </tr>
-            {% empty %}
-                <tr><td colspan="5" class="px-4 py-8 text-center text-slate-500">
-                    {% translate "No leads yet." %}
-                </td></tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<div class="space-y-6">
+    <section class="workspace-hero">
+        <div class="workspace-hero-layout">
+        <div>
+            <p class="workspace-eyebrow">{% translate "Sales pipeline" %}</p>
+            <div class="workspace-title-row"><h1 class="workspace-title">{% translate "Leads" %}</h1><span class="workspace-count">{{ page_obj.paginator.count }}</span></div>
+            <p class="workspace-description">{% translate "Prioritize prospects, ownership, vehicle interest, and the next opportunity stage." %}</p>
+        </div>
+        <div class="workspace-actions"><a href="{% url 'sales:lead_create' %}" class="button-primary">
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-width="2" d="M12 5v14M5 12h14"/></svg>{% translate "New lead" %}
+        </a></div>
+        </div>
+    </section>
+
+    <section class="grid grid-cols-2 gap-3 lg:grid-cols-4" aria-label="{% translate 'Lead overview' %}">
+        <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900"><p class="text-xs font-bold text-slate-500 dark:text-slate-400">{% translate "All leads" %}</p><p class="mt-2 text-2xl font-extrabold text-slate-950 dark:text-white">{{ metrics.total }}</p></div>
+        <div class="rounded-2xl border border-brand-200 bg-brand-50/70 p-4 shadow-sm dark:border-brand-500/20 dark:bg-brand-500/10"><p class="text-xs font-bold text-brand-700 dark:text-brand-300">{% translate "Open pipeline" %}</p><p class="mt-2 text-2xl font-extrabold text-brand-800 dark:text-brand-200">{{ metrics.open }}</p></div>
+        <div class="rounded-2xl border border-violet-200 bg-violet-50/70 p-4 shadow-sm dark:border-violet-500/20 dark:bg-violet-500/10"><p class="text-xs font-bold text-violet-700 dark:text-violet-300">{% translate "Qualified" %}</p><p class="mt-2 text-2xl font-extrabold text-violet-800 dark:text-violet-200">{{ metrics.qualified }}</p></div>
+        <div class="rounded-2xl border border-emerald-200 bg-emerald-50/70 p-4 shadow-sm dark:border-emerald-500/20 dark:bg-emerald-500/10"><p class="text-xs font-bold text-emerald-700 dark:text-emerald-300">{% translate "Converted" %}</p><p class="mt-2 text-2xl font-extrabold text-emerald-800 dark:text-emerald-200">{{ metrics.converted }}</p></div>
+    </section>
+
+    <form method="get" class="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm dark:border-slate-800 dark:bg-slate-900" role="search">
+        <div class="grid gap-3 lg:grid-cols-[minmax(15rem,1fr)_repeat(3,minmax(9rem,auto))_auto]">
+            <label class="relative block"><span class="sr-only">{% translate "Search leads" %}</span><svg class="pointer-events-none absolute start-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-width="1.8" d="m21 21-4.3-4.3M19 11a8 8 0 1 1-16 0 8 8 0 0 1 16 0Z"/></svg><input type="search" name="q" value="{{ q }}" placeholder="{% translate 'Search name, phone, vehicle or VIN' %}" class="w-full rounded-xl border border-slate-300 bg-slate-50 py-2.5 ps-10 pe-3 text-sm text-slate-800 outline-none focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:bg-slate-800 dark:focus:ring-brand-900"></label>
+            <select name="status" aria-label="{% translate 'Status' %}" class="rounded-xl border border-slate-300 bg-slate-50 px-3 py-2.5 text-sm font-semibold text-slate-700 outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:focus:ring-brand-900"><option value="">{% translate "All statuses" %}</option>{% for value, label in statuses %}<option value="{{ value }}" {% if status == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>
+            <select name="source" aria-label="{% translate 'Source' %}" class="rounded-xl border border-slate-300 bg-slate-50 px-3 py-2.5 text-sm font-semibold text-slate-700 outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:focus:ring-brand-900"><option value="">{% translate "All sources" %}</option>{% for value, label in sources %}<option value="{{ value }}" {% if source == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>
+            <select name="sort" aria-label="{% translate 'Sort by' %}" class="rounded-xl border border-slate-300 bg-slate-50 px-3 py-2.5 text-sm font-semibold text-slate-700 outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:focus:ring-brand-900"><option value="newest" {% if sort == 'newest' %}selected{% endif %}>{% translate "Newest first" %}</option><option value="recently_updated" {% if sort == 'recently_updated' %}selected{% endif %}>{% translate "Recently updated" %}</option><option value="oldest" {% if sort == 'oldest' %}selected{% endif %}>{% translate "Oldest first" %}</option></select>
+            <div class="flex gap-2"><button class="min-h-11 flex-1 rounded-xl bg-slate-950 px-4 text-sm font-bold text-white transition hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200">{% translate "Apply" %}</button>{% if q or status or source or sort != 'newest' %}<a href="{% url 'sales:lead_list' %}" class="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-200 px-3 text-sm font-bold text-slate-600 dark:border-slate-700 dark:text-slate-300">{% translate "Clear" %}</a>{% endif %}</div>
+        </div>
+    </form>
+
+    <section class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900" aria-label="{% translate 'Lead records' %}">
+        <div class="hidden overflow-x-auto md:block">
+            <table class="data-table min-w-[64rem]">
+                <thead><tr><th scope="col" class="px-5 py-3.5">{% translate "Prospect" %}</th><th scope="col" class="px-4 py-3.5">{% translate "Vehicle interest" %}</th><th scope="col" class="px-4 py-3.5">{% translate "Source" %}</th><th scope="col" class="px-4 py-3.5">{% translate "Owner / branch" %}</th><th scope="col" class="px-4 py-3.5">{% translate "Updated" %}</th><th scope="col" class="px-4 py-3.5">{% translate "Status" %}</th><th scope="col" class="w-12 px-4 py-3.5"><span class="sr-only">{% translate "View" %}</span></th></tr></thead>
+                <tbody>
+                    {% for lead in leads %}<tr>
+                        <td class="px-5 py-4"><a href="{{ lead.get_absolute_url }}" class="font-extrabold text-slate-900 hover:text-brand-600 dark:text-white dark:hover:text-brand-300">{{ lead.name }}</a><p class="mt-1 text-xs text-slate-500" dir="ltr">{{ lead.phone|default:"—" }}</p></td>
+                        <td class="px-4 py-4">{% if lead.vehicle_of_interest %}<a href="{{ lead.vehicle_of_interest.get_absolute_url }}" class="flex min-w-56 items-center gap-3">{% include "sales/_vehicle_thumbnail.html" with vehicle=lead.vehicle_of_interest %}<span><span class="block font-bold text-slate-800 dark:text-slate-100">{{ lead.vehicle_of_interest.year }} {{ lead.vehicle_of_interest.make }} {{ lead.vehicle_of_interest.model }}</span><span class="mt-1 block font-mono text-[11px] text-slate-500" dir="ltr">{{ lead.vehicle_of_interest.vin }}</span></span></a>{% else %}<span class="text-sm text-slate-400">{% translate "Not selected" %}</span>{% endif %}</td>
+                        <td class="px-4 py-4 text-slate-600 dark:text-slate-300">{{ lead.get_source_display }}</td>
+                        <td class="px-4 py-4"><p class="font-semibold text-slate-700 dark:text-slate-200">{% if lead.assigned_to %}{{ lead.assigned_to.get_full_name|default:lead.assigned_to.email }}{% else %}—{% endif %}</p><p class="mt-1 text-xs text-slate-500">{{ lead.branch|default:"—" }}</p></td>
+                        <td class="px-4 py-4 text-slate-600 dark:text-slate-300"><span class="whitespace-nowrap">{{ lead.updated_at|date:"SHORT_DATE_FORMAT" }}</span><p class="mt-1 text-xs text-slate-400">{{ lead.updated_at|timesince }} {% translate "ago" %}</p></td>
+                        <td class="px-4 py-4">{% include "sales/_status_badge.html" with status=lead.status label=lead.get_status_display %}</td>
+                        <td class="px-4 py-4"><a href="{{ lead.get_absolute_url }}" class="grid h-10 w-10 place-items-center rounded-xl text-slate-400 transition hover:bg-brand-50 hover:text-brand-700 dark:hover:bg-brand-500/10 dark:hover:text-brand-300" aria-label="{% blocktranslate with name=lead.name %}View {{ name }}{% endblocktranslate %}"><svg class="h-4 w-4 rtl:rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-width="2" d="m9 18 6-6-6-6"/></svg></a></td>
+                    </tr>{% empty %}<tr><td colspan="7" class="px-6 py-16 text-center"><p class="font-extrabold text-slate-800 dark:text-slate-100">{% translate "No leads found" %}</p><p class="mt-1 text-sm text-slate-500">{% translate "Try changing the search or filters." %}</p></td></tr>{% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="divide-y divide-slate-200 md:hidden dark:divide-slate-800">
+            {% for lead in leads %}<article class="p-4"><div class="flex items-start justify-between gap-3"><div><a href="{{ lead.get_absolute_url }}" class="text-base font-extrabold text-slate-900 dark:text-white">{{ lead.name }}</a><p class="mt-1 text-xs text-slate-500" dir="ltr">{{ lead.phone|default:"—" }}</p></div>{% include "sales/_status_badge.html" with status=lead.status label=lead.get_status_display %}</div>
+                {% if lead.vehicle_of_interest %}<a href="{{ lead.vehicle_of_interest.get_absolute_url }}" class="mt-4 flex items-center gap-3 rounded-xl bg-slate-50 p-2.5 dark:bg-slate-800">{% include "sales/_vehicle_thumbnail.html" with vehicle=lead.vehicle_of_interest %}<span class="min-w-0"><span class="block truncate text-sm font-bold text-slate-800 dark:text-slate-100">{{ lead.vehicle_of_interest.year }} {{ lead.vehicle_of_interest.make }} {{ lead.vehicle_of_interest.model }}</span><span class="mt-1 block truncate font-mono text-[11px] text-slate-500" dir="ltr">{{ lead.vehicle_of_interest.vin }}</span></span></a>{% endif %}
+                <dl class="mt-4 grid grid-cols-2 gap-3 text-xs"><div><dt class="font-bold text-slate-400">{% translate "Source" %}</dt><dd class="mt-1 font-semibold text-slate-700 dark:text-slate-200">{{ lead.get_source_display }}</dd></div><div><dt class="font-bold text-slate-400">{% translate "Owner" %}</dt><dd class="mt-1 truncate font-semibold text-slate-700 dark:text-slate-200">{% if lead.assigned_to %}{{ lead.assigned_to.get_full_name|default:lead.assigned_to.email }}{% else %}—{% endif %}</dd></div></dl>
+                <a href="{{ lead.get_absolute_url }}" class="mt-4 inline-flex min-h-10 w-full items-center justify-center rounded-xl border border-slate-200 text-sm font-bold text-brand-700 dark:border-slate-700 dark:text-brand-300">{% translate "View lead" %}</a>
+            </article>{% empty %}<div class="px-6 py-14 text-center"><p class="font-extrabold text-slate-800 dark:text-slate-100">{% translate "No leads found" %}</p><p class="mt-1 text-sm text-slate-500">{% translate "Try changing the search or filters." %}</p></div>{% endfor %}
+        </div>
+        {% include "includes/pagination.html" %}
+    </section>
 </div>
 {% endblock %}

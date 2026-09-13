@@ -77,7 +77,7 @@ def test_company_dashboard_exposes_finance_setup_links():
     assert reverse("payments:account_list") in html
     assert reverse("expenses:category_list") in html
     assert reverse("financing:partner_list") in html
-    assert reverse("accounting:receivables") in html
+    assert reverse("financing:list") in html
 
 
 @pytest.mark.django_db
@@ -121,6 +121,12 @@ def test_role_matrix_limits_sidebar_links_to_allowed_sections():
     sales_html = sales_response.content.decode()
     assert reverse("sales:lead_list") in sales_html
     assert reverse("customers:list") in sales_html
+    assert "Sell" in sales_html
+    assert "Communication" in sales_html
+    assert "Money" in sales_html
+    assert "Business Reports" not in sales_html
+    assert "Financial Reports" not in sales_html
+    assert reverse("accounting:report", kwargs={"key": "activity"}) not in sales_html
     assert reverse("inventory:list") not in sales_html
     assert reverse("payments:list") not in sales_html
     assert reverse("expenses:list") not in sales_html
@@ -131,6 +137,12 @@ def test_role_matrix_limits_sidebar_links_to_allowed_sections():
     inventory_html = inventory_response.content.decode()
     assert reverse("inventory:list") in inventory_html
     assert reverse("vehicles:list") in inventory_html
+    assert "Buy & Stock" in inventory_html
+    assert "Sell" not in inventory_html
+    assert "Money" not in inventory_html
+    assert "Business Reports" not in inventory_html
+    assert "Financial Reports" not in inventory_html
+    assert reverse("accounting:report", kwargs={"key": "activity"}) not in inventory_html
     assert reverse("sales:lead_list") not in inventory_html
     assert reverse("payments:list") not in inventory_html
 
@@ -139,5 +151,8 @@ def test_role_matrix_limits_sidebar_links_to_allowed_sections():
     accountant_html = accountant_response.content.decode()
     assert reverse("payments:list") in accountant_html
     assert reverse("expenses:list") in accountant_html
-    assert reverse("accounting:summary") in accountant_html
+    assert "Money" in accountant_html
+    assert "Business Activity" not in accountant_html
+    assert "Reports" not in accountant_html
+    assert "Communication" not in accountant_html
     assert reverse("inventory:list") not in accountant_html
