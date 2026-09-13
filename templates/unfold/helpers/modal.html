@@ -2,8 +2,8 @@
      x-cloak
      x-transition.opacity.duration.25ms
      x-transition:leave.duration.0ms
-     x-show="openModal || filterModalOpen || openCommandResults"
-     x-on:keydown.escape.window="openModal = filterModalOpen = openCommandResults = false">
+     x-show="openModal || filterModalOpen"
+     x-on:keydown.escape.window="openModal = filterModalOpen = false">
 </div>
 
 <div class="flex flex-col fixed inset-0 p-4 lg:p-32 z-[1000]"
