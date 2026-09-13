@@ -23,13 +23,19 @@ def test_only_business_activity_report_workspace_renders(client):
     assert response.context["report_data"]["key"] == "activity"
     assert "reports.css" in html
     assert "report-workspace-activity" in html
-    assert "Audit activity analytics" in html
-    assert "Changes over time" in html
-    assert "Recorded changes" in html
-    assert "Created records" in html
-    assert "Active staff" in html
-    assert "Updated records" in html
     assert "Audit table" in html
+    assert "Audit activity analytics" not in html
+    assert "Changes over time" not in html
+    assert "Recorded changes" not in html
+    assert "Created records" not in html
+    assert "Active staff" not in html
+    assert "Updated records" not in html
+    assert "report-summary-analytics" not in html
+    assert "Export report" not in html
+    assert "Share snapshot" not in html
+    assert "Delivery history" not in html
+    assert "Saved views" not in html
+    assert "Compare previous period" not in html
     assert "Browse reports" not in html
     assert "Report center" not in html
     assert "Financial Reports" not in html
@@ -55,6 +61,12 @@ def test_only_business_activity_report_workspace_renders(client):
     "/accounting/payables/",
     "/accounting/reports/communications/",
     "/accounting/reports/documents/",
+    "/accounting/reports/activity/export/",
+    "/accounting/reports/activity/share/",
+    "/accounting/delivery/",
+    "/accounting/exports/1/",
+    "/accounting/exports/1/download/",
+    "/accounting/shared/example-token/",
 ])
 def test_removed_report_routes_return_404(client, url):
     user = UserFactory()
@@ -65,7 +77,11 @@ def test_removed_report_routes_return_404(client, url):
 
 @pytest.mark.django_db
 def test_removed_named_report_routes_are_gone():
-    for name in ("summary", "cash_position", "expense_analysis", "profitability"):
+    for name in (
+        "summary", "cash_position", "expense_analysis", "profitability",
+        "export_create", "share_create", "delivery_history", "export_status",
+        "export_download", "share_revoke", "shared_report",
+    ):
         with pytest.raises(NoReverseMatch):
             reverse(f"accounting:{name}")
 
@@ -101,8 +117,8 @@ def test_invalid_activity_filters_render_validation_not_database_errors(client):
     response = client.get(reverse("accounting:report", kwargs={"key": "activity"}), {"date_from": "not-a-date"})
     assert response.status_code == 400
     assert response.context["filter_form"].errors
-    assert not response.context["can_export"]
-    assert not response.context["can_share"]
+    assert "can_export" not in response.context
+    assert "can_share" not in response.context
 
 
 @pytest.mark.django_db

@@ -20,7 +20,7 @@ from apps.core.testing import SaleFactory, UserFactory
 
 @skipUnless(os.environ.get("REPORT_BROWSER_TESTS") == "1", "Opt-in Docker browser QA")
 class ReportBrowserTests(StaticLiveServerTestCase):
-    def test_responsive_reports_and_delivery_controls(self):
+    def test_responsive_business_activity_report(self):
         from playwright.sync_api import sync_playwright
         user = UserFactory()
         user.roles.add(Role.objects.get(key="org_admin"))
@@ -60,19 +60,14 @@ class ReportBrowserTests(StaticLiveServerTestCase):
                                 self.assertEqual(page.locator("text=Browse reports").count(), 0)
                                 self.assertEqual(page.locator("text=Report center").count(), 0)
                                 if key == "activity":
-                                    self.assertTrue(page.locator(".report-summary-analytics").is_visible())
+                                    self.assertEqual(page.locator(".report-summary-analytics").count(), 0)
+                                    self.assertEqual(page.locator("text=Export report").count(), 0)
+                                    self.assertEqual(page.locator("text=Share snapshot").count(), 0)
+                                    self.assertEqual(page.locator("text=Delivery history").count(), 0)
                                     self.assertEqual(page.locator(".report-activity-board").count(), 0)
                                     self.assertEqual(page.locator(".report-mobile-records").is_visible(), width < 768)
                                     page.screenshot(path=str(output / f"{language}-{theme}-{width}-activity.png"), full_page=True)
                             self.assertFalse(errors, errors)
-                    page.set_viewport_size({"width": 390, "height": 844})
-                    page.goto(self.live_server_url + report_url("activity"))
-                    page.locator('[data-report-open="report-share-dialog"]').click()
-                    self.assertTrue(page.locator("#report-share-dialog").is_visible())
-                    page.locator('[data-report-close]').first.click()
-                    self.assertFalse(page.locator("#report-share-dialog").is_visible())
-                    page.locator(".report-export-menu summary").click()
-                    self.assertEqual(page.locator(".report-export-panel button").count(), 4)
                     context.close()
             finally:
                 browser.close()

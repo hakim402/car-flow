@@ -73,9 +73,8 @@ def test_activity_report_records_business_history_and_filters():
     assert all(row["module_key"] == "sales" for row in report["rows"])
     assert all(row["action_key"] == "+" for row in report["rows"])
     assert any(str(sale.pk) in row["reference"] for row in report["rows"])
-    labels = {metric["label"] for metric in report["metrics"]}
-    assert {"Recorded changes", "Created records", "Active staff", "Updated records"} <= labels
-    assert [chart["title"] for chart in report["charts"]] == ["Changes over time"]
+    assert report["metrics"] == []
+    assert report["charts"] == []
 
 
 def test_installment_cutoff_ignores_later_receipts_and_reversals():

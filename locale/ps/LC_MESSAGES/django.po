@@ -1857,8 +1857,8 @@ msgid "Detailed records"
 msgstr "تفصیلي ریکارډونه"
 
 #: apps/accounting/templates/accounting/workspace.html:105
-msgid "Sortable source records for compliance review and export."
-msgstr "د انطباق بیاکتنې او فایل اخیستلو لپاره د ترتیب وړ اصلي ریکارډونه."
+msgid "Sortable source records for compliance review."
+msgstr "د انطباق بیاکتنې لپاره د ترتیب وړ اصلي ریکارډونه."
 
 #: apps/accounting/templates/accounting/workspace.html:105
 msgid ""

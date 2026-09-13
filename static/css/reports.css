@@ -214,7 +214,10 @@
 .report-audit-action-created { background: #ecfdf5; color: #047857; }
 .dark .report-audit-action-created { background: #064e3b; color: #a7f3d0; }
 .report-audit-action-deleted { background: var(--report-negative-soft); color: var(--report-negative); }
+.report-workspace-activity { overflow-x: clip; }
+.report-workspace-activity .report-hero { overflow: hidden; }
 .report-workspace-activity .report-table { min-width: 840px; }
+.report-workspace-activity .report-table-scroll { max-height: none; overflow-x: auto; overflow-y: visible; }
 .report-workspace-activity .report-summary-chart-bars { grid-auto-flow: column; grid-auto-columns: minmax(82px, 1fr); grid-template-columns: none; overflow-x: auto; scrollbar-width: thin; }
 .report-workspace-activity .report-summary-chart-bars li { min-width: 82px; }
 .report-records { padding: 0; overflow: hidden; }

@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load i18n static l10n %}
 {% block title %}{{ report_data.title }} — AMOXRUNS{% endblock %}
-{% block extra_head %}<link rel="stylesheet" href="{% static 'css/reports.css' %}?v=20260913-clear-financial-dashboard-2">{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{% static 'css/reports.css' %}?v=20260913-activity-scroll-fix">{% endblock %}
 {% block content %}
 <div class="report-workspace {% if report_data.key == 'activity' %}report-workspace-activity{% endif %}" data-report-workspace>
     <section class="workspace-hero report-hero">
