@@ -7,12 +7,16 @@ Styled by django-unfold (UNFOLD settings in config/settings/base.py).
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
 from unfold.admin import ModelAdmin
+from unfold.forms import AdminPasswordChangeForm, UserChangeForm, UserCreationForm
 
 from .models import Role, User
 
 
 @admin.register(User)
 class AmoxrunsUserAdmin(DjangoUserAdmin, ModelAdmin):
+    form = UserChangeForm
+    add_form = UserCreationForm
+    change_password_form = AdminPasswordChangeForm
     fieldsets = DjangoUserAdmin.fieldsets + (
         (
             "AMOXRUNS",

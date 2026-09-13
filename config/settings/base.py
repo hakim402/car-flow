@@ -5,6 +5,8 @@ integration-toggle validation check are layered on in Step 2.
 """
 import os
 from pathlib import Path
+from django.urls import reverse_lazy
+from django.utils.translation import gettext_lazy as _
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
@@ -121,7 +123,42 @@ UNFOLD = {
         },
     },
     "DASHBOARD_CALLBACK": "apps.accounts.views.admin_dashboard_callback",
+    "SIDEBAR": {
+        "show_search": True,
+        "show_all_applications": False,
+        "navigation": [
+            {"title": _("Organization & access"), "separator": True, "collapsible": True, "items": [
+                {"title": _("Organizations"), "icon": "business", "link": reverse_lazy("admin:organizations_organization_changelist")},
+                {"title": _("Branches"), "icon": "account_tree", "link": reverse_lazy("admin:branches_branch_changelist")},
+                {"title": _("Users"), "icon": "group", "link": reverse_lazy("admin:accounts_user_changelist")},
+                {"title": _("Roles"), "icon": "admin_panel_settings", "link": reverse_lazy("admin:accounts_role_changelist")},
+            ]},
+            {"title": _("Inventory & purchasing"), "collapsible": True, "items": [
+                {"title": _("Vehicles"), "icon": "directions_car", "link": reverse_lazy("admin:vehicles_vehicle_changelist")},
+                {"title": _("Stock"), "icon": "inventory_2", "link": reverse_lazy("admin:inventory_vehiclestock_changelist")},
+                {"title": _("Locations"), "icon": "location_on", "link": reverse_lazy("admin:inventory_inventorylocation_changelist")},
+                {"title": _("Suppliers"), "icon": "local_shipping", "link": reverse_lazy("admin:suppliers_supplier_changelist")},
+                {"title": _("Purchase orders"), "icon": "shopping_cart", "link": reverse_lazy("admin:purchases_purchaseorder_changelist")},
+            ]},
+            {"title": _("Sales & finance"), "collapsible": True, "items": [
+                {"title": _("Customers"), "icon": "people", "link": reverse_lazy("admin:customers_customer_changelist")},
+                {"title": _("Leads"), "icon": "contact_page", "link": reverse_lazy("admin:sales_lead_changelist")},
+                {"title": _("Sales"), "icon": "point_of_sale", "link": reverse_lazy("admin:sales_sale_changelist")},
+                {"title": _("Ledger entries"), "icon": "account_balance", "link": reverse_lazy("admin:payments_ledgerentry_changelist")},
+                {"title": _("Financing"), "icon": "request_quote", "link": reverse_lazy("admin:financing_financeagreement_changelist")},
+                {"title": _("Expenses"), "icon": "receipt_long", "link": reverse_lazy("admin:expenses_expensecategory_changelist")},
+            ]},
+            {"title": _("Communications & records"), "collapsible": True, "items": [
+                {"title": _("Conversations"), "icon": "forum", "link": reverse_lazy("admin:communications_conversation_changelist")},
+                {"title": _("Notifications"), "icon": "notifications", "link": reverse_lazy("admin:communications_notification_changelist")},
+                {"title": _("Documents"), "icon": "description", "link": reverse_lazy("admin:documents_document_changelist")},
+                {"title": _("Report exports"), "icon": "analytics", "link": reverse_lazy("admin:accounting_reportexport_changelist")},
+            ]},
+        ],
+    },
 }
+
+SUPERADMIN_URL = os.environ.get("SUPERADMIN_URL", "secure-admin").strip("/") or "secure-admin"
 
 TEMPLATES = [
     {

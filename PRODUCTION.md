@@ -201,13 +201,14 @@ a separate token-protected, read-only viewer (see §11). Bootstrap order:
 docker compose -f docker-compose.yml exec web python manage.py createsuperuser
 ```
 
-The Super Admin is the **only** role allowed into Django Admin (`/admin/`)
+The Super Admin is the **only** role allowed into the emergency admin console
+(`/${SUPERADMIN_URL:-secure-admin}/`)
 — `is_staff` is kept in lockstep with the role, so no other user can even
 see the admin login.
 
 ### 5b. Create a company and its staff
 
-Log in at `/admin/` and create:
+Log in at `/${SUPERADMIN_URL:-secure-admin}/` and create:
 
 1. **Organization** — the tenant (company/dealership group).
 2. **Branch** — optional, one or more per organization.

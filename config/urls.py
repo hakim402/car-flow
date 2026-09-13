@@ -10,6 +10,19 @@ from django.urls import include, path
 from apps.accounts.views import dashboard
 from apps.communications.webhooks import meta_webhook
 
+# Load app-specific Unfold registrations first, then fill in every remaining
+# model for the emergency console.
+admin.autodiscover()
+import config.admin  # noqa: F401,E402
+
+
+def _superadmin_permission(request):
+    return bool(request.user.is_active and request.user.is_superuser)
+
+
+# Stronger than Django's normal is_staff gate; there is no /admin/ fallback.
+admin.site.has_permission = _superadmin_permission
+
 urlpatterns = [
     path("", dashboard, name="home"),
     path("accounts/", include("apps.accounts.urls", namespace="accounts")),
@@ -27,7 +40,7 @@ urlpatterns = [
     path("documents/", include("apps.documents.urls")),
     # Provider webhooks (§7.3) — one inbound endpoint per provider family.
     path("webhooks/meta/", meta_webhook, name="webhook_meta"),
-    path("admin/", admin.site.urls),
+    path(f"{settings.SUPERADMIN_URL}/", admin.site.urls),
 ]
 
 if settings.DEBUG:

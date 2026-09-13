@@ -245,7 +245,8 @@ Everything sits behind login. Roles are seeded by migrations.
 
 ### Step 1 — create a Super Admin
 
-The only role allowed into Django Admin (`/admin/`):
+The only role allowed into the emergency admin console (the path configured
+by `SUPERADMIN_URL`, default `/secure-admin/`):
 
 ```bash
 docker compose exec web python manage.py createsuperuser
@@ -253,8 +254,10 @@ docker compose exec web python manage.py createsuperuser
 
 ### Step 2 — create a company and staff via Admin
 
-Log in at `http://localhost:8000/admin/` (dev) — or `http://localhost:8765/admin/`
-on the production stack — and create, in order:
+Log in at `http://localhost:8000/secure-admin/` by default (dev) — or
+`http://localhost:8765/secure-admin/` on the production stack. If
+`SUPERADMIN_URL` is customized, replace `secure-admin` with that value — and create,
+in order:
 
 1. **Organization** — a company/tenant.
 2. **Branch** _(optional)_ — belongs to the organization.
@@ -327,6 +330,7 @@ All configuration is environment-driven. The full documented template is
 | `DJANGO_DEBUG`           | `False`               | Never `True` outside local development.       |
 | `DJANGO_ALLOWED_HOSTS`   | `localhost,127.0.0.1` | Comma-separated hostnames served.             |
 | `DJANGO_SETTINGS_MODULE` | set by compose        | `dev` / `test` / `prod` — usually untouched.  |
+| `SUPERADMIN_URL`          | `secure-admin`        | Configurable secret URL segment for the superadmin-only console. |
 
 ### Database & Redis
 
@@ -341,7 +345,7 @@ All configuration is environment-driven. The full documented template is
 | Variable           | Default | Description                                       |
 | ------------------ | ------- | ------------------------------------------------- |
 | `NGINX_PORT`       | `8765`  | Host port mapped to Nginx (production).           |
-| `DEV_PORT`         | `8765`  | Host port mapped to the dev server (development). |
+| `DEV_PORT`         | `8000`  | Host port mapped to the dev server (development). |
 | `GUNICORN_WORKERS` | `3`     | Gunicorn worker processes (production).           |
 | `GUNICORN_TIMEOUT` | `60`    | Worker timeout in seconds.                        |
 
@@ -691,8 +695,8 @@ covered end-to-end in **[`PRODUCTION.md`](PRODUCTION.md)**:
 | App containers stuck in `Created` after switching modes                          | Dev and prod share container names. Run `docker compose down`, then start the mode you want (bare commands = dev, `-f docker-compose.yml` = prod).                                                                                       |
 | `403 CSRF verification failed` on form POST                                      | Plain-HTTP stack with Secure cookies: set `COOKIES_SECURE=False` in `.env`, then `docker compose up -d --force-recreate web` (add `-f docker-compose.yml` for the prod stack). HTTPS deployments keep it `True`.                         |
 | `403` + log line `Origin checking failed - … does not match any trusted origins` | The browser's `Origin` header isn't trusted. Origins are auto-derived from `DJANGO_ALLOWED_HOSTS` + port; if your URL differs, set `DJANGO_CSRF_TRUSTED_ORIGINS=https://your.host` in `.env` and recreate `web`.                         |
-| `403 Forbidden (Permission denied)` on app pages like `/vehicles/add/`           | Those pages are company-scoped — the logged-in user must belong to a company with a suitable role. Super Admin (`company=None`) manages tenants via `/admin/`; day-to-day records are added by a company user (e.g. Organization Admin). |
-| Locked out of `/admin/`                                                          | Access requires `is_staff`, which is kept in sync with the Super Admin role / superuser flag on save — re-save the user or tick **Staff status** only for Super Admins (§8.1).                                                           |
+| `403 Forbidden (Permission denied)` on app pages like `/vehicles/add/`           | Those pages are company-scoped — the logged-in user must belong to a company with a suitable role. Super Admin (`company=None`) manages tenants via the configured emergency admin URL; day-to-day records are added by a company user (e.g. Organization Admin). |
+| Locked out of the emergency admin URL                                           | Access requires an active superuser and the configured `SUPERADMIN_URL`; verify `.env` and the account’s superuser flag. |
 | `IntegrityError … pg_type_typname_nsp_index` on first boot                       | Corrupted first-migration state: `docker compose down -v` then `docker compose up`. (Prevented structurally: only the web service migrates.)                                                                                             |
 | `pytest: not found` in the container                                             | Dev image missing/not built yet: `docker compose build web` (dev and prod use separate tags `:dev` / `:prod`, so they can coexist).                                                                                                      |
 | Changes don't appear                                                             | Dev auto-reloads Python/templates; for `.env` changes use `up -d --force-recreate`; for dependency/Dockerfile changes use `up -d --build`.                                                                                               |
