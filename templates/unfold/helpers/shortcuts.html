@@ -1,5 +1,30 @@
-{% comment %}
-The emergency super-admin console intentionally does not expose Unfold's
-keyboard-shortcuts help.  Keeping this override empty also prevents the
-shortcuts dialog from being rendered in production.
-{% endcomment %}
+{% load i18n %}
+
+{% if request.user.is_staff %}
+    <div class="flex flex-col fixed inset-0 p-4 lg:p-32 z-[1000]" x-show="shortcutsOpen" x-transition x-transition:leave.duration.0ms x-cloak x-trap.noautofocus.noscroll="shortcutsOpen" x-on:keydown.escape.window="shortcutsOpen = false">
+        <div class="bg-white dark:bg-base-800 flex flex-col max-w-3xl min-h-0 mx-auto overflow-hidden rounded-default shadow-lg w-full" x-on:click.outside="shortcutsOpen = false">
+            <div class="border-b border-base-200 flex flex-row items-center justify-between px-4 py-3 dark:border-base-700">
+                <h1 class="font-semibold text-base text-important tracking-tight">{% trans "Available shortcuts" %}</h1>
+                <button type="button" class="text-icon-action" aria-label="{% trans 'Close' %}" x-on:click="shortcutsOpen = false">close</button>
+            </div>
+            <div class="flex flex-col gap-4 p-4 overflow-y-auto scrollbar-default">
+                <div>
+                    <h2 class="font-semibold mb-2 text-important">{% trans "Global shortcuts" %}</h2>
+                    <ul class="border border-base-200 rounded-default shadow-xs dark:border-base-700">
+                        <li class="border-b border-base-200 flex flex-row justify-between gap-2 px-3 py-2 dark:border-base-700"><span>{% trans "Open command tool" %}</span><span>⌘K</span></li>
+                        <li class="border-b border-base-200 flex flex-row justify-between gap-2 px-3 py-2 dark:border-base-700"><span>{% trans "Open shortcuts list" %}</span><span>Shift+?</span></li>
+                        <li class="border-b border-base-200 flex flex-row justify-between gap-2 px-3 py-2 dark:border-base-700"><span>{% trans "Toggle sidebar" %}</span><span>[</span></li>
+                        <li class="flex flex-row justify-between gap-2 px-3 py-2"><span>{% trans "Toggle dark/light mode" %}</span><span>⌘E</span></li>
+                    </ul>
+                </div>
+                <div>
+                    <h2 class="font-semibold mb-2 text-important">{% trans "Changelist shortcuts" %}</h2>
+                    <ul class="border border-base-200 rounded-default shadow-xs dark:border-base-700">
+                        <li class="border-b border-base-200 flex flex-row justify-between gap-2 px-3 py-2 dark:border-base-700"><span>{% trans "Toggle filter" %}</span><span>F</span></li>
+                        <li class="flex flex-row justify-between gap-2 px-3 py-2"><span>{% trans "Create new record" %}</span><span>C</span></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}

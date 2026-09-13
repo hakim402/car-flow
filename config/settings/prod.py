@@ -5,6 +5,11 @@ from .base import *  # noqa: F401,F403
 
 DEBUG = False
 
+# Unfold uses Alpine expressions for its admin interactions. Keep this
+# exception scoped to the secure admin route; the public application remains
+# protected by the deployment's stricter CSP.
+MIDDLEWARE += ["config.middleware.AdminContentSecurityPolicyMiddleware"]
+
 # HTTPS behind Nginx.
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 # Secure cookies only work over HTTPS. They stay on by default (real
